@@ -152,6 +152,16 @@
   .legend{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:9px;padding:0 2px;font-size:calc(10px * var(--text-scale,1));color:#6b7280;align-items:center}
   .legend span{display:inline-flex;align-items:center;gap:4px}.dot{width:8px;height:8px;border-radius:50%;display:inline-block}.dot.day{background:var(--yellow)}.dot.night{background:var(--night)}.dot.day2{background:var(--teal)}.dot.off{background:var(--off)}
   .status-line{text-align:center;margin-top:9px;font-size:calc(11px * var(--text-scale,1));color:#6b7280;min-height:16px}
+  .substitute-holiday-comp{margin-top:12px;padding:12px;border:1px solid #dbe3ee;border-radius:16px;background:#f8fbff;box-shadow:0 4px 14px rgba(15,23,42,.04)}
+  .substitute-holiday-comp-title{display:flex;align-items:center;gap:6px;margin:0 2px 9px;color:#263548;font-size:calc(14px * var(--text-scale,1));font-weight:950;line-height:1.25}
+  .substitute-holiday-comp-list{display:flex;flex-direction:column;gap:9px}
+  .substitute-holiday-comp-day{padding:11px 12px;border:1px solid #e4e8ef;border-radius:14px;background:#fff;box-shadow:0 2px 7px rgba(15,23,42,.04)}
+  .substitute-holiday-comp-date{display:inline-flex;align-items:center;margin-bottom:8px;padding:5px 9px;border-radius:999px;background:#fff3df;color:#9a5a10;font-size:calc(11px * var(--text-scale,1));font-weight:950;line-height:1.2}
+  .substitute-holiday-comp-row{display:flex;align-items:flex-start;gap:7px;color:#6b7280;font-size:calc(11px * var(--text-scale,1));line-height:1.45}
+  .substitute-holiday-comp-row+.substitute-holiday-comp-row{margin-top:6px}
+  .substitute-holiday-comp-badge{flex:0 0 auto;display:inline-flex;align-items:center;min-height:25px;padding:3px 7px;border-radius:9px;background:#eaf3ff;color:#28659f;font-size:calc(11px * var(--text-scale,1));font-weight:950;line-height:1.15;white-space:nowrap}
+  .substitute-holiday-comp-detail{min-width:0;padding-top:3px;color:#6b7280;font-weight:750;word-break:keep-all;overflow-wrap:anywhere}
+  .substitute-holiday-comp-empty{padding:3px 1px 1px;color:#9ca3af;font-size:calc(10.5px * var(--text-scale,1));font-weight:750;line-height:1.45}
   .version{text-align:center;color:#b0b5bd;font-size:calc(10px * var(--text-scale,1));padding:3px 0}
   .version-btn{display:block;width:max-content;max-width:100%;margin:0 auto;padding:7px 10px;border-radius:10px;background:transparent;color:#9ca3af;font-weight:800;line-height:1.25}
   .version-btn:active{background:#eef2f7;color:#6b7280}
@@ -319,6 +329,7 @@
   html[data-theme="dark"] .annual-leave-balance-value{color:#bfdbfe}
   html[data-theme="dark"] .company-events-banner,html[data-theme="dark"] .company-event-detail{background:#142941;border-color:#31558a;color:#dbeafe}
   html[data-theme="dark"] .company-events-banner-preview{color:#cbd5e1}html[data-theme="dark"] .company-events-banner-count,html[data-theme="dark"] .company-event-badge{background:#1e3a5f;color:#93c5fd}
+  html[data-theme="dark"] .substitute-holiday-comp{background:#162033;border-color:#334155;box-shadow:none}html[data-theme="dark"] .substitute-holiday-comp-title{color:#e2e8f0}html[data-theme="dark"] .substitute-holiday-comp-day{background:#1b2638;border-color:#334155;box-shadow:none}html[data-theme="dark"] .substitute-holiday-comp-date{background:#3a2a16;color:#fdba74}html[data-theme="dark"] .substitute-holiday-comp-badge{background:#172b4d;color:#93c5fd}html[data-theme="dark"] .substitute-holiday-comp-detail{color:#cbd5e1}html[data-theme="dark"] .substitute-holiday-comp-empty{color:#94a3b8}
   html[data-theme="dark"] .holiday-work-detail,html[data-theme="dark"] .holiday-work-list-btn,html[data-theme="dark"] .sick-leave-deduct-field,html[data-theme="dark"] .annual-leave-rule,html[data-theme="dark"] .setup-note,html[data-theme="dark"] .reset-pins-btn,html[data-theme="dark"] .holiday-eligibility-toggle,html[data-theme="dark"] .scheduled-badge{background:#3a2615;color:#fdba74;border-color:#7c4a1d}
   html[data-theme="dark"] .memo-detail-section,html[data-theme="dark"] .memo-list-btn,html[data-theme="dark"] .usage-guide-readonly,html[data-theme="dark"] .annual-leave-readonly{background:#2b2140;color:#c4b5fd;border-color:#5b477a}
   html[data-theme="dark"] .warning-box,html[data-theme="dark"] .memo-selected-delete,html[data-theme="dark"] .company-event-delete,html[data-theme="dark"] .mini-actions .danger{background:#3b1d29;color:#fda4af}
@@ -779,8 +790,12 @@
     <div id="calendarGrid" class="calendar-grid"></div>
     <div id="legend" class="legend hidden"><span><i class="dot day"></i>주간</span><span><i class="dot day2"></i>주2</span><span><i class="dot night"></i>야간</span><span><i class="dot off"></i>휴무</span></div>
     <div id="statusLine" class="status-line"></div>
+    <div id="substituteHolidayCompCard" class="substitute-holiday-comp hidden" aria-live="polite">
+      <div class="substitute-holiday-comp-title">🎁 대체공휴일 대휴 발생</div>
+      <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
+    </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260913-1255 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260913-1706 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1136,8 +1151,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260913-1255';
+const APP_VERSION = 'ver20260913-1706';
 const UPDATE_HISTORY = [
+  {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},
   {version:'ver20260913-0039',date:'2026.09.13',items:['장기재직휴가 자동계산 및 근태 연동 기능 추가']},
   {version:'ver20260912-2149',date:'2026.09.12',items:['다크모드 기능 추가']},
@@ -3176,6 +3192,70 @@ function renderTabs(){
   if(leaveView){ populateAnnualLeaveYears(); renderAnnualLeave(); }
   if(longView) renderLongService(true);
 }
+function substituteHolidayCompHours(minutes){
+  const n=Number(minutes)||0;
+  return `${Number.isInteger(n/60)?n/60:(n/60).toFixed(1)}시간`;
+}
+function substituteHolidayCompDateLabel(key){
+  const p=parseDateKey(key);
+  return p?`${p.m+1}/${p.d}`:key;
+}
+function substituteHolidayGroupEmployees(group,key){
+  return state.employees
+    .filter(e=>employeeActiveOn(e,key) && String(e.group_code||'')===group)
+    .sort(employeeDisplayCompare);
+}
+function substituteHolidayEmployeeNames(group,key){
+  const names=substituteHolidayGroupEmployees(group,key).map(e=>String(e.display_name||'').trim()).filter(Boolean);
+  return names.length?names.join(', '):'직원 미지정';
+}
+function substituteHolidayCompensationForDate(holidayKey){
+  const previousKey=addDaysKey(holidayKey,-1);
+  const rules=[
+    {key:previousKey,shift:'야',minutes:240,label:`${substituteHolidayCompDateLabel(previousKey)} 야간 4시간`},
+    {key:holidayKey,shift:'야',minutes:90,label:`${substituteHolidayCompDateLabel(holidayKey)} 야간 1.5시간`},
+    {key:holidayKey,shift:'주',minutes:330,label:`${substituteHolidayCompDateLabel(holidayKey)} 주간 5.5시간`}
+  ];
+  const out=[];
+  ['A','B','C','D'].forEach(group=>{
+    const parts=[];
+    rules.forEach(rule=>{
+      const p=parseDateKey(rule.key);
+      if(!p)return;
+      const shift=shiftForEmployee({group_code:group},p.y,p.m,p.d);
+      if(shift!==rule.shift)return;
+      parts.push({...rule,names:substituteHolidayEmployeeNames(group,rule.key)});
+    });
+    if(!parts.length)return;
+    const sameNames=parts.every(p=>p.names===parts[0].names);
+    if(sameNames){
+      out.push({group,minutes:parts.reduce((sum,p)=>sum+p.minutes,0),detail:`${parts[0].names} · ${parts.map(p=>p.label).join(' + ')}`});
+    }else{
+      // 인사이동일이 대체공휴일과 맞물려 전날/당일 근무자가 달라지는 경우에는
+      // 서로 다른 사람에게 5.5시간을 통째로 지급한 것처럼 보이지 않도록 근무별로 분리한다.
+      parts.forEach(p=>out.push({group,minutes:p.minutes,detail:`${p.names} · ${p.label}`}));
+    }
+  });
+  return out;
+}
+function renderSubstituteHolidayCompensation(){
+  const card=$('substituteHolidayCompCard'),list=$('substituteHolidayCompList');
+  if(!card||!list)return;
+  if(state.view!=='all'){ card.classList.add('hidden'); list.innerHTML=''; return; }
+  const dim=daysInMonth(state.year,state.month);
+  const holidayKeys=[];
+  for(let d=1;d<=dim;d++){
+    const key=dateKey(state.year,state.month,d);
+    if(HOLIDAYS[key]==='대체공휴일') holidayKeys.push(key);
+  }
+  if(!holidayKeys.length){ card.classList.add('hidden'); list.innerHTML=''; return; }
+  list.innerHTML=holidayKeys.map(key=>{
+    const p=parseDateKey(key),rows=substituteHolidayCompensationForDate(key);
+    const body=rows.length?rows.map(row=>`<div class="substitute-holiday-comp-row"><span class="substitute-holiday-comp-badge">${row.group}조 ${escapeHtml(substituteHolidayCompHours(row.minutes))}</span><span class="substitute-holiday-comp-detail">(${escapeHtml(row.detail)})</span></div>`).join(''):'<div class="substitute-holiday-comp-empty">해당 대체공휴일에는 교대근무 대휴 발생 대상이 없습니다.</div>';
+    return `<div class="substitute-holiday-comp-day"><div class="substitute-holiday-comp-date">${p.m+1}월 ${p.d}일 대체공휴일</div>${body}</div>`;
+  }).join('');
+  card.classList.remove('hidden');
+}
 function renderCalendar(){
   $('monthTitle').textContent=`${state.year}년 ${state.month+1}월`;
   $('prevMonth').disabled=(state.year===MIN_YEAR&&state.month===0); $('nextMonth').disabled=(state.year===MAX_YEAR&&state.month===11);
@@ -3198,6 +3278,7 @@ function renderCalendar(){
   }
   $('calendarGrid').innerHTML=html;
   $('calendarGrid').querySelectorAll('[data-date]').forEach(el=>el.addEventListener('click',()=>openDetail(el.dataset.date)));
+  renderSubstituteHolidayCompensation();
 }
 function shiftMarkup(shift){
   if(shift==='주'||shift==='일근') return `<div class="shift-wrap"><span class="shift-circle shift-day">${shift==='일근'?'주':'주'}</span></div>`;
