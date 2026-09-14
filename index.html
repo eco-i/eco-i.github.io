@@ -116,9 +116,21 @@
   .tab.active{background:#fff;color:#111827;box-shadow:0 2px 8px rgba(0,0,0,.07)}
   .calendar-card{padding:12px 10px 13px}
   .calendar-toolbar{display:grid;grid-template-columns:58px 1fr 48px 58px;align-items:center;gap:7px;margin-bottom:8px}
+  .calendar-toolbar.absence-mode{grid-template-columns:58px minmax(0,1fr) 66px 48px 58px}
   .nav-btn{height:42px;border-radius:12px;background:#f0f2f5;color:#374151;font-size:calc(14px * var(--text-scale,1));font-weight:850}
   .today-btn{height:42px;border-radius:12px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:calc(12px * var(--text-scale,1));font-weight:900}
   .month-title{height:42px;border-radius:12px;background:#fff;color:#111827;font-size:calc(19px * var(--text-scale,1));font-weight:900;letter-spacing:.2px;border:1px solid #eceff2}
+  .absence-reflect-control{height:42px;min-width:0;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;user-select:none;padding:3px 4px;overflow:hidden}
+  .absence-reflect-label{font-size:calc(8.5px * var(--text-scale,1));font-weight:950;color:#4b5563;line-height:1;white-space:nowrap;letter-spacing:-.2px}
+  .absence-reflect-toggle{appearance:none;-webkit-appearance:none;width:31px;height:17px;margin:0;border:0;border-radius:999px;background:#cbd5e1;position:relative;cursor:pointer;transition:background .16s ease;box-shadow:inset 0 0 0 1px rgba(100,116,139,.12)}
+  .absence-reflect-toggle::after{content:'';position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.25);transition:transform .16s ease}
+  .absence-reflect-toggle:checked{background:#4f5ff3}
+  .absence-reflect-toggle:checked::after{transform:translateX(14px)}
+  .absence-reflect-toggle:focus-visible{outline:2px solid #93c5fd;outline-offset:2px}
+  .calendar-toolbar.absence-mode .month-title{font-size:clamp(14px,calc(18px * var(--text-scale,1)),22px)}
+  .calendar-toolbar.absence-mode .nav-btn{font-size:clamp(10px,calc(12px * var(--text-scale,1)),14px)}
+  .calendar-toolbar.absence-mode .today-btn{font-size:clamp(10px,calc(11px * var(--text-scale,1)),13px)}
+  .calendar-toolbar.absence-mode .absence-reflect-label{font-size:clamp(7.5px,calc(8.5px * var(--text-scale,1)),10px)}
   .weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
   .weekdays{border-top:1px solid #eef0f2;border-left:1px solid #eef0f2}
   .weekdays div{text-align:center;padding:7px 0;font-size:calc(11px * var(--text-scale,1));font-weight:850;color:#4b5563;border-right:1px solid #eef0f2;border-bottom:1px solid #eef0f2}
@@ -327,6 +339,10 @@
   html[data-theme="dark"] .type-grid button,html[data-theme="dark"] .month-grid button,html[data-theme="dark"] .text-size-level,html[data-theme="dark"] .theme-mode-btn{background:#263449;color:#dbe4ef;border-color:#475569}
   html[data-theme="dark"] .text-size-level.active,html[data-theme="dark"] .theme-mode-btn.active{border-color:#8b5cf6;background:#4c2f68;color:#f3e8ff;box-shadow:inset 0 0 0 1px #8b5cf6}
   html[data-theme="dark"] .today-btn,html[data-theme="dark"] .login-name-badge,html[data-theme="dark"] .company-events-help,html[data-theme="dark"] .attendance-break-help,html[data-theme="dark"] .usage-guide-highlight,html[data-theme="dark"] .annual-leave-balance{background:#172b4d;color:#93c5fd;border-color:#31558a}
+  html[data-theme="dark"] .absence-reflect-control{background:#18212e;border-color:#3b4656}
+  html[data-theme="dark"] .absence-reflect-label{color:#cbd5e1}
+  html[data-theme="dark"] .absence-reflect-toggle{background:#475569}
+  html[data-theme="dark"] .absence-reflect-toggle:checked{background:#6373ff}
   html[data-theme="dark"] .annual-leave-balance-label,html[data-theme="dark"] .annual-leave-detail-minutes,html[data-theme="dark"] .company-event-title,html[data-theme="dark"] .company-event-list-date{color:#93c5fd}
   html[data-theme="dark"] .annual-leave-balance-value{color:#bfdbfe}
   html[data-theme="dark"] .company-events-banner,html[data-theme="dark"] .company-event-detail{background:#142941;border-color:#31558a;color:#dbeafe}
@@ -361,8 +377,8 @@
     .view-menu-btn{width:42px;height:42px;border-radius:12px}.view-menu-icon{width:20px}
         .admin-tools{margin:-2px 0 10px}.admin-tools-toggle{min-width:61px;min-height:43px;padding:5px 8px}.admin-action-group{gap:5px}.view-tools{gap:5px;margin:-3px 0 9px}.view-tool-actions{gap:5px}.attendance-list-btn,.memo-list-btn,.holiday-work-list-btn,.self-pin-btn,.usage-guide-open-btn{min-height:35px;padding:0 9px;font-size:calc(11px * var(--text-scale,1))}.company-events-banner{margin:-1px 0 9px;padding:10px 10px;gap:7px}.company-events-banner-icon{font-size:calc(17px * var(--text-scale,1))}.text-size-levels{gap:3px}.text-size-level{min-height:42px;font-size:calc(12px * var(--text-scale,1))}
     .employee-manage-actions{grid-template-columns:1fr;gap:7px}.reset-pins-btn{font-size:calc(12px * var(--text-scale,1));padding:11px 9px}
-    .wrap{padding:10px 7px 28px}.card{border-radius:17px}.calendar-card{padding:10px 6px 11px}.title{font-size:calc(21px * var(--text-scale,1))}.calendar-toolbar{grid-template-columns:50px 1fr 44px 50px;gap:5px}.nav-btn{font-size:calc(12px * var(--text-scale,1));padding:0 2px}.today-btn{font-size:calc(11px * var(--text-scale,1));padding:0 2px}.month-title{font-size:calc(18px * var(--text-scale,1))}.day-cell{min-height:72px;padding:4px 2px}.shift-circle{width:33px;height:33px;font-size:calc(14px * var(--text-scale,1))}.shift-day2{font-size:calc(12px * var(--text-scale,1))}.availability{font-size:calc(7.5px * var(--text-scale,1));line-height:1.24}.holiday-mini{font-size:calc(6.5px * var(--text-scale,1));max-width:38px}.day-num{font-size:calc(10px * var(--text-scale,1))}.backdrop{padding:5px}.modal{padding:12px 10px 13px;max-height:92dvh}.form-grid{grid-template-columns:1fr 1fr;gap:7px}.type-grid{gap:5px}.type-grid button{min-height:54px;font-size:calc(10px * var(--text-scale,1));padding:4px 1px}.date-picker-modal{padding:11px 7px 12px}.date-picker-toolbar{grid-template-columns:50px minmax(0,1fr) 44px 50px;gap:5px}.date-picker-nav,.date-picker-today,.date-picker-month-title{height:42px}.date-picker-nav{font-size:calc(12px * var(--text-scale,1));padding:0 2px}.date-picker-today{font-size:calc(11px * var(--text-scale,1));padding:0 2px}.date-picker-month-title{font-size:calc(18px * var(--text-scale,1))}.date-picker-cell{min-height:72px;padding:4px 2px}.date-picker-cell .shift-circle{width:33px;height:33px;font-size:calc(14px * var(--text-scale,1))}.date-picker-cell .shift-day2{font-size:calc(12px * var(--text-scale,1))}.date-picker-cell .holiday-work-badge{min-width:43px;height:30px;font-size:calc(8.5px * var(--text-scale,1))}.date-picker-holiday{font-size:calc(6.5px * var(--text-scale,1));max-width:38px}.date-picker-daynum{font-size:calc(10px * var(--text-scale,1))}.date-picker-term{font-size:calc(6.5px * var(--text-scale,1));padding:2px 3px}.calendar-term-mini{font-size:calc(6.5px * var(--text-scale,1));padding:2px 3px;max-width:34px}}
-  @media(max-width:370px){.availability{font-size:calc(7px * var(--text-scale,1))}.day-cell{min-height:70px}.calendar-toolbar{grid-template-columns:45px 1fr 40px 45px;gap:4px}.nav-btn,.today-btn{padding:0 1px;font-size:calc(10px * var(--text-scale,1))}}
+    .wrap{padding:10px 7px 28px}.card{border-radius:17px}.calendar-card{padding:10px 6px 11px}.title{font-size:calc(21px * var(--text-scale,1))}.calendar-toolbar{grid-template-columns:50px 1fr 44px 50px;gap:5px}.calendar-toolbar.absence-mode{grid-template-columns:50px minmax(0,1fr) 58px 44px 50px}.nav-btn{font-size:calc(12px * var(--text-scale,1));padding:0 2px}.today-btn{font-size:calc(11px * var(--text-scale,1));padding:0 2px}.month-title{font-size:calc(18px * var(--text-scale,1))}.day-cell{min-height:72px;padding:4px 2px}.shift-circle{width:33px;height:33px;font-size:calc(14px * var(--text-scale,1))}.shift-day2{font-size:calc(12px * var(--text-scale,1))}.availability{font-size:calc(7.5px * var(--text-scale,1));line-height:1.24}.holiday-mini{font-size:calc(6.5px * var(--text-scale,1));max-width:38px}.day-num{font-size:calc(10px * var(--text-scale,1))}.backdrop{padding:5px}.modal{padding:12px 10px 13px;max-height:92dvh}.form-grid{grid-template-columns:1fr 1fr;gap:7px}.type-grid{gap:5px}.type-grid button{min-height:54px;font-size:calc(10px * var(--text-scale,1));padding:4px 1px}.date-picker-modal{padding:11px 7px 12px}.date-picker-toolbar{grid-template-columns:50px minmax(0,1fr) 44px 50px;gap:5px}.date-picker-nav,.date-picker-today,.date-picker-month-title{height:42px}.date-picker-nav{font-size:calc(12px * var(--text-scale,1));padding:0 2px}.date-picker-today{font-size:calc(11px * var(--text-scale,1));padding:0 2px}.date-picker-month-title{font-size:calc(18px * var(--text-scale,1))}.date-picker-cell{min-height:72px;padding:4px 2px}.date-picker-cell .shift-circle{width:33px;height:33px;font-size:calc(14px * var(--text-scale,1))}.date-picker-cell .shift-day2{font-size:calc(12px * var(--text-scale,1))}.date-picker-cell .holiday-work-badge{min-width:43px;height:30px;font-size:calc(8.5px * var(--text-scale,1))}.date-picker-holiday{font-size:calc(6.5px * var(--text-scale,1));max-width:38px}.date-picker-daynum{font-size:calc(10px * var(--text-scale,1))}.date-picker-term{font-size:calc(6.5px * var(--text-scale,1));padding:2px 3px}.calendar-term-mini{font-size:calc(6.5px * var(--text-scale,1));padding:2px 3px;max-width:34px}}
+  @media(max-width:370px){.availability{font-size:calc(7px * var(--text-scale,1))}.day-cell{min-height:70px}.calendar-toolbar{grid-template-columns:45px 1fr 40px 45px;gap:4px}.calendar-toolbar.absence-mode{grid-template-columns:45px minmax(0,1fr) 54px 40px 45px}.nav-btn,.today-btn{padding:0 1px;font-size:calc(10px * var(--text-scale,1))}}
 
 
   /* ===== 장기 재직 ===== */
@@ -502,7 +518,7 @@
   @media (min-width:768px){
     .wrap{max-width:920px;padding:18px 14px calc(40px + env(safe-area-inset-bottom))}
     .calendar-card{padding:14px 12px 15px}
-    .calendar-toolbar{grid-template-columns:66px minmax(0,1fr) 52px 66px;gap:9px}
+    .calendar-toolbar{grid-template-columns:66px minmax(0,1fr) 52px 66px;gap:9px}.calendar-toolbar.absence-mode{grid-template-columns:66px minmax(0,1fr) 72px 52px 66px}
     .day-cell{min-height:86px;padding:6px 4px}
     .shift-wrap{height:52px}
     .shift-circle{width:39px;height:39px;font-size:calc(15.5px * var(--text-scale,1))}
@@ -528,7 +544,7 @@
     .view-tools{margin:-2px 0 12px}
     .company-events-banner{margin-bottom:14px}
     .calendar-card{padding:16px 14px 17px}
-    .calendar-toolbar{grid-template-columns:74px minmax(0,1fr) 58px 74px;gap:10px;margin-bottom:10px}
+    .calendar-toolbar{grid-template-columns:74px minmax(0,1fr) 58px 74px;gap:10px;margin-bottom:10px}.calendar-toolbar.absence-mode{grid-template-columns:74px minmax(0,1fr) 80px 58px 74px}
     .nav-btn,.today-btn,.month-title{height:44px}
     .day-cell{min-height:102px;padding:7px 5px}
     .day-head{min-height:18px}
@@ -924,9 +940,13 @@
   </section>
 
   <section id="calendarCard" class="card calendar-card">
-    <div class="calendar-toolbar">
+    <div id="calendarToolbar" class="calendar-toolbar">
       <button id="prevMonth" class="nav-btn">이전달</button>
       <button id="monthTitle" class="month-title"></button>
+      <label id="absenceReflectControl" class="absence-reflect-control hidden" title="부재 반영 ON: 현재 가용인원 / OFF: 원래 근무자">
+        <span class="absence-reflect-label">부재 반영</span>
+        <input id="absenceReflectToggle" class="absence-reflect-toggle" type="checkbox" role="switch" aria-label="전체근무표 부재 반영" checked>
+      </label>
       <button id="todayBtn" class="today-btn">오늘</button>
       <button id="nextMonth" class="nav-btn">다음달</button>
     </div>
@@ -939,7 +959,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-0048 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-0122 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -976,6 +996,7 @@
       <div class="memo-meta"><span id="memoDetailError"></span><span id="memoCharCount">0/1000</span></div>
       <div id="memoDetailActions" class="memo-detail-actions"><button id="deleteMemoBtn" class="memo-delete-btn" type="button">삭제</button><button id="closeMemoDetailBtn" class="memo-close-btn hidden" type="button" tabindex="-1" aria-hidden="true">닫기</button><button id="saveMemoBtn" class="memo-save-btn" type="button">저장</button></div>
     </div>
+    <div id="detailOriginalSection" class="detail-section hidden"><div class="detail-title">원래 근무자</div><div id="detailOriginal" class="detail-list"></div></div>
     <div id="detailPartialSection" class="detail-section"><div class="detail-title">부분부재</div><div id="detailPartial" class="detail-list"></div></div>
     <div id="detailFullSection" class="detail-section"><div class="detail-title">종일부재</div><div id="detailFull" class="detail-list"></div></div>
     <div class="modal-actions detail-bottom-actions"><button class="secondary detail-close-bottom" type="button" data-close="detail">닫기</button></div>
@@ -1369,7 +1390,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260915-0048';
+const APP_VERSION = 'ver20260915-0122';
 const UPDATE_HISTORY = [
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},
@@ -1396,6 +1417,7 @@ const LOCAL_DATA_KEY = 'staffAttendance_localData_v1';
 const LOCAL_EMPLOYEE_KEY = 'staffAttendance_localEmployees_v1';
 const TEXT_SIZE_KEY = 'staffAttendance_textSizeLevel_v2';
 const THEME_KEY = 'staffAttendance_theme_v1';
+const ABSENCE_REFLECT_KEY = 'staffAttendance_absenceReflect_v1';
 const LOCAL_AUDIT_KEY = 'staffAttendance_localAudit_v1';
 const LOCAL_MEMO_KEY_PREFIX = 'staffAttendance_localMemos_v1_';
 const LOCAL_HOLIDAY_WORK_KEY = 'staffAttendance_localHolidayWork_v1';
@@ -1585,7 +1607,7 @@ migrateLegacySessionForDevice();
 
 const state = {
   sessionToken: storedSessionToken(),
-  me:null, employees:[], attendance:[], holidayWorks:[], holidayWorkBackendReady:null, holidayWorkEligibilityReady:null, memos:[], memoBackendReady:null, companyEvents:[], companyEventBackendReady:null, annualLeaveSettings:null, annualLeaveEntries:[], annualLeaveBackendReady:null, annualLeaveYear:null, annualLeaveFormDirty:false, longServiceProfile:null, longServiceExclusions:[], longServiceEntries:[], longServiceBackendReady:null, longServiceFormDirty:false, view:'mine', selectedDate:null,
+  me:null, employees:[], attendance:[], holidayWorks:[], holidayWorkBackendReady:null, holidayWorkEligibilityReady:null, memos:[], memoBackendReady:null, companyEvents:[], companyEventBackendReady:null, annualLeaveSettings:null, annualLeaveEntries:[], annualLeaveBackendReady:null, annualLeaveYear:null, annualLeaveFormDirty:false, longServiceProfile:null, longServiceExclusions:[], longServiceEntries:[], longServiceBackendReady:null, longServiceFormDirty:false, view:'mine', selectedDate:null, absenceReflect:(()=>{try{return localStorage.getItem(ABSENCE_REFLECT_KEY)!=='0';}catch(e){return true;}})(),
   year:Math.min(Math.max(parseDateKey(todayKey()).y,MIN_YEAR),MAX_YEAR), month:parseDateKey(todayKey()).m,
   pickerYear:Math.min(Math.max(parseDateKey(todayKey()).y,MIN_YEAR),MAX_YEAR), mode:'all_day', dateMode:'single', refreshing:false, employeeAction:null, pinStatus:{}
 };
@@ -3175,8 +3197,11 @@ async function saveAnnualLeaveSetting(){
 function render(){ renderTabs(); renderCalendar(); renderCompanyEventsBanner(); }
 function renderTabs(){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
-  const leaveView=state.view==='leave',longView=state.view==='longservice',specialView=leaveView||longView;
+  const leaveView=state.view==='leave',longView=state.view==='longservice',specialView=leaveView||longView,allView=state.view==='all';
   $('calendarCard').classList.toggle('hidden',specialView);
+  if($('absenceReflectControl')) $('absenceReflectControl').classList.toggle('hidden',!allView);
+  if($('calendarToolbar')) $('calendarToolbar').classList.toggle('absence-mode',allView);
+  if($('absenceReflectToggle')) $('absenceReflectToggle').checked=state.absenceReflect;
   $('annualLeaveCard').classList.toggle('hidden',!leaveView);
   $('longServiceCard').classList.toggle('hidden',!longView);
   $('viewTools').classList.toggle('hidden',specialView);
@@ -3272,7 +3297,8 @@ function renderCalendar(){
       const emp=state.employees.find(e=>e.id===state.me.employee_id); const shift=(emp&&employeeOperationalOn(emp,key))?shiftForEmployee(emp,state.year,state.month,d):''; const hw=holidayWorkForMe(key); body=(hw&&isHolidayWorkEmployee(emp,key))?holidayWorkMarkup(hw):(shift?shiftMarkup(shift):'<div class="shift-wrap"><span style="color:#c4c7cc;font-weight:800">-</span></div>');
       if(mineRecordCount) body+=`<div class="att-dot">근태 ${mineRecordCount}</div>`;
     }else{
-      const names=availableEmployees(key); body=names.length?`<div class="availability">${names.map(e=>`<span class="name ${availabilityNameClass(e,key)}">${employeeCategoryOn(e,key)==='팀장'?'★ ':''}${escapeHtml(availabilityDisplayName(e,key))}</span>`).join('')}</div>`:'<div class="availability empty">-</div>';
+      const names=state.absenceReflect?availableEmployees(key):scheduledEmployees(key);
+      body=names.length?`<div class="availability">${names.map(e=>`<span class="name ${state.absenceReflect?availabilityNameClass(e,key):scheduledNameClass(e,key)}">${employeeCategoryOn(e,key)==='팀장'?'★ ':''}${escapeHtml(state.absenceReflect?availabilityDisplayName(e,key):e.display_name)}</span>`).join('')}</div>`:'<div class="availability empty">-</div>';
     }
     const memoMark=(state.view==='mine'&&memoForDate(key))?'<span class="memo-mark" title="개인 메모 있음" aria-label="개인 메모 있음">✎</span>':'';
     html+=`<button type="button" class="${cls}" data-date="${key}"><div class="day-head"><span class="day-num">${d}</span>${memoMark}${holiday?`<span class="holiday-mini">${escapeHtml(holiday)}</span>`:''}</div>${body}${term?`<span class="calendar-term-mini">${escapeHtml(term)}</span>`:''}</button>`;
@@ -3343,13 +3369,21 @@ function renderDetail(key){
   if(showHolidayWork){ if(activeAdminMode())populateHolidayWorkTargetEmployees(key); renderHolidayWorkDetail(key); }
   $('memoDetailSection').classList.toggle('hidden',!mineView);
   if(mineView) renderMemoDetail(key);
-  // 전체 근무표는 조회 전용이며, 부분부재/종일부재 명단도 전체 근무표에서만 보여준다.
+  // 전체 근무표는 조회 전용이다. 부재 반영 ON은 현재 가용인원 기준, OFF는 최초 편성 기준의 원래 근무자만 보여준다.
   // 내 근무표의 날짜 상세는 개인 메모 + 근태 등록에 집중한다. 기존 근태 수정/삭제는 '근태 목록'에서 계속 가능하다.
+  const originalMode=!mineView&&!state.absenceReflect;
   const canRegisterAttendance=activeAdminMode() || (!!emp && employeeOperationalOn(emp,key));
   $('detailActions').classList.toggle('hidden',!mineView || accountReadOnly() || !canRegisterAttendance);
-  $('detailPartialSection').classList.toggle('hidden',mineView);
-  $('detailFullSection').classList.toggle('hidden',mineView);
-  if(mineView){ $('detailPartial').innerHTML=''; $('detailFull').innerHTML=''; return; }
+  $('detailOriginalSection').classList.toggle('hidden',!originalMode);
+  $('detailPartialSection').classList.toggle('hidden',mineView||originalMode);
+  $('detailFullSection').classList.toggle('hidden',mineView||originalMode);
+  if(mineView){ $('detailOriginal').innerHTML=''; $('detailPartial').innerHTML=''; $('detailFull').innerHTML=''; return; }
+  if(originalMode){
+    $('detailOriginal').innerHTML=renderOriginalWorkerRows(scheduledEmployees(key),key);
+    $('detailPartial').innerHTML=''; $('detailFull').innerHTML='';
+    return;
+  }
+  $('detailOriginal').innerHTML='';
   const records=recordsForDate(key).slice().sort((a,b)=>{
     const ea=state.employees.find(e=>e.id===a.employee_id),eb=state.employees.find(e=>e.id===b.employee_id);
     return employeeDisplayCompareForDate(ea||{sort_order:999,id:999},eb||{sort_order:999,id:999},key) || a.id-b.id;
@@ -3742,6 +3776,15 @@ async function deleteHolidayWorkListRow(row){
   finally{showLoading(false);}
 }
 
+function renderOriginalWorkerRows(list,key){
+  if(!list.length) return '<div class="empty-msg">원래 근무자가 없습니다.</div>';
+  const shiftLabel={주:'주간',주2:'주2',야:'야간',일근:'일근'};
+  const {y,m,d}=parseDateKey(key);
+  return list.map(e=>{
+    const category=employeeCategoryOn(e,key),shift=shiftForEmployee(e,y,m,d);
+    return `<div class="detail-row"><div class="detail-main"><b>${category==='팀장'?'★ ':''}${escapeHtml(e.display_name)}</b><div class="detail-sub">${escapeHtml(category)} · ${escapeHtml(shiftLabel[shift]||shift)}</div></div></div>`;
+  }).join('');
+}
 function renderAttendanceRows(list,key){
   if(!list.length) return '<div class="empty-msg">없음</div>';
   return list.map(r=>{
@@ -4399,7 +4442,10 @@ function employeeDisplayRank(emp,key=todayKey()){const c=employeeCategoryOn(emp,
 function employeeDisplayCompare(a,b){const key=todayKey();return employeeDisplayRank(a,key)-employeeDisplayRank(b,key)||employeeSortOrderOn(a,key)-employeeSortOrderOn(b,key)||Number(a.id)-Number(b.id);}
 function employeeDisplayRankForDate(emp,key){const base=employeeDisplayRank(emp,key);if(base!==300)return base;const {y,m,d}=parseDateKey(key),shift=shiftForEmployee(emp,y,m,d);if(shift==='주'||shift==='주2')return 300;if(shift==='야')return 400;return 500;}
 function employeeDisplayCompareForDate(a,b,key){return employeeDisplayRankForDate(a,key)-employeeDisplayRankForDate(b,key)||employeeSortOrderOn(a,key)-employeeSortOrderOn(b,key)||Number(a.id)-Number(b.id);}
-function availabilityNameClass(emp,key){if(holidayWorkFor(emp.id,key))return 'holiday-work';const c=employeeCategoryOn(emp,key);if(c==='팀장')return 'leader';if(c==='일근(사무)')return 'day-office';if(c==='일근(현장)')return 'day-field';const {y,m,d}=parseDateKey(key),shift=shiftForEmployee(emp,y,m,d);if(shift==='야')return 'shift-night';if(shift==='주'||shift==='주2')return 'shift-day';return '';}
+function baseScheduleNameClass(emp,key){const c=employeeCategoryOn(emp,key);if(c==='팀장')return 'leader';if(c==='일근(사무)')return 'day-office';if(c==='일근(현장)')return 'day-field';const {y,m,d}=parseDateKey(key),shift=shiftForEmployee(emp,y,m,d);if(shift==='야')return 'shift-night';if(shift==='주'||shift==='주2')return 'shift-day';return '';}
+function availabilityNameClass(emp,key){if(holidayWorkFor(emp.id,key))return 'holiday-work';return baseScheduleNameClass(emp,key);}
+function scheduledNameClass(emp,key){return baseScheduleNameClass(emp,key);}
+function scheduledEmployees(key){const {y,m,d}=parseDateKey(key);return state.employees.filter(e=>employeeOperationalOn(e,key)&&isWorkingShift(shiftForEmployee(e,y,m,d))).sort((a,b)=>employeeDisplayCompareForDate(a,b,key));}
 function availableEmployees(key){const {y,m,d}=parseDateKey(key),absent=fullAbsentIds(key);return state.employees.filter(e=>employeeOperationalOn(e,key)&&(isWorkingShift(shiftForEmployee(e,y,m,d))||!!holidayWorkFor(e.id,key))&&!absent.has(Number(e.id))).sort((a,b)=>employeeDisplayCompareForDate(a,b,key));}
 function substituteHolidayGroupEmployees(group,key){return state.employees.filter(e=>employeeOperationalOn(e,key)&&employeeGroupOn(e,key)===group).sort((a,b)=>employeeDisplayCompareForDate(a,b,key));}
 function substituteHolidayEmployeeNames(group,key){return substituteHolidayGroupEmployees(group,key).map(e=>e.display_name);}
@@ -4983,6 +5029,15 @@ function renderMonthPicker(){
   $('monthGrid').innerHTML=Array.from({length:12},(_,i)=>`<button data-month="${i}" class="${state.pickerYear===state.year&&i===state.month?'active':''}">${i+1}월</button>`).join('');
 }
 async function chooseMonth(m){ state.year=state.pickerYear; state.month=Number(m); closeBackdrop('monthBackdrop'); showLoading(true);await loadMonthData(true);showLoading(false);renderCalendar(); }
+function setAbsenceReflect(enabled,save=true){
+  state.absenceReflect=!!enabled;
+  if($('absenceReflectToggle')) $('absenceReflectToggle').checked=state.absenceReflect;
+  if(save){try{localStorage.setItem(ABSENCE_REFLECT_KEY,state.absenceReflect?'1':'0');}catch(e){}}
+  if(state.view==='all'){
+    renderCalendar();
+    if(state.selectedDate&&$('detailBackdrop').classList.contains('open'))renderDetail(state.selectedDate);
+  }
+}
 
 function setAdminToolsExpanded(expanded){
   const toggle=$('adminToolsToggle'), group=$('adminActionGroup');
@@ -5068,6 +5123,7 @@ function wire(){
   $('logoutBtn').addEventListener('click',()=>logout(true)); $('refreshBtn').addEventListener('click',refresh); $('employeeManageBtn').addEventListener('click',openEmployeeManager); $('auditBtn').addEventListener('click',openAudit); $('refreshAuditBtn').addEventListener('click',()=>loadAuditPage(true)); $('auditMoreBtn').addEventListener('click',()=>loadAuditPage(false)); $('capacityBtn').addEventListener('click',openCapacity); $('refreshCapacityBtn').addEventListener('click',loadCapacity); $('addEmployeeBtn').addEventListener('click',()=>openPersonnelBatchEditor()); $('resetCurrentPinsBtn').addEventListener('click',openResetCurrentPins); $('confirmResetPinsBtn').addEventListener('click',resetCurrentPins); $('resetPinsSuccessOkBtn').addEventListener('click',()=>closeBackdrop('resetPinsSuccessBackdrop')); $('saveEmployeeActionBtn').addEventListener('click',saveEmployeeAction); $('employeeSuccessOkBtn').addEventListener('click',()=>closeBackdrop('employeeSuccessBackdrop'));
   document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',async()=>{state.view=b.dataset.view;renderTabs();if(state.view==='leave')await loadAnnualLeaveData(true);else if(state.view==='longservice')await loadLongServiceData(true);else renderCalendar();}));
   $('prevMonth').addEventListener('click',()=>moveMonth(-1)); $('todayBtn').addEventListener('click',goToday); $('nextMonth').addEventListener('click',()=>moveMonth(1)); $('monthTitle').addEventListener('click',openMonthPicker);
+  $('absenceReflectToggle').addEventListener('change',e=>setAbsenceReflect(e.target.checked,true));
   $('addAttendanceBtn').addEventListener('click',()=>{if(state.view==='mine')openForm(state.selectedDate)}); $('saveAttendanceBtn').addEventListener('click',saveAttendance);
   document.querySelectorAll('.mode-btn').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
   document.querySelectorAll('.date-mode-btn').forEach(b=>b.addEventListener('click',()=>setDateMode(b.dataset.dateMode)));
