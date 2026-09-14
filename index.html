@@ -943,7 +943,7 @@
     <div id="calendarToolbar" class="calendar-toolbar">
       <button id="prevMonth" class="nav-btn">이전달</button>
       <button id="monthTitle" class="month-title"></button>
-      <label id="absenceReflectControl" class="absence-reflect-control hidden" title="부재 반영 ON: 현재 가용인원 / OFF: 원래 근무자">
+      <label id="absenceReflectControl" class="absence-reflect-control hidden" title="부재 반영 ON: 현재 가용인원 / OFF: 원래 근무자(휴근 포함)">
         <span class="absence-reflect-label">부재 반영</span>
         <input id="absenceReflectToggle" class="absence-reflect-toggle" type="checkbox" role="switch" aria-label="전체근무표 부재 반영" checked>
       </label>
@@ -959,7 +959,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-0122 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-0134 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1390,7 +1390,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260915-0122';
+const APP_VERSION = 'ver20260915-0134';
 const UPDATE_HISTORY = [
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},
@@ -3298,7 +3298,7 @@ function renderCalendar(){
       if(mineRecordCount) body+=`<div class="att-dot">근태 ${mineRecordCount}</div>`;
     }else{
       const names=state.absenceReflect?availableEmployees(key):scheduledEmployees(key);
-      body=names.length?`<div class="availability">${names.map(e=>`<span class="name ${state.absenceReflect?availabilityNameClass(e,key):scheduledNameClass(e,key)}">${employeeCategoryOn(e,key)==='팀장'?'★ ':''}${escapeHtml(state.absenceReflect?availabilityDisplayName(e,key):e.display_name)}</span>`).join('')}</div>`:'<div class="availability empty">-</div>';
+      body=names.length?`<div class="availability">${names.map(e=>`<span class="name ${state.absenceReflect?availabilityNameClass(e,key):scheduledNameClass(e,key)}">${employeeCategoryOn(e,key)==='팀장'?'★ ':''}${escapeHtml(availabilityDisplayName(e,key))}</span>`).join('')}</div>`:'<div class="availability empty">-</div>';
     }
     const memoMark=(state.view==='mine'&&memoForDate(key))?'<span class="memo-mark" title="개인 메모 있음" aria-label="개인 메모 있음">✎</span>':'';
     html+=`<button type="button" class="${cls}" data-date="${key}"><div class="day-head"><span class="day-num">${d}</span>${memoMark}${holiday?`<span class="holiday-mini">${escapeHtml(holiday)}</span>`:''}</div>${body}${term?`<span class="calendar-term-mini">${escapeHtml(term)}</span>`:''}</button>`;
@@ -3369,7 +3369,7 @@ function renderDetail(key){
   if(showHolidayWork){ if(activeAdminMode())populateHolidayWorkTargetEmployees(key); renderHolidayWorkDetail(key); }
   $('memoDetailSection').classList.toggle('hidden',!mineView);
   if(mineView) renderMemoDetail(key);
-  // 전체 근무표는 조회 전용이다. 부재 반영 ON은 현재 가용인원 기준, OFF는 최초 편성 기준의 원래 근무자만 보여준다.
+  // 전체 근무표는 조회 전용이다. 부재 반영 ON은 현재 가용인원 기준, OFF는 근태를 제외한 원래 근무편성(휴근 포함)을 보여준다.
   // 내 근무표의 날짜 상세는 개인 메모 + 근태 등록에 집중한다. 기존 근태 수정/삭제는 '근태 목록'에서 계속 가능하다.
   const originalMode=!mineView&&!state.absenceReflect;
   const canRegisterAttendance=activeAdminMode() || (!!emp && employeeOperationalOn(emp,key));
@@ -3781,8 +3781,9 @@ function renderOriginalWorkerRows(list,key){
   const shiftLabel={주:'주간',주2:'주2',야:'야간',일근:'일근'};
   const {y,m,d}=parseDateKey(key);
   return list.map(e=>{
-    const category=employeeCategoryOn(e,key),shift=shiftForEmployee(e,y,m,d);
-    return `<div class="detail-row"><div class="detail-main"><b>${category==='팀장'?'★ ':''}${escapeHtml(e.display_name)}</b><div class="detail-sub">${escapeHtml(category)} · ${escapeHtml(shiftLabel[shift]||shift)}</div></div></div>`;
+    const category=employeeCategoryOn(e,key),shift=shiftForEmployee(e,y,m,d),hw=holidayWorkFor(e.id,key);
+    const workLabel=hw?`휴근 ${formatHolidayHours(hw.net_minutes)}`:(shiftLabel[shift]||shift);
+    return `<div class="detail-row"><div class="detail-main"><b>${category==='팀장'?'★ ':''}${escapeHtml(e.display_name)}</b><div class="detail-sub">${escapeHtml(category)} · ${escapeHtml(workLabel)}</div></div></div>`;
   }).join('');
 }
 function renderAttendanceRows(list,key){
@@ -4444,8 +4445,10 @@ function employeeDisplayRankForDate(emp,key){const base=employeeDisplayRank(emp,
 function employeeDisplayCompareForDate(a,b,key){return employeeDisplayRankForDate(a,key)-employeeDisplayRankForDate(b,key)||employeeSortOrderOn(a,key)-employeeSortOrderOn(b,key)||Number(a.id)-Number(b.id);}
 function baseScheduleNameClass(emp,key){const c=employeeCategoryOn(emp,key);if(c==='팀장')return 'leader';if(c==='일근(사무)')return 'day-office';if(c==='일근(현장)')return 'day-field';const {y,m,d}=parseDateKey(key),shift=shiftForEmployee(emp,y,m,d);if(shift==='야')return 'shift-night';if(shift==='주'||shift==='주2')return 'shift-day';return '';}
 function availabilityNameClass(emp,key){if(holidayWorkFor(emp.id,key))return 'holiday-work';return baseScheduleNameClass(emp,key);}
-function scheduledNameClass(emp,key){return baseScheduleNameClass(emp,key);}
-function scheduledEmployees(key){const {y,m,d}=parseDateKey(key);return state.employees.filter(e=>employeeOperationalOn(e,key)&&isWorkingShift(shiftForEmployee(e,y,m,d))).sort((a,b)=>employeeDisplayCompareForDate(a,b,key));}
+function scheduledNameClass(emp,key){if(holidayWorkFor(emp.id,key))return 'holiday-work';return baseScheduleNameClass(emp,key);}
+// '부재 반영 OFF'의 원래 근무표는 기본 교대/일근 편성뿐 아니라 근무표 작성 단계에서 확정된 휴근도 포함한다.
+// OFF에서는 근태(종일/부분부재)만 무시하며, 휴근은 부재가 아니라 원래 근무편성의 일부로 본다.
+function scheduledEmployees(key){const {y,m,d}=parseDateKey(key);return state.employees.filter(e=>employeeOperationalOn(e,key)&&(isWorkingShift(shiftForEmployee(e,y,m,d))||!!holidayWorkFor(e.id,key))).sort((a,b)=>employeeDisplayCompareForDate(a,b,key));}
 function availableEmployees(key){const {y,m,d}=parseDateKey(key),absent=fullAbsentIds(key);return state.employees.filter(e=>employeeOperationalOn(e,key)&&(isWorkingShift(shiftForEmployee(e,y,m,d))||!!holidayWorkFor(e.id,key))&&!absent.has(Number(e.id))).sort((a,b)=>employeeDisplayCompareForDate(a,b,key));}
 function substituteHolidayGroupEmployees(group,key){return state.employees.filter(e=>employeeOperationalOn(e,key)&&employeeGroupOn(e,key)===group).sort((a,b)=>employeeDisplayCompareForDate(a,b,key));}
 function substituteHolidayEmployeeNames(group,key){return substituteHolidayGroupEmployees(group,key).map(e=>e.display_name);}
