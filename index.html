@@ -112,6 +112,7 @@
   .icon-btn{height:38px;min-width:38px;padding:0 10px;border-radius:11px;background:#eef2f7;color:#374151;font-weight:800}
   .tabbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;padding:5px;background:#e9edf2;border-radius:14px;margin-bottom:12px}
   .tab{padding:11px 8px;border-radius:10px;background:transparent;color:#6b7280;font-weight:850}
+  .mobile-tab-break{display:none}
   .tab.active{background:#fff;color:#111827;box-shadow:0 2px 8px rgba(0,0,0,.07)}
   .calendar-card{padding:12px 10px 13px}
   .calendar-toolbar{display:grid;grid-template-columns:58px 1fr 48px 58px;align-items:center;gap:7px;margin-bottom:8px}
@@ -352,6 +353,7 @@
   html[data-theme="dark"] .loading-cover{background:rgba(15,23,42,.72)}
   .loading-cover{position:fixed;inset:0;z-index:2000;background:rgba(255,255,255,.68);display:none;align-items:center;justify-content:center}.loading-cover.show{display:flex}.spinner{width:34px;height:34px;border:4px solid #dbeafe;border-top-color:#2563eb;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
   @media(max-width:520px){
+    .mobile-tab-break{display:block}
     #detailBackdrop{padding-top:calc(8dvh - 5px)}
     .detail-modal-head{gap:7px}
     .detail-add-attendance{min-height:36px;padding:0 10px;font-size:calc(11px * var(--text-scale,1))}
@@ -666,7 +668,7 @@
 
   <div class="tabbar">
     <button class="tab active" data-view="mine">내 근무표</button>
-    <button class="tab" data-view="all">전체 근무표</button>
+    <button class="tab" data-view="all">전체 <br class="mobile-tab-break">근무표</button>
     <button class="tab" data-view="leave">연차 현황</button>
     <button class="tab" data-view="longservice">장기 재직</button>
   </div>
@@ -835,7 +837,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260914-1826 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260914-1841 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1260,7 +1262,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260914-1826';
+const APP_VERSION = 'ver20260914-1841';
 const UPDATE_HISTORY = [
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},
