@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<title>직원 근태 현황</title>
+<title>근무모아</title>
 <style>
   *{box-sizing:border-box}
   :root{
@@ -671,7 +671,7 @@
 
 <section id="loginView" class="login-wrap">
   <div class="login-card">
-    <h1 class="brand">직원 근태 현황</h1>
+    <h1 class="brand">근무모아</h1>
     <div class="login-sub">로그인 이름과 4자리 비밀번호로 로그인해 근태를 등록하고, 날짜별 가용인원을 확인합니다. 대부분은 본인 성명이 로그인 이름입니다.</div>
     <div class="field"><label for="loginName">로그인 이름</label><input id="loginName" autocomplete="username" placeholder="예: 안석근"></div>
     <div class="field"><label for="loginPin">비밀번호</label><input id="loginPin" type="password" inputmode="numeric" maxlength="4" autocomplete="current-password" placeholder="4자리"></div>
@@ -698,7 +698,7 @@
   <div class="topbar">
     <button id="viewMenuBtn" class="view-menu-btn" type="button" aria-label="설정 열기" title="설정"><span class="view-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span></button>
     <div class="userbox">
-      <div class="title">직원 근태 현황</div>
+      <div class="title">근무모아</div>
       <div class="user-meta-line">
         <div id="whoText" class="who"></div>
         <div id="adminTools" class="admin-tools hidden">
@@ -886,7 +886,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260914-1917 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260914-1928 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1236,7 +1236,7 @@
 
 <div id="usageGuideBackdrop" class="backdrop" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="usageGuideTitle">
-    <div class="modal-head"><div id="usageGuideTitle" class="modal-title">직원 근태 홈페이지 안내</div></div>
+    <div class="modal-head"><div id="usageGuideTitle" class="modal-title">근무모아 안내</div></div>
     <div class="usage-guide-intro"><strong>이 사이트는 그날 실제 근무 가능한 인원을 빠르게 확인하기 위해 만들었습니다.</strong></div>
     <div class="usage-guide-highlight">평소에는 아무것도 입력하지 않으셔도 됩니다.</div>
     <div class="usage-guide-body"><strong>연가·지참·조퇴·장기·교육 등 근태가 생겼을 때만 등록해 주세요.</strong><br>입력된 내용은 <strong>전체 근무표의 가용인원에 자동 반영</strong>됩니다.</div>
@@ -1316,7 +1316,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260914-1917';
+const APP_VERSION = 'ver20260914-1928';
 const UPDATE_HISTORY = [
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},

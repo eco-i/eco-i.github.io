@@ -1,6 +1,6 @@
 {
-  "name": "직원 근태 현황",
-  "short_name": "근태 현황",
+  "name": "근무모아",
+  "short_name": "근무모아",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f6f8",
