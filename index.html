@@ -616,6 +616,54 @@
   @media(max-width:520px){.personnel-item-grid{grid-template-columns:1fr}.personnel-item-grid .field.full{grid-column:auto}.personnel-editor-actions{grid-template-columns:1fr}.personnel-toolbar{display:block}.personnel-toolbar .reset-pins-btn{width:100%;margin-top:8px}.personnel-batch-actions{grid-template-columns:1fr 1fr}}
   html[data-theme="dark"] .personnel-tabs{background:#0f172a}html[data-theme="dark"] .personnel-tab.active,html[data-theme="dark"] .personnel-filters button,html[data-theme="dark"] .personnel-batch-card,html[data-theme="dark"] .personnel-snapshot-card{background:#1b2638;color:#f8fafc;border-color:#334155}html[data-theme="dark"] .personnel-item{background:#111827;border-color:#334155}html[data-theme="dark"] .personnel-preview{background:#0f172a;border-color:#334155}html[data-theme="dark"] .personnel-batch-date,html[data-theme="dark"] .personnel-batch-item-line b,html[data-theme="dark"] .personnel-preview-after{color:#f8fafc}html[data-theme="dark"] .personnel-section-help,html[data-theme="dark"] .personnel-batch-note,html[data-theme="dark"] .personnel-snapshot-label,html[data-theme="dark"] .employee-personnel-meta,html[data-theme="dark"] .personnel-existing-hint{color:#94a3b8}
 
+
+  /* ===== S24 우선 모바일 UI 보강 =====
+     기능/데이터 로직은 건드리지 않고 430px 이하의 터치·배치만 보강합니다. */
+  @media (min-width:351px) and (max-width:430px){
+    .wrap{padding-left:8px;padding-right:8px}
+    .topbar{gap:8px}.top-actions{gap:6px}.icon-btn{height:40px;min-width:40px;padding:0 9px}
+    .tabbar{gap:5px;padding:5px}.tab{min-height:62px;padding:10px 4px;line-height:1.2;word-break:keep-all}
+    .admin-action-group.admin-top-group:not(.collapsed){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+    .admin-action-group.admin-top-group>button{width:100%;min-width:0;min-height:42px;padding:8px 4px}
+    .view-tools{grid-template-columns:1fr;margin-bottom:10px}.view-tool-actions{width:100%;justify-content:center;gap:6px}
+    .view-tool-actions>button{min-height:38px}
+    .company-events-banner{border-radius:15px}
+    .modal{max-height:94dvh;padding:12px 11px 14px}
+    .personnel-manager-modal,.personnel-batch-editor-modal{max-height:94dvh}
+    .personnel-tabs{gap:6px;margin-bottom:10px}.personnel-tab{min-height:42px;padding:9px 8px}
+    .personnel-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%;gap:5px}
+    .personnel-filters button{min-width:0;padding:8px 3px;font-size:calc(10.5px * var(--text-scale,1))}
+    .personnel-toolbar .reset-pins-btn{margin-top:7px}
+    .employee-row{padding:11px}.employee-actions{gap:6px}.employee-actions button{min-height:34px;padding:7px 9px}
+    .personnel-batch-card,.personnel-snapshot-card{padding:11px}
+    .personnel-card-actions button{min-height:36px}
+    .personnel-item{padding:11px}.personnel-item-grid input,.personnel-item-grid select{min-height:44px}
+    .personnel-editor-actions button{min-height:42px}
+  }
+
+  /* 아주 좁은 휴대폰: 겹침 방지가 우선 */
+  @media (max-width:350px){
+    .tab{min-height:58px;padding:9px 2px;line-height:1.18;font-size:calc(12px * var(--text-scale,1));word-break:keep-all}
+    .admin-action-group.admin-top-group:not(.collapsed){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+    .admin-action-group.admin-top-group>button{width:100%;min-width:0;min-height:40px;padding:7px 3px}
+    .view-tool-actions{justify-content:center}
+    .personnel-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:5px}
+    .personnel-filters button{min-width:0;padding:7px 3px;font-size:calc(10px * var(--text-scale,1))}
+    .employee-row{align-items:flex-start;flex-wrap:wrap}.employee-actions{width:100%;justify-content:flex-end;margin-top:7px}
+    .personnel-batch-top,.personnel-snapshot-top{flex-wrap:wrap}
+    .personnel-preview-row{grid-template-columns:1fr;gap:3px}.personnel-preview-row b{margin-bottom:1px}
+  }
+
+  /* 대형 휴대폰·폴드 접힘 화면: 모바일 여백은 유지하되 불필요한 줄바꿈은 줄입니다. */
+  @media (min-width:431px) and (max-width:600px){
+    .mobile-tab-break{display:none}
+    .tab{min-height:52px;line-height:1.2;word-break:keep-all}
+    .admin-action-group.admin-top-group:not(.collapsed){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .admin-action-group.admin-top-group>button{width:100%;min-height:42px}
+    .view-tool-actions{justify-content:center}
+    .personnel-manager-modal,.personnel-batch-editor-modal{width:min(680px,calc(100vw - 16px));max-height:94dvh}
+  }
+
 </style>
 </head>
 <body>
@@ -837,7 +885,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260914-1841 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260914-1902 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1262,7 +1310,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260914-1841';
+const APP_VERSION = 'ver20260914-1902';
 const UPDATE_HISTORY = [
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},
