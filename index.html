@@ -290,6 +290,7 @@
   .view-settings-modal{padding:16px 14px 18px}.view-settings-modal .modal-head{margin-bottom:14px}
   .view-setting-card{padding:14px 13px;border:1px solid #d1d5db;border-radius:16px;background:#fff;margin-top:11px}.view-setting-card:first-of-type{margin-top:0}
   .view-setting-title{font-size:calc(15px * var(--text-scale,1));font-weight:950;color:#111827}.view-setting-desc{margin-top:4px;color:#6b7280;font-size:calc(11px * var(--text-scale,1));font-weight:750;line-height:1.45}
+  .view-setting-action-btn{width:100%;min-height:48px;margin-top:12px;padding:11px 12px;border-radius:13px;font-size:calc(13px * var(--text-scale,1));font-weight:950}
   .theme-mode-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.theme-mode-btn{min-height:50px;border:1px solid #d1d5db;border-radius:13px;background:#f8fafc;color:#4b5563;font-size:calc(13px * var(--text-scale,1));font-weight:950}.theme-mode-btn.active{border-color:#8b5cf6;background:#f5f3ff;color:#6d28d9;box-shadow:inset 0 0 0 1px #8b5cf6}
   .text-size-levels{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:6px}
   .text-size-level{min-width:0;min-height:44px;padding:0;border:1px solid #e5e7eb;border-radius:9px;background:#f9fafb;color:#4b5563;font-size:calc(13px * var(--text-scale,1));font-weight:900}
@@ -695,7 +696,7 @@
 
 <main id="appView" class="wrap hidden">
   <div class="topbar">
-    <button id="viewMenuBtn" class="view-menu-btn" type="button" aria-label="보기 설정 열기" title="보기"><span class="view-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span></button>
+    <button id="viewMenuBtn" class="view-menu-btn" type="button" aria-label="설정 열기" title="설정"><span class="view-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span></button>
     <div class="userbox">
       <div class="title">직원 근태 현황</div>
       <div class="user-meta-line">
@@ -723,7 +724,7 @@
 
   <div id="readOnlyAccountNotice" class="readonly-account-notice hidden">조회 전용 계정입니다. 기존 근태·휴근·개인 메모·사내일정과 연차 현황·장기 재직 현황은 확인할 수 있으며, 새 근태/휴근 등록·수정·삭제와 메모 저장·수정·삭제, 사내일정 변경, 연차·장기 재직 설정 수정은 할 수 없습니다.</div>
 
-  <div id="viewTools" class="view-tools"><div class="view-tool-actions"><button id="memoListBtn" class="memo-list-btn">메모 목록</button><button id="holidayWorkListBtn" class="holiday-work-list-btn hidden">휴근 목록</button><button id="attendanceListBtn" class="attendance-list-btn">근태 목록</button><button id="usageGuideOpenBtn" class="usage-guide-open-btn">이용안내</button><button id="selfPinBtn" class="self-pin-btn">내 비밀번호 변경</button></div></div>
+  <div id="viewTools" class="view-tools"><div class="view-tool-actions"><button id="memoListBtn" class="memo-list-btn">메모 목록</button><button id="holidayWorkListBtn" class="holiday-work-list-btn hidden">휴근 목록</button><button id="attendanceListBtn" class="attendance-list-btn">근태 목록</button><button id="usageGuideOpenBtn" class="usage-guide-open-btn">이용안내</button></div></div>
 
   <button id="companyEventsBanner" class="company-events-banner" type="button" aria-label="사내일정 보기">
     <span class="company-events-banner-icon" aria-hidden="true">📅</span>
@@ -885,7 +886,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260914-1902 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260914-1917 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1257,7 +1258,7 @@
 
 <div id="selfPinBackdrop" class="backdrop" aria-hidden="true">
   <div class="modal">
-    <div class="modal-head"><div class="modal-title">내 비밀번호 변경</div><button class="close-btn" data-close="selfPin">×</button></div>
+    <div class="modal-head"><div class="modal-title">비밀번호 변경</div><button class="close-btn" data-close="selfPin">×</button></div>
     <div class="employee-help">현재 로그인 비밀번호를 확인한 뒤 새 4자리 비밀번호로 변경합니다.<br>관리자 계정의 2차 비밀번호는 변경되지 않습니다.</div>
     <div class="field"><label for="selfPinCurrent">현재 비밀번호</label><input id="selfPinCurrent" type="password" inputmode="numeric" maxlength="4" autocomplete="current-password" placeholder="4자리"></div>
     <div class="field"><label for="selfPinNew">새 비밀번호</label><input id="selfPinNew" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password" placeholder="4자리"></div>
@@ -1269,7 +1270,7 @@
 
 <div id="viewSettingsBackdrop" class="backdrop" aria-hidden="true">
   <div class="modal view-settings-modal" role="dialog" aria-modal="true" aria-labelledby="viewSettingsTitle">
-    <div class="modal-head"><div id="viewSettingsTitle" class="modal-title">보기</div><button class="close-btn" data-close="viewSettings">×</button></div>
+    <div class="modal-head"><div id="viewSettingsTitle" class="modal-title">설정</div><button class="close-btn" data-close="viewSettings">×</button></div>
     <div class="view-setting-card">
       <div class="view-setting-title">글씨 크기</div>
       <div class="view-setting-desc">글씨 크기를 21단계로 세밀하게 조절할 수 있습니다.</div>
@@ -1283,6 +1284,11 @@
         <button class="theme-mode-btn" type="button" data-theme-mode="light" aria-pressed="true">라이트 모드</button>
         <button class="theme-mode-btn" type="button" data-theme-mode="dark" aria-pressed="false">다크 모드</button>
       </div>
+    </div>
+    <div class="view-setting-card">
+      <div class="view-setting-title">계정</div>
+      <div class="view-setting-desc">현재 로그인 비밀번호를 확인한 뒤 새 4자리 비밀번호로 변경합니다.</div>
+      <button id="selfPinBtn" class="self-pin-btn view-setting-action-btn" type="button">비밀번호 변경</button>
     </div>
   </div>
 </div>
@@ -1310,7 +1316,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260914-1902';
+const APP_VERSION = 'ver20260914-1917';
 const UPDATE_HISTORY = [
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},
@@ -4802,7 +4808,7 @@ function wire(){
   $('attendanceListEmployee').addEventListener('change',renderAttendanceList);
   $('usageGuideOpenBtn').addEventListener('click',()=>openUsageGuide(true));
   $('usageGuideConfirmBtn').addEventListener('click',confirmUsageGuide);
-  $('selfPinBtn').addEventListener('click',()=>openSelfPin());
+  $('selfPinBtn').addEventListener('click',()=>{closeBackdrop('viewSettingsBackdrop');openSelfPin()});
   $('initialPinLaterBtn').addEventListener('click',()=>closeBackdrop('initialPinBackdrop'));
   $('initialPinChangeBtn').addEventListener('click',()=>{closeBackdrop('initialPinBackdrop');openSelfPin('0000')});
   $('saveSelfPinBtn').addEventListener('click',changeOwnPin);
