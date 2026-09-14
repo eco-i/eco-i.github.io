@@ -692,6 +692,32 @@
     .personnel-manager-modal,.personnel-batch-editor-modal{width:min(680px,calc(100vw - 16px));max-height:94dvh}
   }
 
+
+  .data-manage-btn{padding:9px 12px;border-radius:10px;background:#e0f2fe;color:#075985;font-size:calc(12px * var(--text-scale,1));font-weight:900}
+  .my-data-btn{margin-top:8px;background:#ecfdf5!important;color:#047857!important}
+  .data-section-grid{display:grid;grid-template-columns:1fr;gap:7px;margin:10px 0 12px}
+  .data-section-row{display:flex;align-items:flex-start;gap:9px;padding:10px 11px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;cursor:pointer}
+  .data-section-row input{width:18px;height:18px;margin:1px 0 0;padding:0;accent-color:#2563eb;flex:0 0 auto}
+  .data-section-row.is-disabled{opacity:.58;cursor:not-allowed;background:#f8fafc}
+  .data-section-main{min-width:0;flex:1}
+  .data-section-name{font-size:calc(13px * var(--text-scale,1));font-weight:900;color:#374151}
+  .data-section-desc{margin-top:2px;font-size:calc(10px * var(--text-scale,1));line-height:1.4;color:#6b7280}
+  .data-action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+  .data-action-grid.single{grid-template-columns:1fr}
+  .data-file-input{padding:9px;border:1px dashed #93c5fd;border-radius:12px;background:#f8fbff}
+  .data-preview{margin:10px 0;padding:11px 12px;border-radius:12px;background:#f0fdf4;color:#166534;font-size:calc(11px * var(--text-scale,1));line-height:1.55}
+  .data-preview-row{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px dashed rgba(22,101,52,.15)}
+  .data-preview-row:last-child{border-bottom:0}.data-preview-row b{white-space:nowrap}
+  .data-note{margin:8px 1px;color:#6b7280;font-size:calc(10px * var(--text-scale,1));line-height:1.5}
+  .data-protected-note{padding:10px 11px;border-radius:12px;background:#f5f3ff;color:#6d28d9;font-size:calc(10px * var(--text-scale,1));font-weight:800;line-height:1.5;margin:8px 0}
+  .safety-backup-list{display:flex;flex-direction:column;gap:7px;margin:8px 0 12px}
+  .safety-backup-row{padding:10px 11px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}
+  .safety-backup-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.safety-backup-title{font-size:calc(12px * var(--text-scale,1));font-weight:900;color:#374151}
+  .safety-backup-meta{margin-top:3px;color:#6b7280;font-size:calc(10px * var(--text-scale,1));line-height:1.4}.safety-backup-restore{margin-top:7px;width:100%;padding:8px 10px;border-radius:9px;background:#eef2ff;color:#4338ca;font-size:calc(11px * var(--text-scale,1));font-weight:900}
+  .data-inline-error{min-height:18px;margin:8px 0;color:#b91c1c;font-size:calc(11px * var(--text-scale,1));font-weight:750;line-height:1.4}
+  html[data-theme="dark"] .data-section-row,html[data-theme="dark"] .safety-backup-row{background:#111827;border-color:#374151}
+  html[data-theme="dark"] .data-section-name,html[data-theme="dark"] .safety-backup-title{color:#e5e7eb}
+  html[data-theme="dark"] .data-section-desc,html[data-theme="dark"] .safety-backup-meta,html[data-theme="dark"] .data-note{color:#9ca3af}
 </style>
 </head>
 <body>
@@ -740,7 +766,7 @@
     </div>
   </div>
 
-  <div id="adminActionGroup" class="admin-action-group admin-top-group collapsed"><button id="employeeManageBtn" class="manage-btn">직원 관리</button><button id="auditBtn" class="audit-btn">최근 변경</button><button id="capacityBtn" class="capacity-btn">용량 관리</button><button id="backupBtn" class="backup-btn">백업</button><button id="restoreBackupBtn" class="restore-btn">복원</button><button id="resetAllBtn" class="reset-btn">전체 초기화</button></div>
+  <div id="adminActionGroup" class="admin-action-group admin-top-group collapsed"><button id="employeeManageBtn" class="manage-btn">직원 관리</button><button id="auditBtn" class="audit-btn">최근 변경</button><button id="capacityBtn" class="capacity-btn">용량 관리</button><button id="dataManageBtn" class="data-manage-btn">데이터 관리</button></div>
 
   <div class="tabbar">
     <button class="tab active" data-view="mine">내 근무표</button>
@@ -913,7 +939,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260914-1951 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-0048 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1183,52 +1209,6 @@
   </div>
 </div>
 
-<div id="backupSuccessBackdrop" class="backdrop" aria-hidden="true">
-  <div class="modal">
-    <div class="modal-head"><div class="modal-title">백업 완료</div><button class="close-btn" data-close="backupSuccess">×</button></div>
-    <div id="backupSuccessMessage" class="success-box">전체 근태·휴근·사내일정·인사발령·최근 변경내역 백업 파일이 저장되었습니다.</div>
-    <button id="backupSuccessOkBtn" class="primary">확인</button>
-  </div>
-</div>
-
-<div id="restoreBackdrop" class="backdrop" aria-hidden="true">
-  <div class="modal">
-    <div class="modal-head"><div class="modal-title">복원</div><button class="close-btn" data-close="restore">×</button></div>
-    <div class="employee-help"><b>이 홈페이지에서 만든 JSON 백업 파일</b>을 선택하면 당시 근태·휴근·사내일정·최근 변경내역을 복원합니다. <b>v7 백업은 직원 ID를 유지한 인사발령·계정상태 이력도 함께 복원</b>하고, 구형 백업은 현재 인사상태를 그대로 유지합니다.<br>개인 메모·연차 기준값·장기재직 개인설정은 복원 대상이 아니므로 현재 값을 유지합니다. 복원 직전에는 현재 상태를 전체 백업으로 자동 저장합니다.</div>
-    <div class="field"><label for="restoreFile">백업 파일</label><input id="restoreFile" class="restore-file" type="file" accept="application/json,.json"></div>
-    <div id="restorePreview" class="restore-preview hidden"></div>
-    <div class="field"><label for="restoreAdminPin">관리자 2차 비밀번호</label><input id="restoreAdminPin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="4자리"></div>
-    <div id="restoreError" class="form-error"></div>
-    <button id="confirmRestoreBtn" class="primary" disabled>복원 실행</button>
-  </div>
-</div>
-
-<div id="restoreSuccessBackdrop" class="backdrop" aria-hidden="true">
-  <div class="modal">
-    <div class="modal-head"><div class="modal-title">복원 완료</div><button class="close-btn" data-close="restoreSuccess">×</button></div>
-    <div id="restoreSuccessMessage" class="success-box">백업 파일의 운영데이터와 포함된 인사발령 이력이 복원되었습니다.</div>
-    <button id="restoreSuccessOkBtn" class="primary">확인</button>
-  </div>
-</div>
-
-<div id="resetBackdrop" class="backdrop" aria-hidden="true">
-  <div class="modal">
-    <div class="modal-head"><div class="modal-title">전체 초기화</div><button class="close-btn" data-close="reset">×</button></div>
-    <div class="warning-box"><b>전체 초기화 B안으로 실행합니다.</b><br>근태·휴근·사내일정·최근 변경내역을 삭제하고, <b>인사발령의 과거·미래 이력은 모두 지운 뒤 오늘 현재 상태만 새 기준배치로 남깁니다.</b><br><b style="color:#6d28d9">직원 ID·회사 입사일·개인 메모·연차 기준값·장기재직 개인설정은 삭제하지 않습니다.</b><br>초기화 직전에 인사발령까지 포함한 전체 백업 파일을 자동 저장하며, 인사 복구지점도 새 기준에 맞게 초기화됩니다.</div>
-    <div class="field"><label for="resetAdminPin">관리자 2차 비밀번호</label><input id="resetAdminPin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="4자리"></div>
-    <div id="resetError" class="form-error"></div>
-    <button id="confirmResetBtn" class="danger-primary">전체 초기화 실행</button>
-  </div>
-</div>
-
-<div id="resetSuccessBackdrop" class="backdrop" aria-hidden="true">
-  <div class="modal">
-    <div class="modal-head"><div class="modal-title">초기화 완료</div><button class="close-btn" data-close="resetSuccess">×</button></div>
-    <div id="resetSuccessMessage" class="success-box">전체 운영데이터가 초기화되고 현재 인사상태가 오늘 기준 새 기준배치로 설정되었습니다.</div>
-    <button id="resetSuccessOkBtn" class="primary">확인</button>
-  </div>
-</div>
-
 <div id="auditBackdrop" class="backdrop" aria-hidden="true">
   <div class="modal">
     <div class="modal-head"><div class="modal-title">최근 변경 내역 <span id="auditLoadedLabel" class="type-count">최대 1,000건 보관</span></div><button class="close-btn" data-close="audit">×</button></div>
@@ -1314,14 +1294,55 @@
     </div>
     <div class="view-setting-card">
       <div class="view-setting-title">계정</div>
-      <div class="view-setting-desc">현재 로그인 비밀번호를 확인한 뒤 새 4자리 비밀번호로 변경합니다.</div>
+      <div class="view-setting-desc">현재 로그인 비밀번호 변경과 내 데이터 백업·복원을 관리합니다.</div>
       <button id="selfPinBtn" class="self-pin-btn view-setting-action-btn" type="button">비밀번호 변경</button>
+      <button id="myDataBtn" class="my-data-btn view-setting-action-btn" type="button">내 데이터 백업/복원</button>
     </div>
     <div class="view-setting-card">
       <div class="view-setting-title">도움말</div>
       <div class="view-setting-desc">근무모아의 주요 기능과 사용 방법을 확인합니다.</div>
       <button id="usageGuideOpenBtn" class="usage-guide-open-btn view-setting-action-btn" type="button">이용안내</button>
     </div>
+  </div>
+</div>
+
+<div id="myDataBackdrop" class="backdrop" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">내 데이터 백업/복원</div><button class="close-btn" data-close="myData">×</button></div>
+    <div class="employee-help">내 근태·휴근·개인 메모·연차 기준값·장기 재직 설정을 선택해 JSON 파일로 보관하거나 되돌릴 수 있습니다. <b>직원정보·소속·입사일·계정상태는 개인 복원으로 바뀌지 않습니다.</b></div>
+    <div id="myDataSections" class="data-section-grid"></div>
+    <div class="data-action-grid"><button id="myDataBackupBtn" class="primary" type="button">선택 항목 백업</button><button id="myDataChooseRestoreBtn" class="secondary" type="button">백업 파일 선택</button></div>
+    <input id="myDataRestoreFile" class="data-file-input hidden" type="file" accept="application/json,.json">
+    <div id="myDataRestorePreview" class="data-preview hidden"></div>
+    <div id="myDataReadOnlyNote" class="data-protected-note hidden">조회 전용 계정은 백업만 가능하며 복원할 수 없습니다.</div>
+    <div id="myDataError" class="data-inline-error"></div>
+    <button id="myDataRestoreBtn" class="primary hidden" type="button">선택 항목 복원</button>
+  </div>
+</div>
+
+<div id="dataManageBackdrop" class="backdrop" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">데이터 관리</div><button class="close-btn" data-close="dataManage">×</button></div>
+    <div class="employee-help">관리자가 업무데이터를 항목별로 백업·복원·초기화합니다. 복원과 초기화는 서버에서 한 트랜잭션으로 처리하며, 실행 직전 선택한 항목의 안전백업을 자동 생성해 최근 5개를 보관합니다.</div>
+    <div id="adminDataSections" class="data-section-grid"></div>
+    <div class="data-protected-note">작업이력은 <b>다운로드 백업 전용</b>입니다. 복원·초기화 대상에는 포함되지 않습니다. 인증정보·PIN·로그인명·세션은 어떤 작업에도 포함되지 않습니다.<br><span style="display:block;margin-top:6px">DB 전체를 새로 만든 재해복구 상황에서는 동일한 직원 ID의 계정 뼈대를 먼저 복구한 뒤 직원·인사정보를 복원해야 합니다.</span></div>
+    <div class="data-action-grid"><button id="adminDataBackupBtn" class="primary" type="button">선택 항목 백업</button><button id="adminDataChooseRestoreBtn" class="secondary" type="button">복원 파일 선택</button></div>
+    <input id="adminDataRestoreFile" class="data-file-input hidden" type="file" accept="application/json,.json">
+    <div id="adminDataRestorePreview" class="data-preview hidden"></div>
+    <div class="field"><label for="adminDataPin">관리자 2차 비밀번호 <span style="font-weight:500">(복원·초기화·안전백업 복원 시)</span></label><input id="adminDataPin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="4자리"></div>
+    <div id="adminDataError" class="data-inline-error"></div>
+    <div class="data-action-grid"><button id="adminDataRestoreBtn" class="primary" type="button" disabled>선택 항목 복원</button><button id="adminDataResetBtn" class="danger-primary" type="button">선택 항목 초기화</button></div>
+    <div class="employee-section-title">최근 자동 안전백업 <span style="font-weight:650;color:#9ca3af">(최대 5개)</span></div>
+    <div id="safetyBackupList" class="safety-backup-list"><div class="employee-empty">불러오는 중…</div></div>
+    <button id="refreshSafetyBackupsBtn" class="secondary" type="button">안전백업 새로고침</button>
+  </div>
+</div>
+
+<div id="dataActionSuccessBackdrop" class="backdrop" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head"><div id="dataActionSuccessTitle" class="modal-title">완료</div><button class="close-btn" data-close="dataActionSuccess">×</button></div>
+    <div id="dataActionSuccessMessage" class="success-box"></div>
+    <button id="dataActionSuccessOkBtn" class="primary" type="button">확인</button>
   </div>
 </div>
 
@@ -1348,7 +1369,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260914-1951';
+const APP_VERSION = 'ver20260915-0048';
 const UPDATE_HISTORY = [
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},
@@ -1569,7 +1590,6 @@ const state = {
   pickerYear:Math.min(Math.max(parseDateKey(todayKey()).y,MIN_YEAR),MAX_YEAR), mode:'all_day', dateMode:'single', refreshing:false, employeeAction:null, pinStatus:{}
 };
 
-let pendingRestoreBackup=null;
 let attendanceListRows=[];
 let memoListRows=[];
 let memoSelectedDates=new Set();
@@ -2604,34 +2624,13 @@ function duplicateWarningText(rows){
   const more=rows.length>3?`\n외 ${rows.length-3}건`:'';
   return `선택한 기간에 이미 등록된 근태가 있습니다.\n\n${preview}${more}\n\n그래도 등록하시겠습니까?`;
 }
-function downloadJsonBackup(payload){
-  const d=new Date(), stamp=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-  const filename=`직원근태_전체백업_${stamp}.json`;
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
-  const url=URL.createObjectURL(blob); const a=document.createElement('a');
-  a.href=url; a.download=filename; a.style.display='none'; document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1500);
-  return filename;
-}
-function normalizeBackupDate(value){
-  const v=String(value||'').slice(0,10);
-  return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '';
-}
 function backupExportedText(value){
   const d=new Date(value); if(Number.isNaN(d.getTime())) return '알 수 없음';
   return d.toLocaleString('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
 }
-function openRestoreBackup(){
-  if(!activeAdminMode())return;
-  pendingRestoreBackup=null;
-  $('restoreFile').value=''; $('restoreAdminPin').value=''; $('restoreError').textContent='';
-  $('restorePreview').classList.add('hidden'); $('restorePreview').innerHTML=''; $('confirmRestoreBtn').disabled=true;
-  openBackdrop('restoreBackdrop');
-}
-
 const CAPACITY_TABLE_LABELS = {
   employees:'직원/발령', attendance_entries:'근태', audit_logs:'변경이력', app_sessions:'로그인 세션',
-  realtime_signals:'실시간 동기화', personal_memos:'개인 메모', memos:'개인 메모', holiday_work_entries:'휴근', company_events:'사내일정', holiday_work_eligibility:'휴근 가능 설정', annual_leave_settings:'연차 설정', long_service_settings:'장기 재직 설정', long_service_exclusions:'재직 제외기간'
+  realtime_signals:'실시간 동기화', personal_memos:'개인 메모', memos:'개인 메모', holiday_work_entries:'휴근', company_events:'사내일정', holiday_work_eligibility:'휴근 가능 설정', annual_leave_settings:'연차 설정', long_service_settings:'장기 재직 설정', long_service_exclusions:'재직 제외기간', data_management_meta:'데이터관리 메타', data_safety_backups:'자동 안전백업', data_management_logs:'데이터관리 작업이력'
 };
 function formatBytes(bytes){
   const n=Math.max(0,Number(bytes)||0);
@@ -2930,7 +2929,12 @@ function applyAccountModeUI(){
   $('adminTools').classList.toggle('hidden',!adminActive);
   if(!adminActive){
     setAdminToolsExpanded(false);
-    ['employeeManageBackdrop','personnelBatchBackdrop','personnelSnapshotRestoreBackdrop','employeeAccountBackdrop','resetPinsBackdrop','restoreBackdrop','resetBackdrop','auditBackdrop','capacityBackdrop'].forEach(id=>{if($(id)?.classList.contains('open'))closeBackdrop(id);});
+    ['employeeManageBackdrop','personnelBatchBackdrop','personnelSnapshotRestoreBackdrop','employeeAccountBackdrop','resetPinsBackdrop','auditBackdrop','capacityBackdrop','dataManageBackdrop'].forEach(id=>{if($(id)?.classList.contains('open'))closeBackdrop(id);});
+  }
+  if($('myDataBackdrop')?.classList.contains('open')){
+    $('myDataReadOnlyNote')?.classList.toggle('hidden',!ro);
+    if($('myDataChooseRestoreBtn')) $('myDataChooseRestoreBtn').disabled=ro;
+    if(ro) $('myDataRestoreBtn')?.classList.add('hidden');
   }
   if(ro && $('formBackdrop')?.classList.contains('open')) closeBackdrop('formBackdrop');
   if($('detailBackdrop')?.classList.contains('open') && state.selectedDate) renderDetail(state.selectedDate);
@@ -4637,7 +4641,39 @@ async function cancelPersonnelBatch(batchId){
   const b=personnelBatchesGrouped().find(x=>String(x.id)===String(batchId));if(!b||b.effective_date<=todayKey())return;if(!confirm(`${b.effective_date} 인사발령을 취소할까요?\n\n개인 기록은 삭제되지 않습니다.`))return;showLoading(true);try{if(!configured()){localPersonnelSnapshot(`인사발령 취소 전 · ${b.effective_date}`);const rows=localPersonnelBatches(),r=rows.find(x=>String(x.id)===String(batchId));if(r)r.status='cancelled';saveLocalPersonnelBatches(rows);}else await rpc('admin_cancel_personnel_batch',{p_token:state.sessionToken,p_batch_id:batchId});await loadEmployees();await loadAccountStatus();applyAccountModeUI();renderTabs();if(activeAdminMode())renderEmployeeManager();renderCalendar();showToast('✓ 미래 인사발령을 취소했습니다.','success');}catch(e){showToast(userSafeServiceError(e,'인사발령을 취소하지 못했습니다.'),'error');}finally{showLoading(false);}
 }
 function openPersonnelSnapshotRestore(id){const s=(state.personnelSnapshots||[]).find(x=>String(x.id)===String(id));if(!s)return;pendingPersonnelSnapshotId=id;$('personnelSnapshotAdminPin').value='';$('personnelSnapshotRestoreError').textContent='';$('personnelSnapshotRestoreInfo').innerHTML=`<b>${escapeHtml(backupExportedText(s.created_at))}</b><br>${escapeHtml(s.label||'인사 복구지점')}<br><span style="display:block;margin-top:6px">인사발령·배치상태만 복원하며 연차·근태·장기 재직·개인 메모는 그대로 유지합니다.</span>`;closeBackdrop('employeeManageBackdrop');openBackdrop('personnelSnapshotRestoreBackdrop');}
-async function restorePersonnelSnapshot(){if(!activeAdminMode()||!pendingPersonnelSnapshotId)return;const pin=$('personnelSnapshotAdminPin').value.trim();if(!/^\d{4}$/.test(pin)){$('personnelSnapshotRestoreError').textContent='관리자 2차 비밀번호를 입력해 주세요.';return;}if(!confirm('선택한 인사 복구지점으로 되돌릴까요?\n\n개인 연차·근태·장기 재직·메모는 변경되지 않습니다.'))return;showLoading(true);try{if(!configured()){if(pin!==ADMIN_SECOND_PIN)throw new Error('ADMIN_PIN_INVALID');const snap=localPersonnelSnapshots().find(s=>String(s.id)===String(pendingPersonnelSnapshotId));if(!snap)throw new Error('NOT_FOUND');localPersonnelSnapshot('인사 복구 실행 직전');if(snap.state_json?.format==='personnel-snapshot-v2'){saveLocalPersonnelBatches(snap.state_json.batches||[]);saveLocalPersonnelActions(snap.state_json.actions||[]);saveLocalPersonnelAccountEvents(snap.state_json.account_events||[]);const rows=localEmployees();const meta=new Map((snap.state_json.employee_meta||[]).map(x=>[Number(x.id),x]));rows.forEach(e=>{const m=meta.get(Number(e.id));if(m){e.company_hire_date=m.company_hire_date||e.company_hire_date||null;e.employee_origin=m.employee_origin||e.employee_origin||'legacy';}});saveLocalEmployees(rows);seedLocalPersonnelIfNeeded();}else{const map=new Map((snap.state_json?.batches||[]).map(x=>[String(x.id),x.status]));const batches=localPersonnelBatches();for(const b of batches){if(b.batch_kind==='baseline')continue;b.status=map.get(String(b.id))||'cancelled';}saveLocalPersonnelBatches(batches);}}else await rpc('admin_restore_personnel_snapshot',{p_token:state.sessionToken,p_snapshot_id:pendingPersonnelSnapshotId,p_admin_pin:pin},{timeoutMs:15000});pendingPersonnelSnapshotId=null;closeBackdrop('personnelSnapshotRestoreBackdrop');await loadEmployees();await loadAccountStatus();applyAccountModeUI();await loadMonthData(true);render();state.employeeManagerTab='batches';if(activeAdminMode()){renderEmployeeManager();openBackdrop('employeeManageBackdrop');}showToast('✓ 인사상태를 복원했습니다.','success');}catch(e){$('personnelSnapshotRestoreError').textContent=String(e.message||'').includes('ADMIN_PIN')?'관리자 2차 비밀번호가 맞지 않습니다.':userSafeServiceError(e,'인사 복구지점을 복원하지 못했습니다.');}finally{showLoading(false);}}
+async function restorePersonnelSnapshot(){
+  if(!activeAdminMode()||!pendingPersonnelSnapshotId)return;
+  const pin=$('personnelSnapshotAdminPin').value.trim();
+  if(!/^\d{4}$/.test(pin)){$('personnelSnapshotRestoreError').textContent='관리자 2차 비밀번호를 입력해 주세요.';return;}
+  if(!confirm('선택한 인사 복구지점으로 되돌릴까요?\n\n개인 연차·근태·장기 재직·메모는 변경되지 않습니다.'))return;
+  showLoading(true);
+  try{
+    if(!configured()){
+      if(pin!==ADMIN_SECOND_PIN)throw new Error('ADMIN_PIN_INVALID');
+      const snap=localPersonnelSnapshots().find(s=>String(s.id)===String(pendingPersonnelSnapshotId));
+      if(!snap)throw new Error('NOT_FOUND');
+      localPersonnelSnapshot('인사 복구 실행 직전');
+      if(snap.state_json?.format==='personnel-snapshot-v2'){
+        saveLocalPersonnelBatches(snap.state_json.batches||[]);saveLocalPersonnelActions(snap.state_json.actions||[]);saveLocalPersonnelAccountEvents(snap.state_json.account_events||[]);
+        const rows=localEmployees(),meta=new Map((snap.state_json.employee_meta||[]).map(x=>[Number(x.id),x]));
+        rows.forEach(e=>{const m=meta.get(Number(e.id));if(m){e.company_hire_date=m.company_hire_date||e.company_hire_date||null;e.employee_origin=m.employee_origin||e.employee_origin||'legacy';}});saveLocalEmployees(rows);seedLocalPersonnelIfNeeded();
+      }else{
+        const map=new Map((snap.state_json?.batches||[]).map(x=>[String(x.id),x.status])),batches=localPersonnelBatches();
+        for(const b of batches){if(b.batch_kind==='baseline')continue;b.status=map.get(String(b.id))||'cancelled';}saveLocalPersonnelBatches(batches);
+      }
+    }else{
+      try{await rpc('admin_restore_personnel_snapshot',{p_token:state.sessionToken,p_snapshot_id:pendingPersonnelSnapshotId,p_admin_pin:pin},{timeoutMs:120000});}
+      catch(e){$('personnelSnapshotRestoreError').textContent=String(e.message||'').includes('ADMIN_PIN')?'관리자 2차 비밀번호가 맞지 않습니다.':dataDestructiveErrorText(e,'인사 복구지점을 복원하지 못했습니다.');return;}
+    }
+    pendingPersonnelSnapshotId=null;closeBackdrop('personnelSnapshotRestoreBackdrop');
+    let refreshWarning='';
+    try{await loadEmployees();await loadAccountStatus();applyAccountModeUI();await loadMonthData(true);render();}
+    catch(e){console.error('인사 복구는 완료됐지만 화면 재조회에 실패했습니다.',e);refreshWarning='인사 복구는 서버에서 완료됐지만 화면 최신 상태를 다시 불러오지 못했습니다. 페이지를 새로고침해 주세요.';}
+    state.employeeManagerTab='batches';if(activeAdminMode()){renderEmployeeManager();openBackdrop('employeeManageBackdrop');}
+    if(refreshWarning)showDataSuccess('인사 복구지점 복원 완료',`인사상태 복원이 완료되었습니다.${dataRefreshWarningHtml(refreshWarning)}`);else showToast('✓ 인사상태를 복원했습니다.','success');
+  }catch(e){$('personnelSnapshotRestoreError').textContent=String(e.message||'').includes('ADMIN_PIN')?'관리자 2차 비밀번호가 맞지 않습니다.':userSafeServiceError(e,'인사 복구지점을 복원하지 못했습니다.');}
+  finally{showLoading(false);}
+}
 
 // 현재 인사상태 기준으로 비밀번호 일괄 초기화
 async function resetCurrentPins(){
@@ -4646,37 +4682,250 @@ async function resetCurrentPins(){
   if(!confirm(`현재 인사상태 기준 직원 ${currentCount}명의 1차 로그인 비밀번호를 모두 0000으로 변경할까요?\n\n전출·퇴직·비활성 계정은 제외되며 관리자 2차 비밀번호는 그대로 유지됩니다.`))return;showLoading(true);try{if(!configured())throw new Error('운영 서버 연결이 필요합니다.');const result=await rpc('admin_reset_current_personnel_pins',{p_token:state.sessionToken,p_admin_pin:pin});state.pinStatus={};const count=Number(Array.isArray(result)?result[0]:result)||currentCount;closeBackdrop('resetPinsBackdrop');$('resetPinsSuccessMessage').innerHTML=`현재 인사상태 기준 직원 <b>${count}명</b>의 1차 로그인 비밀번호가 <b>0000</b>으로 변경되었습니다.<br><span style="display:block;margin-top:7px;font-size:.84em;font-weight:700;color:#047857">전출·퇴직·비활성 계정은 제외되었으며 관리자 2차 비밀번호는 그대로 유지됩니다.</span>`;openBackdrop('resetPinsSuccessBackdrop');showToast('✓ 현재 직원 비밀번호를 0000으로 초기화했습니다.','success');}catch(e){$('resetPinsError').textContent=String(e.message||'').includes('ADMIN_PIN')?'관리자 2차 비밀번호가 맞지 않습니다.':userSafeServiceError(e,'비밀번호를 초기화하지 못했습니다.');}finally{showLoading(false);}
 }
 
-// ── 전체 백업 v7: 인사발령 데이터를 함께 보관 ────────────────
-async function buildFullBackup(){
-  let attendance,holidayWork,auditLogs,companyEvents,personnel=null;
-  if(!configured()){
-    attendance=localRecords();holidayWork=normalizeHolidayWorkRows(localHolidayWorks());companyEvents=normalizeCompanyEventRows(localCompanyEvents());auditLogs=localAudit().slice(0,AUDIT_RETENTION_LIMIT).map(r=>{const actor=state.employees.find(e=>e.display_name===r.actor_name);return {actor_employee_id:actor?.id||null,target_employee_id:Number(r.target_employee_id)||null,action_type:r.action_type||'변경',summary:r.summary||'',created_at:r.created_at||new Date().toISOString()};});personnel={format:'personnel-v1',batches:localPersonnelBatches(),actions:localPersonnelActions(),account_events:localPersonnelAccountEvents(),employee_meta:localEmployees().map(e=>({id:e.id,company_hire_date:e.company_hire_date||null,employee_origin:e.employee_origin||'legacy',login_name:e.login_name||e.display_name}))};
-  }else{
-    if(state.personnelBackendReady!==true) throw new Error('PERSONNEL_BACKEND_REQUIRED');
-    attendance=await rpc('list_attendance',{p_token:state.sessionToken,p_from:`${MIN_YEAR}-01-01`,p_to:`${MAX_YEAR}-12-31`});
-    holidayWork=normalizeHolidayWorkRows(await rpc('list_holiday_work',{p_token:state.sessionToken,p_from:`${MIN_YEAR}-01-01`,p_to:`${MAX_YEAR}-12-31`}));
-    companyEvents=normalizeCompanyEventRows(await rpc('list_company_events_v2',{p_token:state.sessionToken,p_from:`${MIN_YEAR}-01-01`,p_to:`${MAX_YEAR}-12-31`}));
-    auditLogs=await rpc('list_audit_backup',{p_token:state.sessionToken});
-    try{personnel=await rpc('export_personnel_backup',{p_token:state.sessionToken});}
-    catch(e){throw new Error('PERSONNEL_BACKUP_INCOMPLETE');}
-    if(!personnel||personnel.format!=='personnel-v1') throw new Error('PERSONNEL_BACKUP_INCOMPLETE');
-  }
-  return {format:'staff-attendance-backup-v7',exported_at:new Date().toISOString(),app_year_range:[MIN_YEAR,MAX_YEAR],source:configured()?'supabase':'local',employees:state.employees.map(({id,display_name,login_name,category,group_code,is_admin,sort_order,active_from,active_to,company_hire_date,employee_origin})=>({id,display_name,login_name:login_name||display_name,category,group_code,is_admin,sort_order,active_from,active_to,company_hire_date:company_hire_date||null,employee_origin:employee_origin||null})),attendance:(attendance||[]).map(r=>({...r,attendance_type:normalizeAttendanceType(r.attendance_type)})),holiday_work:(holidayWork||[]).map(r=>({id:r.id,employee_id:r.employee_id,work_date:r.work_date,start_time:timeShort(r.start_time),end_time:timeShort(r.end_time),net_minutes:Number(r.net_minutes)||holidayNetMinutes(timeShort(r.start_time),timeShort(r.end_time)),created_by:Number(r.created_by)||Number(r.employee_id),updated_at:r.updated_at||null})),company_events:(companyEvents||[]).map(r=>({start_date:r.start_date,end_date:r.end_date,memo_text:r.memo_text,created_by:r.created_by==null?null:Number(r.created_by),updated_at:r.updated_at||null})),audit_logs:(auditLogs||[]).slice(-AUDIT_RETENTION_LIMIT).map(r=>({actor_employee_id:r.actor_employee_id==null?null:Number(r.actor_employee_id),target_employee_id:r.target_employee_id==null?null:Number(r.target_employee_id),action_type:String(r.action_type||''),summary:String(r.summary||''),created_at:r.created_at||null})),personnel};
+// ── 데이터 관리: 개인/관리자 선택 백업·복원·초기화 ────────────────
+const DATA_SECTION_INFO={
+  attendance:{label:'근태 기록',desc:'연가·병가·장기 등 등록한 근태 원본'},
+  holiday_work:{label:'휴근 기록',desc:'휴일근무 날짜·시간 기록'},
+  personal_memos:{label:'개인 메모',desc:'날짜별 개인 메모'},
+  annual_leave_settings:{label:'연차 기준값',desc:'연도별 잔여·부여·이월 연차 기준'},
+  long_service:{label:'장기재직 설정',desc:'장기재직 기준과 재직 제외기간을 한 묶음으로 처리'},
+  company_events:{label:'사내일정',desc:'관리자가 등록한 공용 일정'},
+  holiday_work_eligibility:{label:'휴근 가능 설정',desc:'직원별 휴일근무 등록 가능 여부 · 초기화 시 전원 가능'},
+  personnel:{label:'직원·인사정보',desc:'직원 ID를 유지한 인사발령·계정상태 이력 · 인증정보 제외'},
+  audit_logs:{label:'작업이력',desc:'최근 변경 감사기록 · 백업 전용, 복원·초기화 불가'}
+};
+const MY_DATA_SECTION_KEYS=['attendance','holiday_work','personal_memos','annual_leave_settings','long_service'];
+const ADMIN_DATA_SECTION_KEYS=['attendance','holiday_work','personal_memos','annual_leave_settings','long_service','company_events','holiday_work_eligibility','personnel','audit_logs'];
+let pendingMyDataRestore=null;
+let pendingAdminDataRestore=null;
+let safetyBackupsCache=[];
+
+function dataSectionLabel(key){return DATA_SECTION_INFO[key]?.label||key;}
+function dataSectionListText(keys){return (keys||[]).map(dataSectionLabel).join(' · ');}
+function renderDataSectionGrid(containerId,keys,checkedKeys,disabledKeys=[]){
+  const box=$(containerId); if(!box)return;
+  const checked=new Set(checkedKeys||[]),disabled=new Set(disabledKeys||[]);
+  box.innerHTML=keys.map(key=>{const info=DATA_SECTION_INFO[key]||{label:key,desc:''},off=disabled.has(key);return `<label class="data-section-row${off?' is-disabled':''}"><input type="checkbox" data-data-section="${escapeHtml(key)}" ${checked.has(key)?'checked':''} ${off?'disabled':''}><span class="data-section-main"><span class="data-section-name">${escapeHtml(info.label)}</span><span class="data-section-desc">${escapeHtml(info.desc)}</span></span></label>`;}).join('');
 }
-function validateBackupPayload(payload){
-  const accepted=['staff-attendance-backup-v1','staff-attendance-backup-v2','staff-attendance-backup-v3','staff-attendance-backup-v4','staff-attendance-backup-v5','staff-attendance-backup-v6','staff-attendance-backup-v7'];if(!payload||!accepted.includes(payload.format))throw new Error('이 홈페이지에서 만든 백업 파일이 아닙니다.');if(!Array.isArray(payload.attendance))throw new Error('백업 파일에 근태 데이터가 없습니다.');
-  const knownIds=new Set(state.employees.map(e=>Number(e.id))),rows=payload.attendance.map((r,idx)=>{const employeeId=Number(r.employee_id),id=Number(r.id)||idx+1,start=normalizeBackupDate(r.start_date),end=normalizeBackupDate(r.end_date),mode=r.absence_mode==='time'?'time':'all_day',type=normalizeAttendanceType(String(r.attendance_type||'').trim());if(!Number.isInteger(employeeId)||!knownIds.has(employeeId))throw new Error(`백업의 ${idx+1}번째 근태에 현재 직원 이력과 맞지 않는 직원 정보가 있습니다.`);if(!start||!end||end<start)throw new Error(`백업의 ${idx+1}번째 근태 날짜가 올바르지 않습니다.`);if(!type)throw new Error(`백업의 ${idx+1}번째 근태 종류가 비어 있습니다.`);let st=null,et=null;if(mode==='time'){st=timeShort(r.start_time);et=timeShort(r.end_time);if(!/^\d{2}:\d{2}$/.test(st)||!/^\d{2}:\d{2}$/.test(et))throw new Error(`백업의 ${idx+1}번째 시간 지정 근태가 올바르지 않습니다.`);}const emp=state.employees.find(e=>Number(e.id)===employeeId);return {id,employee_id:employeeId,display_name:emp?.display_name||r.display_name||'',attendance_type:type,start_date:start,end_date:end,absence_mode:mode,start_time:st,end_time:et,created_by:Number(r.created_by)||state.me.employee_id,updated_at:r.updated_at||null,annual_leave_deduct:r.annual_leave_deduct===true?true:(r.annual_leave_deduct===false?false:null)};});
-  const holidayRows=(Array.isArray(payload.holiday_work)?payload.holiday_work:[]).map((r,idx)=>{const employeeId=Number(r.employee_id),workDate=normalizeBackupDate(r.work_date),st=timeShort(r.start_time),et=timeShort(r.end_time),emp=state.employees.find(e=>Number(e.id)===employeeId),net=holidayNetMinutes(st,et);if(!Number.isInteger(employeeId)||!knownIds.has(employeeId)||!employeeEverDayWorker(emp))throw new Error(`백업의 ${idx+1}번째 휴근에 직원 정보가 올바르지 않습니다.`);if(!workDate||!isHolidayWorkDayKey(workDate))throw new Error(`백업의 ${idx+1}번째 휴근 날짜가 올바르지 않습니다.`);if(!net)throw new Error(`백업의 ${idx+1}번째 휴근 시간이 올바르지 않습니다.`);return {id:Number(r.id)||idx+1,employee_id:employeeId,work_date:workDate,start_time:st,end_time:et,net_minutes:net,created_by:Number(r.created_by)||employeeId,updated_at:r.updated_at||null};});
-  const companyEventsIncluded=['staff-attendance-backup-v5','staff-attendance-backup-v6','staff-attendance-backup-v7'].includes(payload.format);if(companyEventsIncluded&&!Array.isArray(payload.company_events))throw new Error('백업 파일에 사내일정 데이터가 없습니다.');const seenEventDates=new Set(),companyEventRows=(companyEventsIncluded?payload.company_events:[]).map((r,idx)=>{const startDate=normalizeBackupDate(r.start_date||r.event_date),endDate=normalizeBackupDate(r.end_date||r.start_date||r.event_date),text=String(r.memo_text||'').trim(),createdBy=r.created_by==null?null:Number(r.created_by);if(!startDate||!endDate||endDate<startDate)throw new Error(`백업의 ${idx+1}번째 사내일정 기간이 올바르지 않습니다.`);if(!text||text.length>1000)throw new Error(`백업의 ${idx+1}번째 사내일정 내용이 올바르지 않습니다.`);if(seenEventDates.has(startDate))throw new Error(`백업에 ${startDate} 시작 사내일정이 중복되어 있습니다.`);seenEventDates.add(startDate);if(createdBy!==null&&(!Number.isInteger(createdBy)||!knownIds.has(createdBy)))throw new Error(`백업의 ${idx+1}번째 사내일정 작성자 정보가 올바르지 않습니다.`);const updated=String(r.updated_at||'');return {start_date:startDate,end_date:endDate,memo_text:text,created_by:createdBy,updated_at:Number.isNaN(new Date(updated).getTime())?null:updated};});
-  const auditRows=(Array.isArray(payload.audit_logs)?payload.audit_logs:[]).slice(-AUDIT_RETENTION_LIMIT).map((r,idx)=>{const actor=r.actor_employee_id==null?null:Number(r.actor_employee_id),target=r.target_employee_id==null?null:Number(r.target_employee_id),action=String(r.action_type||'').trim(),summary=String(r.summary||''),created=String(r.created_at||'');if(actor!==null&&(!Number.isInteger(actor)||!knownIds.has(actor)))throw new Error(`백업의 ${idx+1}번째 변경내역 작성자 정보가 올바르지 않습니다.`);if(target!==null&&(!Number.isInteger(target)||!knownIds.has(target)))throw new Error(`백업의 ${idx+1}번째 변경내역 대상 직원 정보가 올바르지 않습니다.`);if(!action||Number.isNaN(new Date(created).getTime()))throw new Error(`백업의 ${idx+1}번째 변경내역이 올바르지 않습니다.`);return {actor_employee_id:actor,target_employee_id:target,action_type:action,summary,created_at:created};});
-  const personnelIncluded=payload.format==='staff-attendance-backup-v7'&&payload.personnel&&payload.personnel.format==='personnel-v1';return {...payload,attendance:rows,holiday_work:holidayRows,company_events:companyEventRows,audit_logs:auditRows,company_events_included:companyEventsIncluded,personnel_included:!!personnelIncluded};
+function selectedDataSections(containerId,{allowAudit=true}={}){
+  return [...($(containerId)?.querySelectorAll('input[data-data-section]:checked:not(:disabled)')||[])].map(x=>x.dataset.dataSection).filter(x=>allowAudit||x!=='audit_logs');
 }
-async function manualBackup(){if(!activeAdminMode())return;showLoading(true);try{const backup=await buildFullBackup(),backupName=downloadJsonBackup(backup),count=backup.attendance?.length||0,hwCount=backup.holiday_work?.length||0,eventCount=backup.company_events?.length||0,auditCount=backup.audit_logs?.length||0,batchCount=backup.personnel?.batches?.filter?.(b=>b.batch_kind!=='baseline').length||0;$('statusLine').textContent=`근태 ${count}건 · 휴근 ${hwCount}건 · 사내일정 ${eventCount}건 · 인사발령 ${batchCount}건 · 변경내역 ${auditCount}건을 백업했습니다.`;$('backupSuccessMessage').innerHTML=`근태 <b>${count}건</b> · 휴근 <b>${hwCount}건</b> · 사내일정 <b>${eventCount}건</b> · 인사발령 <b>${batchCount}건</b> · 최근 변경내역 <b>${auditCount}건</b>의 백업 파일이 저장되었습니다.<br><span style="display:block;margin-top:6px;font-size:.82em;font-weight:700;color:#1d4ed8">${escapeHtml(backupName)}</span><span style="display:block;margin-top:7px;font-size:.78em;font-weight:700;color:#6d28d9">개인 메모는 개인 기록이므로 백업에 포함되지 않습니다.</span>`;openBackdrop('backupSuccessBackdrop');showToast('✓ 백업 파일이 저장되었습니다.','success');}catch(e){alert(userSafeServiceError(e,'백업 파일을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.'));}finally{showLoading(false);}}
-async function prepareRestoreFile(file){pendingRestoreBackup=null;$('restoreError').textContent='';$('restorePreview').classList.add('hidden');$('confirmRestoreBtn').disabled=true;if(!file)return;try{const text=await file.text();if(text.length>5*1024*1024)throw new Error('백업 파일이 너무 큽니다.');const parsed=validateBackupPayload(JSON.parse(text));pendingRestoreBackup={fileName:file.name,payload:parsed};const eventLine=parsed.company_events_included?`복원할 사내일정: <b>${parsed.company_events.length}건</b>`:'사내일정: <b>현재 데이터 유지</b> <span style="color:#6b7280">(구형 백업)</span>';const personnelLine=parsed.personnel_included?`복원할 인사발령: <b>${(parsed.personnel.batches||[]).filter(b=>b.batch_kind!=='baseline').length}건</b>`:'인사발령: <b>현재 데이터 유지</b> <span style="color:#6b7280">(구형 백업)</span>';$('restorePreview').innerHTML=`<b>${escapeHtml(file.name)}</b><br>백업 시각: ${escapeHtml(backupExportedText(parsed.exported_at))}<br>복원할 근태: <b>${parsed.attendance.length}건</b><br>복원할 휴근: <b>${parsed.holiday_work.length}건</b><br>${eventLine}<br>${personnelLine}<br>복원할 최근 변경내역: <b>${parsed.audit_logs.length}건</b>`;$('restorePreview').classList.remove('hidden');$('confirmRestoreBtn').disabled=false;}catch(e){$('restoreError').textContent=e.message||'백업 파일을 읽지 못했습니다.';}}
-async function restoreBackupAttendance(){
-  if(!activeAdminMode()||!pendingRestoreBackup)return;$('restoreError').textContent='';const pin=$('restoreAdminPin').value.trim();if(!/^\d{4}$/.test(pin)){$('restoreError').textContent='관리자 2차 비밀번호를 입력해 주세요.';return;}const payload=pendingRestoreBackup.payload,count=payload.attendance.length,hwCount=payload.holiday_work.length,eventCount=payload.company_events.length,auditCount=payload.audit_logs.length,eventIncluded=payload.company_events_included,personnelIncluded=payload.personnel_included,eventConfirm=eventIncluded?`사내일정 ${eventCount}건`:'사내일정은 현재 데이터 유지',personnelConfirm=personnelIncluded?'인사발령 포함':'인사발령은 현재 데이터 유지';if(!confirm(`현재 등록된 운영 데이터를 백업 파일 내용으로 교체할까요?\n\n근태 ${count}건 · 휴근 ${hwCount}건 · ${eventConfirm} · ${personnelConfirm} · 변경내역 ${auditCount}건\n개인 메모는 그대로 유지됩니다.`))return;showLoading(true);try{if(configured()&&state.personnelBackendReady!==true)throw new Error('PERSONNEL_BACKEND_REQUIRED');if(!configured()){if(pin!==ADMIN_SECOND_PIN)throw new Error('ADMIN_PIN_INVALID');}else await rpc('verify_admin_pin',{p_token:state.sessionToken,p_admin_pin:pin});const safetyBackup=await buildFullBackup(),safetyBackupName=downloadJsonBackup(safetyBackup);if(!configured()){saveLocalRecords(payload.attendance.map((r,i)=>({...r,id:Number(r.id)||i+1})));saveLocalHolidayWorks(payload.holiday_work.map((r,i)=>({...r,id:Number(r.id)||i+1})));if(eventIncluded)saveLocalCompanyEvents(payload.company_events.map((r,i)=>({...r,id:i+1})));if(personnelIncluded){saveLocalPersonnelBatches(payload.personnel.batches||[]);saveLocalPersonnelActions(payload.personnel.actions||[]);saveLocalPersonnelAccountEvents(payload.personnel.account_events||[]);const rows=localEmployees(),meta=new Map((payload.personnel.employee_meta||[]).map(x=>[Number(x.id),x]));rows.forEach(e=>{const m=meta.get(Number(e.id));if(m){e.company_hire_date=m.company_hire_date||e.company_hire_date||null;e.employee_origin=m.employee_origin||e.employee_origin||'legacy';}});saveLocalEmployees(rows);seedLocalPersonnelIfNeeded();}const localAuditRows=payload.audit_logs.map((r,i)=>{const actor=state.employees.find(e=>Number(e.id)===Number(r.actor_employee_id)),target=state.employees.find(e=>Number(e.id)===Number(r.target_employee_id));return {id:i+1,actor_name:actor?.display_name||'',target_name:target?.display_name||'',target_employee_id:r.target_employee_id,action_type:r.action_type,summary:r.summary,created_at:r.created_at};}).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));saveLocalAudit(localAuditRows);pushLocalAudit('백업 복원','',`근태 ${count}건 · 휴근 ${hwCount}건 · ${personnelIncluded?'인사발령 포함':'인사발령 유지'} · 변경내역 ${auditCount}건 복원`,null);}else{if(personnelIncluded&&state.personnelBackendReady===true){await rpc('restore_full_backup_with_personnel_v1',{p_token:state.sessionToken,p_admin_pin:pin,p_personnel:payload.personnel,p_attendance_rows:payload.attendance,p_holiday_work_rows:payload.holiday_work,p_audit_rows:payload.audit_logs,p_company_event_rows:eventIncluded?payload.company_events:null},{timeoutMs:20000});}else{await rpc('restore_operational_backup_personnel_compatible_v1',{p_token:state.sessionToken,p_admin_pin:pin,p_attendance_rows:payload.attendance,p_holiday_work_rows:payload.holiday_work,p_audit_rows:payload.audit_logs,p_company_event_rows:eventIncluded?payload.company_events:null});}}
-    const restoredFile=pendingRestoreBackup.fileName;pendingRestoreBackup=null;state.selectedDate=null;closeAll();await loadEmployees();await loadAccountStatus();applyAccountModeUI();await loadMonthData(true);await loadCompanyEvents(false);render();$('statusLine').textContent=`백업에서 근태 ${count}건 · 휴근 ${hwCount}건 · ${personnelIncluded?'인사발령 포함 · ':''}운영 데이터를 반영했습니다.`;$('restoreSuccessMessage').innerHTML=`백업 파일의 근태 <b>${count}건</b> · 휴근 <b>${hwCount}건</b> · ${eventIncluded?`사내일정 <b>${eventCount}건</b>`:'사내일정 <b>기존 데이터 유지</b>'} · ${personnelIncluded?'인사발령 <b>복원</b>':'인사발령 <b>기존 데이터 유지</b>'} · 최근 변경내역 <b>${auditCount}건</b>이 반영되었습니다.<br><span style="display:block;margin-top:6px;font-size:.82em;font-weight:700;color:#047857">${escapeHtml(restoredFile)}</span><span style="display:block;margin-top:8px;font-size:.78em;font-weight:700;color:#1d4ed8">복원 직전 상태도 전체 백업으로 자동 저장했습니다.<br>${escapeHtml(safetyBackupName)}</span><span style="display:block;margin-top:7px;font-size:.78em;font-weight:700;color:#6d28d9">개인 메모·연차 기준값·장기재직 개인설정은 그대로 유지되었습니다.</span>`;openBackdrop('restoreSuccessBackdrop');}catch(e){const msg=String(e.message||'');$('restoreError').textContent=msg.includes('ADMIN_PIN')?'관리자 2차 비밀번호가 맞지 않습니다.':msg.includes('PERSONNEL_BACKEND_REQUIRED')?'인사발령 SQL을 먼저 적용해 주세요.':msg.includes('PERSONNEL_EMPLOYEE_MISSING')?'인사 백업에 현재 DB에 없는 직원 ID가 있습니다. 직원 계정 이력을 먼저 확인해 주세요.':userSafeServiceError(e,'백업을 복원하지 못했습니다. 잠시 후 다시 시도해 주세요.');}finally{showLoading(false);}
+function formatDataCounts(counts,keys){
+  return (keys||[]).map(k=>`${dataSectionLabel(k)} ${Number(counts?.[k]||0).toLocaleString('ko-KR')}건`).join(' · ');
 }
+function dataBackupFilename(scope){
+  const d=new Date(),stamp=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  return `근무모아_${scope==='personal'?'내데이터':'관리자'}백업_${stamp}.json`;
+}
+function downloadDataBackup(payload,scope){
+  const filename=dataBackupFilename(scope),blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);return filename;
+}
+function parseDataBackupText(text,expectedScope){
+  if(text.length>15*1024*1024)throw new Error('백업 파일이 너무 큽니다.');
+  let payload;try{payload=JSON.parse(text);}catch{throw new Error('JSON 백업 파일을 읽지 못했습니다.');}
+  if(!payload||payload.format!=='workmoa-data-backup')throw new Error('새 데이터 관리 기능에서 만든 백업 파일이 아닙니다.');
+  if(Number(payload.backup_schema_version)!==1)throw new Error(Number(payload.backup_schema_version)>1?'현재 사이트보다 새로운 백업 형식입니다. 사이트를 먼저 업데이트해 주세요.':'지원하지 않는 이전 백업 형식입니다.');
+  if(payload.backup_type!==expectedScope)throw new Error(expectedScope==='personal'?'개인 백업 파일을 선택해 주세요.':'관리자 백업 파일을 선택해 주세요.');
+  if(!Array.isArray(payload.included_sections)||!payload.data||typeof payload.data!=='object')throw new Error('백업 파일 구조가 올바르지 않습니다.');
+  return payload;
+}
+function dataActionErrorText(e,fallback){
+  const m=String(e?.message||'');
+  if(m.includes('DATA_BUSY_RETRY'))return '다른 사용자의 저장 작업이 진행 중입니다. 데이터 충돌 방지를 위해 이번 작업은 실행하지 않았습니다. 잠시 후 다시 시도해 주세요.';
+  if(m.includes('FOREIGN_SITE_BACKUP'))return '다른 사이트/조직에서 만든 백업 파일이라 복원할 수 없습니다.';
+  if(m.includes('BACKUP_SCHEMA_TOO_NEW'))return '현재 사이트보다 새로운 백업 형식입니다. 사이트를 먼저 업데이트해 주세요.';
+  if(m.includes('BACKUP_SCHEMA_UNSUPPORTED'))return '지원하지 않는 이전 백업 형식입니다.';
+  if(m.includes('BACKUP_SCOPE_MISMATCH'))return '백업 파일 종류가 현재 복원 화면과 맞지 않습니다.';
+  if(m.includes('BACKUP_CHECKSUM_MISSING')||m.includes('BACKUP_CHECKSUM_MISMATCH'))return '백업 파일의 무결성 확인값이 맞지 않습니다. 파일이 손상되었거나 내용이 변경된 것으로 보여 복원하지 않았습니다.';
+  if(m.includes('INVALID_BACKUP_FILE')||m.includes('INVALID_BACKUP_SCHEMA')||m.includes('INVALID_SITE_INSTANCE')||m.includes('INVALID_BACKUP_SCOPE')||m.includes('INVALID_BACKUP_EXPORTED_AT'))return '백업 파일 구조 또는 식별정보가 올바르지 않아 복원할 수 없습니다.';
+  if(m.includes('BACKUP_SECTION_NOT_INCLUDED')||m.includes('BACKUP_SECTION_MISSING'))return '선택한 항목 중 백업 파일에 포함되지 않은 데이터가 있습니다.';
+  if(m.includes('AUDIT_LOGS_PROTECTED'))return '작업이력은 보호 데이터라 복원하거나 초기화할 수 없습니다.';
+  if(m.includes('ACCOUNT_READ_ONLY'))return '조회 전용 계정에서는 데이터를 복원할 수 없습니다.';
+  if(m.includes('ADMIN_PIN'))return '관리자 2차 비밀번호가 맞지 않습니다.';
+  if(m.includes('PERSONNEL_EMPLOYEE_MISSING'))return '백업에 현재 DB에 없는 직원 ID가 있습니다. 직원 계정 구조를 먼저 확인해 주세요.';
+  if(m.includes('PERSONNEL_EMPLOYEE_NOT_IN_BACKUP')||m.includes('PERSONNEL_EMPLOYEE_HISTORY_MISSING')||m.includes('PERSONNEL_SAME_DAY_CONFLICT')||m.includes('PERSONNEL_CORRECTION_')||m.includes('PERSONNEL_DUPLICATE_ACTION_IN_BATCH')||m.includes('PERSONNEL_EMPTY_BATCH')||m.includes('INVALID_PERSONNEL_ACTION')||m.includes('INVALID_PERSONNEL_ACCOUNT_EVENT'))return '백업의 직원·인사정보 내부 연결관계가 올바르지 않아 복원하지 않았습니다.';
+  if(m.includes('PERSONNEL_RESET_REQUIRES_OPERATIONAL_DATA'))return '직원·인사정보를 초기화하려면 근태 기록·휴근 기록·개인 메모도 함께 명시적으로 선택해야 합니다. 과거 업무데이터만 남아 인사이력과 모순되는 상태를 막기 위한 보호장치입니다.';
+  if(m.includes('PERSONNEL_DATA_CONFLICT_'))return '직원·인사정보 변경 후 남아 있는 근태·휴근·개인 메모 중 새 인사이력과 맞지 않는 기록이 있어 전체 작업을 취소했습니다. 해당 업무데이터도 같은 백업에서 함께 복원하거나 함께 초기화해 주세요.';
+  if(m.includes('PERSONNEL_DATE_OUTSIDE_ASSIGNMENT')||m.includes('MEMO_DATE_OUTSIDE_EMPLOYMENT')||m.includes('NOT_DAY_EMPLOYEE'))return '백업 데이터 중 현재 인사이력과 맞지 않는 날짜가 있어 복원하지 않았습니다.';
+  if(m.includes('NOT_HOLIDAY'))return '휴근 백업 중 현재 휴일로 인정되지 않는 날짜가 있어 복원하지 않았습니다.';
+  if(m.includes('HOLIDAY_WORK_DISABLED'))return '현재 휴근 등록이 허용되지 않은 계정이라 휴근 기록을 복원할 수 없습니다.';
+  if(m.includes('INVALID_LEAVE_YEAR')||m.includes('INVALID_LEAVE_MINUTES')||m.includes('INVALID_LEAVE_SETTING'))return '백업의 연차 기준값이 올바르지 않아 복원하지 않았습니다.';
+  if(m.includes('INVALID_HIRE_DATE')||m.includes('INVALID_PREVIOUS_USED')||m.includes('INVALID_SERVICE_BAND')||m.includes('EXCLUSION_BEFORE_HIRE')||m.includes('TOO_MANY_EXCLUSIONS')||m.includes('INVALID_LONG_SERVICE_SETTINGS'))return '백업의 장기재직 설정이 올바르지 않아 복원하지 않았습니다.';
+  if(m.includes('INVALID_DATE')||m.includes('INVALID_TIME')||m.includes('INVALID_WORK_DATE')||m.includes('INVALID_MEMO_DATE')||m.includes('INVALID_LONG_SERVICE_EXCLUSION')||m.includes('INVALID_ABSENCE_MODE'))return '백업 데이터의 날짜·시간 또는 근태 방식이 올바르지 않아 복원하지 않았습니다.';
+  if(m.includes('TYPE_REQUIRED')||m.includes('INVALID_ATTENDANCE_TYPE'))return '백업 근태 중 종류가 비어 있거나 올바르지 않은 기록이 있어 복원하지 않았습니다.';
+  if(m.includes('MEMO_TOO_LONG'))return '백업에 허용 길이를 넘는 메모가 있어 복원하지 않았습니다.';
+  if(m.includes('INVALID_HOLIDAY_WORK_ELIGIBILITY'))return '백업의 휴근 가능 설정 값이 올바르지 않아 복원하지 않았습니다.';
+  if(m.includes('SECTION_TOO_LARGE')||m.includes('INVALID_SECTION_ROW')||m.includes('INVALID_SECTION_DATA'))return '백업 파일의 데이터 배열 구조나 크기가 올바르지 않아 복원하지 않았습니다.';
+  if(m.includes('SAFETY_BACKUP_NOT_FOUND'))return '선택한 안전백업을 찾을 수 없습니다.';
+  if(m.includes('DATA_MGMT')||m.includes('Could not find the function')||m.includes('PGRST202'))return '새 데이터 관리 SQL을 먼저 Supabase에 적용해 주세요.';
+  return userSafeServiceError(e,fallback);
+}
+function dataDestructiveErrorText(e,fallback){
+  if(isTransientRpcError(e))return '서버 응답이 끊겨 작업의 최종 결과를 확인할 수 없습니다. 같은 복원·초기화를 바로 다시 실행하지 말고, 페이지를 새로고침한 뒤 현재 데이터와 자동 안전백업을 먼저 확인해 주세요.';
+  return dataActionErrorText(e,fallback);
+}
+async function refreshAfterConfirmedDataAction(){
+  try{await refreshAfterDataAction();return '';}
+  catch(e){console.error('데이터 작업은 완료됐지만 화면 재조회에 실패했습니다.',e);return '서버 작업은 완료됐지만 화면 최신 데이터 재조회에 실패했습니다. 페이지를 새로고침해 현재 상태를 다시 확인해 주세요.';}
+}
+function dataRefreshWarningHtml(message){return message?`<span style="display:block;margin-top:8px;padding:8px 10px;border-radius:9px;background:#fff7ed;color:#9a3412;font-size:.8em;font-weight:750">${escapeHtml(message)}</span>`:'';}
+function showDataSuccess(title,html){
+  $('dataActionSuccessTitle').textContent=title;$('dataActionSuccessMessage').innerHTML=html;openBackdrop('dataActionSuccessBackdrop');
+}
+function renderRestorePreview(targetId,preview,sections,fileName){
+  const box=$(targetId),rows=preview?.sections||{},personal=preview?.backup_type==='personal';
+  const restoreTarget=personal?`${state.me?.display_name||'현재 로그인 직원'} · 내 데이터`:'전체 업무데이터 · 관리자 복원';
+  const creator=preview?.created_by?.display_name?`<br>백업 생성자: ${escapeHtml(preview.created_by.display_name)}`:'';
+  box.innerHTML=`<b>${escapeHtml(fileName||'백업 파일')}</b><br>백업 시각: ${escapeHtml(backupExportedText(preview?.exported_at))}<br>복원 대상: <b>${escapeHtml(restoreTarget)}</b>${creator}${preview?.app_version?`<br>사이트 버전: ${escapeHtml(preview.app_version)}`:''}<br>포함 항목: ${escapeHtml(dataSectionListText(sections))}<div style="margin-top:7px">${sections.map(k=>{const x=rows[k]||{};return `<div class="data-preview-row"><span>${escapeHtml(dataSectionLabel(k))}</span><b>${Number(x.backup_count||0).toLocaleString('ko-KR')}건 → 변경예정 약 ${Number(x.change_estimate||0).toLocaleString('ko-KR')}건</b></div>`;}).join('')}</div>`;
+  box.classList.remove('hidden');
+}
+async function refreshAfterDataAction(){
+  state.selectedDate=null;
+  await loadEmployees();await loadAccountStatus();applyAccountModeUI();await loadMonthData(true);await loadCompanyEvents(false);
+  if(state.view==='leave')await loadAnnualLeaveData(false);if(state.view==='longservice')await loadLongServiceData(false);render();
+  if($('auditBackdrop')?.classList.contains('open'))await loadAuditPage(true);
+}
+
+function openMyDataManager(){
+  if(!state.me)return;
+  pendingMyDataRestore=null;
+  renderDataSectionGrid('myDataSections',MY_DATA_SECTION_KEYS,MY_DATA_SECTION_KEYS);
+  $('myDataRestoreFile').value='';$('myDataRestoreFile').classList.add('hidden');$('myDataRestorePreview').classList.add('hidden');$('myDataRestorePreview').innerHTML='';$('myDataError').textContent='';$('myDataRestoreBtn').classList.add('hidden');
+  const ro=accountReadOnly();$('myDataReadOnlyNote').classList.toggle('hidden',!ro);$('myDataChooseRestoreBtn').disabled=ro;
+  openBackdrop('myDataBackdrop');
+}
+async function backupMyData(){
+  $('myDataError').textContent='';const sections=selectedDataSections('myDataSections');if(!sections.length){$('myDataError').textContent='백업할 항목을 하나 이상 선택해 주세요.';return;}
+  if(!configured()){$('myDataError').textContent='공용 서버에 연결된 상태에서 사용할 수 있습니다.';return;}
+  showLoading(true);try{const payload=await rpc('export_my_data_v1',{p_token:state.sessionToken,p_sections:sections,p_app_version:APP_VERSION},{timeoutMs:15000}),filename=downloadDataBackup(payload,'personal');showToast('✓ 내 데이터 백업 파일을 저장했습니다.','success');showDataSuccess('내 데이터 백업 완료',`${escapeHtml(dataSectionListText(sections))}<br><span style="display:block;margin-top:7px;font-size:.82em;color:#1d4ed8">${escapeHtml(filename)}</span>`);}catch(e){$('myDataError').textContent=dataActionErrorText(e,'내 데이터 백업 파일을 만들지 못했습니다.');}finally{showLoading(false);}
+}
+async function prepareMyDataRestore(file){
+  pendingMyDataRestore=null;$('myDataError').textContent='';$('myDataRestorePreview').classList.add('hidden');$('myDataRestoreBtn').classList.add('hidden');if(!file)return;
+  showLoading(true);try{const payload=parseDataBackupText(await file.text(),'personal'),included=MY_DATA_SECTION_KEYS.filter(k=>payload.included_sections.includes(k));if(!included.length)throw new Error('복원할 개인 데이터가 없습니다.');renderDataSectionGrid('myDataSections',MY_DATA_SECTION_KEYS,included,MY_DATA_SECTION_KEYS.filter(k=>!included.includes(k)));const preview=await rpc('preview_data_restore_v1',{p_token:state.sessionToken,p_payload:payload,p_sections:included},{timeoutMs:15000});pendingMyDataRestore={fileName:file.name,payload};renderRestorePreview('myDataRestorePreview',preview,included,file.name);$('myDataRestoreBtn').classList.remove('hidden');}catch(e){$('myDataError').textContent=dataActionErrorText(e,e.message||'백업 파일을 확인하지 못했습니다.');}finally{showLoading(false);}
+}
+async function restoreMyData(){
+  if(!pendingMyDataRestore||accountReadOnly())return;
+  $('myDataError').textContent='';
+  const sections=selectedDataSections('myDataSections');
+  if(!sections.length){$('myDataError').textContent='복원할 항목을 하나 이상 선택해 주세요.';return;}
+  try{
+    const preview=await rpc('preview_data_restore_v1',{p_token:state.sessionToken,p_payload:pendingMyDataRestore.payload,p_sections:sections},{timeoutMs:15000});
+    renderRestorePreview('myDataRestorePreview',preview,sections,pendingMyDataRestore.fileName);
+  }catch(e){$('myDataError').textContent=dataActionErrorText(e,'복원할 백업 데이터를 확인하지 못했습니다.');return;}
+  if(!confirm(`선택한 내 데이터를 백업 파일 시점으로 교체할까요?\n\n${dataSectionListText(sections)}\n\n직원정보·소속·입사일·계정상태는 변경되지 않습니다.`))return;
+  showLoading(true);
+  try{
+    let result;
+    try{result=await rpc('restore_my_data_v1',{p_token:state.sessionToken,p_payload:pendingMyDataRestore.payload,p_sections:sections},{timeoutMs:120000});}
+    catch(e){$('myDataError').textContent=dataDestructiveErrorText(e,'내 데이터를 복원하지 못했습니다.');return;}
+    const warning=await refreshAfterConfirmedDataAction();
+    closeBackdrop('myDataBackdrop');
+    showDataSuccess('내 데이터 복원 완료',`${escapeHtml(formatDataCounts(result?.section_counts||{},sections))}<br><span style="display:block;margin-top:7px;font-size:.82em;color:#6d28d9">현재 로그인한 내 계정에만 복원했습니다.</span>${dataRefreshWarningHtml(warning)}`);
+    pendingMyDataRestore=null;
+  }finally{showLoading(false);}
+}
+
+function openAdminDataManager(){
+  if(!activeAdminMode())return;pendingAdminDataRestore=null;
+  const defaults=ADMIN_DATA_SECTION_KEYS.filter(k=>k!=='personal_memos');renderDataSectionGrid('adminDataSections',ADMIN_DATA_SECTION_KEYS,defaults);
+  $('adminDataPin').value='';$('adminDataError').textContent='';$('adminDataRestoreFile').value='';$('adminDataRestoreFile').classList.add('hidden');$('adminDataRestorePreview').classList.add('hidden');$('adminDataRestorePreview').innerHTML='';$('adminDataRestoreBtn').disabled=true;
+  openBackdrop('dataManageBackdrop');void loadSafetyBackups();
+}
+async function backupAdminData(){
+  $('adminDataError').textContent='';const sections=selectedDataSections('adminDataSections');if(!sections.length){$('adminDataError').textContent='백업할 항목을 하나 이상 선택해 주세요.';return;}
+  showLoading(true);try{const payload=await rpc('export_admin_data_v1',{p_token:state.sessionToken,p_sections:sections,p_app_version:APP_VERSION},{timeoutMs:20000}),filename=downloadDataBackup(payload,'admin');showToast('✓ 관리자 백업 파일을 저장했습니다.','success');showDataSuccess('관리자 백업 완료',`${escapeHtml(formatDataCounts(payload?.section_counts||{},sections))}<br><span style="display:block;margin-top:7px;font-size:.82em;color:#1d4ed8">${escapeHtml(filename)}</span><span style="display:block;margin-top:7px;font-size:.78em;color:#6d28d9">PIN·비밀번호·로그인명·세션 등 인증정보는 포함하지 않았습니다. DB 전체 재구축 시 동일 employee_id의 계정 뼈대가 먼저 필요합니다.</span>`);}catch(e){$('adminDataError').textContent=dataActionErrorText(e,'관리자 백업 파일을 만들지 못했습니다.');}finally{showLoading(false);}
+}
+async function prepareAdminDataRestore(file){
+  pendingAdminDataRestore=null;$('adminDataError').textContent='';$('adminDataRestorePreview').classList.add('hidden');$('adminDataRestoreBtn').disabled=true;if(!file)return;
+  showLoading(true);try{const payload=parseDataBackupText(await file.text(),'admin'),included=ADMIN_DATA_SECTION_KEYS.filter(k=>k!=='audit_logs'&&payload.included_sections.includes(k));if(!included.length)throw new Error('복원 가능한 업무데이터가 없습니다.');renderDataSectionGrid('adminDataSections',ADMIN_DATA_SECTION_KEYS,included,ADMIN_DATA_SECTION_KEYS.filter(k=>!payload.included_sections.includes(k)||k==='audit_logs'));const preview=await rpc('preview_data_restore_v1',{p_token:state.sessionToken,p_payload:payload,p_sections:included},{timeoutMs:20000});pendingAdminDataRestore={fileName:file.name,payload};renderRestorePreview('adminDataRestorePreview',preview,included,file.name);$('adminDataRestoreBtn').disabled=false;}catch(e){$('adminDataError').textContent=dataActionErrorText(e,e.message||'백업 파일을 확인하지 못했습니다.');}finally{showLoading(false);}
+}
+function adminPinValue(){const pin=$('adminDataPin').value.trim();if(!/^\d{4}$/.test(pin))throw new Error('관리자 2차 비밀번호 4자리를 입력해 주세요.');return pin;}
+async function restoreAdminData(){
+  if(!pendingAdminDataRestore||!activeAdminMode())return;
+  $('adminDataError').textContent='';
+  let pin,sections;
+  try{
+    pin=adminPinValue();sections=selectedDataSections('adminDataSections',{allowAudit:false});
+    if(!sections.length)throw new Error('복원할 항목을 하나 이상 선택해 주세요.');
+    const preview=await rpc('preview_data_restore_v1',{p_token:state.sessionToken,p_payload:pendingAdminDataRestore.payload,p_sections:sections},{timeoutMs:20000});
+    renderRestorePreview('adminDataRestorePreview',preview,sections,pendingAdminDataRestore.fileName);
+  }catch(e){$('adminDataError').textContent=dataActionErrorText(e,e.message||'복원할 백업 데이터를 확인하지 못했습니다.');return;}
+  if(!confirm(`선택한 업무데이터를 백업 파일 시점으로 교체할까요?\n\n${dataSectionListText(sections)}\n\n실행 직전 서버 안전백업이 자동 생성됩니다.`))return;
+  showLoading(true);
+  try{
+    let result;
+    try{result=await rpc('admin_restore_data_v1',{p_token:state.sessionToken,p_admin_pin:pin,p_payload:pendingAdminDataRestore.payload,p_sections:sections,p_app_version:APP_VERSION},{timeoutMs:120000});}
+    catch(e){$('adminDataError').textContent=dataDestructiveErrorText(e,e.message||'데이터를 복원하지 못했습니다.');return;}
+    const warning=await refreshAfterConfirmedDataAction();
+    await loadSafetyBackups();
+    closeBackdrop('dataManageBackdrop');
+    showDataSuccess('데이터 복원 완료',`${escapeHtml(formatDataCounts(result?.section_counts||{},sections))}<br><span style="display:block;margin-top:7px;font-size:.82em;color:#1d4ed8">복원 직전 안전백업 #${Number(result?.safety_backup_id||0)}을 서버에 저장했습니다.</span>${dataRefreshWarningHtml(warning)}`);
+    pendingAdminDataRestore=null;
+  }finally{showLoading(false);}
+}
+async function resetAdminData(){
+  if(!activeAdminMode())return;
+  $('adminDataError').textContent='';
+  let pin,sections;
+  try{
+    pin=adminPinValue();sections=selectedDataSections('adminDataSections',{allowAudit:false});
+    if(!sections.length)throw new Error('초기화할 항목을 하나 이상 선택해 주세요.');
+    if(sections.includes('personnel')){
+      const required=['attendance','holiday_work','personal_memos'],missing=required.filter(k=>!sections.includes(k));
+      if(missing.length)throw new Error('PERSONNEL_RESET_REQUIRES_OPERATIONAL_DATA');
+    }
+  }catch(e){$('adminDataError').textContent=dataActionErrorText(e,e.message||'초기화 항목을 확인하지 못했습니다.');return;}
+  let extra='';
+  if(sections.includes('holiday_work_eligibility'))extra+='\n· 휴근 가능 설정은 전 직원 기본값(가능)으로 돌아갑니다.';
+  if(sections.includes('personnel'))extra+='\n· 직원 ID와 인증정보는 유지하고 인사이력만 오늘 현재상태 기준점으로 정리합니다.';
+  if(!confirm(`선택한 업무데이터를 초기화할까요?\n\n${dataSectionListText(sections)}${extra}\n\n실행 직전 서버 안전백업이 자동 생성됩니다.`))return;
+  if(!confirm(`마지막 확인입니다.\n\n${sections.length}개 항목을 실제로 초기화합니다. 계속할까요?\n\n자동 안전백업이 먼저 생성됩니다.`))return;
+  const resetPhrase=prompt('오조작 방지를 위해 아래 칸에 “초기화”라고 입력해 주세요.\n\n취소하려면 취소 버튼을 누르세요.','');
+  if(resetPhrase===null)return;
+  if(resetPhrase.trim()!=='초기화'){$('adminDataError').textContent='초기화를 실행하지 않았습니다. 확인문구 “초기화”를 정확히 입력해 주세요.';return;}
+  showLoading(true);
+  try{
+    let result;
+    try{result=await rpc('admin_reset_data_v1',{p_token:state.sessionToken,p_admin_pin:pin,p_sections:sections,p_app_version:APP_VERSION},{timeoutMs:120000});}
+    catch(e){$('adminDataError').textContent=dataDestructiveErrorText(e,e.message||'선택한 데이터를 초기화하지 못했습니다.');return;}
+    const warning=await refreshAfterConfirmedDataAction();
+    await loadSafetyBackups();
+    closeBackdrop('dataManageBackdrop');
+    showDataSuccess('선택 초기화 완료',`${escapeHtml(formatDataCounts(result?.section_counts||{},sections))}<br><span style="display:block;margin-top:7px;font-size:.82em;color:#1d4ed8">초기화 직전 안전백업 #${Number(result?.safety_backup_id||0)}을 서버에 저장했습니다.</span>${dataRefreshWarningHtml(warning)}`);
+  }finally{showLoading(false);}
+}
+async function loadSafetyBackups(){
+  if(!activeAdminMode())return;const box=$('safetyBackupList');if(!box)return;box.innerHTML='<div class="employee-empty">불러오는 중…</div>';
+  try{const rows=await rpc('list_data_safety_backups_v1',{p_token:state.sessionToken});safetyBackupsCache=Array.isArray(rows)?rows:[];if(!safetyBackupsCache.length){box.innerHTML='<div class="employee-empty">아직 자동 안전백업이 없습니다.</div>';return;}box.innerHTML=safetyBackupsCache.map(r=>`<div class="safety-backup-row"><div class="safety-backup-top"><div class="safety-backup-title">#${Number(r.id)} · ${escapeHtml(r.operation_type==='admin_reset'?'초기화 직전':r.operation_type==='safety_restore'?'안전복원 직전':'복원 직전')}</div><div class="audit-time">${escapeHtml(backupExportedText(r.created_at))}</div></div><div class="safety-backup-meta">${escapeHtml(dataSectionListText(r.included_sections||[]))}${r.created_by_name?` · ${escapeHtml(r.created_by_name)}`:''}</div><button class="safety-backup-restore" type="button" data-safety-restore="${Number(r.id)}">이 작업 전 상태로 되돌리기</button></div>`).join('');}catch(e){safetyBackupsCache=[];box.innerHTML=`<div class="employee-empty">${escapeHtml(dataActionErrorText(e,'안전백업을 불러오지 못했습니다.'))}</div>`;}
+}
+async function restoreSafetyBackup(id){
+  if(!activeAdminMode())return;
+  $('adminDataError').textContent='';
+  let pin,item,sections;
+  try{
+    pin=adminPinValue();item=safetyBackupsCache.find(x=>Number(x.id)===Number(id));sections=item?.included_sections||[];
+    if(!sections.length)throw new Error('안전백업의 대상 항목을 확인하지 못했습니다.');
+  }catch(e){$('adminDataError').textContent=dataActionErrorText(e,e.message||'안전백업을 확인하지 못했습니다.');return;}
+  if(!confirm(`안전백업 #${id}에서 아래 항목만 작업 직전 상태로 되돌릴까요?\n\n${dataSectionListText(sections)}\n\n그 이후 정상적으로 변경된 다른 항목은 유지됩니다. 현재 상태도 먼저 새 안전백업으로 저장합니다.`))return;
+  showLoading(true);
+  try{
+    let result;
+    try{result=await rpc('admin_restore_safety_backup_v1',{p_token:state.sessionToken,p_admin_pin:pin,p_safety_backup_id:Number(id),p_app_version:APP_VERSION},{timeoutMs:120000});}
+    catch(e){$('adminDataError').textContent=dataDestructiveErrorText(e,e.message||'안전백업을 복원하지 못했습니다.');return;}
+    const warning=await refreshAfterConfirmedDataAction();
+    await loadSafetyBackups();
+    closeBackdrop('dataManageBackdrop');
+    showDataSuccess('안전백업 복원 완료',`${escapeHtml(dataSectionListText(result?.sections||sections))}을(를) 안전백업 #${Number(id)} 시점으로 되돌렸습니다.<br><span style="display:block;margin-top:7px;font-size:.82em;color:#1d4ed8">복원 직전 현재 상태도 안전백업 #${Number(result?.safety_backup_id||0)}으로 보관했습니다.</span>${dataRefreshWarningHtml(warning)}`);
+  }finally{showLoading(false);}
+}
+function wireDataManagement(){
+  $('myDataBtn')?.addEventListener('click',()=>{closeBackdrop('viewSettingsBackdrop');openMyDataManager();});
+  $('myDataBackupBtn')?.addEventListener('click',backupMyData);$('myDataChooseRestoreBtn')?.addEventListener('click',()=>{if(accountReadOnly())return;$('myDataRestoreFile').value='';$('myDataRestoreFile').click();});$('myDataRestoreFile')?.addEventListener('change',e=>prepareMyDataRestore(e.target.files?.[0]));$('myDataRestoreBtn')?.addEventListener('click',restoreMyData);
+  $('dataManageBtn')?.addEventListener('click',openAdminDataManager);$('adminDataBackupBtn')?.addEventListener('click',backupAdminData);$('adminDataChooseRestoreBtn')?.addEventListener('click',()=>{$('adminDataRestoreFile').value='';$('adminDataRestoreFile').click();});$('adminDataRestoreFile')?.addEventListener('change',e=>prepareAdminDataRestore(e.target.files?.[0]));$('adminDataRestoreBtn')?.addEventListener('click',restoreAdminData);$('adminDataResetBtn')?.addEventListener('click',resetAdminData);$('refreshSafetyBackupsBtn')?.addEventListener('click',loadSafetyBackups);$('safetyBackupList')?.addEventListener('click',e=>{const b=e.target.closest('[data-safety-restore]');if(b)restoreSafetyBackup(b.dataset.safetyRestore);});
+  $('dataActionSuccessOkBtn')?.addEventListener('click',()=>closeBackdrop('dataActionSuccessBackdrop'));
+}
+
 
 // 장기재직 입사일 미입력 시 직원 메타데이터의 회사 입사일을 기본값으로만 제시합니다(자동 저장하지 않음).
 function personnelLongServiceHireDefault(){const emp=state.employees.find(e=>Number(e.id)===Number(state.me?.employee_id));return emp?.company_hire_date||'';}
@@ -4719,56 +4968,6 @@ function toggleAdminPinField(){
   $('adminPinField').classList.toggle('hidden',!isAdminName);
   if(!isAdminName) $('loginAdminPin').value='';
 }
-function openResetAll(){
-  if(!activeAdminMode()) return;
-  $('resetAdminPin').value=''; $('resetError').textContent='';
-  openBackdrop('resetBackdrop');
-  setTimeout(()=>$('resetAdminPin').focus(),50);
-}
-async function resetAllAttendance(){
-  if(!activeAdminMode()) return;
-  $('resetError').textContent='';
-  const pin=$('resetAdminPin').value.trim();
-  if(!/^\d{4}$/.test(pin)){ $('resetError').textContent='관리자 2차 비밀번호를 입력해 주세요.'; return; }
-  if(!confirm('정말 모든 직원의 근태·휴근·사내일정·최근 변경내역을 초기화할까요?\n\n인사발령 이력은 오늘 현재 상태를 새 기준배치로 남기고 이전/미래 발령이력은 초기화합니다.\n직원 ID·입사일·개인 메모·장기재직 개인설정은 삭제되지 않습니다.\n초기화 직전에 인사발령까지 포함한 전체 백업 파일이 자동 저장됩니다.')) return;
-  showLoading(true);
-  try{
-    // 비밀번호를 먼저 확인한 뒤 사내일정까지 포함한 전체 백업을 저장하고, 백업 성공 후에만 초기화합니다.
-    if(!configured()){
-      if(pin!==ADMIN_SECOND_PIN) throw new Error('ADMIN_PIN_INVALID');
-    }else{
-      await rpc('verify_admin_pin',{p_token:state.sessionToken,p_admin_pin:pin});
-    }
-    const backup=await buildFullBackup();
-    const backupName=downloadJsonBackup(backup);
-
-    if(!configured()){
-      localStorage.removeItem(LOCAL_DATA_KEY);
-      localStorage.removeItem(LOCAL_HOLIDAY_WORK_KEY);
-      localStorage.removeItem(LOCAL_COMPANY_EVENT_KEY);
-      localStorage.removeItem(LOCAL_AUDIT_KEY);
-      if(state.personnelBackendReady!==false){
-        const today=todayKey(),newBatch=`reset-${Date.now()}`,created=new Date().toISOString(),next=[];
-        state.employees.forEach((e,i)=>{const a=personnelAssignmentOn(e,today),account=employeeAccountStatusOn(e,today);next.push({action_id:i+1,batch_id:newBatch,employee_id:Number(e.id),display_name:e.display_name,placement_code:a?.placement_code||'NONE',employment_status:a?.employment_status||'unassigned',account_status:account||'disabled',sort_order:a?.sort_order||e.sort_order||999,entry_type:'reset_baseline',company_hire_date:e.company_hire_date||null,is_new_employee:false,created_at:created});});
-        saveLocalPersonnelBatches([{id:newBatch,effective_date:today,batch_kind:'baseline',status:'active',note:'전체 초기화 기준 배치',created_at:created}]);saveLocalPersonnelActions(next);saveLocalPersonnelAccountEvents([]);saveLocalPersonnelSnapshots([]);state.personnelAccountEvents=[];state.personnelSnapshots=[];
-      }
-    }else{
-      if(state.personnelBackendReady!==true) throw new Error('PERSONNEL_BACKEND_REQUIRED');
-      await rpc('reset_all_operational_data_with_personnel_v1',{p_token:state.sessionToken,p_admin_pin:pin},{timeoutMs:20000});
-    }
-    state.attendance=[]; state.holidayWorks=[]; state.companyEvents=[]; state.companyEventBackendReady=true; state.selectedDate=null; auditRows=[]; auditOffset=0; auditHasMore=false;
-    // B안 초기화 직후에도 과거/미래 인사이력이 화면 메모리에 남지 않도록 서버/로컬의 새 기준배치를 즉시 다시 읽습니다.
-    closeAll(); await loadEmployees(); await loadAccountStatus(); applyAccountModeUI(); await loadMonthData(true); await loadCompanyEvents(false); renderCalendar(); renderCompanyEventsBanner();
-    $('statusLine').textContent='전체 운영데이터가 초기화되었고 현재 인사상태가 새 기준배치로 설정되었습니다.';
-    $('resetSuccessMessage').innerHTML=`전체 운영데이터가 초기화되고 현재 인사상태가 오늘 기준 새 기준배치로 설정되었습니다.<br><span style="display:block;margin-top:5px;font-size:.82em;font-weight:800;color:#6d28d9">현재 인사상태는 오늘 기준 새 기준배치로 유지되며, 직원 ID·입사일·개인 메모·연차 기준값·장기재직 개인설정은 그대로 유지됩니다.</span><span style="display:block;margin-top:6px;font-size:.82em;font-weight:700;color:#047857">초기화 전 백업 파일에는 인사발령을 포함한 전체 운영데이터가 저장되어 있습니다.<br>${escapeHtml(backupName)}</span>`;
-    openBackdrop('resetSuccessBackdrop');
-  }catch(e){
-    const msg=String(e.message||'');
-    if(msg.includes('ADMIN_PIN')) $('resetError').textContent='관리자 2차 비밀번호가 맞지 않습니다.';
-    else $('resetError').textContent=userSafeServiceError(e,'초기화하지 못했습니다. 잠시 후 다시 시도해 주세요.');
-  }finally{ showLoading(false); }
-}
-
 async function goToday(){
   const t=parseDateKey(todayKey()),y=t.y,m=t.m;
   if(y<MIN_YEAR||y>MAX_YEAR){ showToast('현재 날짜는 제공 범위를 벗어났습니다.','info'); return; }
@@ -4866,7 +5065,7 @@ function wire(){
   $('typeGrid').addEventListener('click',e=>{const b=e.target.closest('[data-type]');if(b)chooseAttendanceType(b.dataset.type)});
   $('reconnectNowBtn').addEventListener('click',()=>{clearSessionRestoreRetry(false);restoreSession(true)});
   $('loginBtn').addEventListener('click',login); $('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter'){if($('loginName').value.trim()===ADMIN_NAME)$('loginAdminPin').focus();else login()}}); $('loginAdminPin').addEventListener('keydown',e=>{if(e.key==='Enter')login()}); $('loginName').addEventListener('input',toggleAdminPinField); $('loginName').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginPin').focus()});
-  $('logoutBtn').addEventListener('click',()=>logout(true)); $('refreshBtn').addEventListener('click',refresh); $('employeeManageBtn').addEventListener('click',openEmployeeManager); $('auditBtn').addEventListener('click',openAudit); $('refreshAuditBtn').addEventListener('click',()=>loadAuditPage(true)); $('auditMoreBtn').addEventListener('click',()=>loadAuditPage(false)); $('capacityBtn').addEventListener('click',openCapacity); $('refreshCapacityBtn').addEventListener('click',loadCapacity); $('backupBtn').addEventListener('click',manualBackup); $('backupSuccessOkBtn').addEventListener('click',()=>closeBackdrop('backupSuccessBackdrop')); $('restoreBackupBtn').addEventListener('click',openRestoreBackup); $('restoreFile').addEventListener('change',e=>prepareRestoreFile(e.target.files?.[0])); $('confirmRestoreBtn').addEventListener('click',restoreBackupAttendance); $('restoreSuccessOkBtn').addEventListener('click',()=>closeBackdrop('restoreSuccessBackdrop')); $('addEmployeeBtn').addEventListener('click',()=>openPersonnelBatchEditor()); $('resetCurrentPinsBtn').addEventListener('click',openResetCurrentPins); $('confirmResetPinsBtn').addEventListener('click',resetCurrentPins); $('resetPinsSuccessOkBtn').addEventListener('click',()=>closeBackdrop('resetPinsSuccessBackdrop')); $('saveEmployeeActionBtn').addEventListener('click',saveEmployeeAction); $('employeeSuccessOkBtn').addEventListener('click',()=>closeBackdrop('employeeSuccessBackdrop')); $('resetAllBtn').addEventListener('click',openResetAll); $('confirmResetBtn').addEventListener('click',resetAllAttendance); $('resetSuccessOkBtn').addEventListener('click',()=>closeBackdrop('resetSuccessBackdrop'));
+  $('logoutBtn').addEventListener('click',()=>logout(true)); $('refreshBtn').addEventListener('click',refresh); $('employeeManageBtn').addEventListener('click',openEmployeeManager); $('auditBtn').addEventListener('click',openAudit); $('refreshAuditBtn').addEventListener('click',()=>loadAuditPage(true)); $('auditMoreBtn').addEventListener('click',()=>loadAuditPage(false)); $('capacityBtn').addEventListener('click',openCapacity); $('refreshCapacityBtn').addEventListener('click',loadCapacity); $('addEmployeeBtn').addEventListener('click',()=>openPersonnelBatchEditor()); $('resetCurrentPinsBtn').addEventListener('click',openResetCurrentPins); $('confirmResetPinsBtn').addEventListener('click',resetCurrentPins); $('resetPinsSuccessOkBtn').addEventListener('click',()=>closeBackdrop('resetPinsSuccessBackdrop')); $('saveEmployeeActionBtn').addEventListener('click',saveEmployeeAction); $('employeeSuccessOkBtn').addEventListener('click',()=>closeBackdrop('employeeSuccessBackdrop'));
   document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',async()=>{state.view=b.dataset.view;renderTabs();if(state.view==='leave')await loadAnnualLeaveData(true);else if(state.view==='longservice')await loadLongServiceData(true);else renderCalendar();}));
   $('prevMonth').addEventListener('click',()=>moveMonth(-1)); $('todayBtn').addEventListener('click',goToday); $('nextMonth').addEventListener('click',()=>moveMonth(1)); $('monthTitle').addEventListener('click',openMonthPicker);
   $('addAttendanceBtn').addEventListener('click',()=>{if(state.view==='mine')openForm(state.selectedDate)}); $('saveAttendanceBtn').addEventListener('click',saveAttendance);
@@ -4916,7 +5115,7 @@ function wire(){
   setInterval(()=>{if(state.me&&!document.hidden)refresh()},60000);
 }
 
-restoreUpdateSessionHandoff(); cleanupVersionQuery(); restoreTheme(); restoreTextSizeLevel(); setupLoginPersistenceUI(); syncVersionFooter(); wire(); toggleAdminPinField(); startVersionWatcher(); restoreSession();
+restoreUpdateSessionHandoff(); cleanupVersionQuery(); restoreTheme(); restoreTextSizeLevel(); setupLoginPersistenceUI(); syncVersionFooter(); wire(); wireDataManagement(); toggleAdminPinField(); startVersionWatcher(); restoreSession();
 </script>
 </body>
 </html>
