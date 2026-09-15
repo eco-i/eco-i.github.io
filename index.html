@@ -151,6 +151,8 @@
   .shift-off{font-size:calc(17px * var(--text-scale,1));font-weight:900;color:var(--off)}
   .att-dot{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);max-width:calc(100% - 6px);font-size:calc(7px * var(--text-scale,1));font-weight:900;color:#db2777;background:#fdf2f8;border:1px solid #fbcfe8;padding:2px 4px;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1}
   .memo-mark{flex:0 0 auto;width:14px;height:14px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;background:#f3e8ff;color:#7c3aed;border:1px solid #ddd6fe;font-size:calc(8px * var(--text-scale,1));font-weight:950;line-height:1;box-shadow:0 1px 3px rgba(91,33,182,.08)}
+  .memo-preview{margin:2px 1px 0;padding:2px 3px;border-radius:5px;background:#faf5ff;color:#6d28d9;border:1px solid #ede9fe;font-size:calc(7px * var(--text-scale,1));font-weight:800;line-height:1.16;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;word-break:break-word;text-align:left}
+  .day-cell.has-memo-preview.has-attendance .memo-preview,.day-cell.has-memo-preview.has-term .memo-preview{margin-bottom:max(14px,calc(14px * var(--text-scale,1)))}
   .calendar-term-mini{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);max-width:40px;font-size:calc(7px * var(--text-scale,1));line-height:1.1;color:#047857;background:#ecfdf5;border-radius:7px;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:900}
   .day-cell.has-term.has-attendance .calendar-term-mini{left:3px;transform:none}.day-cell.has-term.has-attendance .att-dot{left:auto;right:3px;transform:none}
   .holiday-work-list-type{color:#c2410c}
@@ -355,6 +357,7 @@
   html[data-theme="dark"] .substitute-holiday-comp{background:#162033;border-color:#334155;box-shadow:none}html[data-theme="dark"] .substitute-holiday-comp-title{color:#e2e8f0}html[data-theme="dark"] .substitute-holiday-comp-day{background:#1b2638;border-color:#334155;box-shadow:none}html[data-theme="dark"] .substitute-holiday-comp-date{background:#3a2a16;color:#fdba74}html[data-theme="dark"] .substitute-holiday-comp-badge{background:#172b4d;color:#93c5fd}html[data-theme="dark"] .substitute-holiday-comp-detail{color:#cbd5e1}html[data-theme="dark"] .substitute-holiday-comp-empty{color:#94a3b8}
   html[data-theme="dark"] .holiday-work-detail,html[data-theme="dark"] .holiday-work-list-btn,html[data-theme="dark"] .sick-leave-deduct-field,html[data-theme="dark"] .annual-leave-rule,html[data-theme="dark"] .setup-note,html[data-theme="dark"] .reset-pins-btn,html[data-theme="dark"] .holiday-eligibility-toggle,html[data-theme="dark"] .scheduled-badge{background:#3a2615;color:#fdba74;border-color:#7c4a1d}
   html[data-theme="dark"] .memo-detail-section,html[data-theme="dark"] .memo-list-btn,html[data-theme="dark"] .usage-guide-readonly,html[data-theme="dark"] .annual-leave-readonly{background:#2b2140;color:#c4b5fd;border-color:#5b477a}
+  html[data-theme="dark"] .memo-preview{background:#2b2140;color:#ddd6fe;border-color:#5b477a}
   html[data-theme="dark"] .form-existing-attendance{background:#172033;border-color:#334155}html[data-theme="dark"] .form-existing-attendance-row{background:#1b2638;border-color:#334155}html[data-theme="dark"] .form-existing-attendance-title{color:#93c5fd}html[data-theme="dark"] .form-existing-attendance-main,html[data-theme="dark"] .form-existing-attendance-main b{color:#e2e8f0}html[data-theme="dark"] .form-existing-attendance-note,html[data-theme="dark"] .form-existing-attendance-count{color:#94a3b8}
   html[data-theme="dark"] .warning-box,html[data-theme="dark"] .memo-selected-delete,html[data-theme="dark"] .company-event-delete,html[data-theme="dark"] .mini-actions .danger{background:#3b1d29;color:#fda4af}
   html[data-theme="dark"] .success-box{background:#15382f;color:#6ee7b7}
@@ -951,6 +954,10 @@
     <div id="calendarToolbar" class="calendar-toolbar">
       <button id="prevMonth" class="nav-btn">이전달</button>
       <button id="monthTitle" class="month-title"></button>
+      <label id="memoDisplayControl" class="absence-reflect-control hidden" title="메모 표시 ON: 달력에 메모 내용 표시 / OFF: 연필 아이콘만 표시">
+        <span class="absence-reflect-label">메모 표시</span>
+        <input id="memoDisplayToggle" class="absence-reflect-toggle" type="checkbox" role="switch" aria-label="내 근무표 메모 표시" checked>
+      </label>
       <label id="absenceReflectControl" class="absence-reflect-control hidden" title="부재 반영 ON: 현재 가용인원 / OFF: 원래 근무자(휴근 포함)">
         <span class="absence-reflect-label">부재 반영</span>
         <input id="absenceReflectToggle" class="absence-reflect-toggle" type="checkbox" role="switch" aria-label="전체근무표 부재 반영" checked>
@@ -967,7 +974,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-1217 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-1326 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1415,8 +1422,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260915-1217';
+const APP_VERSION = 'ver20260915-1326';
 const UPDATE_HISTORY = [
+  {version:'ver20260915-1326',date:'2026.09.15',items:['내 근무표 메모 내용 표시 및 표시/숨김 기능 추가']},
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},
   {version:'ver20260913-0039',date:'2026.09.13',items:['장기재직휴가 자동계산 및 근태 연동 기능 추가']},
@@ -1443,6 +1451,7 @@ const LOCAL_EMPLOYEE_KEY = 'staffAttendance_localEmployees_v1';
 const TEXT_SIZE_KEY = 'staffAttendance_textSizeLevel_v2';
 const THEME_KEY = 'staffAttendance_theme_v1';
 const ABSENCE_REFLECT_KEY = 'staffAttendance_absenceReflect_v1';
+const MEMO_DISPLAY_KEY = 'staffAttendance_memoDisplay_v1';
 const LOCAL_AUDIT_KEY = 'staffAttendance_localAudit_v1';
 const LOCAL_MEMO_KEY_PREFIX = 'staffAttendance_localMemos_v1_';
 const LOCAL_HOLIDAY_WORK_KEY = 'staffAttendance_localHolidayWork_v1';
@@ -1632,7 +1641,7 @@ migrateLegacySessionForDevice();
 
 const state = {
   sessionToken: storedSessionToken(),
-  me:null, employees:[], attendance:[], holidayWorks:[], holidayWorkBackendReady:null, holidayWorkEligibilityReady:null, memos:[], memoBackendReady:null, companyEvents:[], companyEventBackendReady:null, annualLeaveSettings:null, annualLeaveEntries:[], annualLeaveBackendReady:null, annualLeaveYear:null, annualLeaveFormDirty:false, longServiceProfile:null, longServiceExclusions:[], longServiceEntries:[], longServiceBackendReady:null, longServiceFormDirty:false, view:'mine', selectedDate:null, absenceReflect:(()=>{try{return localStorage.getItem(ABSENCE_REFLECT_KEY)!=='0';}catch(e){return true;}})(),
+  me:null, employees:[], attendance:[], holidayWorks:[], holidayWorkBackendReady:null, holidayWorkEligibilityReady:null, memos:[], memoBackendReady:null, companyEvents:[], companyEventBackendReady:null, annualLeaveSettings:null, annualLeaveEntries:[], annualLeaveBackendReady:null, annualLeaveYear:null, annualLeaveFormDirty:false, longServiceProfile:null, longServiceExclusions:[], longServiceEntries:[], longServiceBackendReady:null, longServiceFormDirty:false, view:'mine', selectedDate:null, absenceReflect:(()=>{try{return localStorage.getItem(ABSENCE_REFLECT_KEY)!=='0';}catch(e){return true;}})(), memoDisplay:(()=>{try{return localStorage.getItem(MEMO_DISPLAY_KEY)!=='0';}catch(e){return true;}})(),
   year:Math.min(Math.max(parseDateKey(todayKey()).y,MIN_YEAR),MAX_YEAR), month:parseDateKey(todayKey()).m,
   pickerYear:Math.min(Math.max(parseDateKey(todayKey()).y,MIN_YEAR),MAX_YEAR), mode:'all_day', dateMode:'single', refreshing:false, employeeAction:null, pinStatus:{}
 };
@@ -3316,10 +3325,12 @@ async function saveAnnualLeaveSetting(){
 function render(){ renderTabs(); renderCalendar(); renderCompanyEventsBanner(); }
 function renderTabs(){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
-  const leaveView=state.view==='leave',longView=state.view==='longservice',specialView=leaveView||longView,allView=state.view==='all';
+  const leaveView=state.view==='leave',longView=state.view==='longservice',specialView=leaveView||longView,allView=state.view==='all',mineView=state.view==='mine';
   $('calendarCard').classList.toggle('hidden',specialView);
+  if($('memoDisplayControl')) $('memoDisplayControl').classList.toggle('hidden',!mineView);
   if($('absenceReflectControl')) $('absenceReflectControl').classList.toggle('hidden',!allView);
-  if($('calendarToolbar')) $('calendarToolbar').classList.toggle('absence-mode',allView);
+  if($('calendarToolbar')) $('calendarToolbar').classList.toggle('absence-mode',mineView||allView);
+  if($('memoDisplayToggle')) $('memoDisplayToggle').checked=state.memoDisplay;
   if($('absenceReflectToggle')) $('absenceReflectToggle').checked=state.absenceReflect;
   $('annualLeaveCard').classList.toggle('hidden',!leaveView);
   $('longServiceCard').classList.toggle('hidden',!longView);
@@ -3411,8 +3422,8 @@ function renderCalendar(){
   for(let i=0;i<total;i++){
     if(i<first || i>=first+dim){ html+='<div class="day-cell blank"></div>'; continue; }
     const d=i-first+1, key=dateKey(state.year,state.month,d), wd=new Date(state.year,state.month,d).getDay(); const holiday=HOLIDAYS[key]||'';
-    const term=state.view==='mine'?(SOLAR_TERMS[key]||''):''; const mineRecords=state.view==='mine'?myRecordsForDate(key):[]; const mineRecordCount=mineRecords.length;
-    const cls=['day-cell',wd===0?'sun':'',wd===6?'sat':'',holiday?'holiday':'',today===key?'today':'',term?'has-term':'',mineRecordCount?'has-attendance':''].filter(Boolean).join(' ');
+    const term=state.view==='mine'?(SOLAR_TERMS[key]||''):''; const mineRecords=state.view==='mine'?myRecordsForDate(key):[]; const mineRecordCount=mineRecords.length; const memo=state.view==='mine'?memoForDate(key):null; const memoPreviewVisible=!!(memo&&state.memoDisplay);
+    const cls=['day-cell',wd===0?'sun':'',wd===6?'sat':'',holiday?'holiday':'',today===key?'today':'',term?'has-term':'',mineRecordCount?'has-attendance':'',memoPreviewVisible?'has-memo-preview':''].filter(Boolean).join(' ');
     let body='';
     if(state.view==='mine'){
       const emp=state.employees.find(e=>e.id===state.me.employee_id); const shift=(emp&&employeeOperationalOn(emp,key))?shiftForEmployee(emp,state.year,state.month,d):''; const hw=holidayWorkForMe(key); body=(hw&&isHolidayWorkEmployee(emp,key))?holidayWorkMarkup(hw):(shift?shiftMarkup(shift):'<div class="shift-wrap"><span style="color:#c4c7cc;font-weight:800">-</span></div>');
@@ -3421,8 +3432,9 @@ function renderCalendar(){
       const names=state.absenceReflect?availableEmployees(key):scheduledEmployees(key);
       body=names.length?`<div class="availability">${names.map(e=>`<span class="name ${state.absenceReflect?availabilityNameClass(e,key):scheduledNameClass(e,key)}">${employeeCategoryOn(e,key)==='팀장'?'★ ':''}${escapeHtml(availabilityDisplayName(e,key))}</span>`).join('')}</div>`:'<div class="availability empty">-</div>';
     }
-    const memoMark=(state.view==='mine'&&memoForDate(key))?'<span class="memo-mark" title="개인 메모 있음" aria-label="개인 메모 있음">✎</span>':'';
-    html+=`<button type="button" class="${cls}" data-date="${key}"><div class="day-head"><span class="day-num">${d}</span>${memoMark}${holiday?`<span class="holiday-mini">${escapeHtml(holiday)}</span>`:''}</div>${body}${term?`<span class="calendar-term-mini">${escapeHtml(term)}</span>`:''}</button>`;
+    const memoMark=memo?'<span class="memo-mark" title="개인 메모 있음" aria-label="개인 메모 있음">✎</span>':'';
+    const memoPreview=memoPreviewVisible?`<div class="memo-preview" title="${escapeHtml(memo.memo_text)}">${escapeHtml(memo.memo_text)}</div>`:'';
+    html+=`<button type="button" class="${cls}" data-date="${key}"><div class="day-head"><span class="day-num">${d}</span>${memoMark}${holiday?`<span class="holiday-mini">${escapeHtml(holiday)}</span>`:''}</div>${body}${memoPreview}${term?`<span class="calendar-term-mini">${escapeHtml(term)}</span>`:''}</button>`;
   }
   $('calendarGrid').innerHTML=html;
   $('calendarGrid').querySelectorAll('[data-date]').forEach(el=>el.addEventListener('click',()=>openDetail(el.dataset.date)));
@@ -5296,6 +5308,13 @@ function renderMonthPicker(){
   $('monthGrid').innerHTML=Array.from({length:12},(_,i)=>`<button data-month="${i}" class="${state.pickerYear===state.year&&i===state.month?'active':''}">${i+1}월</button>`).join('');
 }
 async function chooseMonth(m){ state.year=state.pickerYear; state.month=Number(m); closeBackdrop('monthBackdrop'); showLoading(true);await loadMonthData(true);showLoading(false);renderCalendar(); }
+function setMemoDisplay(enabled,save=true){
+  state.memoDisplay=!!enabled;
+  if($('memoDisplayToggle')) $('memoDisplayToggle').checked=state.memoDisplay;
+  if(save){try{localStorage.setItem(MEMO_DISPLAY_KEY,state.memoDisplay?'1':'0');}catch(e){}}
+  if(state.view==='mine') renderCalendar();
+}
+
 function setAbsenceReflect(enabled,save=true){
   state.absenceReflect=!!enabled;
   if($('absenceReflectToggle')) $('absenceReflectToggle').checked=state.absenceReflect;
@@ -5393,6 +5412,7 @@ function wire(){
   $('logoutBtn').addEventListener('click',()=>logout(true)); $('refreshBtn').addEventListener('click',refresh); $('employeeManageBtn').addEventListener('click',openEmployeeManager); $('auditBtn').addEventListener('click',openAudit); $('refreshAuditBtn').addEventListener('click',()=>loadAuditPage(true)); $('auditMoreBtn').addEventListener('click',()=>loadAuditPage(false)); $('capacityBtn').addEventListener('click',openCapacity); $('refreshCapacityBtn').addEventListener('click',loadCapacity); $('addEmployeeBtn').addEventListener('click',()=>openPersonnelBatchEditor()); $('resetCurrentPinsBtn').addEventListener('click',openResetCurrentPins); $('confirmResetPinsBtn').addEventListener('click',resetCurrentPins); $('resetPinsSuccessOkBtn').addEventListener('click',()=>closeBackdrop('resetPinsSuccessBackdrop')); $('saveEmployeeActionBtn').addEventListener('click',saveEmployeeAction); $('employeeSuccessOkBtn').addEventListener('click',()=>closeBackdrop('employeeSuccessBackdrop'));
   document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',async()=>{state.view=b.dataset.view;renderTabs();if(state.view==='leave')await loadAnnualLeaveData(true);else if(state.view==='longservice')await loadLongServiceData(true);else renderCalendar();}));
   $('prevMonth').addEventListener('click',()=>moveMonth(-1)); $('todayBtn').addEventListener('click',goToday); $('nextMonth').addEventListener('click',()=>moveMonth(1)); $('monthTitle').addEventListener('click',openMonthPicker);
+  $('memoDisplayToggle').addEventListener('change',e=>setMemoDisplay(e.target.checked,true));
   $('absenceReflectToggle').addEventListener('change',e=>setAbsenceReflect(e.target.checked,true));
   $('addAttendanceBtn').addEventListener('click',()=>{if(state.view==='mine')openForm(state.selectedDate)}); $('saveAttendanceBtn').addEventListener('click',saveAttendance);
   document.querySelectorAll('.mode-btn').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
