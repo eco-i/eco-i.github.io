@@ -149,7 +149,7 @@
   .shift-day{background:var(--yellow);color:#111827}.shift-day2{background:var(--teal);color:#fff;font-size:calc(13px * var(--text-scale,1))}.shift-night{background:var(--night);color:#fff}
   .holiday-work-badge{min-width:46px;height:32px;padding:0 3px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:var(--holiday-work);color:#fff;font-size:calc(9.5px * var(--text-scale,1));font-weight:950;line-height:1;white-space:nowrap;box-shadow:0 2px 5px rgba(249,115,22,.18)}
   .shift-off{font-size:calc(17px * var(--text-scale,1));font-weight:900;color:var(--off)}
-  .att-dot{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);font-size:calc(7px * var(--text-scale,1));font-weight:900;color:#7c3aed;background:#f3e8ff;padding:2px 4px;border-radius:8px;white-space:nowrap}
+  .att-dot{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);max-width:calc(100% - 6px);font-size:calc(7px * var(--text-scale,1));font-weight:900;color:#db2777;background:#fdf2f8;border:1px solid #fbcfe8;padding:2px 4px;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1}
   .memo-mark{flex:0 0 auto;width:14px;height:14px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;background:#f3e8ff;color:#7c3aed;border:1px solid #ddd6fe;font-size:calc(8px * var(--text-scale,1));font-weight:950;line-height:1;box-shadow:0 1px 3px rgba(91,33,182,.08)}
   .calendar-term-mini{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);max-width:40px;font-size:calc(7px * var(--text-scale,1));line-height:1.1;color:#047857;background:#ecfdf5;border-radius:7px;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:900}
   .day-cell.has-term.has-attendance .calendar-term-mini{left:3px;transform:none}.day-cell.has-term.has-attendance .att-dot{left:auto;right:3px;transform:none}
@@ -280,7 +280,7 @@
   .initial-pin-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
   .initial-pin-later{border-radius:13px;padding:13px 12px;background:#eef2f7;color:#4b5563;font-weight:850;font-size:calc(14px * var(--text-scale,1))}
   .self-pin-btn{min-height:36px;padding:0 12px;border-radius:11px;background:#f5f3ff;color:#6d28d9;border:1px solid #ddd6fe;font-size:calc(12px * var(--text-scale,1));font-weight:900;box-shadow:0 2px 7px rgba(0,0,0,.04)}
-  .attendance-list-btn{min-height:36px;padding:0 12px;border-radius:11px;background:#ecfeff;color:#0f766e;border:1px solid #a5f3fc;font-size:calc(12px * var(--text-scale,1));font-weight:900;box-shadow:0 2px 7px rgba(0,0,0,.04)}
+  .attendance-list-btn{min-height:36px;padding:0 12px;border-radius:11px;background:#fdf2f8;color:#db2777;border:1px solid #fbcfe8;font-size:calc(12px * var(--text-scale,1));font-weight:900;box-shadow:0 2px 7px rgba(0,0,0,.04)}
   .all-attendance-list-btn{min-height:36px;padding:0 12px;border-radius:11px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:calc(12px * var(--text-scale,1));font-weight:900;box-shadow:0 2px 7px rgba(0,0,0,.04)}
   .holiday-work-list-btn{min-height:36px;padding:0 12px;border-radius:11px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-size:calc(12px * var(--text-scale,1));font-weight:900;box-shadow:0 2px 7px rgba(0,0,0,.04)}
   .holiday-work-detail{padding:11px;border-radius:15px;background:#fff7ed;border:1px solid #fed7aa;margin-bottom:10px}.holiday-work-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.holiday-work-title{font-size:calc(14px * var(--text-scale,1));font-weight:950;color:#9a3412}.holiday-work-check-label{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid #fdba74;border-radius:10px;background:#fff;color:#9a3412;font-size:calc(12px * var(--text-scale,1));font-weight:900;white-space:nowrap}.holiday-work-check-label input{width:18px;height:18px;margin:0;padding:0;accent-color:#f97316}.holiday-work-help{font-size:calc(11px * var(--text-scale,1));line-height:1.5;color:#9a3412;margin:0 0 9px}.holiday-work-result{margin:7px 0 4px;padding:9px 10px;border-radius:11px;background:#fff;color:#9a3412;font-size:calc(12px * var(--text-scale,1));font-weight:900;line-height:1.45;text-align:center}.holiday-work-result b{color:#ea580c}.holiday-work-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.holiday-work-actions.readonly{display:none}.holiday-work-actions.eligibility-locked{grid-template-columns:1fr}.holiday-work-delete,.holiday-work-close,.holiday-work-save{padding:11px 8px;border-radius:11px;font-weight:900;font-size:calc(13px * var(--text-scale,1))}.holiday-work-delete{background:#fff1f2;color:#be123c}.holiday-work-delete:disabled{opacity:.4}.holiday-work-close{background:#eef2f7;color:#4b5563}.holiday-work-save{background:#f97316;color:#fff}.holiday-work-error{min-height:16px;margin-top:5px;color:#dc2626;font-size:calc(10px * var(--text-scale,1));font-weight:800}
@@ -371,7 +371,7 @@
   html[data-theme="dark"] .holiday-work-list-text{color:#e2e8f0}
   html[data-theme="dark"] .realtime-status{background:#263449;color:#94a3b8}html[data-theme="dark"] .realtime-status.connected{background:#15382f;color:#6ee7b7}html[data-theme="dark"] .realtime-status.connecting{background:#3b3015;color:#fcd34d}html[data-theme="dark"] .realtime-status.fallback{background:#263449;color:#cbd5e1}html[data-theme="dark"] .realtime-status.offline{background:#3b1d29;color:#fda4af}
   html[data-theme="dark"] .self-pin-btn,html[data-theme="dark"] .memo-list-btn{background:#2b2140;color:#c4b5fd;border-color:#5b477a}
-  html[data-theme="dark"] .attendance-list-btn{background:#12343b;color:#67e8f9;border-color:#285d66}
+  html[data-theme="dark"] .attendance-list-btn,html[data-theme="dark"] .att-dot{background:#3b1028;color:#f9a8d4;border-color:#831843}
   html[data-theme="dark"] .all-attendance-list-btn,html[data-theme="dark"] .all-attendance-help,html[data-theme="dark"] .all-attendance-more{background:#172554;color:#93c5fd;border-color:#334c87}
   html[data-theme="dark"] .attendance-list-employee{color:#93c5fd}html[data-theme="dark"] .attendance-list-employee.self{color:#5eead4}
   html[data-theme="dark"] .holiday-work-list-btn{background:#3a2615;color:#fdba74;border-color:#7c4a1d}
@@ -967,7 +967,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-1202 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-1217 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1415,7 +1415,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260915-1202';
+const APP_VERSION = 'ver20260915-1217';
 const UPDATE_HISTORY = [
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},
@@ -2640,6 +2640,41 @@ function availabilityDisplayName(emp,key){
   const hw=holidayWorkFor(emp.id,key); return hw?`${emp.display_name} · 휴근 ${formatHolidayHours(hw.net_minutes)}`:emp.display_name;
 }
 function myRecordsForDate(key){ return recordsForDate(key).filter(r=>Number(r.employee_id)===Number(state.me.employee_id)); }
+function attendanceCalendarMinutesForRecord(record,emp,key){
+  if(!record||!emp||!key||key<record.start_date||key>record.end_date)return 0;
+  const hw=holidayWorkFor(emp.id,key);
+  if(record.absence_mode!=='time'){
+    if(hw&&Number(hw.net_minutes)>0)return Number(hw.net_minutes);
+    return annualLeaveFullDayMinutes(emp,key);
+  }
+  const window=attendanceTimeWindowForRecord(record,emp);
+  if(!window)return 0;
+  const segments=availabilityWorkSegments(emp,key);
+  let minutes=segments.reduce((sum,seg)=>sum+annualLeaveOverlapMinutes(window.start,window.end,seg.start,seg.end),0);
+  if(hw&&segments.length){
+    const gross=segments.reduce((sum,seg)=>sum+Math.max(0,seg.end-seg.start),0);
+    if(gross>0&&minutes>=gross&&Number(hw.net_minutes)>0)minutes=Number(hw.net_minutes);
+  }
+  if(minutes>0)return minutes;
+  const st=timeToMinutes(record.start_time),et=timeToMinutes(record.end_time);
+  if(st!==null&&et!==null){ const raw=et>=st?et-st:et+1440-st; if(raw>0)return raw; }
+  return 0;
+}
+function formatAttendanceCalendarDuration(minutes){
+  let n=Math.max(0,Math.round(Number(minutes)||0));
+  if(!n)return '';
+  const h=Math.floor(n/60),m=n%60;
+  if(!m)return `${h}H`;
+  if(m===30)return `${h?`${h}.5`:'0.5'}H`;
+  return `${h?`${h}H`:''}${m}M`;
+}
+function attendanceCalendarLabel(record,emp,key){
+  const type=normalizeAttendanceType(record?.attendance_type||'근태')||'근태';
+  const minutes=attendanceCalendarMinutesForRecord(record,emp,key);
+  const duration=formatAttendanceCalendarDuration(minutes);
+  if(duration)return `${type} ${duration}`;
+  return record?.absence_mode==='all_day'?`${type} 종일`:type;
+}
 function canEditRecord(r){ if(accountReadOnly()) return false; return activeAdminMode() || Number(r.employee_id)===Number(state.me?.employee_id); }
 function canManageAttendanceEmployee(employeeId){ if(accountReadOnly()) return false; return activeAdminMode() || Number(employeeId)===Number(state.me?.employee_id); }
 
@@ -3376,12 +3411,12 @@ function renderCalendar(){
   for(let i=0;i<total;i++){
     if(i<first || i>=first+dim){ html+='<div class="day-cell blank"></div>'; continue; }
     const d=i-first+1, key=dateKey(state.year,state.month,d), wd=new Date(state.year,state.month,d).getDay(); const holiday=HOLIDAYS[key]||'';
-    const term=state.view==='mine'?(SOLAR_TERMS[key]||''):''; const mineRecordCount=state.view==='mine'?myRecordsForDate(key).length:0;
+    const term=state.view==='mine'?(SOLAR_TERMS[key]||''):''; const mineRecords=state.view==='mine'?myRecordsForDate(key):[]; const mineRecordCount=mineRecords.length;
     const cls=['day-cell',wd===0?'sun':'',wd===6?'sat':'',holiday?'holiday':'',today===key?'today':'',term?'has-term':'',mineRecordCount?'has-attendance':''].filter(Boolean).join(' ');
     let body='';
     if(state.view==='mine'){
       const emp=state.employees.find(e=>e.id===state.me.employee_id); const shift=(emp&&employeeOperationalOn(emp,key))?shiftForEmployee(emp,state.year,state.month,d):''; const hw=holidayWorkForMe(key); body=(hw&&isHolidayWorkEmployee(emp,key))?holidayWorkMarkup(hw):(shift?shiftMarkup(shift):'<div class="shift-wrap"><span style="color:#c4c7cc;font-weight:800">-</span></div>');
-      if(mineRecordCount) body+=`<div class="att-dot">근태 ${mineRecordCount}</div>`;
+      if(mineRecordCount){ const labels=mineRecords.map(r=>attendanceCalendarLabel(r,emp,key)); const text=labels.join(' · '); body+=`<div class="att-dot" title="${escapeHtml(text)}">${escapeHtml(text)}</div>`; }
     }else{
       const names=state.absenceReflect?availableEmployees(key):scheduledEmployees(key);
       body=names.length?`<div class="availability">${names.map(e=>`<span class="name ${state.absenceReflect?availabilityNameClass(e,key):scheduledNameClass(e,key)}">${employeeCategoryOn(e,key)==='팀장'?'★ ':''}${escapeHtml(availabilityDisplayName(e,key))}</span>`).join('')}</div>`:'<div class="availability empty">-</div>';
