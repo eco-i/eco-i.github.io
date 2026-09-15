@@ -152,6 +152,20 @@
   .att-dot{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);max-width:calc(100% - 6px);font-size:calc(7px * var(--text-scale,1));font-weight:900;color:#db2777;background:#fdf2f8;border:1px solid #fbcfe8;padding:2px 4px;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1}
   .memo-mark{flex:0 0 auto;width:14px;height:14px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;background:#f3e8ff;color:#7c3aed;border:1px solid #ddd6fe;font-size:calc(8px * var(--text-scale,1));font-weight:950;line-height:1;box-shadow:0 1px 3px rgba(91,33,182,.08)}
   .memo-preview{margin:2px 1px 0;padding:2px 3px;border-radius:5px;background:#faf5ff;color:#6d28d9;border:1px solid #ede9fe;font-size:calc(7px * var(--text-scale,1));font-weight:800;line-height:1.16;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;word-break:break-word;text-align:left}
+  /* 사내일정은 날짜별 내용 뒤에 붙이지 않고, 한 주 전체가 공유하는 고정 레인에 표시한다.
+     전체 근무표의 직원 수가 날짜마다 달라도 같은 기간 바의 Y축이 어긋나지 않는다. */
+  .calendar-week{grid-column:1/-1;position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));min-width:0;--company-event-row-h:clamp(10px,calc(9px * var(--text-scale,1)),15px);--company-event-lane-height:0px}
+  .calendar-week.company-lanes-1{--company-event-lane-height:var(--company-event-row-h)}
+  .calendar-week.company-lanes-2{--company-event-lane-height:calc(var(--company-event-row-h) + var(--company-event-row-h) + 1px)}
+  .calendar-week.company-lanes-3{--company-event-lane-height:calc(var(--company-event-row-h) + var(--company-event-row-h) + var(--company-event-row-h) + 2px)}
+  .calendar-week.has-company-events .day-cell{padding-bottom:calc(7px + var(--company-event-lane-height))}
+  .calendar-week.has-company-events .att-dot,.calendar-week.has-company-events .calendar-term-mini{bottom:calc(7px + var(--company-event-lane-height))}
+  .company-event-week-layer{position:absolute;left:0;right:0;bottom:4px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));column-gap:0;row-gap:1px;z-index:6;pointer-events:none;min-width:0;overflow:visible}
+  .company-event-week-item{display:block;min-width:0;height:var(--company-event-row-h);line-height:var(--company-event-row-h);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box}
+  .company-event-week-range{padding:0 3px;background:#dbeafe;color:#1e40af;border-top:1px solid #93c5fd;border-bottom:1px solid #93c5fd;font-size:clamp(6px,calc(6.5px * var(--text-scale,1)),9.5px);font-weight:950;letter-spacing:-.2px;text-align:left}
+  .company-event-week-range.segment-start{margin-left:2px;border-left:1px solid #93c5fd;border-radius:5px 0 0 5px}.company-event-week-range.segment-end{margin-right:2px;border-right:1px solid #93c5fd;border-radius:0 5px 5px 0}.company-event-week-range.segment-start.segment-end{border-radius:5px}
+  .company-event-week-single{margin:0 2px;padding:0 3px;border:1px solid #bae6fd;border-radius:5px;background:#f0f9ff;color:#0369a1;font-size:clamp(6px,calc(6.5px * var(--text-scale,1)),9.5px);font-weight:900;letter-spacing:-.2px;text-align:left}
+  .company-event-week-more{padding:0 2px;color:#2563eb;font-size:clamp(6px,calc(6px * var(--text-scale,1)),8.5px);font-weight:950;text-align:center}
   .day-cell.has-memo-preview.has-attendance .memo-preview,.day-cell.has-memo-preview.has-term .memo-preview{margin-bottom:max(14px,calc(14px * var(--text-scale,1)))}
   .calendar-term-mini{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);max-width:40px;font-size:calc(7px * var(--text-scale,1));line-height:1.1;color:#047857;background:#ecfdf5;border-radius:7px;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:900}
   .day-cell.has-term.has-attendance .calendar-term-mini{left:3px;transform:none}.day-cell.has-term.has-attendance .att-dot{left:auto;right:3px;transform:none}
@@ -210,6 +224,7 @@
   .detail-person-row{width:100%;text-align:left;transition:background .12s ease,border-color .12s ease,transform .05s ease}.detail-person-row:active{background:#f8fafc;border-color:#bfdbfe;transform:scale(.995)}
   .detail-person-button{display:block;min-width:0;flex:1 1 auto;text-align:left;background:transparent;color:inherit;padding:0}.detail-person-button:active b{color:#1d4ed8}
   .detail-person-hint{flex:0 0 auto;align-self:center;color:#94a3b8;font-size:calc(10px * var(--text-scale,1));font-weight:850;white-space:nowrap}
+  .company-event-day-detail{background:#f8fbff;border:1px solid #bfdbfe}.company-event-day-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.company-event-day-detail-title{font-size:calc(13px * var(--text-scale,1));font-weight:950;color:#1d4ed8}.company-event-day-detail-count{flex:0 0 auto;padding:3px 7px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:calc(9px * var(--text-scale,1));font-weight:950}.company-event-day-list{display:flex;flex-direction:column;gap:6px}.company-event-day-row{padding:8px 9px;border:1px solid #dbeafe;border-radius:10px;background:#fff;min-width:0}.company-event-day-row-head{display:flex;align-items:center;justify-content:space-between;gap:6px}.company-event-day-period{min-width:0;color:#1d4ed8;font-size:calc(10px * var(--text-scale,1));font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.company-event-day-kind{flex:0 0 auto;padding:2px 6px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-size:calc(8px * var(--text-scale,1));font-weight:950}.company-event-day-text{margin-top:4px;color:#374151;font-size:calc(11px * var(--text-scale,1));font-weight:800;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}
   .form-existing-attendance{margin:10px 0 2px;padding:10px;border:1px solid #dbeafe;border-radius:13px;background:#f8fbff}.form-existing-attendance-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.form-existing-attendance-title{font-size:calc(12px * var(--text-scale,1));font-weight:950;color:#1e3a8a}.form-existing-attendance-count{font-size:calc(10px * var(--text-scale,1));font-weight:850;color:#64748b}.form-existing-attendance-list{display:flex;flex-direction:column;gap:6px}.form-existing-attendance-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:8px 9px;border:1px solid #dbe3ee;border-radius:10px;background:#fff}.form-existing-attendance-main{min-width:0;font-size:calc(11px * var(--text-scale,1));line-height:1.4;color:#334155}.form-existing-attendance-main b{font-size:calc(12px * var(--text-scale,1));color:#111827}.form-existing-attendance-empty{padding:5px 2px;color:#94a3b8;font-size:calc(11px * var(--text-scale,1));font-weight:750}.form-existing-attendance-note{margin-top:6px;color:#64748b;font-size:calc(10px * var(--text-scale,1));line-height:1.4}
   .mini-actions{display:flex;gap:5px;flex:0 0 auto}.mini-actions button{padding:6px 8px;border-radius:8px;background:#eef2f7;color:#374151;font-size:calc(11px * var(--text-scale,1));font-weight:800}.mini-actions .danger{background:#fff1f2;color:#be123c}
   .empty-msg{font-size:calc(12px * var(--text-scale,1));color:#9ca3af;padding:5px 2px}
@@ -362,6 +377,8 @@
   html[data-theme="dark"] .holiday-work-detail,html[data-theme="dark"] .holiday-work-list-btn,html[data-theme="dark"] .sick-leave-deduct-field,html[data-theme="dark"] .annual-leave-rule,html[data-theme="dark"] .setup-note,html[data-theme="dark"] .reset-pins-btn,html[data-theme="dark"] .holiday-eligibility-toggle,html[data-theme="dark"] .scheduled-badge{background:#3a2615;color:#fdba74;border-color:#7c4a1d}
   html[data-theme="dark"] .memo-detail-section,html[data-theme="dark"] .memo-list-btn,html[data-theme="dark"] .usage-guide-readonly,html[data-theme="dark"] .annual-leave-readonly{background:#2b2140;color:#c4b5fd;border-color:#5b477a}
   html[data-theme="dark"] .memo-preview{background:#2b2140;color:#ddd6fe;border-color:#5b477a}
+  html[data-theme="dark"] .company-event-week-range{background:#193a5a;color:#bfdbfe;border-color:#3b82b8}html[data-theme="dark"] .company-event-week-single{background:#12344a;color:#bae6fd;border-color:#275d78}html[data-theme="dark"] .company-event-week-more{color:#93c5fd}
+  html[data-theme="dark"] .company-event-day-detail{background:#142941;border-color:#31558a}html[data-theme="dark"] .company-event-day-detail-title,html[data-theme="dark"] .company-event-day-period{color:#93c5fd}html[data-theme="dark"] .company-event-day-detail-count{background:#1e3a5f;color:#93c5fd}html[data-theme="dark"] .company-event-day-row{background:#1b2638;border-color:#31558a}html[data-theme="dark"] .company-event-day-kind{background:#12344a;color:#bae6fd}html[data-theme="dark"] .company-event-day-text{color:#e2e8f0}
   html[data-theme="dark"] .form-existing-attendance{background:#172033;border-color:#334155}html[data-theme="dark"] .form-existing-attendance-row{background:#1b2638;border-color:#334155}html[data-theme="dark"] .form-existing-attendance-title{color:#93c5fd}html[data-theme="dark"] .form-existing-attendance-main,html[data-theme="dark"] .form-existing-attendance-main b{color:#e2e8f0}html[data-theme="dark"] .form-existing-attendance-note,html[data-theme="dark"] .form-existing-attendance-count{color:#94a3b8}
   html[data-theme="dark"] .warning-box,html[data-theme="dark"] .memo-selected-delete,html[data-theme="dark"] .company-event-delete,html[data-theme="dark"] .mini-actions .danger{background:#3b1d29;color:#fda4af}
   html[data-theme="dark"] .success-box{background:#15382f;color:#6ee7b7}
@@ -981,7 +998,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-1614 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260915-2352 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1005,6 +1022,10 @@
       <textarea id="memoText" class="memo-textarea" maxlength="1000" placeholder="이 날짜에 기억할 내용을 간단히 적어두세요."></textarea>
       <div class="memo-meta"><span id="memoDetailError"></span><span id="memoCharCount">0/1000</span></div>
       <div id="memoDetailActions" class="memo-detail-actions"><button id="deleteMemoBtn" class="memo-delete-btn" type="button">삭제</button><button id="closeMemoDetailBtn" class="memo-close-btn hidden" type="button" tabindex="-1" aria-hidden="true">닫기</button><button id="saveMemoBtn" class="memo-save-btn" type="button">저장</button></div>
+    </div>
+    <div id="detailCompanyEventsSection" class="detail-section company-event-day-detail hidden">
+      <div class="company-event-day-detail-head"><div class="company-event-day-detail-title">사내일정</div><span id="detailCompanyEventsCount" class="company-event-day-detail-count">0건</span></div>
+      <div id="detailCompanyEventsList" class="company-event-day-list"></div>
     </div>
     <div id="detailOriginalSection" class="detail-section hidden"><div class="detail-title">원래 근무자</div><div id="detailOriginal" class="detail-list"></div></div>
     <div id="detailPartialSection" class="detail-section"><div class="detail-title">부분부재</div><div id="detailPartial" class="detail-list"></div></div>
@@ -1444,8 +1465,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260915-1614';
+const APP_VERSION = 'ver20260915-2352';
 const UPDATE_HISTORY = [
+  {version:'ver20260915-2352',date:'2026.09.15',items:['사내일정 달력 표시 기능 추가']},
   {version:'ver20260915-1326',date:'2026.09.15',items:['내 근무표 메모 내용 표시 및 표시/숨김 기능 추가']},
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
   {version:'ver20260913-1210',date:'2026.09.13',items:['PC·태블릿 화면 최적화 기능 추가']},
@@ -3440,23 +3462,38 @@ function renderCalendar(){
   $('monthTitle').textContent=`${state.year}년 ${state.month+1}월`;
   $('prevMonth').disabled=(state.year===MIN_YEAR&&state.month===0); $('nextMonth').disabled=(state.year===MAX_YEAR&&state.month===11);
   const first=new Date(state.year,state.month,1).getDay(); const dim=daysInMonth(state.year,state.month); const total=Math.ceil((first+dim)/7)*7;
+  const companyEvents=normalizeCompanyEventRows(state.companyEvents);
   const today=todayKey(); let html='';
-  for(let i=0;i<total;i++){
-    if(i<first || i>=first+dim){ html+='<div class="day-cell blank"></div>'; continue; }
-    const d=i-first+1, key=dateKey(state.year,state.month,d), wd=new Date(state.year,state.month,d).getDay(); const holiday=HOLIDAYS[key]||'';
-    const term=state.view==='mine'?(SOLAR_TERMS[key]||''):''; const mineRecords=state.view==='mine'?myRecordsForDate(key):[]; const mineRecordCount=mineRecords.length; const memo=state.view==='mine'?memoForDate(key):null; const memoPreviewVisible=!!(memo&&state.memoDisplay);
-    const cls=['day-cell',wd===0?'sun':'',wd===6?'sat':'',holiday?'holiday':'',today===key?'today':'',term?'has-term':'',mineRecordCount?'has-attendance':'',memoPreviewVisible?'has-memo-preview':''].filter(Boolean).join(' ');
-    let body='';
-    if(state.view==='mine'){
-      const emp=state.employees.find(e=>e.id===state.me.employee_id); const shift=(emp&&employeeOperationalOn(emp,key))?shiftForEmployee(emp,state.year,state.month,d):''; const hw=holidayWorkForMe(key); body=(hw&&isHolidayWorkEmployee(emp,key))?holidayWorkMarkup(hw):(shift?shiftMarkup(shift):'<div class="shift-wrap"><span style="color:#c4c7cc;font-weight:800">-</span></div>');
-      if(mineRecordCount){ const labels=mineRecords.map(r=>attendanceCalendarLabel(r,emp,key)); const text=labels.join(' · '); body+=`<div class="att-dot" title="${escapeHtml(text)}">${escapeHtml(text)}</div>`; }
-    }else{
-      const names=state.absenceReflect?availableEmployees(key):scheduledEmployees(key);
-      body=names.length?`<div class="availability">${names.map(e=>`<span class="name ${state.absenceReflect?availabilityNameClass(e,key):scheduledNameClass(e,key)}">${employeeCategoryOn(e,key)==='팀장'?'★ ':''}${escapeHtml(availabilityDisplayName(e,key))}</span>`).join('')}</div>`:'<div class="availability empty">-</div>';
+  for(let weekStart=0;weekStart<total;weekStart+=7){
+    const weekDays=[];
+    for(let offset=0;offset<7;offset++){
+      const i=weekStart+offset;
+      if(i<first||i>=first+dim){weekDays.push(null);continue;}
+      const d=i-first+1,key=dateKey(state.year,state.month,d);
+      weekDays.push({d,key,weekday:offset,events:companyEventsForDate(key,companyEvents)});
     }
-    const memoMark=memo?'<span class="memo-mark" title="개인 메모 있음" aria-label="개인 메모 있음">✎</span>':'';
-    const memoPreview=memoPreviewVisible?`<div class="memo-preview" title="${escapeHtml(memo.memo_text)}">${escapeHtml(memo.memo_text)}</div>`:'';
-    html+=`<button type="button" class="${cls}" data-date="${key}"><div class="day-head"><span class="day-num">${d}</span>${memoMark}${holiday?`<span class="holiday-mini">${escapeHtml(holiday)}</span>`:''}</div>${body}${memoPreview}${term?`<span class="calendar-term-mini">${escapeHtml(term)}</span>`:''}</button>`;
+    const overlay=companyEventWeekOverlayMarkup(weekDays,companyEvents);
+    const weekClass=['calendar-week',overlay.lanes?`company-lanes-${overlay.lanes}`:'',overlay.lanes?'has-company-events':''].filter(Boolean).join(' ');
+    html+=`<div class="${weekClass}">`;
+    for(let offset=0;offset<7;offset++){
+      const day=weekDays[offset];
+      if(!day){html+='<div class="day-cell blank"></div>';continue;}
+      const {d,key}=day,wd=new Date(state.year,state.month,d).getDay(); const holiday=HOLIDAYS[key]||'';
+      const term=state.view==='mine'?(SOLAR_TERMS[key]||''):''; const mineRecords=state.view==='mine'?myRecordsForDate(key):[]; const mineRecordCount=mineRecords.length; const memo=state.view==='mine'?memoForDate(key):null; const memoPreviewVisible=!!(memo&&state.memoDisplay);
+      const cls=['day-cell',wd===0?'sun':'',wd===6?'sat':'',holiday?'holiday':'',today===key?'today':'',term?'has-term':'',mineRecordCount?'has-attendance':'',memoPreviewVisible?'has-memo-preview':''].filter(Boolean).join(' ');
+      let body='';
+      if(state.view==='mine'){
+        const emp=state.employees.find(e=>e.id===state.me.employee_id); const shift=(emp&&employeeOperationalOn(emp,key))?shiftForEmployee(emp,state.year,state.month,d):''; const hw=holidayWorkForMe(key); body=(hw&&isHolidayWorkEmployee(emp,key))?holidayWorkMarkup(hw):(shift?shiftMarkup(shift):'<div class="shift-wrap"><span style="color:#c4c7cc;font-weight:800">-</span></div>');
+        if(mineRecordCount){ const labels=mineRecords.map(r=>attendanceCalendarLabel(r,emp,key)); const text=labels.join(' · '); body+=`<div class="att-dot" title="${escapeHtml(text)}">${escapeHtml(text)}</div>`; }
+      }else{
+        const names=state.absenceReflect?availableEmployees(key):scheduledEmployees(key);
+        body=names.length?`<div class="availability">${names.map(e=>`<span class="name ${state.absenceReflect?availabilityNameClass(e,key):scheduledNameClass(e,key)}">${employeeCategoryOn(e,key)==='팀장'?'★ ':''}${escapeHtml(availabilityDisplayName(e,key))}</span>`).join('')}</div>`:'<div class="availability empty">-</div>';
+      }
+      const memoMark=memo?'<span class="memo-mark" title="개인 메모 있음" aria-label="개인 메모 있음">✎</span>':'';
+      const memoPreview=memoPreviewVisible?`<div class="memo-preview" title="${escapeHtml(memo.memo_text)}">${escapeHtml(memo.memo_text)}</div>`:'';
+      html+=`<button type="button" class="${cls}" data-date="${key}"><div class="day-head"><span class="day-num">${d}</span>${memoMark}${holiday?`<span class="holiday-mini">${escapeHtml(holiday)}</span>`:''}</div>${body}${memoPreview}${term?`<span class="calendar-term-mini">${escapeHtml(term)}</span>`:''}</button>`;
+    }
+    html+=overlay.html+'</div>';
   }
   $('calendarGrid').innerHTML=html;
   $('calendarGrid').querySelectorAll('[data-date]').forEach(el=>el.addEventListener('click',()=>openDetail(el.dataset.date)));
@@ -3526,6 +3563,8 @@ function renderDetail(key){
   if(showHolidayWork){ if(activeAdminMode())populateHolidayWorkTargetEmployees(key); renderHolidayWorkDetail(key); }
   $('memoDetailSection').classList.toggle('hidden',!mineView);
   if(mineView) renderMemoDetail(key);
+  if(holidayListEdit){ $('detailCompanyEventsSection').classList.add('hidden'); $('detailCompanyEventsList').innerHTML=''; $('detailCompanyEventsCount').textContent='0건'; }
+  else renderCompanyEventDayDetail(key);
   // 내 근무표의 기존 +근태 등록은 그대로 유지하고, 전체 근무표에서는 날짜 상세 명단의 직원명을 눌러 근태를 관리한다.
   const originalMode=!mineView&&!holidayListEdit&&!state.absenceReflect;
   const canRegisterAttendance=activeAdminMode() || (!!emp && employeeOperationalOn(emp,key));
@@ -3652,6 +3691,66 @@ async function deleteSelectedMemos(){
     showToast(`메모 ${dates.length}건을 삭제했습니다.`,'success');
   }catch(e){ alert(userSafeServiceError(e,'선택한 메모를 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.')); }
   finally{ showLoading(false); }
+}
+
+function companyEventsForDate(key,normalizedRows=null){
+  const rows=Array.isArray(normalizedRows)?normalizedRows:normalizeCompanyEventRows(state.companyEvents);
+  return rows.filter(r=>r.start_date<=key&&r.end_date>=key).sort((a,b)=>a.start_date.localeCompare(b.start_date)||a.end_date.localeCompare(b.end_date)||(Number(a.id)||0)-(Number(b.id)||0));
+}
+function sameCompanyEventRow(a,b){
+  if(!a||!b)return false;
+  const aid=Number(a.id),bid=Number(b.id);
+  if(aid>0&&bid>0)return aid===bid;
+  return a.start_date===b.start_date&&a.end_date===b.end_date&&a.memo_text===b.memo_text;
+}
+function primaryCompanyEventRangeForDate(key,normalizedRows){
+  return companyEventsForDate(key,normalizedRows).find(r=>r.start_date!==r.end_date)||null;
+}
+function companyEventWeekOverlayMarkup(weekDays,normalizedRows){
+  const infos=weekDays.map(day=>{
+    if(!day)return null;
+    const ranges=day.events.filter(r=>r.start_date!==r.end_date),singles=day.events.filter(r=>r.start_date===r.end_date);
+    const range=ranges[0]||null,single=singles[0]||null;
+    const hiddenCount=Math.max(0,day.events.length-(range?1:0)-(single?1:0));
+    return {...day,range,single,hiddenCount};
+  });
+  const lanes=Math.max(0,...infos.map(info=>info?((info.range?1:0)+(info.single?1:0)+(info.hiddenCount>0?1:0)):0));
+  if(!lanes)return {lanes:0,html:''};
+  const hasRange=infos.some(x=>x?.range),items=[];
+  if(hasRange){
+    for(let col=0;col<7;){
+      const info=infos[col];
+      if(!info?.range){col++;continue;}
+      const range=info.range,startCol=col;let endCol=col;
+      while(endCol+1<7&&infos[endCol+1]?.range&&sameCompanyEventRow(infos[endCol+1].range,range))endCol++;
+      const startKey=infos[startCol].key,endKey=infos[endCol].key;
+      const prevRange=primaryCompanyEventRangeForDate(addDaysKey(startKey,-1),normalizedRows);
+      const nextRange=primaryCompanyEventRangeForDate(addDaysKey(endKey,1),normalizedRows);
+      const roundedStart=!sameCompanyEventRow(prevRange,range),roundedEnd=!sameCompanyEventRow(nextRange,range);
+      const cls=['company-event-week-item','company-event-week-range',roundedStart?'segment-start':'',roundedEnd?'segment-end':''].filter(Boolean).join(' ');
+      items.push(`<span class="${cls}" style="grid-column:${startCol+1}/${endCol+2};grid-row:1">${escapeHtml(companyEventPreview(range.memo_text,120))}</span>`);
+      col=endCol+1;
+    }
+  }
+  infos.forEach((info,col)=>{
+    if(!info)return;
+    let row=info.range?2:1;
+    if(info.single){items.push(`<span class="company-event-week-item company-event-week-single" style="grid-column:${col+1}/${col+2};grid-row:${row}">${escapeHtml(companyEventPreview(info.single.memo_text,120))}</span>`);row++;}
+    if(info.hiddenCount>0)items.push(`<span class="company-event-week-item company-event-week-more" style="grid-column:${col+1}/${col+2};grid-row:${row}">+${info.hiddenCount}</span>`);
+  });
+  return {lanes,html:`<div class="company-event-week-layer" aria-hidden="true" style="grid-template-rows:repeat(${lanes},var(--company-event-row-h))">${items.join('')}</div>`};
+}
+function renderCompanyEventDayDetail(key){
+  const section=$('detailCompanyEventsSection'),list=$('detailCompanyEventsList'),count=$('detailCompanyEventsCount');
+  if(!section||!list||!count)return;
+  const rows=companyEventsForDate(key);
+  section.classList.toggle('hidden',!rows.length);
+  count.textContent=`${rows.length}건`;
+  if(!rows.length){list.innerHTML='';return;}
+  list.innerHTML=rows.map(r=>{
+    const range=r.start_date!==r.end_date;
+    return `<div class="company-event-day-row"><div class="company-event-day-row-head"><div class="company-event-day-period">${escapeHtml(companyEventPeriodText(r))}</div><span class="company-event-day-kind">${range?'기간':'하루'}</span></div><div class="company-event-day-text">${escapeHtml(r.memo_text)}</div></div>`;
+  }).join('');
 }
 
 function companyEventCompactDate(key,forceYear=false){
@@ -3814,6 +3913,8 @@ async function loadCompanyEvents(updateOpenViews=true){
     state.companyEventBackendReady=false;
   }
   renderCompanyEventsBanner();
+  if(state.view==='mine'||state.view==='all') renderCalendar();
+  if(state.selectedDate&&$('detailBackdrop')?.classList.contains('open')&&!holidayWorkListEditContext) renderCompanyEventDayDetail(state.selectedDate);
   if(updateOpenViews){
     if($('companyEventsBackdrop')?.classList.contains('open')) renderCompanyEventsList();
     if($('companyEventManageBackdrop')?.classList.contains('open')&&!$('companyEventManageListPanel').classList.contains('hidden')) renderCompanyEventManageList();
