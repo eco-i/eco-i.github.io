@@ -777,9 +777,21 @@
   .overtime-summary-item{text-align:center;border-left:1px solid #e2e8f0}.overtime-summary-item:first-child{border-left:0}
   .overtime-summary-label{font-size:.68rem;font-weight:800;color:#64748b}.overtime-summary-value{font-size:.91rem;font-weight:950;color:#0f172a;margin-top:1px;white-space:nowrap}
   .overtime-summary-note{font-size:.67rem;font-weight:800;color:#64748b;margin-left:auto;white-space:nowrap}.overtime-summary-note.warn{color:#b45309}
-  .overtime-calendar{display:flex;flex-direction:column;gap:2px;margin-top:3px;min-width:0}
-  .overtime-badge{font-size:.66rem;line-height:1.15;font-weight:900;color:#7c3aed;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .overtime-calendar{display:flex;flex-direction:column;gap:1px;margin-top:2px;min-width:0}
+  .overtime-badge{display:block;max-width:100%;font-size:clamp(6.8px,calc(7.3px * var(--text-scale,1)),7.6px);line-height:1.08;font-weight:900;color:#7c3aed;white-space:nowrap;overflow:visible;text-overflow:clip;letter-spacing:-.45px;text-align:center}
   .overtime-badge.done{color:#047857}
+  /* 내 근무표의 하단 고정 표시(절기/근태)와 초과근무가 겹치지 않도록 마지막 줄 공간을 확보한다. */
+  #calendarGrid .day-cell.has-term .overtime-calendar{padding-bottom:14px}
+  #calendarGrid .day-cell.has-attendance .overtime-calendar{padding-bottom:18px}
+  /* 모바일 달력은 주·야·휴가 차지하는 높이를 조금 줄여 조출/야근 2줄까지 확보한다. */
+  @media(max-width:520px){
+    #calendarGrid .shift-wrap{height:39px}
+    #calendarGrid .shift-circle{width:30px;height:30px;font-size:clamp(11.5px,calc(12.5px * var(--text-scale,1)),13.5px)}
+    #calendarGrid .shift-day2{font-size:clamp(10px,calc(11px * var(--text-scale,1)),12px)}
+    #calendarGrid .shift-off{font-size:clamp(13px,calc(14px * var(--text-scale,1)),15.5px)}
+    #calendarGrid .overtime-calendar{gap:1px;margin-top:1px}
+    #calendarGrid .calendar-term-mini{font-size:clamp(5.5px,calc(6px * var(--text-scale,1)),6.8px);padding:1px 3px;max-width:32px}
+  }
   .overtime-detail{margin:10px 0 0;padding:11px;border:1px solid #e9d5ff;background:#fdfaff;border-radius:14px}
   .overtime-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.overtime-detail-title{font-weight:950;color:#4c1d95}.overtime-detail-help{font-size:.72rem;color:#6b7280;font-weight:700;margin:-2px 0 8px}
   .overtime-slot-row{display:grid;grid-template-columns:44px 36px minmax(74px,1fr) 36px auto auto;align-items:center;gap:5px;margin-top:6px}.overtime-slot-name{font-weight:950;color:#374151}.overtime-step{height:34px;border:1px solid #d8b4fe;border-radius:9px;background:white;font-weight:950;color:#6d28d9}.overtime-time{height:34px;border:1px solid #ddd6fe;border-radius:9px;background:#fff;text-align:center;font-weight:950;color:#111827;display:flex;align-items:center;justify-content:center;white-space:nowrap}.overtime-complete{display:inline-flex;align-items:center;gap:5px;font-size:.76rem;font-weight:850;white-space:nowrap;color:#374151}.overtime-complete input{width:16px;height:16px;margin:0;padding:0;flex:0 0 auto;accent-color:#7c3aed}.overtime-clear{border:0;background:transparent;color:#b91c1c;font-size:.72rem;font-weight:900;padding:4px 2px;white-space:nowrap}.overtime-clear:disabled{opacity:.35}.overtime-list-edit{border:0;background:#f3f4f6;color:#374151;border-radius:7px;font-size:.7rem;font-weight:900;padding:5px 7px}
@@ -1033,7 +1045,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260916-1725 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260916-1810 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1522,7 +1534,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260916-1725';
+const APP_VERSION = 'ver20260916-1810';
 const UPDATE_HISTORY = [
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
   {version:'ver20260915-2352',date:'2026.09.15',items:['사내일정 달력 표시 기능 추가']},
