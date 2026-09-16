@@ -768,6 +768,29 @@
   html[data-theme="dark"] .data-section-row,html[data-theme="dark"] .safety-backup-row{background:#111827;border-color:#374151}
   html[data-theme="dark"] .data-section-name,html[data-theme="dark"] .safety-backup-title{color:#e5e7eb}
   html[data-theme="dark"] .data-section-desc,html[data-theme="dark"] .safety-backup-meta,html[data-theme="dark"] .data-note{color:#9ca3af}
+
+  /* ── 초과근무 계획·완료 ───────────────────────────── */
+  .overtime-summary{margin:8px 0 10px;border:1px solid #dbeafe;background:#f8fbff;border-radius:14px;padding:9px 11px;display:flex;align-items:center;gap:8px;cursor:pointer;min-width:0}
+  .overtime-summary.hidden{display:none}
+  .overtime-summary-title{font-size:.77rem;font-weight:900;color:#475569;white-space:nowrap}
+  .overtime-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;flex:1;min-width:0}
+  .overtime-summary-item{text-align:center;border-left:1px solid #e2e8f0}.overtime-summary-item:first-child{border-left:0}
+  .overtime-summary-label{font-size:.68rem;font-weight:800;color:#64748b}.overtime-summary-value{font-size:.91rem;font-weight:950;color:#0f172a;margin-top:1px;white-space:nowrap}
+  .overtime-summary-note{font-size:.67rem;font-weight:800;color:#64748b;margin-left:auto;white-space:nowrap}.overtime-summary-note.warn{color:#b45309}
+  .overtime-calendar{display:flex;flex-direction:column;gap:2px;margin-top:3px;min-width:0}
+  .overtime-badge{font-size:.66rem;line-height:1.15;font-weight:900;color:#7c3aed;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .overtime-badge.done{color:#047857}
+  .overtime-detail{margin:10px 0 0;padding:11px;border:1px solid #e9d5ff;background:#fdfaff;border-radius:14px}
+  .overtime-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.overtime-detail-title{font-weight:950;color:#4c1d95}.overtime-detail-help{font-size:.72rem;color:#6b7280;font-weight:700;margin:-2px 0 8px}
+  .overtime-slot-row{display:grid;grid-template-columns:44px 36px minmax(74px,1fr) 36px auto auto;align-items:center;gap:5px;margin-top:6px}.overtime-slot-name{font-weight:950;color:#374151}.overtime-step{height:34px;border:1px solid #d8b4fe;border-radius:9px;background:white;font-weight:950;color:#6d28d9}.overtime-time{height:34px;border:1px solid #ddd6fe;border-radius:9px;background:#fff;text-align:center;font-weight:950;color:#111827;display:flex;align-items:center;justify-content:center;white-space:nowrap}.overtime-complete{font-size:.76rem;font-weight:850;white-space:nowrap;color:#374151}.overtime-complete input{vertical-align:-2px}.overtime-clear{border:0;background:transparent;color:#b91c1c;font-size:.72rem;font-weight:900;padding:4px 2px;white-space:nowrap}.overtime-clear:disabled{opacity:.35}.overtime-list-edit{border:0;background:#f3f4f6;color:#374151;border-radius:7px;font-size:.7rem;font-weight:900;padding:5px 7px}
+  .overtime-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:9px}.overtime-save{border:0;border-radius:10px;background:#7c3aed;color:#fff;padding:9px 15px;font-weight:900}.overtime-error{min-height:18px;margin-top:6px;color:#b91c1c;font-size:.75rem;font-weight:800}.overtime-over-warning{color:#b45309;font-size:.72rem;font-weight:850;margin-top:5px}
+  .overtime-list-modal .modal{max-width:520px}.overtime-list-headline{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0 10px}.overtime-list-metric{border:1px solid #e5e7eb;border-radius:11px;padding:7px;text-align:center}.overtime-list-metric span{display:block;font-size:.69rem;color:#6b7280;font-weight:800}.overtime-list-metric b{display:block;margin-top:2px;font-size:.92rem}.overtime-list-row{display:grid;grid-template-columns:70px 44px 1fr auto auto;gap:7px;align-items:center;padding:9px 4px;border-top:1px solid #f0f0f0}.overtime-list-row:first-child{border-top:0}.overtime-list-date{font-weight:900}.overtime-list-slot{font-weight:900;color:#6d28d9}.overtime-list-minutes{font-weight:850}.overtime-list-check{font-size:.75rem;font-weight:800;white-space:nowrap}.overtime-list-empty{padding:20px 6px;text-align:center;color:#9ca3af;font-weight:800}.overtime-confirm-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:5px 0 9px;font-size:.73rem;color:#6b7280;font-weight:800}.overtime-confirm-btn{border:1px solid #c4b5fd;background:#fff;color:#6d28d9;border-radius:9px;padding:6px 9px;font-weight:900}.overtime-confirm-btn.confirmed{border-color:#a7f3d0;color:#047857;background:#f0fdf4}
+  @media(max-width:480px){.overtime-summary{padding:8px 7px;gap:5px}.overtime-summary-title{font-size:.7rem}.overtime-summary-note{display:none}.overtime-summary-value{font-size:.82rem}.overtime-slot-row{grid-template-columns:38px 34px minmax(64px,1fr) 34px auto auto;gap:4px}.overtime-list-row{grid-template-columns:52px 38px minmax(52px,1fr) auto auto}}
+
+  html[data-theme="dark"] .overtime-summary,html[data-theme="dark"] .overtime-list-metric,html[data-theme="dark"] .overtime-time{background:#1b2638;color:#f8fafc;border-color:#334155}
+  html[data-theme="dark"] .overtime-slot-name,html[data-theme="dark"] .overtime-complete,html[data-theme="dark"] .overtime-list-date,html[data-theme="dark"] .overtime-list-minutes{color:#e2e8f0}
+  html[data-theme="dark"] .overtime-step,html[data-theme="dark"] .overtime-confirm-btn{background:#162033;border-color:#475569}
+  html[data-theme="dark"] .overtime-list-edit{background:#334155;color:#e2e8f0}
 </style>
 </head>
 <body>
@@ -991,6 +1014,16 @@
       <button id="todayBtn" class="today-btn">오늘</button>
       <button id="nextMonth" class="nav-btn">다음달</button>
     </div>
+
+    <button id="overtimeSummary" class="overtime-summary hidden" type="button" aria-label="월 초과근무 계획 및 완료 목록 열기">
+      <span class="overtime-summary-title">초과근무</span>
+      <span class="overtime-summary-grid">
+        <span class="overtime-summary-item"><span class="overtime-summary-label">가능</span><span id="overtimeCapacityValue" class="overtime-summary-value">-</span></span>
+        <span class="overtime-summary-item"><span class="overtime-summary-label">계획</span><span id="overtimePlanValue" class="overtime-summary-value">0시간</span></span>
+        <span class="overtime-summary-item"><span class="overtime-summary-label">완료</span><span id="overtimeDoneValue" class="overtime-summary-value">0시간</span></span>
+      </span>
+      <span id="overtimeSummaryNote" class="overtime-summary-note">목록 ›</span>
+    </button>
     <div class="weekdays"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
     <div id="calendarGrid" class="calendar-grid"></div>
     <div id="legend" class="legend hidden"><span><i class="dot day"></i>주간</span><span><i class="dot day2"></i>주2</span><span><i class="dot night"></i>야간</span><span><i class="dot off"></i>휴무</span></div>
@@ -1000,7 +1033,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260916-0638 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260916-1703 · 업데이트 내역</button>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1019,6 +1052,16 @@
       <div id="holidayWorkError" class="holiday-work-error"></div>
       <div id="holidayWorkActions" class="holiday-work-actions"><button id="deleteHolidayWorkBtn" class="holiday-work-delete" type="button">삭제</button><button id="closeHolidayWorkBtn" class="holiday-work-close hidden" type="button" tabindex="-1" aria-hidden="true">닫기</button><button id="saveHolidayWorkBtn" class="holiday-work-save" type="button">저장</button></div>
     </div>
+
+    <div id="overtimeDetailSection" class="overtime-detail hidden">
+      <div class="overtime-detail-head"><div class="overtime-detail-title">초과근무</div><span id="overtimeDetailStatus" class="memo-private-badge">계획</span></div>
+      <div class="overtime-detail-help">조출·야근을 각각 10분 단위로 계획하고, 실제 근무 후 완료에 체크하세요.</div>
+      <div class="overtime-slot-row" data-overtime-slot="early"><span class="overtime-slot-name">조출</span><button class="overtime-step" type="button" data-overtime-adjust="-10">−</button><span id="overtimeEarlyTime" class="overtime-time">0분</span><button class="overtime-step" type="button" data-overtime-adjust="10">＋</button><label class="overtime-complete"><input id="overtimeEarlyDone" type="checkbox"> 완료</label><button class="overtime-clear" type="button" data-overtime-clear="early">삭제</button></div>
+      <div class="overtime-slot-row" data-overtime-slot="late"><span class="overtime-slot-name">야근</span><button class="overtime-step" type="button" data-overtime-adjust="-10">−</button><span id="overtimeLateTime" class="overtime-time">0분</span><button class="overtime-step" type="button" data-overtime-adjust="10">＋</button><label class="overtime-complete"><input id="overtimeLateDone" type="checkbox"> 완료</label><button class="overtime-clear" type="button" data-overtime-clear="late">삭제</button></div>
+      <div id="overtimeDetailWarning" class="overtime-over-warning hidden"></div>
+      <div id="overtimeDetailError" class="overtime-error"></div>
+      <div class="overtime-actions"><button id="saveOvertimeBtn" class="overtime-save" type="button">저장</button></div>
+    </div>
     <div id="memoDetailSection" class="memo-detail-section detail-collapsible hidden">
       <div class="memo-detail-head detail-collapsible-head"><div class="memo-detail-title">개인 메모</div><div class="detail-head-tools"><span id="memoPrivateBadge" class="memo-private-badge">나만 보임</span><button id="memoDetailToggleBtn" class="detail-section-toggle" type="button" aria-expanded="true">펼침 ▲</button></div></div>
       <textarea id="memoText" class="memo-textarea" maxlength="1000" placeholder="이 날짜에 기억할 내용을 간단히 적어두세요."></textarea>
@@ -1034,6 +1077,18 @@
     <div id="detailFullSection" class="detail-section"><div class="detail-title">종일부재</div><div id="detailFull" class="detail-list"></div></div>
     <div id="detailAvailableSection" class="detail-section"><div class="detail-title">가용인원</div><div id="detailAvailable" class="detail-list"></div></div>
     <div class="modal-actions detail-bottom-actions"><button class="secondary detail-close-bottom" type="button" data-close="detail">닫기</button></div>
+  </div>
+</div>
+
+
+<div id="overtimeListBackdrop" class="backdrop overtime-list-modal" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head"><div id="overtimeListTitle" class="modal-title">초과근무</div><button class="close-btn" data-close="overtimeList">×</button></div>
+    <div id="overtimeListAdminField" class="field hidden"><label for="overtimeListEmployee">직원</label><select id="overtimeListEmployee"></select></div>
+    <div class="overtime-list-headline"><div class="overtime-list-metric"><span>가능</span><b id="overtimeListCapacity">-</b></div><div class="overtime-list-metric"><span>계획</span><b id="overtimeListPlan">0시간</b></div><div class="overtime-list-metric"><span>완료</span><b id="overtimeListDone">0시간</b></div></div>
+    <div id="overtimeConfirmRow" class="overtime-confirm-row hidden"><span id="overtimeConfirmText"></span><button id="overtimeConfirmBtn" class="overtime-confirm-btn" type="button"></button></div>
+    <div id="overtimeListWarning" class="overtime-over-warning hidden"></div>
+    <div id="overtimeListBody"></div>
   </div>
 </div>
 
@@ -1467,8 +1522,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260916-0638';
+const APP_VERSION = 'ver20260916-1703';
 const UPDATE_HISTORY = [
+  {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
   {version:'ver20260915-2352',date:'2026.09.15',items:['사내일정 달력 표시 기능 추가']},
   {version:'ver20260915-1326',date:'2026.09.15',items:['내 근무표 메모 내용 표시 및 표시/숨김 기능 추가']},
   {version:'ver20260913-1706',date:'2026.09.13',items:['대체공휴일 대휴 발생 안내 기능 추가']},
@@ -1502,6 +1558,8 @@ const LOCAL_AUDIT_KEY = 'staffAttendance_localAudit_v1';
 const LOCAL_MEMO_KEY_PREFIX = 'staffAttendance_localMemos_v1_';
 const LOCAL_HOLIDAY_WORK_KEY = 'staffAttendance_localHolidayWork_v1';
 const LOCAL_COMPANY_EVENT_KEY = 'staffAttendance_localCompanyEvents_v1';
+const LOCAL_OVERTIME_KEY = 'staffAttendance_localOvertime_v1';
+const LOCAL_OVERTIME_CONFIRM_KEY = 'staffAttendance_localOvertimeConfirm_v1';
 const LOCAL_ANNUAL_LEAVE_KEY_PREFIX = 'staffAttendance_localAnnualLeave_v1_';
 const LOCAL_LONG_SERVICE_KEY_PREFIX = 'staffAttendance_localLongService_v1_';
 const AUDIT_RETENTION_LIMIT = 1000;
@@ -1687,7 +1745,7 @@ migrateLegacySessionForDevice();
 
 const state = {
   sessionToken: storedSessionToken(),
-  me:null, employees:[], attendance:[], holidayWorks:[], holidayWorkBackendReady:null, holidayWorkEligibilityReady:null, memos:[], memoBackendReady:null, companyEvents:[], companyEventBackendReady:null, annualLeaveSettings:null, annualLeaveEntries:[], annualLeaveBackendReady:null, annualLeaveYear:null, annualLeaveFormDirty:false, longServiceProfile:null, longServiceExclusions:[], longServiceEntries:[], longServiceBackendReady:null, longServiceFormDirty:false, view:'mine', selectedDate:null, absenceReflect:(()=>{try{return localStorage.getItem(ABSENCE_REFLECT_KEY)!=='0';}catch(e){return true;}})(), memoDisplay:(()=>{try{return localStorage.getItem(MEMO_DISPLAY_KEY)!=='0';}catch(e){return true;}})(),
+  me:null, employees:[], attendance:[], holidayWorks:[], holidayWorkBackendReady:null, holidayWorkEligibilityReady:null, overtimeEntries:[], overtimeBackendReady:null, overtimeConfirmations:[], overtimeConfirmBackendReady:null, memos:[], memoBackendReady:null, companyEvents:[], companyEventBackendReady:null, annualLeaveSettings:null, annualLeaveEntries:[], annualLeaveBackendReady:null, annualLeaveYear:null, annualLeaveFormDirty:false, longServiceProfile:null, longServiceExclusions:[], longServiceEntries:[], longServiceBackendReady:null, longServiceFormDirty:false, view:'mine', selectedDate:null, absenceReflect:(()=>{try{return localStorage.getItem(ABSENCE_REFLECT_KEY)!=='0';}catch(e){return true;}})(), memoDisplay:(()=>{try{return localStorage.getItem(MEMO_DISPLAY_KEY)!=='0';}catch(e){return true;}})(),
   year:Math.min(Math.max(parseDateKey(todayKey()).y,MIN_YEAR),MAX_YEAR), month:parseDateKey(todayKey()).m,
   pickerYear:Math.min(Math.max(parseDateKey(todayKey()).y,MIN_YEAR),MAX_YEAR), mode:'all_day', dateMode:'single', refreshing:false, employeeAction:null, pinStatus:{}
 };
@@ -1704,6 +1762,11 @@ let holidayWorkListLoadSeq=0;
 let holidayWorkPastExpanded=false;
 let holidayWorkListEditContext=false;
 let holidayWorkListEditReturnMode=null;
+let overtimeDetailMinutes={early:0,late:0};
+let overtimeListRows=[];
+let overtimeListTargetEmployeeId=null;
+let overtimeDataLoadSeq=0;
+let overtimeListLoadSeq=0;
 const HOLIDAY_WORK_LIST_ALL='__all__';
 let attendanceFormRosterContext=null;
 let auditRows=[];
@@ -2623,6 +2686,83 @@ function saveLocalHolidayWorks(rows){ localStorage.setItem(LOCAL_HOLIDAY_WORK_KE
 function normalizeHolidayWorkRows(rows){
   return (rows||[]).map(r=>({...r,id:Number(r.id),employee_id:Number(r.employee_id),work_date:String(r.work_date||'').slice(0,10),start_time:timeShort(r.start_time),end_time:timeShort(r.end_time),net_minutes:Number(r.net_minutes)||0})).filter(r=>r.employee_id&&r.work_date);
 }
+function localOvertimeRows(){ try{const r=JSON.parse(localStorage.getItem(LOCAL_OVERTIME_KEY)||'[]');return Array.isArray(r)?r:[]}catch(e){return []} }
+function saveLocalOvertimeRows(rows){localStorage.setItem(LOCAL_OVERTIME_KEY,JSON.stringify(rows||[]));}
+function localOvertimeConfirmations(){try{const r=JSON.parse(localStorage.getItem(LOCAL_OVERTIME_CONFIRM_KEY)||'[]');return Array.isArray(r)?r:[]}catch(e){return []}}
+function saveLocalOvertimeConfirmations(rows){localStorage.setItem(LOCAL_OVERTIME_CONFIRM_KEY,JSON.stringify(rows||[]));}
+function normalizeOvertimeRows(rows){return (Array.isArray(rows)?rows:[]).map(r=>({id:Number(r.id)||0,employee_id:Number(r.employee_id)||0,work_date:String(r.work_date||'').slice(0,10),slot:String(r.slot||''),minutes:Number(r.minutes)||0,completed:r.completed===true,updated_at:r.updated_at||null})).filter(r=>r.employee_id&&/^\d{4}-\d{2}-\d{2}$/.test(r.work_date)&&['early','late'].includes(r.slot)&&r.minutes>=10&&r.minutes<=1440&&r.minutes%10===0);}
+function overtimeRowsForDate(key,rows=state.overtimeEntries){return (rows||[]).filter(r=>r.work_date===key).sort((a,b)=>(a.slot==='early'?0:1)-(b.slot==='early'?0:1)||a.id-b.id);}
+function overtimeSlotLabel(slot){return slot==='early'?'조출':'야근';}
+function overtimeMinutesText(value){const n=Math.max(0,Number(value)||0),h=Math.floor(n/60),m=n%60;if(!h)return `${m}분`;return m?`${h}시간 ${m}분`:`${h}시간`;}
+function overtimeShortText(value){const n=Math.max(0,Number(value)||0);return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;}
+function overtimeMonthRange(year=state.year,month=state.month){return monthBounds(year,month);}
+function overtimeMonthStart(year=state.year,month=state.month){return dateKey(year,month,1);}
+function overtimeMonthConfirmed(year=state.year,month=state.month){const k=overtimeMonthStart(year,month);return state.overtimeConfirmations.some(r=>String(r.month_start||'').slice(0,10)===k);}
+function overtimeMonthRows(employeeId=state.me?.employee_id,year=state.year,month=state.month,rows=state.overtimeEntries){const {from,to}=overtimeMonthRange(year,month);return (rows||[]).filter(r=>Number(r.employee_id)===Number(employeeId)&&r.work_date>=from&&r.work_date<=to);}
+function overtimeCapacityForEmployee(emp,year=state.year,month=state.month){
+  if(!emp)return {minutes:null,note:'직원 정보 없음'};
+  const from=dateKey(year,month,1),to=dateKey(year,month,daysInMonth(year,month));
+  const cats=new Set();
+  for(let d=1;d<=daysInMonth(year,month);d++){const key=dateKey(year,month,d);if(employeeOperationalOn(emp,key))cats.add(employeeCategoryOn(emp,key)||emp.category);}
+  const allShift=cats.size>0&&[...cats].every(c=>['A조','B조','C조','D조'].includes(c));
+  const allDay=cats.size>0&&[...cats].every(c=>c==='일근(사무)'||c==='일근(현장)');
+  if(allShift){
+    let nights=0;for(let d=1;d<=daysInMonth(year,month);d++){const key=dateKey(year,month,d);if(employeeOperationalOn(emp,key)&&shiftForEmployee(emp,year,month,d)==='야')nights++;}
+    const map={0:1380,1:1200,2:1020,3:900,4:720,5:600,6:480,7:360,8:180};
+    return Object.prototype.hasOwnProperty.call(map,nights)?{minutes:map[nights],note:`야간 ${nights}회`}:{minutes:null,note:`야간 ${nights}회 · 기준 확인 필요`};
+  }
+  if(allDay){
+    if(configured()&&state.holidayWorkEligibilityReady!==true)return {minutes:null,note:'휴일근무 가능 설정 확인 필요'};
+    if(emp.holiday_work_enabled===false)return {minutes:900,note:'휴일근무 비대상'};
+    if(configured()&&state.holidayWorkBackendReady!==true)return {minutes:null,note:'휴일근무 기록 확인 필요'};
+    if(configured()&&state.overtimeConfirmBackendReady!==true)return {minutes:null,note:'편성확정 정보 확인 필요'};
+    if(!overtimeMonthConfirmed(year,month))return {minutes:null,note:'휴일근무 편성 확정 전'};
+    const count=new Set((state.holidayWorks||[]).filter(r=>Number(r.employee_id)===Number(emp.id)&&r.work_date>=from&&r.work_date<=to).map(r=>r.work_date)).size;
+    return {minutes:count<=1?1380:(count===2?1860:1920),note:`휴일근무 ${count}회`};
+  }
+  if(cats.size>1)return {minutes:null,note:'근무형태 변경 월'};
+  return {minutes:null,note:'산정 대상 아님'};
+}
+function overtimeSummaryFor(employeeId=state.me?.employee_id,year=state.year,month=state.month,rows=state.overtimeEntries){const emp=state.employees.find(e=>Number(e.id)===Number(employeeId)),monthRows=overtimeMonthRows(employeeId,year,month,rows),capacity=overtimeCapacityForEmployee(emp,year,month),plan=monthRows.filter(r=>!r.completed).reduce((a,r)=>a+r.minutes,0),done=monthRows.filter(r=>r.completed).reduce((a,r)=>a+r.minutes,0);return {emp,rows:monthRows,capacity,plan,done,total:plan+done};}
+function renderOvertimeSummary(){const box=$('overtimeSummary');if(!box)return;const show=state.view==='mine'&&!!state.me;box.classList.toggle('hidden',!show);if(!show)return;const x=overtimeSummaryFor(),backendBad=configured()&&state.overtimeBackendReady===false;$('overtimeCapacityValue').textContent=x.capacity.minutes==null?'미정':overtimeMinutesText(x.capacity.minutes);$('overtimePlanValue').textContent=backendBad?'-':overtimeMinutesText(x.plan);$('overtimeDoneValue').textContent=backendBad?'-':overtimeMinutesText(x.done);const note=$('overtimeSummaryNote');note.textContent=backendBad?'연결 확인 ›':'목록 ›';note.classList.toggle('warn',backendBad||(x.capacity.minutes!=null&&x.total>x.capacity.minutes));box.title=backendBad?'초과근무 서버 설정을 확인해 주세요.':(x.capacity.minutes!=null&&x.total>x.capacity.minutes?`계획+완료가 가능시간을 ${overtimeMinutesText(x.total-x.capacity.minutes)} 초과했습니다.`:(x.capacity.minutes==null&&x.capacity.note?`가능시간: ${x.capacity.note} · 월 초과근무 목록 열기`:'월 초과근무 목록 열기'));}
+function overtimeCalendarMarkup(key){const rows=overtimeRowsForDate(key);if(!rows.length)return '';return `<div class="overtime-calendar">${rows.map(r=>`<div class="overtime-badge${r.completed?' done':''}">${r.completed?'✓ ':''}${overtimeSlotLabel(r.slot)} ${overtimeShortText(r.minutes)}</div>`).join('')}</div>`;}
+async function loadOvertimeData(from,to){
+  const seq=++overtimeDataLoadSeq;
+  if(!state.me){state.overtimeEntries=[];state.overtimeConfirmations=[];return;}
+  const actor=Number(state.me.employee_id),token=state.sessionToken,requestFrom=String(from||''),requestTo=String(to||'');
+  const stillCurrent=()=>seq===overtimeDataLoadSeq&&!!state.me&&Number(state.me.employee_id)===actor&&state.sessionToken===token&&(()=>{const b=monthBounds(state.year,state.month);return b.from===requestFrom&&b.to===requestTo;})();
+  if(!configured()){
+    if(!stillCurrent())return;
+    state.overtimeEntries=normalizeOvertimeRows(localOvertimeRows()).filter(r=>Number(r.employee_id)===actor&&r.work_date>=requestFrom&&r.work_date<=requestTo);
+    state.overtimeConfirmations=localOvertimeConfirmations();state.overtimeBackendReady=true;state.overtimeConfirmBackendReady=true;return;
+  }
+  const [entryResult,confirmResult]=await Promise.allSettled([
+    rpc('list_overtime_entries',{p_token:token,p_employee_id:actor,p_from:requestFrom,p_to:requestTo}),
+    rpc('list_holiday_work_month_confirmations',{p_token:token,p_from:requestFrom,p_to:requestTo})
+  ]);
+  if(!stillCurrent())return;
+  // 다른 월 데이터와 마찬가지로 서버가 SESSION_EXPIRED를 명확히 반환한 경우에만 상위 로더가 로그아웃을 처리하게 한다.
+  if(entryResult.status==='rejected'&&isConfirmedSessionExpired(entryResult.reason))throw entryResult.reason;
+  if(confirmResult.status==='rejected'&&isConfirmedSessionExpired(confirmResult.reason))throw confirmResult.reason;
+  if(entryResult.status==='fulfilled'){state.overtimeEntries=normalizeOvertimeRows(entryResult.value);state.overtimeBackendReady=true;}
+  else{state.overtimeEntries=[];state.overtimeBackendReady=false;}
+  if(confirmResult.status==='fulfilled'){state.overtimeConfirmations=Array.isArray(confirmResult.value)?confirmResult.value:[];state.overtimeConfirmBackendReady=true;}
+  else{state.overtimeConfirmations=[];state.overtimeConfirmBackendReady=false;}
+}
+function renderOvertimeDetail(key){const section=$('overtimeDetailSection');if(!section)return;const emp=state.employees.find(e=>Number(e.id)===Number(state.me?.employee_id)),show=state.view==='mine'&&!!emp&&employeeOperationalOn(emp,key);section.classList.toggle('hidden',!show);if(!show)return;const rows=overtimeRowsForDate(key),early=rows.find(r=>r.slot==='early'),late=rows.find(r=>r.slot==='late');overtimeDetailMinutes={early:early?.minutes||0,late:late?.minutes||0};$('overtimeEarlyDone').checked=!!early?.completed;$('overtimeLateDone').checked=!!late?.completed;renderOvertimeDetailValues();const writable=!accountReadOnly()&&state.overtimeBackendReady!==false;section.querySelectorAll('button,input').forEach(el=>el.disabled=!writable);$('saveOvertimeBtn').classList.toggle('hidden',!writable);$('overtimeDetailStatus').textContent=accountReadOnly()?'조회 전용':(rows.some(r=>r.completed)?'계획·완료':'계획');$('overtimeDetailError').textContent=state.overtimeBackendReady===false&&configured()?'초과근무 서버 설정을 확인해 주세요.':'';}
+function renderOvertimeDetailValues(){$('overtimeEarlyTime').textContent=overtimeMinutesText(overtimeDetailMinutes.early);$('overtimeLateTime').textContent=overtimeMinutesText(overtimeDetailMinutes.late);const lock=accountReadOnly()||(configured()&&state.overtimeBackendReady===false);$('overtimeEarlyDone').disabled=lock||overtimeDetailMinutes.early<=0;$('overtimeLateDone').disabled=lock||overtimeDetailMinutes.late<=0;const x=overtimeSummaryFor(),existing=overtimeRowsForDate(state.selectedDate).reduce((a,r)=>a+r.minutes,0),draft=overtimeDetailMinutes.early+overtimeDetailMinutes.late,newTotal=x.total-existing+draft,w=$('overtimeDetailWarning');if(x.capacity.minutes!=null&&newTotal>x.capacity.minutes){w.textContent=`계획+완료 합계가 월 가능시간을 ${overtimeMinutesText(newTotal-x.capacity.minutes)} 초과합니다. 저장은 가능합니다.`;w.classList.remove('hidden')}else{w.textContent='';w.classList.add('hidden')}}
+function adjustOvertimeDetail(slot,delta){if(accountReadOnly())return;overtimeDetailMinutes[slot]=Math.max(0,Math.min(1440,overtimeDetailMinutes[slot]+delta));if(overtimeDetailMinutes[slot]===0)$(slot==='early'?'overtimeEarlyDone':'overtimeLateDone').checked=false;renderOvertimeDetailValues();}
+function clearOvertimeDetail(slot){if(accountReadOnly())return;overtimeDetailMinutes[slot]=0;$(slot==='early'?'overtimeEarlyDone':'overtimeLateDone').checked=false;renderOvertimeDetailValues();}
+async function saveOvertimeDay(){const key=state.selectedDate;if(!key||state.view!=='mine'||accountReadOnly()||!state.me)return;const actor=Number(state.me.employee_id),token=state.sessionToken,e=overtimeDetailMinutes.early,l=overtimeDetailMinutes.late,ed=$('overtimeEarlyDone').checked,ld=$('overtimeLateDone').checked;$('overtimeDetailError').textContent='';showLoading(true);try{if(!configured()){let rows=normalizeOvertimeRows(localOvertimeRows()).filter(r=>!(Number(r.employee_id)===actor&&r.work_date===key));let next=rows.reduce((m,r)=>Math.max(m,r.id),0)+1;if(e)rows.push({id:next++,employee_id:actor,work_date:key,slot:'early',minutes:e,completed:ed,updated_at:new Date().toISOString()});if(l)rows.push({id:next++,employee_id:actor,work_date:key,slot:'late',minutes:l,completed:ld,updated_at:new Date().toISOString()});saveLocalOvertimeRows(rows);}else await rpc('save_my_overtime_day',{p_token:token,p_work_date:key,p_early_minutes:e,p_early_completed:ed,p_late_minutes:l,p_late_completed:ld});if(!state.me||Number(state.me.employee_id)!==actor||state.sessionToken!==token)return;const {from,to}=monthBounds(state.year,state.month);await loadOvertimeData(from,to);if(!state.me||Number(state.me.employee_id)!==actor||state.sessionToken!==token)return;renderCalendar();if(state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open'))renderOvertimeDetail(key);showToast('✓ 초과근무 계획을 저장했습니다.','success');}catch(err){if(state.me&&Number(state.me.employee_id)===actor&&state.sessionToken===token)$('overtimeDetailError').textContent=userSafeServiceError(err,'초과근무를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');}finally{showLoading(false)}}
+function overtimeEmployeeOperationalInMonth(emp,year,month){for(let d=1,dmax=daysInMonth(year,month);d<=dmax;d++){if(employeeOperationalOn(emp,dateKey(year,month,d)))return true;}return false;}
+function overtimeListEmployeeOptions(){if(!activeAdminMode())return '';return state.employees.filter(e=>overtimeEmployeeOperationalInMonth(e,state.year,state.month)).sort(employeeDisplayCompare).map(e=>`<option value="${e.id}">${escapeHtml(e.display_name)} · ${escapeHtml(e.category)}</option>`).join('');}
+async function openOvertimeList(){if(!state.me)return;overtimeListTargetEmployeeId=Number(state.me.employee_id);const sel=$('overtimeListEmployee'),admin=activeAdminMode();$('overtimeListAdminField').classList.toggle('hidden',!admin);if(admin){sel.innerHTML=overtimeListEmployeeOptions();sel.value=String(overtimeListTargetEmployeeId)}openBackdrop('overtimeListBackdrop');await loadOvertimeList();}
+async function loadOvertimeList(showSpinner=true){if(!state.me)return;const seq=++overtimeListLoadSeq,target=Number(overtimeListTargetEmployeeId||state.me.employee_id),actor=Number(state.me.employee_id),token=state.sessionToken,{from,to}=monthBounds(state.year,state.month),requestYear=state.year,requestMonth=state.month;if(showSpinner)$('overtimeListBody').innerHTML='<div class="overtime-list-empty">불러오는 중…</div>';const stillCurrent=()=>seq===overtimeListLoadSeq&&!!state.me&&Number(state.me.employee_id)===actor&&state.sessionToken===token&&state.year===requestYear&&state.month===requestMonth&&Number(overtimeListTargetEmployeeId||state.me.employee_id)===target;try{let rows;if(!configured())rows=normalizeOvertimeRows(localOvertimeRows()).filter(r=>Number(r.employee_id)===target&&r.work_date>=from&&r.work_date<=to);else rows=normalizeOvertimeRows(await rpc('list_overtime_entries',{p_token:token,p_employee_id:target,p_from:from,p_to:to}));if(!stillCurrent())return;overtimeListRows=rows;renderOvertimeList();}catch(e){if(!stillCurrent())return;if(isConfirmedSessionExpired(e)){await logout(false);return;}overtimeListRows=[];$('overtimeListBody').innerHTML=`<div class="overtime-list-empty">${escapeHtml(userSafeServiceError(e,'목록을 불러오지 못했습니다.'))}</div>`;}}
+function renderOvertimeList(){if(!state.me)return;const target=Number(overtimeListTargetEmployeeId||state.me.employee_id),x=overtimeSummaryFor(target,state.year,state.month,overtimeListRows);$('overtimeListTitle').textContent=`${state.year}년 ${state.month+1}월 초과근무`;$('overtimeListCapacity').textContent=x.capacity.minutes==null?'미정':overtimeMinutesText(x.capacity.minutes);$('overtimeListPlan').textContent=overtimeMinutesText(x.plan);$('overtimeListDone').textContent=overtimeMinutesText(x.done);const editable=target===Number(state.me.employee_id)&&!accountReadOnly();$('overtimeListBody').innerHTML=x.rows.length?x.rows.slice().sort((a,b)=>a.work_date.localeCompare(b.work_date)||(a.slot==='early'?-1:1)).map(r=>`<div class="overtime-list-row"><span class="overtime-list-date">${Number(r.work_date.slice(5,7))}/${Number(r.work_date.slice(8,10))}</span><span class="overtime-list-slot">${overtimeSlotLabel(r.slot)}</span><span class="overtime-list-minutes">${overtimeMinutesText(r.minutes)}</span><label class="overtime-list-check"><input type="checkbox" data-overtime-list-check="${r.id}" ${r.completed?'checked':''} ${editable?'':'disabled'}> 완료</label>${editable?`<button type="button" class="overtime-list-edit" data-overtime-list-edit="${r.id}">수정</button>`:''}</div>`).join(''):'<div class="overtime-list-empty">이 달에 등록된 초과근무 계획이 없습니다.</div>';const w=$('overtimeListWarning');if(x.capacity.minutes!=null&&x.total>x.capacity.minutes){w.textContent=`계획+완료 합계가 가능시간을 ${overtimeMinutesText(x.total-x.capacity.minutes)} 초과했습니다.`;w.classList.remove('hidden')}else if(x.capacity.minutes==null&&x.capacity.note){w.textContent=`가능시간 산정: ${x.capacity.note}`;w.classList.remove('hidden')}else{w.textContent='';w.classList.add('hidden')}const admin=activeAdminMode(),row=$('overtimeConfirmRow');row.classList.toggle('hidden',!admin);if(admin){const confirmed=overtimeMonthConfirmed();$('overtimeConfirmText').textContent=confirmed?'이 달 휴일근무 편성 확정됨':'이 달 휴일근무 편성 미확정';const b=$('overtimeConfirmBtn');b.textContent=confirmed?'확정 취소':'편성 확정';b.classList.toggle('confirmed',confirmed);}}
+
+async function toggleOvertimeListCompleted(id,checked){const r=overtimeListRows.find(x=>x.id===Number(id));if(!r||!state.me||accountReadOnly()||Number(overtimeListTargetEmployeeId)!==Number(state.me.employee_id))return;const actor=Number(state.me.employee_id),token=state.sessionToken,target=Number(overtimeListTargetEmployeeId),rowId=Number(r.id),requestYear=state.year,requestMonth=state.month;const stillCurrent=()=>!!state.me&&Number(state.me.employee_id)===actor&&state.sessionToken===token&&Number(overtimeListTargetEmployeeId)===target&&state.year===requestYear&&state.month===requestMonth;showLoading(true);try{if(!configured()){const all=normalizeOvertimeRows(localOvertimeRows()),x=all.find(v=>v.id===rowId);if(x)x.completed=checked;saveLocalOvertimeRows(all);}else await rpc('save_my_overtime_entry',{p_token:token,p_work_date:r.work_date,p_slot:r.slot,p_minutes:r.minutes,p_completed:checked});if(!stillCurrent())return;r.completed=checked;const own=state.overtimeEntries.find(v=>v.id===rowId);if(own)own.completed=checked;renderOvertimeList();renderCalendar();}catch(e){if(stillCurrent()){showToast(userSafeServiceError(e,'완료 상태를 변경하지 못했습니다.'),'error');await loadOvertimeList();}}finally{showLoading(false)}}
+async function toggleOvertimeMonthConfirmation(){if(!activeAdminMode()||!state.me)return;const actor=Number(state.me.employee_id),token=state.sessionToken,month=overtimeMonthStart(),confirmed=overtimeMonthConfirmed(),requestYear=state.year,requestMonth=state.month;showLoading(true);try{if(!configured()){let rows=localOvertimeConfirmations().filter(r=>String(r.month_start)!==month);if(!confirmed)rows.push({month_start:month,confirmed_by:actor,confirmed_at:new Date().toISOString()});saveLocalOvertimeConfirmations(rows);if(!state.me||Number(state.me.employee_id)!==actor||state.sessionToken!==token)return;state.overtimeConfirmations=rows;}else{await rpc('admin_set_holiday_work_month_confirmation',{p_token:token,p_month_start:month,p_confirmed:!confirmed});if(!state.me||Number(state.me.employee_id)!==actor||state.sessionToken!==token||state.year!==requestYear||state.month!==requestMonth)return;const {from,to}=monthBounds(requestYear,requestMonth),rows=await rpc('list_holiday_work_month_confirmations',{p_token:token,p_from:from,p_to:to});if(!state.me||Number(state.me.employee_id)!==actor||state.sessionToken!==token||state.year!==requestYear||state.month!==requestMonth)return;state.overtimeConfirmations=Array.isArray(rows)?rows:[];state.overtimeConfirmBackendReady=true;}renderOvertimeSummary();renderOvertimeList();showToast(!confirmed?'✓ 휴일근무 편성을 확정했습니다.':'휴일근무 편성 확정을 취소했습니다.','success');}catch(e){if(state.me&&Number(state.me.employee_id)===actor&&state.sessionToken===token)showToast(userSafeServiceError(e,'편성 확정 상태를 변경하지 못했습니다.'),'error');}finally{showLoading(false)}}
+
 function recordsForDate(key){ return state.attendance.filter(r=>r.start_date<=key && r.end_date>=key); }
 function attendanceTimeWindowForRecord(record,emp){
   if(!record||record.absence_mode!=='time')return null;
@@ -2855,7 +2995,7 @@ function backupExportedText(value){
 }
 const CAPACITY_TABLE_LABELS = {
   employees:'직원/발령', attendance_entries:'근태', audit_logs:'변경이력', app_sessions:'로그인 세션',
-  realtime_signals:'실시간 동기화', personal_memos:'개인 메모', memos:'개인 메모', holiday_work_entries:'휴근', company_events:'사내일정', holiday_work_eligibility:'휴근 가능 설정', annual_leave_settings:'연차 설정', long_service_settings:'장기 재직 설정', long_service_exclusions:'재직 제외기간', data_management_meta:'데이터관리 메타', data_safety_backups:'자동 안전백업', data_management_logs:'데이터관리 작업이력'
+  realtime_signals:'실시간 동기화', personal_memos:'개인 메모', memos:'개인 메모', holiday_work_entries:'휴근', overtime_entries:'초과근무', holiday_work_month_confirmations:'휴일근무 편성확정', company_events:'사내일정', holiday_work_eligibility:'휴근 가능 설정', annual_leave_settings:'연차 설정', long_service_settings:'장기 재직 설정', long_service_exclusions:'재직 제외기간', data_management_meta:'데이터관리 메타', data_safety_backups:'자동 안전백업', data_management_logs:'데이터관리 작업이력'
 };
 function formatBytes(bytes){
   const n=Math.max(0,Number(bytes)||0);
@@ -2927,6 +3067,12 @@ async function loadCapacity(){
           const annualBytes=Number(await rpc('get_annual_leave_capacity',{p_token:state.sessionToken},{timeoutMs:3000}));
           if(Number.isFinite(annualBytes)&&annualBytes>=0) tables.push({table_name:'annual_leave_settings',bytes:annualBytes});
         }catch(e){ /* 연차 설정 용량 보완 실패가 기존 용량 화면을 막지 않도록 무시 */ }
+      }
+      if(!tables.some(r=>r?.table_name==='overtime_entries')){
+        try{
+          const overtimeBytes=Number(await rpc('get_overtime_storage_capacity',{p_token:state.sessionToken},{timeoutMs:3000}));
+          if(Number.isFinite(overtimeBytes)&&overtimeBytes>=0) tables.push({table_name:'overtime_entries',bytes:overtimeBytes});
+        }catch(e){ /* 초과근무 용량 보완 실패가 기존 용량 화면을 막지 않도록 무시 */ }
       }
       renderCapacityBreakdown(tables);
     }
@@ -3076,7 +3222,7 @@ async function restoreSession(isRetry=false){
       }
       clearSessionRestoreRetry();
       await stopRealtime();
-      clearStoredLoginSession(); state.sessionToken=''; state.me=null;
+      clearStoredLoginSession(); overtimeDataLoadSeq++; overtimeListLoadSeq++; state.sessionToken=''; state.me=null;
       $('appView').classList.add('hidden'); $('reconnectView').classList.add('hidden'); $('loginView').classList.remove('hidden'); $('adminTools').classList.add('hidden'); setAdminToolsExpanded(false);
       if(configured() && isConfirmedSessionExpired(e)) $('loginError').textContent='로그인 세션이 만료되었습니다. 다시 로그인해 주세요.';
     }else if(isLocalPreviewContext()){
@@ -3170,6 +3316,11 @@ function applyAccountModeUI(){
   if($('allAttendanceListBackdrop')?.classList.contains('open')) renderAllAttendanceList();
   if($('memoListBackdrop')?.classList.contains('open')) renderMemoList();
   if($('holidayWorkListBackdrop')?.classList.contains('open')) renderHolidayWorkList();
+  if($('overtimeListBackdrop')?.classList.contains('open')){
+    const admin=activeAdminMode();$('overtimeListAdminField').classList.toggle('hidden',!admin);
+    if(!admin&&Number(overtimeListTargetEmployeeId)!==Number(state.me.employee_id)){overtimeListTargetEmployeeId=Number(state.me.employee_id);overtimeListLoadSeq++;void loadOvertimeList();}
+    else renderOvertimeList();
+  }
   if(state.view==='leave') renderAnnualLeave();
   if(state.view==='longservice') renderLongService(false);
   renderTabs();
@@ -3267,6 +3418,7 @@ async function loadMonthData(silent=false){
     }
     state.attendance=(data||[]).map(r=>({...r,id:Number(r.id),employee_id:Number(r.employee_id),attendance_type:normalizeAttendanceType(r.attendance_type),annual_leave_deduct:r.annual_leave_deduct===true?true:(r.annual_leave_deduct===false?false:null)}));
     await loadHolidayWorks();
+    await loadOvertimeData(from,to);
     await loadMonthMemos(from,to);
     $('statusLine').textContent=configured()?'':'테스트 모드 · 이 기기에만 저장';
   }catch(e){
@@ -3286,6 +3438,7 @@ async function refresh(){
     if($('allAttendanceListBackdrop')?.classList.contains('open')) await loadAllAttendanceList(false);
     if($('memoListBackdrop')?.classList.contains('open')) await loadMemoList(false);
     if($('holidayWorkListBackdrop')?.classList.contains('open')) await loadHolidayWorkList(false);
+    if($('overtimeListBackdrop')?.classList.contains('open')) await loadOvertimeList(false);
     if(state.view==='leave') await loadAnnualLeaveData(false);
     if(state.view==='longservice') await loadLongServiceData(false);
     void loadCompanyEvents(true);
@@ -3300,7 +3453,9 @@ async function logout(callServer=true){
   const guideShownKey=usageGuideSessionKey(); if(guideShownKey) sessionStorage.removeItem(guideShownKey);
   await stopRealtime();
   if(callServer && state.sessionToken && configured()){ try{ await rpc('logout_employee',{p_token:state.sessionToken}); }catch{} }
-  clearStoredLoginSession(); state.sessionToken=''; state.me=null; state.employees=[]; state.attendance=[]; state.holidayWorks=[]; state.holidayWorkBackendReady=null; state.memos=[]; state.memoBackendReady=null; state.companyEvents=[]; state.companyEventBackendReady=null; state.annualLeaveSettings=null; state.annualLeaveEntries=[]; state.annualLeaveBackendReady=null; state.annualLeaveYear=null; state.annualLeaveFormDirty=false; state.longServiceProfile=null; state.longServiceExclusions=[]; state.longServiceEntries=[]; state.longServiceBackendReady=null; state.longServiceFormDirty=false; state.personnelAssignments=[]; state.personnelAccountEvents=[]; state.personnelSnapshots=[]; state.personnelBackendReady=null; state.view='mine';
+  overtimeDataLoadSeq++; overtimeListLoadSeq++;
+  clearStoredLoginSession(); state.sessionToken=''; state.me=null; state.employees=[]; state.attendance=[]; state.holidayWorks=[]; state.holidayWorkBackendReady=null; state.overtimeEntries=[]; state.overtimeBackendReady=null; state.overtimeConfirmations=[]; state.overtimeConfirmBackendReady=null; state.memos=[]; state.memoBackendReady=null; state.companyEvents=[]; state.companyEventBackendReady=null; state.annualLeaveSettings=null; state.annualLeaveEntries=[]; state.annualLeaveBackendReady=null; state.annualLeaveYear=null; state.annualLeaveFormDirty=false; state.longServiceProfile=null; state.longServiceExclusions=[]; state.longServiceEntries=[]; state.longServiceBackendReady=null; state.longServiceFormDirty=false; state.personnelAssignments=[]; state.personnelAccountEvents=[]; state.personnelSnapshots=[]; state.personnelBackendReady=null; state.view='mine';
+  overtimeListRows=[];overtimeListTargetEmployeeId=null;
   holidayWorkListLoadSeq++; holidayWorkListRows=[]; holidayWorkPastExpanded=false; holidayWorkListEditReturnMode=null;
   if($('holidayWorkListBody'))$('holidayWorkListBody').innerHTML='';
   if($('holidayWorkListCount'))$('holidayWorkListCount').textContent='';
@@ -3501,6 +3656,7 @@ function renderSubstituteHolidayCompensation(){
   card.classList.remove('hidden');
 }
 function renderCalendar(){
+  renderOvertimeSummary();
   $('monthTitle').textContent=`${state.year}년 ${state.month+1}월`;
   $('prevMonth').disabled=(state.year===MIN_YEAR&&state.month===0); $('nextMonth').disabled=(state.year===MAX_YEAR&&state.month===11);
   const first=new Date(state.year,state.month,1).getDay(); const dim=daysInMonth(state.year,state.month); const total=Math.ceil((first+dim)/7)*7;
@@ -3527,6 +3683,7 @@ function renderCalendar(){
       if(state.view==='mine'){
         const emp=state.employees.find(e=>e.id===state.me.employee_id); const shift=(emp&&employeeOperationalOn(emp,key))?shiftForEmployee(emp,state.year,state.month,d):''; const hw=holidayWorkForMe(key); body=(hw&&isHolidayWorkEmployee(emp,key))?holidayWorkMarkup(hw):(shift?shiftMarkup(shift):'<div class="shift-wrap"><span style="color:#c4c7cc;font-weight:800">-</span></div>');
         if(mineRecordCount){ const labels=mineRecords.map(r=>attendanceCalendarLabel(r,emp,key)); const text=labels.join(' · '); body+=`<div class="att-dot" title="${escapeHtml(text)}">${escapeHtml(text)}</div>`; }
+        body+=overtimeCalendarMarkup(key);
       }else{
         const names=state.absenceReflect?availableEmployees(key):scheduledEmployees(key);
         body=names.length?`<div class="availability">${names.map(e=>`<span class="name ${state.absenceReflect?availabilityNameClass(e,key):scheduledNameClass(e,key)}">${employeeCategoryOn(e,key)==='팀장'?'★ ':''}${escapeHtml(availabilityDisplayName(e,key))}</span>`).join('')}</div>`:'<div class="availability empty">-</div>';
@@ -3603,6 +3760,8 @@ function renderDetail(key){
   $('holidayWorkDetailSection').classList.toggle('hidden',!showHolidayWork);
   $('holidayWorkAdminField').classList.toggle('hidden',!showHolidayWork||!activeAdminMode());
   if(showHolidayWork){ if(activeAdminMode())populateHolidayWorkTargetEmployees(key); renderHolidayWorkDetail(key); }
+  $('overtimeDetailSection').classList.toggle('hidden',!mineView);
+  if(mineView) renderOvertimeDetail(key);
   $('memoDetailSection').classList.toggle('hidden',!mineView);
   if(mineView) renderMemoDetail(key);
   if(holidayListEdit){ $('detailCompanyEventsSection').classList.add('hidden'); $('detailCompanyEventsList').innerHTML=''; $('detailCompanyEventsCount').textContent='0건'; }
@@ -5184,7 +5343,7 @@ function renderPersonnelBatchItems(){
       return `<div class="personnel-item" data-personnel-index="${idx}"><div class="personnel-item-head"><b>신규입사·사내전입</b><button type="button" class="personnel-item-remove" data-personnel-remove="${idx}">삭제</button></div><div class="personnel-item-grid"><div class="field"><label>성명</label><input data-personnel-field="name" value="${escapeHtml(it.name)}" maxlength="20" placeholder="예: 홍길동"></div><div class="field"><label>구분</label><select data-personnel-field="entry_type"><option value="new_hire" ${it.entry_type==='new_hire'?'selected':''}>신규입사</option><option value="internal_transfer" ${it.entry_type==='internal_transfer'?'selected':''}>사내전입</option></select></div><div class="field"><label>회사 입사일</label><input type="date" data-personnel-field="company_hire_date" value="${escapeHtml(it.company_hire_date||eff)}"></div><div class="field"><label>변경 후 배치</label><select data-personnel-field="target_code">${personnelTargetOptions(it.target_code)}</select></div><div class="field"><label>계정 상태</label><select data-personnel-field="account_status">${personnelAccountOptions(it.account_status)}</select></div><div class="field"><label>초기 비밀번호</label><input type="password" inputmode="numeric" maxlength="4" data-personnel-field="pin" value="${escapeHtml(it.pin||'0000')}"></div></div>${duplicates.length?`<div class="personnel-existing-hint" style="color:#b45309"><b>같은 이름의 기존 직원이 있습니다.</b> 사내 복귀자라면 신규로 만들지 말고 ‘기존 직원 변동’에서 해당 직원을 선택하세요.</div>`:''}</div>`;
     }
     const emp=state.employees.find(e=>Number(e.id)===Number(it.employee_id)),before=emp?personnelAssignmentOn(emp,addDaysKey(eff,-1)):null;
-    return `<div class="personnel-item" data-personnel-index="${idx}"><div class="personnel-item-head"><b>기존 직원 변동</b><button type="button" class="personnel-item-remove" data-personnel-remove="${idx}">삭제</button></div><div class="personnel-item-grid"><div class="field full"><label>직원</label><select data-personnel-field="employee_id">${personnelExistingOptions(it.employee_id,eff)}</select></div><div class="field"><label>변경 후 배치</label><select data-personnel-field="target_code">${personnelTargetOptions(it.target_code)}</select></div><div class="field"><label>계정 상태</label><select data-personnel-field="account_status">${personnelAccountOptions(it.account_status)}</select></div></div><div class="personnel-existing-hint">변경 전: ${escapeHtml(before?personnelPlacementCategory(before.placement_code,before.employment_status):'배치 없음')} · 개인 연차·근태·장기 재직·메모는 그대로 유지됩니다.</div></div>`;
+    return `<div class="personnel-item" data-personnel-index="${idx}"><div class="personnel-item-head"><b>기존 직원 변동</b><button type="button" class="personnel-item-remove" data-personnel-remove="${idx}">삭제</button></div><div class="personnel-item-grid"><div class="field full"><label>직원</label><select data-personnel-field="employee_id">${personnelExistingOptions(it.employee_id,eff)}</select></div><div class="field"><label>변경 후 배치</label><select data-personnel-field="target_code">${personnelTargetOptions(it.target_code)}</select></div><div class="field"><label>계정 상태</label><select data-personnel-field="account_status">${personnelAccountOptions(it.account_status)}</select></div></div><div class="personnel-existing-hint">변경 전: ${escapeHtml(before?personnelPlacementCategory(before.placement_code,before.employment_status):'배치 없음')} · 개인 연차·근태·초과근무·장기 재직·메모는 그대로 유지됩니다.</div></div>`;
   }).join('');
   renderPersonnelPreview();schedulePersonnelImpactCheck();
 }
@@ -5227,10 +5386,20 @@ function personnelPayloadItems(){
 }
 function schedulePersonnelImpactCheck(){clearTimeout(personnelEditor.impactTimer);personnelEditor.impactTimer=setTimeout(refreshPersonnelImpactWarning,180);}
 async function refreshPersonnelImpactWarning(){
-  const box=$('personnelImpactWarning');if(!box)return;const eff=$('personnelEffectiveDate').value;if(!eff){box.classList.add('hidden');return;}const items=personnelPayloadItems();let impacts=[];
-  try{if(!configured()){impacts=items.filter(i=>!i.is_new_employee).map(i=>({employee_id:i.employee_id,attendance_count:localRecords().filter(r=>Number(r.employee_id)===Number(i.employee_id)&&r.end_date>=eff).length,holiday_work_count:localHolidayWorks().filter(r=>Number(r.employee_id)===Number(i.employee_id)&&r.work_date>=eff).length}));}else if(state.personnelBackendReady===true)impacts=await rpc('get_personnel_change_impacts',{p_token:state.sessionToken,p_effective_date:eff,p_items:items},{timeoutMs:5000})||[];}catch(e){impacts=[];}
-  const affected=(impacts||[]).filter(r=>Number(r.attendance_count)||Number(r.holiday_work_count));if(!affected.length){box.classList.add('hidden');box.innerHTML='';return;}
-  box.innerHTML=`<b>근무배치 변경으로 확인이 필요한 미래 기록이 있습니다.</b><br>자동 삭제·자동 수정하지 않습니다. 발령 저장 후 해당 직원이 직접 확인해 주세요.<div class="personnel-impact-list">${affected.map(r=>{const e=state.employees.find(x=>Number(x.id)===Number(r.employee_id));return `<span>• ${escapeHtml(e?.display_name||'직원')} · 근태 ${Number(r.attendance_count)||0}건 · 휴근 ${Number(r.holiday_work_count)||0}건</span>`;}).join('')}</div>`;box.classList.remove('hidden');
+  const box=$('personnelImpactWarning');if(!box)return;const eff=$('personnelEffectiveDate').value;if(!eff){box.classList.add('hidden');return;}const items=personnelPayloadItems(),existing=items.filter(i=>!i.is_new_employee);let impacts=[];
+  try{
+    if(!configured()){
+      const overtime=normalizeOvertimeRows(localOvertimeRows());
+      impacts=existing.map(i=>({employee_id:i.employee_id,attendance_count:localRecords().filter(r=>Number(r.employee_id)===Number(i.employee_id)&&r.end_date>=eff).length,holiday_work_count:localHolidayWorks().filter(r=>Number(r.employee_id)===Number(i.employee_id)&&r.work_date>=eff).length,overtime_count:overtime.filter(r=>Number(r.employee_id)===Number(i.employee_id)&&r.work_date>=eff).length}));
+    }else if(state.personnelBackendReady===true){
+      const base=await rpc('get_personnel_change_impacts',{p_token:state.sessionToken,p_effective_date:eff,p_items:items},{timeoutMs:5000})||[];
+      const impactMap=new Map((base||[]).map(r=>[Number(r.employee_id),{...r,overtime_count:0,overtime_check_failed:false}]));
+      await Promise.all(existing.map(async i=>{const id=Number(i.employee_id);const row=impactMap.get(id)||{employee_id:id,attendance_count:0,holiday_work_count:0,overtime_count:0,overtime_check_failed:false};try{const overtime=await rpc('list_overtime_entries',{p_token:state.sessionToken,p_employee_id:id,p_from:eff,p_to:`${MAX_YEAR}-12-31`},{timeoutMs:5000});row.overtime_count=normalizeOvertimeRows(overtime).length;row.overtime_check_failed=false;}catch(e){row.overtime_count=0;row.overtime_check_failed=true;}impactMap.set(id,row);}));
+      impacts=[...impactMap.values()];
+    }
+  }catch(e){impacts=[];}
+  const affected=(impacts||[]).filter(r=>Number(r.attendance_count)||Number(r.holiday_work_count)||Number(r.overtime_count)||r.overtime_check_failed);if(!affected.length){box.classList.add('hidden');box.innerHTML='';return;}
+  box.innerHTML=`<b>근무배치 변경으로 확인이 필요한 미래 기록이 있습니다.</b><br>자동 삭제·자동 수정하지 않습니다. 발령 저장 후 해당 직원이 직접 확인해 주세요.<div class="personnel-impact-list">${affected.map(r=>{const e=state.employees.find(x=>Number(x.id)===Number(r.employee_id)),ot=r.overtime_check_failed?'확인 실패':`${Number(r.overtime_count)||0}건`;return `<span>• ${escapeHtml(e?.display_name||'직원')} · 근태 ${Number(r.attendance_count)||0}건 · 휴근 ${Number(r.holiday_work_count)||0}건 · 초과근무 ${ot}</span>`;}).join('')}</div>`;box.classList.remove('hidden');
 }
 function validatePersonnelEditor(){
   const eff=$('personnelEffectiveDate').value;if(!eff)return '적용일을 입력해 주세요.';if(!personnelEditor.items.length)return '변경사항을 한 건 이상 추가해 주세요.';
@@ -5260,18 +5429,18 @@ async function savePersonnelBatch(){
   if(!activeAdminMode())return;const err=validatePersonnelEditor();$('personnelBatchError').textContent=err;if(err)return;const eff=$('personnelEffectiveDate').value,note=$('personnelBatchNote').value.trim(),items=personnelPayloadItems();
   const duplicateNew=personnelEditor.items.filter(it=>it.kind==='new'&&state.employees.some(e=>String(e.display_name||'').trim().toLocaleLowerCase('ko-KR')===it.name.trim().toLocaleLowerCase('ko-KR')));
   if(duplicateNew.length){const names=[...new Set(duplicateNew.map(it=>it.name.trim()))].join(', ');if(!confirm(`같은 이름의 기존 직원이 있습니다: ${names}\n\n사내 복귀자라면 취소 후 ‘기존 직원 변동’에서 기존 직원을 선택해야 합니다.\n실제 동명이인 신규 직원이라면 별도의 로그인 이름을 자동 부여해 계속 등록합니다. 계속하시겠습니까?`))return;}
-  const actionWord=personnelEditor.mode==='correction'?'정정':personnelEditor.mode==='edit'?'수정':'등록';if(!confirm(`${eff} 인사발령 ${items.length}건을 ${actionWord}할까요?\n\n개인 연차·근태·장기 재직·메모는 이동하거나 삭제하지 않습니다.`))return;
+  const actionWord=personnelEditor.mode==='correction'?'정정':personnelEditor.mode==='edit'?'수정':'등록';if(!confirm(`${eff} 인사발령 ${items.length}건을 ${actionWord}할까요?\n\n개인 연차·근태·초과근무·장기 재직·메모는 이동하거나 삭제하지 않습니다.`))return;
   showLoading(true);try{if(!configured())await localApplyPersonnelBatch(eff,note,items,personnelEditor.replaceBatchId,personnelEditor.mode);else await rpc('admin_apply_personnel_batch',{p_token:state.sessionToken,p_effective_date:eff,p_note:note,p_items:items,p_replace_batch_id:personnelEditor.replaceBatchId,p_mode:personnelEditor.mode},{timeoutMs:15000});await loadEmployees();await loadAccountStatus();applyAccountModeUI();await loadMonthData(true);render();closeBackdrop('personnelBatchBackdrop');state.employeeManagerTab='batches';if(activeAdminMode()){renderEmployeeManager();openBackdrop('employeeManageBackdrop');}$('employeeSuccessMessage').textContent=`${eff} 인사발령 ${items.length}건이 ${actionWord}되었습니다. 개인 기록은 그대로 유지됩니다.`;openBackdrop('employeeSuccessBackdrop');showToast(`✓ 인사발령 ${actionWord} 완료`,'success');}catch(e){const raw=String(e.message||'');const msg=raw.includes('PERSONNEL_SAME_DAY_CONFLICT')?'같은 직원에게 같은 적용일의 다른 인사발령이 이미 있습니다. 기존 발령을 수정하거나 정정해 주세요.':raw.includes('POSSIBLE_EXISTING_EMPLOYEE')?'같은 이름의 기존 직원이 있습니다. 신규 생성 대신 기존 직원을 선택해야 하는지 확인해 주세요.':raw.includes('PAST_BATCH_REQUIRES_CORRECTION')?'이미 적용된 발령은 수정 대신 정정으로 처리해 주세요.':userSafeServiceError(e,'인사발령을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');$('personnelBatchError').textContent=msg;}finally{showLoading(false);}
 }
 async function cancelPersonnelBatch(batchId){
   const b=personnelBatchesGrouped().find(x=>String(x.id)===String(batchId));if(!b||b.effective_date<=todayKey())return;if(!confirm(`${b.effective_date} 인사발령을 취소할까요?\n\n개인 기록은 삭제되지 않습니다.`))return;showLoading(true);try{if(!configured()){localPersonnelSnapshot(`인사발령 취소 전 · ${b.effective_date}`);const rows=localPersonnelBatches(),r=rows.find(x=>String(x.id)===String(batchId));if(r)r.status='cancelled';saveLocalPersonnelBatches(rows);}else await rpc('admin_cancel_personnel_batch',{p_token:state.sessionToken,p_batch_id:batchId});await loadEmployees();await loadAccountStatus();applyAccountModeUI();renderTabs();if(activeAdminMode())renderEmployeeManager();renderCalendar();showToast('✓ 미래 인사발령을 취소했습니다.','success');}catch(e){showToast(userSafeServiceError(e,'인사발령을 취소하지 못했습니다.'),'error');}finally{showLoading(false);}
 }
-function openPersonnelSnapshotRestore(id){const s=(state.personnelSnapshots||[]).find(x=>String(x.id)===String(id));if(!s)return;pendingPersonnelSnapshotId=id;$('personnelSnapshotAdminPin').value='';$('personnelSnapshotRestoreError').textContent='';$('personnelSnapshotRestoreInfo').innerHTML=`<b>${escapeHtml(backupExportedText(s.created_at))}</b><br>${escapeHtml(s.label||'인사 복구지점')}<br><span style="display:block;margin-top:6px">인사발령·배치상태만 복원하며 연차·근태·장기 재직·개인 메모는 그대로 유지합니다.</span>`;closeBackdrop('employeeManageBackdrop');openBackdrop('personnelSnapshotRestoreBackdrop');}
+function openPersonnelSnapshotRestore(id){const s=(state.personnelSnapshots||[]).find(x=>String(x.id)===String(id));if(!s)return;pendingPersonnelSnapshotId=id;$('personnelSnapshotAdminPin').value='';$('personnelSnapshotRestoreError').textContent='';$('personnelSnapshotRestoreInfo').innerHTML=`<b>${escapeHtml(backupExportedText(s.created_at))}</b><br>${escapeHtml(s.label||'인사 복구지점')}<br><span style="display:block;margin-top:6px">인사발령·배치상태만 복원하며 연차·근태·초과근무·장기 재직·개인 메모는 그대로 유지합니다.</span>`;closeBackdrop('employeeManageBackdrop');openBackdrop('personnelSnapshotRestoreBackdrop');}
 async function restorePersonnelSnapshot(){
   if(!activeAdminMode()||!pendingPersonnelSnapshotId)return;
   const pin=$('personnelSnapshotAdminPin').value.trim();
   if(!/^\d{4}$/.test(pin)){$('personnelSnapshotRestoreError').textContent='관리자 2차 비밀번호를 입력해 주세요.';return;}
-  if(!confirm('선택한 인사 복구지점으로 되돌릴까요?\n\n개인 연차·근태·장기 재직·메모는 변경되지 않습니다.'))return;
+  if(!confirm('선택한 인사 복구지점으로 되돌릴까요?\n\n개인 연차·근태·초과근무·장기 재직·메모는 변경되지 않습니다.'))return;
   showLoading(true);
   try{
     if(!configured()){
@@ -5312,16 +5481,18 @@ async function resetCurrentPins(){
 const DATA_SECTION_INFO={
   attendance:{label:'근태 기록',desc:'연가·병가·장기 등 등록한 근태 원본'},
   holiday_work:{label:'휴근 기록',desc:'휴일근무 날짜·시간 기록'},
+  overtime:{label:'초과근무 기록',desc:'조출·야근 계획 및 완료 기록'},
   personal_memos:{label:'개인 메모',desc:'날짜별 개인 메모'},
   annual_leave_settings:{label:'연차 기준값',desc:'연도별 잔여·부여·이월 연차 기준'},
   long_service:{label:'장기재직 설정',desc:'장기재직 기준과 재직 제외기간을 한 묶음으로 처리'},
   company_events:{label:'사내일정',desc:'관리자가 등록한 공용 일정'},
   holiday_work_eligibility:{label:'휴근 가능 설정',desc:'직원별 휴일근무 등록 가능 여부 · 초기화 시 전원 가능'},
+  holiday_work_month_confirmation:{label:'휴일근무 편성확정',desc:'월별 휴일근무 편성 확정 상태'},
   personnel:{label:'직원·인사정보',desc:'직원 ID를 유지한 인사발령·계정상태 이력 · 인증정보 제외'},
   audit_logs:{label:'작업이력',desc:'최근 변경 감사기록 · 백업 전용, 복원·초기화 불가'}
 };
-const MY_DATA_SECTION_KEYS=['attendance','holiday_work','personal_memos','annual_leave_settings','long_service'];
-const ADMIN_DATA_SECTION_KEYS=['attendance','holiday_work','personal_memos','annual_leave_settings','long_service','company_events','holiday_work_eligibility','personnel','audit_logs'];
+const MY_DATA_SECTION_KEYS=['attendance','holiday_work','overtime','personal_memos','annual_leave_settings','long_service'];
+const ADMIN_DATA_SECTION_KEYS=['attendance','holiday_work','overtime','personal_memos','annual_leave_settings','long_service','company_events','holiday_work_eligibility','holiday_work_month_confirmation','personnel','audit_logs'];
 let pendingMyDataRestore=null;
 let pendingAdminDataRestore=null;
 let safetyBackupsCache=[];
@@ -5371,8 +5542,8 @@ function dataActionErrorText(e,fallback){
   if(m.includes('ADMIN_PIN'))return '관리자 2차 비밀번호가 맞지 않습니다.';
   if(m.includes('PERSONNEL_EMPLOYEE_MISSING'))return '백업에 현재 DB에 없는 직원 ID가 있습니다. 직원 계정 구조를 먼저 확인해 주세요.';
   if(m.includes('PERSONNEL_EMPLOYEE_NOT_IN_BACKUP')||m.includes('PERSONNEL_EMPLOYEE_HISTORY_MISSING')||m.includes('PERSONNEL_SAME_DAY_CONFLICT')||m.includes('PERSONNEL_CORRECTION_')||m.includes('PERSONNEL_DUPLICATE_ACTION_IN_BATCH')||m.includes('PERSONNEL_EMPTY_BATCH')||m.includes('INVALID_PERSONNEL_ACTION')||m.includes('INVALID_PERSONNEL_ACCOUNT_EVENT'))return '백업의 직원·인사정보 내부 연결관계가 올바르지 않아 복원하지 않았습니다.';
-  if(m.includes('PERSONNEL_RESET_REQUIRES_OPERATIONAL_DATA'))return '직원·인사정보를 초기화하려면 근태 기록·휴근 기록·개인 메모도 함께 명시적으로 선택해야 합니다. 과거 업무데이터만 남아 인사이력과 모순되는 상태를 막기 위한 보호장치입니다.';
-  if(m.includes('PERSONNEL_DATA_CONFLICT_'))return '직원·인사정보 변경 후 남아 있는 근태·휴근·개인 메모 중 새 인사이력과 맞지 않는 기록이 있어 전체 작업을 취소했습니다. 해당 업무데이터도 같은 백업에서 함께 복원하거나 함께 초기화해 주세요.';
+  if(m.includes('PERSONNEL_RESET_REQUIRES_OPERATIONAL_DATA'))return '직원·인사정보를 초기화하려면 근태 기록·휴근 기록·초과근무 기록·개인 메모도 함께 명시적으로 선택해야 합니다. 과거 업무데이터만 남아 인사이력과 모순되는 상태를 막기 위한 보호장치입니다.';
+  if(m.includes('PERSONNEL_DATA_CONFLICT_'))return '직원·인사정보 변경 후 남아 있는 근태·휴근·초과근무·개인 메모 중 새 인사이력과 맞지 않는 기록이 있어 전체 작업을 취소했습니다. 해당 업무데이터도 같은 백업에서 함께 복원하거나 함께 초기화해 주세요.';
   if(m.includes('PERSONNEL_DATE_OUTSIDE_ASSIGNMENT')||m.includes('MEMO_DATE_OUTSIDE_EMPLOYMENT')||m.includes('NOT_DAY_EMPLOYEE'))return '백업 데이터 중 현재 인사이력과 맞지 않는 날짜가 있어 복원하지 않았습니다.';
   if(m.includes('NOT_HOLIDAY'))return '휴근 백업 중 현재 휴일로 인정되지 않는 날짜가 있어 복원하지 않았습니다.';
   if(m.includes('HOLIDAY_WORK_DISABLED'))return '현재 휴근 등록이 허용되지 않은 계정이라 휴근 기록을 복원할 수 없습니다.';
@@ -5382,6 +5553,8 @@ function dataActionErrorText(e,fallback){
   if(m.includes('TYPE_REQUIRED')||m.includes('INVALID_ATTENDANCE_TYPE'))return '백업 근태 중 종류가 비어 있거나 올바르지 않은 기록이 있어 복원하지 않았습니다.';
   if(m.includes('MEMO_TOO_LONG'))return '백업에 허용 길이를 넘는 메모가 있어 복원하지 않았습니다.';
   if(m.includes('INVALID_HOLIDAY_WORK_ELIGIBILITY'))return '백업의 휴근 가능 설정 값이 올바르지 않아 복원하지 않았습니다.';
+  if(m.includes('INVALID_OVERTIME_BACKUP'))return '백업의 초과근무 기록이 올바르지 않아 복원하지 않았습니다.';
+  if(m.includes('INVALID_HOLIDAY_WORK_CONFIRMATION_BACKUP'))return '백업의 휴일근무 편성확정 기록이 올바르지 않아 복원하지 않았습니다.';
   if(m.includes('SECTION_TOO_LARGE')||m.includes('INVALID_SECTION_ROW')||m.includes('INVALID_SECTION_DATA'))return '백업 파일의 데이터 배열 구조나 크기가 올바르지 않아 복원하지 않았습니다.';
   if(m.includes('SAFETY_BACKUP_NOT_FOUND'))return '선택한 안전백업을 찾을 수 없습니다.';
   if(m.includes('DATA_MGMT')||m.includes('Could not find the function')||m.includes('PGRST202'))return '새 데이터 관리 SQL을 먼저 Supabase에 적용해 주세요.';
@@ -5498,7 +5671,7 @@ async function resetAdminData(){
     pin=adminPinValue();sections=selectedDataSections('adminDataSections',{allowAudit:false});
     if(!sections.length)throw new Error('초기화할 항목을 하나 이상 선택해 주세요.');
     if(sections.includes('personnel')){
-      const required=['attendance','holiday_work','personal_memos'],missing=required.filter(k=>!sections.includes(k));
+      const required=['attendance','holiday_work','overtime','personal_memos'],missing=required.filter(k=>!sections.includes(k));
       if(missing.length)throw new Error('PERSONNEL_RESET_REQUIRES_OPERATIONAL_DATA');
     }
   }catch(e){$('adminDataError').textContent=dataActionErrorText(e,e.message||'초기화 항목을 확인하지 못했습니다.');return;}
@@ -5658,6 +5831,15 @@ function wire(){
   ['companyEventManageStartDate','companyEventManageEndDate'].forEach(id=>$(id).addEventListener('change',()=>{$('companyEventManageError').textContent='';}));
   $('memoListBtn').addEventListener('click',openMemoList);
   $('holidayWorkListBtn').addEventListener('click',openHolidayWorkList);
+  $('overtimeSummary').addEventListener('click',openOvertimeList);
+  $('overtimeDetailSection').addEventListener('click',e=>{const clear=e.target.closest('[data-overtime-clear]');if(clear){clearOvertimeDetail(clear.dataset.overtimeClear);return;}const b=e.target.closest('[data-overtime-adjust]');if(!b)return;const row=b.closest('[data-overtime-slot]');if(row)adjustOvertimeDetail(row.dataset.overtimeSlot,Number(b.dataset.overtimeAdjust)||0);});
+  $('overtimeEarlyDone').addEventListener('change',renderOvertimeDetailValues);
+  $('overtimeLateDone').addEventListener('change',renderOvertimeDetailValues);
+  $('saveOvertimeBtn').addEventListener('click',saveOvertimeDay);
+  $('overtimeListEmployee').addEventListener('change',async e=>{overtimeListTargetEmployeeId=Number(e.target.value);await loadOvertimeList();});
+  $('overtimeListBody').addEventListener('change',e=>{const c=e.target.closest('[data-overtime-list-check]');if(c)toggleOvertimeListCompleted(c.dataset.overtimeListCheck,c.checked);});
+  $('overtimeListBody').addEventListener('click',e=>{const b=e.target.closest('[data-overtime-list-edit]');if(!b)return;const r=overtimeListRows.find(x=>x.id===Number(b.dataset.overtimeListEdit));if(!r)return;closeBackdrop('overtimeListBackdrop');openDetail(r.work_date);});
+  $('overtimeConfirmBtn').addEventListener('click',toggleOvertimeMonthConfirmation);
   $('holidayWorkEmployee').addEventListener('change',()=>{ if(state.selectedDate) renderHolidayWorkDetail(state.selectedDate); });
   $('holidayWorkListEmployee').addEventListener('change',async()=>{ holidayWorkPastExpanded=false; $('holidayWorkSearch').value=''; await loadHolidayWorkList(true); });
   $('holidayWorkSearch').addEventListener('input',()=>{if(!$('holidayWorkSearch').value.trim())holidayWorkPastExpanded=false;renderHolidayWorkList()});
