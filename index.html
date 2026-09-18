@@ -26,6 +26,7 @@
   button:focus:not(:focus-visible){outline:none}
   .hidden{display:none!important}
   .wrap{max-width:720px;margin:0 auto;padding:14px 10px calc(34px + env(safe-area-inset-bottom))}
+  .app-shell,.app-sidebar,.app-content{display:contents}
   .card{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
   .login-wrap{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px 14px}
   .login-card{width:min(440px,100%);background:#fff;border-radius:24px;box-shadow:0 14px 46px rgba(0,0,0,.10);padding:24px}
@@ -617,6 +618,37 @@
     #annualLeaveCard,#longServiceCard{max-width:960px;margin-left:auto;margin-right:auto}
   }
 
+  /* ===== PC 전용 좌측 메뉴 레이아웃 =====
+     모바일/태블릿 구조는 그대로 두고 1200px 이상에서만 상단 메뉴를 좌측으로 이동합니다. */
+  @media (min-width:1200px){
+    .wrap{max-width:1480px;padding:16px 20px calc(40px + env(safe-area-inset-bottom))}
+    .app-shell{display:grid;grid-template-columns:clamp(210px,17vw,250px) minmax(0,1fr);gap:16px;align-items:start}
+    .app-sidebar{display:block;position:sticky;top:16px;max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;padding:12px;border:1px solid var(--line);border-radius:18px;background:var(--card);box-shadow:var(--shadow);scrollbar-width:thin}
+    .app-content{display:block;min-width:0}
+    .app-sidebar .topbar{display:grid;grid-template-columns:40px minmax(0,1fr);align-items:start;gap:8px;margin:0 0 10px}
+    .app-sidebar .view-menu-btn{width:40px;height:40px;border-radius:11px}
+    .app-sidebar .userbox{min-width:0}
+    .app-sidebar .title{font-size:calc(21px * var(--text-scale,1));line-height:1.12}
+    .app-sidebar .user-meta-line{display:block;margin-top:4px}
+    .app-sidebar .user-meta-line .who{display:block;max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.35}
+    .app-sidebar .admin-tools{display:flex;margin-top:2px}
+    .app-sidebar .admin-tools-toggle{max-width:100%;white-space:normal}
+    .app-sidebar .realtime-status{display:flex;width:100%;max-width:100%;align-items:flex-start;flex-wrap:wrap;white-space:normal;line-height:1.35}
+    .app-sidebar .top-actions{grid-column:1/-1;display:grid;grid-template-columns:44px minmax(0,1fr);gap:6px;width:100%;margin-top:2px}
+    .app-sidebar .icon-btn{width:100%;min-width:0;height:36px;padding:0 8px}
+    .app-sidebar .admin-action-group.admin-top-group{margin:0 0 10px;padding:7px}
+    .app-sidebar .admin-action-group.admin-top-group:not(.collapsed){display:grid;grid-template-columns:1fr;gap:6px}
+    .app-sidebar .admin-action-group.admin-top-group>button{width:100%;min-width:0;min-height:36px;padding:7px 8px;white-space:normal}
+    .app-sidebar .tabbar{display:grid;grid-template-columns:1fr;gap:5px;padding:5px;margin:0 0 10px}
+    .app-sidebar .tab{width:100%;min-height:39px;padding:8px 9px;text-align:left;line-height:1.2;white-space:normal}
+    .app-sidebar .mobile-tab-break{display:none}
+    .app-sidebar .readonly-account-notice{margin:0 0 10px;padding:9px 10px;font-size:calc(10.5px * var(--text-scale,1));line-height:1.45}
+    .app-sidebar .view-tools{display:block;margin:0}
+    .app-sidebar .view-tool-actions{display:grid;grid-template-columns:1fr;gap:5px;width:100%}
+    .app-sidebar .view-tool-actions>button{width:100%;min-width:0;min-height:36px;padding:7px 9px;text-align:left;white-space:normal}
+    .app-content>.company-events-banner{margin-top:0}
+  }
+
   /* ===== 상단 관리자 기능 정리 =====
      관리자 제어는 공통 상단에 한 번만 두고, 모든 탭에서 같은 위치를 유지합니다. */
   .user-meta-line{display:flex;align-items:center;gap:2px;min-width:0;margin-top:4px;flex-wrap:wrap}
@@ -882,6 +914,8 @@
 </section>
 
 <main id="appView" class="wrap hidden">
+  <div class="app-shell">
+  <aside class="app-sidebar" aria-label="주요 메뉴">
   <div class="topbar">
     <button id="viewMenuBtn" class="view-menu-btn" type="button" aria-label="설정 열기" title="설정"><span class="view-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span></button>
     <div class="userbox">
@@ -913,6 +947,8 @@
 
   <div id="viewTools" class="view-tools"><div class="view-tool-actions"><button id="memoListBtn" class="memo-list-btn">메모 목록</button><button id="holidayWorkListBtn" class="holiday-work-list-btn hidden">휴근 목록</button><button id="attendanceListBtn" class="attendance-list-btn">근태 목록</button><button id="allAttendanceListBtn" class="all-attendance-list-btn">전체 근태</button></div></div>
 
+  </aside>
+  <div class="app-content">
   <div id="companyEventsBar" class="company-events-banner">
     <button id="companyEventsBanner" class="company-events-banner-view" type="button" aria-label="사내일정 보기">
       <span class="company-events-banner-icon" aria-hidden="true">📅</span>
@@ -1097,7 +1133,9 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260918-2152 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260918-2223 · 업데이트 내역</button>
+  </div>
+  </div>
 </main>
 
 <div id="detailBackdrop" class="backdrop" aria-hidden="true">
@@ -1442,7 +1480,7 @@
 <div id="auditBackdrop" class="backdrop" aria-hidden="true">
   <div class="modal">
     <div class="modal-head"><div class="modal-title">최근 변경 내역 <span id="auditLoadedLabel" class="type-count">최대 1,000건 보관</span></div><button class="close-btn" data-close="audit">×</button></div>
-    <div class="employee-help">근태·휴근·사내일정 등록/수정/삭제와 직원 추가·교체·제외·비밀번호 변경 내역을 최근 순서로 보여줍니다. 기록은 최대 1,000건까지 보관하며 한 번에 50건씩 불러옵니다.</div>
+    <div class="employee-help">근태·휴근·초과근무·사내일정 및 직원/인사 관련 주요 변경 내역을 최근 순서로 보여줍니다. 기록은 최대 1,000건까지 보관하며 한 번에 50건씩 불러옵니다.</div>
     <div id="auditList" class="audit-list"><div class="employee-empty">불러오는 중…</div></div>
     <button id="auditMoreBtn" class="secondary hidden" style="margin-bottom:8px">더보기 (50건씩)</button>
     <button id="refreshAuditBtn" class="secondary">새로고침</button>
@@ -1599,7 +1637,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260918-2152';
+const APP_VERSION = 'ver20260918-2223';
 const UPDATE_HISTORY = [
   {version:'ver20260917-2153',date:'2026.09.17',items:['D-DAY 표시 기능 추가']},
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
