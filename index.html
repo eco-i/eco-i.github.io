@@ -168,19 +168,6 @@
   .fingerprint-photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fingerprint-photo-card{border:1px solid #ccfbf1;background:#fff;border-radius:11px;padding:9px;min-width:0}.fingerprint-photo-label{display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:.8rem;font-weight:950;color:#134e4a}.fingerprint-photo-state{font-size:.66rem;font-weight:900;color:#64748b;white-space:nowrap}.fingerprint-photo-state.saved{color:#0f766e}.fingerprint-photo-meta{min-height:16px;margin-top:4px;font-size:.66rem;color:#64748b;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fingerprint-photo-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.fingerprint-photo-actions button{min-height:30px;border-radius:8px;padding:5px 7px;font-size:.69rem;font-weight:900}.fingerprint-upload-btn{background:#0f766e;color:#fff}.fingerprint-view-btn{background:#ecfeff;color:#0e7490;border:1px solid #a5f3fc}.fingerprint-delete-btn{background:#fff1f2;color:#be123c;border:1px solid #fecdd3}.fingerprint-upload-btn:disabled,.fingerprint-view-btn:disabled,.fingerprint-delete-btn:disabled{opacity:.38;cursor:default}
   .fingerprint-confirm-row{margin-top:9px;padding:8px 9px;border-radius:10px;background:#fff;border:1px solid #ccfbf1;display:flex;align-items:center;gap:7px;font-size:.78rem;font-weight:900;color:#134e4a}.fingerprint-confirm-row input{width:17px;height:17px;margin:0;accent-color:#0f766e}.fingerprint-confirm-row.disabled{color:#94a3b8;background:#f8fafc}.fingerprint-detail-error{min-height:18px;margin-top:6px;color:#b91c1c;font-size:.73rem;font-weight:800;line-height:1.4}.fingerprint-private-note{margin-top:5px;font-size:.67rem;color:#64748b;font-weight:750}.fingerprint-private-badge{display:inline-flex;align-items:center;min-height:23px;border-radius:999px;padding:3px 7px;background:#ccfbf1;color:#0f766e;font-size:.66rem;font-weight:950;white-space:nowrap}
   .fingerprint-viewer-img{display:block;width:100%;max-height:68dvh;object-fit:contain;background:#0f172a;border-radius:10px}.fingerprint-viewer-meta{margin:7px 0 0;color:#64748b;font-size:.73rem;font-weight:800;text-align:center}
-  .fingerprint-source-modal{max-width:420px;padding-bottom:14px}
-  .fingerprint-native-input{position:fixed!important;left:-10000px!important;top:-10000px!important;width:1px!important;height:1px!important;opacity:0!important}
-  .fingerprint-source-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px}
-  .fingerprint-source-btn{min-height:118px;border:1px solid #e5e7eb;border-radius:16px;background:#fff;color:#111827;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:12px 8px;font-weight:900;font-size:.86rem;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
-  .fingerprint-source-btn:active{transform:translateY(1px)}
-  .fingerprint-source-icon{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center}
-  .fingerprint-source-icon svg{width:31px;height:31px;display:block}
-  .fingerprint-source-camera{background:#eef2ff;color:#4f46e5}
-  .fingerprint-source-files{background:#fff7ed;color:#ea580c}
-  .fingerprint-source-hint{margin-top:10px;color:#64748b;font-size:.69rem;font-weight:750;line-height:1.45;text-align:center}
-  html[data-theme="dark"] .fingerprint-source-btn{background:#111827;color:#e5e7eb;border-color:#334155}
-  html[data-theme="dark"] .fingerprint-source-hint{color:#94a3b8}
-  @media(max-width:370px){.fingerprint-source-options{gap:8px}.fingerprint-source-btn{min-height:108px;font-size:.78rem}.fingerprint-source-icon{width:50px;height:50px}.fingerprint-source-icon svg{width:28px;height:28px}}
   html[data-theme="dark"] .fingerprint-detail{background:#102f31;border-color:#115e59}html[data-theme="dark"] .fingerprint-detail-title,html[data-theme="dark"] .fingerprint-confirm-row{color:#ccfbf1}html[data-theme="dark"] .fingerprint-photo-card,html[data-theme="dark"] .fingerprint-confirm-row{background:#111827;border-color:#134e4a}html[data-theme="dark"] .fingerprint-photo-label{color:#e2e8f0}html[data-theme="dark"] .fingerprint-photo-meta,html[data-theme="dark"] .fingerprint-detail-help,html[data-theme="dark"] .fingerprint-private-note{color:#94a3b8}html[data-theme="dark"] .fingerprint-detail-error{color:#f87171}html[data-theme="dark"] .fingerprint-photo-state{color:#94a3b8}html[data-theme="dark"] .fingerprint-photo-state.saved{color:#5eead4}html[data-theme="dark"] .fingerprint-confirm-row.disabled{color:#94a3b8;background:#0f172a;border-color:#334155}
   @media(max-width:370px){.fingerprint-photo-grid{grid-template-columns:1fr}.fingerprint-photo-card{padding:8px}}
   /* 사내일정은 날짜별 내용 뒤에 붙이지 않고, 한 주 전체가 공유하는 고정 레인에 표시한다.
@@ -1165,7 +1152,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260926-1615 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260926-1544 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1198,8 +1185,7 @@
       <label id="fingerprintConfirmRow" class="fingerprint-confirm-row disabled"><input id="fingerprintConfirmed" type="checkbox" disabled><span>출·퇴근 지문 정상 확인</span></label>
       <div class="fingerprint-private-note">※ 개인 확인용 기록입니다. 관리자 화면에는 표시되지 않습니다.</div>
       <div id="fingerprintDetailError" class="fingerprint-detail-error" role="status" aria-live="polite" aria-atomic="true"></div>
-      <input id="fingerprintCameraInput" class="fingerprint-native-input" type="file" accept="image/*" capture="environment" aria-label="카메라로 지문 기록 사진 촬영">
-      <input id="fingerprintFilesInput" class="fingerprint-native-input" type="file" accept="image/*" aria-label="내 파일에서 지문 기록 사진 선택">
+      <input id="fingerprintPhotoInput" class="hidden" type="file" accept="image/*" aria-label="지문 기록 사진 선택">
     </div>
 
     <div id="overtimeDetailSection" class="overtime-detail detail-collapsible hidden">
@@ -1668,23 +1654,6 @@
   </div>
 </div>
 
-<div id="fingerprintSourceBackdrop" class="backdrop" aria-hidden="true">
-  <div class="modal fingerprint-source-modal" role="dialog" aria-modal="true" aria-labelledby="fingerprintSourceTitle">
-    <div class="modal-head"><div id="fingerprintSourceTitle" class="modal-title">작업 선택</div><button id="closeFingerprintSourceBtn" class="close-btn" type="button" aria-label="작업 선택 닫기">×</button></div>
-    <div class="fingerprint-source-options" role="group" aria-label="사진 가져오기 방법">
-      <label id="fingerprintSourceCameraLabel" class="fingerprint-source-btn" for="fingerprintCameraInput" role="button" tabindex="0">
-        <span class="fingerprint-source-icon fingerprint-source-camera" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5h3l1.4-2h7.2l1.4 2h3a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13.5" r="4"/></svg></span>
-        <span>카메라</span>
-      </label>
-      <label id="fingerprintSourceFilesLabel" class="fingerprint-source-btn" for="fingerprintFilesInput" role="button" tabindex="0">
-        <span class="fingerprint-source-icon fingerprint-source-files" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg></span>
-        <span>내 파일</span>
-      </label>
-    </div>
-    <div class="fingerprint-source-hint">사진은 선택 후 자동 압축되어 저장됩니다.</div>
-  </div>
-</div>
-
 <div id="fingerprintPhotoBackdrop" class="backdrop" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="fingerprintPhotoTitle">
     <div class="modal-head"><div id="fingerprintPhotoTitle" class="modal-title">지문 기록 사진</div><button class="close-btn" data-close="fingerprintPhoto" type="button" aria-label="사진 닫기">×</button></div>
@@ -1708,7 +1677,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260926-1615';
+const APP_VERSION = 'ver20260926-1544';
 const UPDATE_HISTORY = [
   {version:'ver20260917-2153',date:'2026.09.17',items:['D-DAY 표시 기능 추가']},
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
@@ -4458,7 +4427,7 @@ function clearFingerprintPhotoEphemera(){
   const img=$('fingerprintViewerImg');if(img)img.removeAttribute('src');
   if($('fingerprintPhotoTitle'))$('fingerprintPhotoTitle').textContent='지문 기록 사진';
   if($('fingerprintViewerMeta'))$('fingerprintViewerMeta').textContent='';
-  const camera=$('fingerprintCameraInput'),files=$('fingerprintFilesInput');if(camera)camera.value='';if(files)files.value='';
+  const input=$('fingerprintPhotoInput');if(input)input.value='';
 }
 function fingerprintLocalStorageKey(){return `${LOCAL_FINGERPRINT_KEY_PREFIX}${Number(state.me?.employee_id)||0}`;}
 function localFingerprintRecords(){try{return JSON.parse(localStorage.getItem(fingerprintLocalStorageKey())||'[]')}catch(e){return []}}
@@ -4670,21 +4639,7 @@ function fingerprintBlockingPromptSessionChanged(snapshot){
 function clearFingerprintPickerContext(){
   fingerprintPendingKind='';
   fingerprintPickerContext=null;
-  const camera=$('fingerprintCameraInput'),files=$('fingerprintFilesInput');
-  if(camera)camera.value='';
-  if(files)files.value='';
-}
-function closeFingerprintSourcePicker(){
-  closeBackdrop('fingerprintSourceBackdrop',true);
-  clearFingerprintPickerContext();
-}
-function closeFingerprintSourceAfterSelection(){
-  closeBackdrop('fingerprintSourceBackdrop',true);
-}
-function fingerprintSourceLabelKeydown(e,inputId){
-  if(e.key!=='Enter'&&e.key!==' ')return;
-  e.preventDefault();
-  $(inputId)?.click();
+  const input=$('fingerprintPhotoInput');if(input)input.value='';
 }
 async function selectFingerprintPhoto(kind){
   if(!state.selectedDate||state.view!=='mine'||!state.me||fingerprintPhotoPending||fingerprintConfirmPending)return;
@@ -4695,10 +4650,7 @@ async function selectFingerprintPhoto(kind){
   if(!fingerprintDateOperational(state.selectedDate)){$('fingerprintDetailError').textContent='재직·근무 배치 기간 밖 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
   const ctx={actor:Number(state.me.employee_id),token:state.sessionToken,contextEpoch:sessionContextEpoch,key:state.selectedDate,kind};
   fingerprintPendingKind=kind;fingerprintPickerContext=ctx;
-  const camera=$('fingerprintCameraInput'),files=$('fingerprintFilesInput');
-  if(camera)camera.value='';
-  if(files)files.value='';
-  openBackdrop('fingerprintSourceBackdrop');
+  const input=$('fingerprintPhotoInput');input.value='';input.click();
 }
 function fingerprintWriteForegroundCurrent(pageLifecycleEpoch){
   return pageLifecycleEpoch===fingerprintPageLifecycleEpoch&&!document.hidden;
@@ -8316,13 +8268,13 @@ function wire(){
   $('fingerprintClockOutViewBtn').addEventListener('click',()=>viewFingerprintPhoto('clock_out'));
   $('fingerprintClockInDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_in'));
   $('fingerprintClockOutDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_out'));
-  $('closeFingerprintSourceBtn').addEventListener('click',closeFingerprintSourcePicker);
-  $('fingerprintSourceCameraLabel').addEventListener('keydown',e=>fingerprintSourceLabelKeydown(e,'fingerprintCameraInput'));
-  $('fingerprintSourceFilesLabel').addEventListener('keydown',e=>fingerprintSourceLabelKeydown(e,'fingerprintFilesInput'));
-  const onFingerprintNativeInputChange=e=>{
+  $('fingerprintPhotoInput').addEventListener('change',e=>{
     const file=e.target.files?.[0]||null,picker=fingerprintPickerContext;
-    if(!file)return;
-    closeFingerprintSourceAfterSelection();
+    if(!file){clearFingerprintPickerContext();return;}
+    // Android/PWA gallery pickers can dispatch `change` before the app is fully foreground again.
+    // Starting compression while document.hidden is still true makes the foreground safety guard abort
+    // the upload, which looks like the gallery selection did nothing. Let the picker round-trip settle,
+    // then process only after the page is visible again.
     const start=()=>{if(!fingerprintPickerStillCurrent(picker)){clearFingerprintPickerContext();return;}void handleFingerprintPhotoInput(file,picker);};
     setTimeout(()=>{
       if(!document.hidden){start();return;}
@@ -8334,9 +8286,7 @@ function wire(){
       window.addEventListener('pageshow',resume);
       timer=setTimeout(finish,15000);
     },120);
-  };
-  $('fingerprintCameraInput').addEventListener('change',onFingerprintNativeInputChange);
-  $('fingerprintFilesInput').addEventListener('change',onFingerprintNativeInputChange);
+  });
   $('fingerprintConfirmed').addEventListener('change',e=>void toggleFingerprintConfirmed(e.target.checked));
   $('holidayWorkRetryBtn').addEventListener('click',retryHolidayWorkDetail);
   $('overtimeRetryBtn').addEventListener('click',retryOvertimeDetail);
@@ -8460,7 +8410,7 @@ function wire(){
   $('datePickerGrid').addEventListener('click',e=>{const b=e.target.closest('[data-picker-date]');if(b&&!b.disabled)chooseAttendanceDate(b.dataset.pickerDate)});
   ['startHour','startMinute','endHour','endMinute'].forEach((id,i)=>bindNumericTimeInput(id,i%2===0?23:59));
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeBackdrop(`${b.dataset.close}Backdrop`)));
-  document.querySelectorAll('.backdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target!==b||b.id==='usageGuideBackdrop')return;if(b.id==='companyEventManageBackdrop'){closeCompanyEventManage();return;}if(b.id==='fingerprintSourceBackdrop'){closeFingerprintSourcePicker();return;}closeBackdrop(b.id)}));
+  document.querySelectorAll('.backdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target!==b||b.id==='usageGuideBackdrop')return;if(b.id==='companyEventManageBackdrop'){closeCompanyEventManage();return;}closeBackdrop(b.id)}));
   $('yearPrev').addEventListener('click',()=>{if(state.pickerYear>MIN_YEAR){state.pickerYear--;renderMonthPicker()}}); $('yearNext').addEventListener('click',()=>{if(state.pickerYear<MAX_YEAR){state.pickerYear++;renderMonthPicker()}});
   $('monthGrid').addEventListener('click',e=>{const b=e.target.closest('[data-month]');if(b)chooseMonth(b.dataset.month)});
   bindDetailActions();
@@ -8530,9 +8480,8 @@ function wire(){
     // BFCache로 실제 복귀한 경우에는 change가 오지 않으면 짧은 유예 뒤 선택 문맥만 정리한다.
     if(e.persisted&&fingerprintPickerContext){
       setTimeout(()=>{
-        const camera=$('fingerprintCameraInput'),files=$('fingerprintFilesInput');
-        const sourceOpen=$('fingerprintSourceBackdrop')?.classList.contains('open');
-        if(fingerprintPickerContext&&!sourceOpen&&!(camera?.files?.length)&&!(files?.files?.length))clearFingerprintPickerContext();
+        const input=$('fingerprintPhotoInput');
+        if(fingerprintPickerContext&&!(input?.files?.length))clearFingerprintPickerContext();
       },1200);
     }
   });
