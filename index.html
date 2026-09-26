@@ -153,6 +153,23 @@
   .att-dot{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);max-width:calc(100% - 6px);font-size:calc(7px * var(--text-scale,1));font-weight:900;color:#db2777;background:#fdf2f8;border:1px solid #fbcfe8;padding:2px 4px;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1}
   .memo-mark{flex:0 0 auto;width:14px;height:14px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;background:#f3e8ff;color:#7c3aed;border:1px solid #ddd6fe;font-size:calc(8px * var(--text-scale,1));font-weight:950;line-height:1;box-shadow:0 1px 3px rgba(91,33,182,.08)}
   .memo-preview{margin:2px 1px 0;padding:2px 3px;border-radius:5px;background:#faf5ff;color:#6d28d9;border:1px solid #ede9fe;font-size:calc(7px * var(--text-scale,1));font-weight:800;line-height:1.16;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;word-break:break-word;text-align:left}
+  /* 개인 지문 출퇴근 사진: 내 근무표에서만 날짜 머리글에 아주 작게 표시한다.
+     미확인 상태는 사진 개수(📷/📷📷), 본인이 출·퇴근 모두 확인한 뒤에는 ✓지문으로 바꿔 달력 혼잡을 줄인다. */
+  .fingerprint-marker-row{height:14px;display:flex;align-items:center;justify-content:flex-start;margin:0;pointer-events:none}
+  .fingerprint-day-mark{display:inline-flex;align-items:center;justify-content:center;min-width:13px;max-width:34px;height:13px;padding:0 3px;border-radius:5px;background:#ecfeff;color:#0f766e;border:1px solid #a5f3fc;font-size:clamp(7.5px,calc(8.5px * var(--text-scale,1)),9.5px);font-weight:950;line-height:1;white-space:nowrap;letter-spacing:-.4px;overflow:hidden}
+  .fingerprint-day-mark.photos{font-family:Arial,sans-serif;font-size:clamp(8px,calc(9.5px * var(--text-scale,1)),10.5px);letter-spacing:-2px;padding-right:4px}
+  .fingerprint-day-mark.confirmed{background:#ccfbf1;color:#0f766e;border-color:#5eead4;letter-spacing:-.65px}
+  @media(max-width:520px){#calendarGrid .fingerprint-marker-row{height:12px;margin-top:0}#calendarGrid .fingerprint-day-mark{height:11px;min-width:11px;max-width:30px;font-size:clamp(6.8px,calc(7.3px * var(--text-scale,1)),8px);padding:0 2px}#calendarGrid .fingerprint-day-mark.photos{font-size:clamp(7.6px,calc(8.2px * var(--text-scale,1)),9px)}#calendarGrid .day-cell.has-fingerprint{min-height:84px}#calendarGrid .day-cell.has-fingerprint.has-overtime{min-height:94px}#calendarGrid .day-cell.has-fingerprint.has-overtime.has-term,#calendarGrid .day-cell.has-fingerprint.has-overtime.has-attendance{min-height:102px}}
+  @media(min-width:768px){#calendarGrid .day-cell.has-fingerprint{min-height:98px}#calendarGrid .day-cell.has-fingerprint.has-overtime{min-height:112px}#calendarGrid .day-cell.has-fingerprint.has-overtime.has-term,#calendarGrid .day-cell.has-fingerprint.has-overtime.has-attendance{min-height:118px}}
+  @media(min-width:1100px){#calendarGrid .day-cell.has-fingerprint{min-height:114px}#calendarGrid .day-cell.has-fingerprint.has-overtime{min-height:128px}}
+
+  .fingerprint-detail{margin:10px 0 0;padding:11px;border:1px solid #99f6e4;background:#f0fdfa;border-radius:14px}
+  .fingerprint-detail-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.fingerprint-detail-title{font-weight:950;color:#115e59}.fingerprint-detail-help{font-size:.72rem;color:#64748b;font-weight:700;margin:-2px 0 8px;line-height:1.45}
+  .fingerprint-photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fingerprint-photo-card{border:1px solid #ccfbf1;background:#fff;border-radius:11px;padding:9px;min-width:0}.fingerprint-photo-label{display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:.8rem;font-weight:950;color:#134e4a}.fingerprint-photo-state{font-size:.66rem;font-weight:900;color:#64748b;white-space:nowrap}.fingerprint-photo-state.saved{color:#0f766e}.fingerprint-photo-meta{min-height:16px;margin-top:4px;font-size:.66rem;color:#64748b;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fingerprint-photo-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.fingerprint-photo-actions button{min-height:30px;border-radius:8px;padding:5px 7px;font-size:.69rem;font-weight:900}.fingerprint-upload-btn{background:#0f766e;color:#fff}.fingerprint-view-btn{background:#ecfeff;color:#0e7490;border:1px solid #a5f3fc}.fingerprint-delete-btn{background:#fff1f2;color:#be123c;border:1px solid #fecdd3}.fingerprint-upload-btn:disabled,.fingerprint-view-btn:disabled,.fingerprint-delete-btn:disabled{opacity:.38;cursor:default}
+  .fingerprint-confirm-row{margin-top:9px;padding:8px 9px;border-radius:10px;background:#fff;border:1px solid #ccfbf1;display:flex;align-items:center;gap:7px;font-size:.78rem;font-weight:900;color:#134e4a}.fingerprint-confirm-row input{width:17px;height:17px;margin:0;accent-color:#0f766e}.fingerprint-confirm-row.disabled{color:#94a3b8;background:#f8fafc}.fingerprint-detail-error{min-height:18px;margin-top:6px;color:#b91c1c;font-size:.73rem;font-weight:800;line-height:1.4}.fingerprint-private-note{margin-top:5px;font-size:.67rem;color:#64748b;font-weight:750}.fingerprint-private-badge{display:inline-flex;align-items:center;min-height:23px;border-radius:999px;padding:3px 7px;background:#ccfbf1;color:#0f766e;font-size:.66rem;font-weight:950;white-space:nowrap}
+  .fingerprint-viewer-img{display:block;width:100%;max-height:68dvh;object-fit:contain;background:#0f172a;border-radius:10px}.fingerprint-viewer-meta{margin:7px 0 0;color:#64748b;font-size:.73rem;font-weight:800;text-align:center}
+  html[data-theme="dark"] .fingerprint-detail{background:#102f31;border-color:#115e59}html[data-theme="dark"] .fingerprint-detail-title,html[data-theme="dark"] .fingerprint-confirm-row{color:#ccfbf1}html[data-theme="dark"] .fingerprint-photo-card,html[data-theme="dark"] .fingerprint-confirm-row{background:#111827;border-color:#134e4a}html[data-theme="dark"] .fingerprint-photo-label{color:#e2e8f0}html[data-theme="dark"] .fingerprint-photo-meta,html[data-theme="dark"] .fingerprint-detail-help,html[data-theme="dark"] .fingerprint-private-note{color:#94a3b8}html[data-theme="dark"] .fingerprint-detail-error{color:#f87171}html[data-theme="dark"] .fingerprint-photo-state{color:#94a3b8}html[data-theme="dark"] .fingerprint-photo-state.saved{color:#5eead4}html[data-theme="dark"] .fingerprint-confirm-row.disabled{color:#94a3b8;background:#0f172a;border-color:#334155}
+  @media(max-width:370px){.fingerprint-photo-grid{grid-template-columns:1fr}.fingerprint-photo-card{padding:8px}}
   /* 사내일정은 날짜별 내용 뒤에 붙이지 않고, 한 주 전체가 공유하는 고정 레인에 표시한다.
      전체 근무표의 직원 수가 날짜마다 달라도 같은 기간 바의 Y축이 어긋나지 않는다. */
   .calendar-week{grid-column:1/-1;position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));min-width:0;--company-event-row-h:clamp(10px,calc(9px * var(--text-scale,1)),15px);--company-event-lane-height:0px}
@@ -181,7 +198,7 @@
   .availability.empty{color:#b0b5bd;font-weight:700;padding-top:17px}
   .legend{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:9px;padding:0 2px;font-size:calc(10px * var(--text-scale,1));color:#6b7280;align-items:center}
   .legend span{display:inline-flex;align-items:center;gap:4px}.dot{width:8px;height:8px;border-radius:50%;display:inline-block}.dot.day{background:var(--yellow)}.dot.night{background:var(--night)}.dot.day2{background:var(--teal)}.dot.off{background:var(--off)}
-  .status-line{text-align:center;margin-top:9px;font-size:calc(11px * var(--text-scale,1));color:#6b7280;min-height:16px}
+  .status-line{text-align:center;margin-top:9px;font-size:calc(11px * var(--text-scale,1));color:#5f6b7a;min-height:16px}
   .substitute-holiday-comp{margin-top:12px;padding:12px;border:1px solid #dbe3ee;border-radius:16px;background:#f8fbff;box-shadow:0 4px 14px rgba(15,23,42,.04)}
   .substitute-holiday-comp-title{display:flex;align-items:center;gap:6px;margin:0 2px 9px;color:#263548;font-size:calc(14px * var(--text-scale,1));font-weight:950;line-height:1.25}
   .substitute-holiday-comp-list{display:flex;flex-direction:column;gap:9px}
@@ -1129,13 +1146,13 @@
     <div class="weekdays"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
     <div id="calendarGrid" class="calendar-grid"></div>
     <div id="legend" class="legend hidden"><span><i class="dot day"></i>주간</span><span><i class="dot day2"></i>주2</span><span><i class="dot night"></i>야간</span><span><i class="dot off"></i>휴무</span></div>
-    <div id="statusLine" class="status-line"></div>
+    <div id="statusLine" class="status-line" role="status" aria-live="polite" aria-atomic="true"></div>
     <div id="substituteHolidayCompCard" class="substitute-holiday-comp hidden" aria-live="polite">
       <div class="substitute-holiday-comp-title">🎁 대체공휴일 대휴 발생</div>
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260921-0400 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260926-1136 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1156,6 +1173,19 @@
       <div id="holidayWorkError" class="holiday-work-error"></div>
       <div id="holidayWorkRetryWrap" class="detail-retry-wrap hidden"><button id="holidayWorkRetryBtn" class="detail-retry-btn" type="button">다시 시도</button></div>
       <div id="holidayWorkActions" class="holiday-work-actions"><button id="deleteHolidayWorkBtn" class="holiday-work-delete" type="button">삭제</button><button id="closeHolidayWorkBtn" class="holiday-work-close hidden" type="button" tabindex="-1" aria-hidden="true">닫기</button><button id="saveHolidayWorkBtn" class="holiday-work-save" type="button">저장</button></div>
+    </div>
+
+    <div id="fingerprintDetailSection" class="fingerprint-detail detail-collapsible hidden">
+      <div class="fingerprint-detail-head detail-collapsible-head"><div class="fingerprint-detail-title">지문 출퇴근 기록</div><div class="detail-head-tools"><span class="fingerprint-private-badge">나만 보임</span><button id="fingerprintDetailToggleBtn" class="detail-section-toggle" type="button" aria-expanded="true" aria-controls="fingerprintDetailSection">펼침 ▲</button></div></div>
+      <div class="fingerprint-detail-help">지문기에서 출근·퇴근 처리가 된 화면을 사진으로 남겨두세요. 사진은 자동 압축되며 본인 계정에서만 확인할 수 있습니다.</div>
+      <div class="fingerprint-photo-grid">
+        <div class="fingerprint-photo-card" data-fingerprint-kind="clock_in"><div class="fingerprint-photo-label"><span>출근 사진</span><span id="fingerprintClockInState" class="fingerprint-photo-state">미등록</span></div><div id="fingerprintClockInMeta" class="fingerprint-photo-meta">사진을 등록해 주세요.</div><div class="fingerprint-photo-actions"><button id="fingerprintClockInUploadBtn" class="fingerprint-upload-btn" type="button" aria-label="출근 사진 등록">사진 등록</button><button id="fingerprintClockInViewBtn" class="fingerprint-view-btn" type="button" aria-label="출근 사진 보기" disabled>보기</button><button id="fingerprintClockInDeleteBtn" class="fingerprint-delete-btn" type="button" aria-label="출근 사진 삭제" disabled>삭제</button></div></div>
+        <div class="fingerprint-photo-card" data-fingerprint-kind="clock_out"><div class="fingerprint-photo-label"><span>퇴근 사진</span><span id="fingerprintClockOutState" class="fingerprint-photo-state">미등록</span></div><div id="fingerprintClockOutMeta" class="fingerprint-photo-meta">사진을 등록해 주세요.</div><div class="fingerprint-photo-actions"><button id="fingerprintClockOutUploadBtn" class="fingerprint-upload-btn" type="button" aria-label="퇴근 사진 등록">사진 등록</button><button id="fingerprintClockOutViewBtn" class="fingerprint-view-btn" type="button" aria-label="퇴근 사진 보기" disabled>보기</button><button id="fingerprintClockOutDeleteBtn" class="fingerprint-delete-btn" type="button" aria-label="퇴근 사진 삭제" disabled>삭제</button></div></div>
+      </div>
+      <label id="fingerprintConfirmRow" class="fingerprint-confirm-row disabled"><input id="fingerprintConfirmed" type="checkbox" disabled><span>출·퇴근 지문 정상 확인</span></label>
+      <div class="fingerprint-private-note">※ 개인 확인용 기록입니다. 관리자 화면에는 표시되지 않습니다.</div>
+      <div id="fingerprintDetailError" class="fingerprint-detail-error" role="status" aria-live="polite" aria-atomic="true"></div>
+      <input id="fingerprintPhotoInput" class="hidden" type="file" accept="image/*" aria-label="지문 기록 사진 선택">
     </div>
 
     <div id="overtimeDetailSection" class="overtime-detail detail-collapsible hidden">
@@ -1506,7 +1536,7 @@
     <div class="employee-section-title">앱 데이터 상세</div>
     <div id="capacityBreakdown" class="capacity-breakdown"><div class="employee-empty">불러오는 중…</div></div>
     <div id="capacityCheckedAt" class="capacity-note"></div>
-    <div class="capacity-note">데이터베이스 사용량은 Supabase 프로젝트 전체 DB 크기라서 앱 테이블 합계보다 크게 보일 수 있습니다. 사진·파일을 추가하면 파일 저장소 사용량이 별도로 증가합니다.</div>
+    <div class="capacity-note">데이터베이스 사용량은 Supabase 프로젝트 전체 DB 크기라서 앱 테이블 합계보다 크게 보일 수 있습니다. 지문 출퇴근 사진은 개인정보 보호를 위해 압축 후 데이터베이스에 저장되므로 DB 사용량에 포함됩니다. 그 밖의 파일 저장 기능을 추가하면 파일 저장소 사용량이 별도로 증가할 수 있습니다.</div>
     <button id="refreshCapacityBtn" class="secondary">용량 새로고침</button>
   </div>
 </div>
@@ -1595,7 +1625,7 @@
     <div class="modal-head"><div class="modal-title">데이터 관리</div><button class="close-btn" data-close="dataManage" type="button" aria-label="닫기">×</button></div>
     <div class="employee-help">관리자가 업무데이터를 항목별로 백업·복원·초기화합니다. 복원과 초기화는 서버에서 한 트랜잭션으로 처리하며, 실행 직전 선택한 항목의 안전백업을 자동 생성해 최근 5개를 보관합니다.</div>
     <div id="adminDataSections" class="data-section-grid"></div>
-    <div class="data-protected-note">작업이력은 <b>다운로드 백업 전용</b>입니다. 복원·초기화 대상에는 포함되지 않습니다. 인증정보·PIN·로그인명·세션은 어떤 작업에도 포함되지 않습니다.<br><span style="display:block;margin-top:6px">DB 전체를 새로 만든 재해복구 상황에서는 동일한 직원 ID의 계정 뼈대를 먼저 복구한 뒤 직원·인사정보를 복원해야 합니다.</span></div>
+    <div class="data-protected-note">작업이력은 <b>다운로드 백업 전용</b>입니다. 복원·초기화 대상에는 포함되지 않습니다. 인증정보·PIN·로그인명·세션은 어떤 작업에도 포함되지 않습니다.<br><span style="display:block;margin-top:6px">DB 전체를 새로 만든 재해복구 상황에서는 동일한 직원 ID의 계정 뼈대를 먼저 복구한 뒤 직원·인사정보를 복원해야 합니다.</span><span style="display:block;margin-top:6px">지문 출퇴근 사진은 개인정보·용량 특성상 JSON 백업/복원 대상에서 제외되며, 서버의 개인 전용 기록으로 별도 보관됩니다.</span></div>
     <div class="data-action-grid"><button id="adminDataBackupBtn" class="primary" type="button">선택 항목 백업</button><button id="adminDataChooseRestoreBtn" class="secondary" type="button">복원 파일 선택</button></div>
     <input id="adminDataRestoreFile" class="data-file-input hidden" type="file" accept="application/json,.json" aria-label="관리자 데이터 복원 파일 선택">
     <div id="adminDataRestorePreview" class="data-preview hidden"></div>
@@ -1624,6 +1654,14 @@
   </div>
 </div>
 
+<div id="fingerprintPhotoBackdrop" class="backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="fingerprintPhotoTitle">
+    <div class="modal-head"><div id="fingerprintPhotoTitle" class="modal-title">지문 기록 사진</div><button class="close-btn" data-close="fingerprintPhoto" type="button" aria-label="사진 닫기">×</button></div>
+    <img id="fingerprintViewerImg" class="fingerprint-viewer-img" alt="등록한 지문 출퇴근 기록 사진">
+    <div id="fingerprintViewerMeta" class="fingerprint-viewer-meta"></div>
+  </div>
+</div>
+
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <div id="loadingCover" class="loading-cover"><div class="spinner"></div></div>
@@ -1639,7 +1677,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260921-0400';
+const APP_VERSION = 'ver20260926-1136';
 const UPDATE_HISTORY = [
   {version:'ver20260917-2153',date:'2026.09.17',items:['D-DAY 표시 기능 추가']},
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
@@ -1657,6 +1695,7 @@ const VERSION_CHECK_INTERVAL_MS = 3000; // 새 배포가 활성화되면 열려 
 const VERSION_CHECK_TIMEOUT_MS = 10000; // 느리거나 멈춘 버전 확인 요청이 감시 잠금을 영구 점유하지 않게 제한
 const SESSION_CHECK_TIMEOUT_MS = 10000; // 새로고침 시 세션 확인이 너무 오래 멈추지 않도록 제한
 const READONLY_RPC_TIMEOUT_MS = 10000; // SQL 원문으로 조회 전용이 확인된 일반 조회 RPC가 무기한 대기하지 않게 제한
+const FINGERPRINT_WRITE_RPC_TIMEOUT_MS = 30000; // 지문 사진 저장·삭제·확인 쓰기가 무기한 대기하지 않게 제한
 const SESSION_RETRY_DELAYS_MS = [3000,5000,8000,15000,30000]; // 일시적 서버 지연 시 로그인 상태를 보존한 채 재확인
 
 const MIN_YEAR = 2026;
@@ -1680,6 +1719,7 @@ const LOCAL_HOLIDAY_WORK_KEY = 'staffAttendance_localHolidayWork_v1';
 const LOCAL_COMPANY_EVENT_KEY = 'staffAttendance_localCompanyEvents_v1';
 const LOCAL_OVERTIME_KEY = 'staffAttendance_localOvertime_v1';
 const LOCAL_OVERTIME_CONFIRM_KEY = 'staffAttendance_localOvertimeConfirm_v1';
+const LOCAL_FINGERPRINT_KEY_PREFIX = 'staffAttendance_localFingerprint_v1_';
 const LOCAL_ANNUAL_LEAVE_KEY_PREFIX = 'staffAttendance_localAnnualLeave_v1_';
 const LOCAL_LONG_SERVICE_KEY_PREFIX = 'staffAttendance_localLongService_v1_';
 const AUDIT_RETENTION_LIMIT = 1000;
@@ -1933,7 +1973,7 @@ migrateLegacySessionForDevice();
 
 const state = {
   sessionToken: storedSessionToken(),
-  me:null, accountStatusBackendReady:null, employees:[], attendance:[], attendanceAnnualLeaveBackendReady:null, holidayWorks:[], holidayWorkBackendReady:null, holidayWorkEligibilityReady:null, overtimeEntries:[], overtimeBackendReady:null, overtimeConfirmations:[], overtimeConfirmBackendReady:null, memos:[], memoBackendReady:null, memoDdays:[], memoDdayBackendReady:null, companyEvents:[], companyEventBackendReady:null, annualLeaveSettings:null, annualLeaveEntries:[], annualLeaveBackendReady:null, annualLeaveYear:null, annualLeaveFormDirty:false, longServiceProfile:null, longServiceExclusions:[], longServiceEntries:[], longServiceBackendReady:null, longServiceFormDirty:false, view:'mine', selectedDate:null, absenceReflect:(()=>{try{return localStorage.getItem(ABSENCE_REFLECT_KEY)!=='0';}catch(e){return true;}})(), memoDisplay:(()=>{try{return localStorage.getItem(MEMO_DISPLAY_KEY)!=='0';}catch(e){return true;}})(),
+  me:null, accountStatusBackendReady:null, employees:[], attendance:[], attendanceAnnualLeaveBackendReady:null, holidayWorks:[], holidayWorkBackendReady:null, holidayWorkEligibilityReady:null, overtimeEntries:[], overtimeBackendReady:null, overtimeConfirmations:[], overtimeConfirmBackendReady:null, fingerprintRecords:[], fingerprintBackendReady:null, memos:[], memoBackendReady:null, memoDdays:[], memoDdayBackendReady:null, companyEvents:[], companyEventBackendReady:null, annualLeaveSettings:null, annualLeaveEntries:[], annualLeaveBackendReady:null, annualLeaveYear:null, annualLeaveFormDirty:false, longServiceProfile:null, longServiceExclusions:[], longServiceEntries:[], longServiceBackendReady:null, longServiceFormDirty:false, view:'mine', selectedDate:null, absenceReflect:(()=>{try{return localStorage.getItem(ABSENCE_REFLECT_KEY)!=='0';}catch(e){return true;}})(), memoDisplay:(()=>{try{return localStorage.getItem(MEMO_DISPLAY_KEY)!=='0';}catch(e){return true;}})(),
   year:Math.min(Math.max(parseDateKey(todayKey()).y,MIN_YEAR),MAX_YEAR), month:parseDateKey(todayKey()).m,
   pickerYear:Math.min(Math.max(parseDateKey(todayKey()).y,MIN_YEAR),MAX_YEAR), mode:'all_day', dateMode:'single', refreshing:false, employeeAction:null, pinStatus:{}, initialPinRequired:false
 };
@@ -1986,6 +2026,16 @@ let overtimeListRows=[];
 let overtimeListTargetEmployeeId=null;
 let overtimeDataLoadSeq=0;
 let overtimeListLoadSeq=0;
+let fingerprintLoadSeq=0;
+let fingerprintPhotoPending=false;
+let fingerprintConfirmPending=false;
+let fingerprintViewPending=false;
+let fingerprintPendingKind='';
+let fingerprintPageLifecycleEpoch=0;
+let fingerprintForegroundResumeEpoch=0;
+let fingerprintForegroundResumeHandledEpoch=0;
+let fingerprintPickerContext=null;
+let fingerprintViewerContext=null;
 const overtimeListPendingIds=new Set();
 let overtimeConfirmPending=false;
 let overtimeDaySavePending=false;
@@ -2037,15 +2087,16 @@ function invalidateSessionBoundLoads(){
   // 세션/보안 컨텍스트가 바뀌면 이전 직원의 지연 인사영향 검사가 새 로그인 컨텍스트에서 실행되지 않게 예약 타이머도 함께 폐기한다.
   if(personnelEditor?.impactTimer){clearTimeout(personnelEditor.impactTimer);personnelEditor.impactTimer=null;}
   sessionContextEpoch++;
+  clearFingerprintPhotoEphemera();
   lastSuccessfulSyncAt=null;renderLastSyncTime();
-  overtimeDataLoadSeq++; overtimeListLoadSeq++; memoMonthLoadSeq++; memoDdayLoadSeq++; memoListLoadSeq++; annualLeaveLoadSeq++; longServiceLoadSeq++;
+  overtimeDataLoadSeq++; overtimeListLoadSeq++; fingerprintLoadSeq++; memoMonthLoadSeq++; memoDdayLoadSeq++; memoListLoadSeq++; annualLeaveLoadSeq++; longServiceLoadSeq++;
   monthDataLoadSeq++; refreshLoadSeq++; holidayWorkDataLoadSeq++; accountStatusLoadSeq++; employeeLoadSeq++; personnelLoadSeq++; holidayEligibilityLoadSeq++;
   attendanceListLoadSeq++; allAttendanceListLoadSeq++; auditPageLoadSeq++; employeePinLoadSeq++; safetyBackupLoadSeq++; companyEventLoadSeq++; capacityLoadSeq++; personnelImpactLoadSeq++; holidayWorkListLoadSeq++;
-  overtimeListPendingIds.clear(); overtimeConfirmPending=false; overtimeDaySavePending=false; attendanceSavePending=false; attendanceDeletePendingIds.clear();
+  overtimeListPendingIds.clear(); overtimeConfirmPending=false; overtimeDaySavePending=false; fingerprintPhotoPending=false; fingerprintConfirmPending=false; fingerprintViewPending=false; fingerprintPendingKind=''; fingerprintPickerContext=null; attendanceSavePending=false; attendanceDeletePendingIds.clear();
   memoSavePending=false; memoDeletePendingDates.clear(); memoBulkDeletePending=false; memoDdayPendingDates.clear(); holidayWorkSavePendingKeys.clear(); holidayWorkDeletePendingKeys.clear(); annualLeaveSavePending=false; longServiceSavePending=false;
   companyEventSavePending=false; companyEventDeletePendingIds.clear(); employeeActionSavePending=false; employeeAccountSavePending=false; personnelBatchSavePending=false; personnelBatchCancelPendingIds.clear(); personnelSnapshotRestorePending=false; resetCurrentPinsPending=false; holidayWorkEligibilityPendingIds.clear(); selfPinChangePending=false;
   detailRecordBaseline={key:null,holiday:null,overtime:null,memo:null}; annualLeaveSourceSnapshot=null; longServiceSourceSnapshot=null;
-  loginAttemptSeq++; loginPending=false; if($('loginBtn'))$('loginBtn').disabled=false; state.refreshing=false; auditLoading=false; setDataManagementBusy(false); pendingMyDataRestore=null; pendingAdminDataRestore=null; memoListBackendReady=null; holidayWorkListBackendReady=null; state.accountStatusBackendReady=null; state.attendanceAnnualLeaveBackendReady=null; state.holidayWorkEligibilityReady=null; state.personnelBackendReady=null;
+  loginAttemptSeq++; loginPending=false; if($('loginBtn'))$('loginBtn').disabled=false; state.refreshing=false; refreshPendingOwner=0; auditLoading=false; setDataManagementBusy(false); pendingMyDataRestore=null; pendingAdminDataRestore=null; memoListBackendReady=null; holidayWorkListBackendReady=null; state.accountStatusBackendReady=null; state.attendanceAnnualLeaveBackendReady=null; state.holidayWorkEligibilityReady=null; state.personnelBackendReady=null;
 }
 function sessionContextCurrent(actor,token,{allowInitialPin=false,epoch=null}={}){ return (epoch===null||Number(epoch)===sessionContextEpoch)&&!!state.me&&Number(state.me.employee_id)===Number(actor)&&state.sessionToken===token&&(allowInitialPin||!state.initialPinRequired); }
 function resetSessionUiContext(){
@@ -2572,7 +2623,13 @@ function isTransientRpcError(err){
 }
 function userSafeServiceError(err,fallback='요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.'){
   if(isConfirmedSessionExpired(err)) return '로그인 세션이 만료되었습니다. 다시 로그인해 주세요.';
+  if(/ACCOUNT_READ_ONLY/i.test(errorText(err))) return '조회 전용 계정에서는 변경할 수 없습니다.';
   if(/STALE_ATTENDANCE|EXPECTED_ATTENDANCE_REQUIRED/i.test(errorText(err))) return '이 근태가 다른 창 또는 사용자에 의해 변경되었습니다. 최신 내용을 다시 확인해 주세요.';
+  if(/STALE_FINGERPRINT/i.test(errorText(err))) return '이 날짜의 지문 기록이 다른 창에서 변경되었습니다. 최신 내용을 다시 불러온 뒤 다시 시도해 주세요.';
+  if(/FINGERPRINT_FUTURE_DATE/i.test(errorText(err))) return '미래 날짜에는 지문 사진 등록·교체 또는 확인 완료 설정을 할 수 없습니다.';
+  if(/FINGERPRINT_DATE_OUTSIDE_EMPLOYMENT/i.test(errorText(err))) return '재직·근무 배치 기간에 해당하는 날짜에서만 지문 사진 등록·교체 또는 확인 완료 설정을 할 수 있습니다.';
+  if(/FINGERPRINT_BUSY_RETRY/i.test(errorText(err))) return '지문 기록 또는 인사정보를 다른 작업에서 처리 중입니다. 잠시 후 다시 시도해 주세요.';
+  if(/\bFINGERPRINT_[A-Z0-9_]+\b/i.test(errorText(err))) return '지문 기록 요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.';
   if(isTransientRpcError(err)) return '서버 연결이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.';
   return fallback;
 }
@@ -2625,8 +2682,11 @@ function showSessionReconnectNotice(){
 let realtimeClient=null;
 let realtimeChannel=null;
 let realtimeChannelSerial=0;
+let realtimeSignalSeq=0;
 let realtimeRefreshTimer=null;
 let realtimeReconnectTimer=null;
+let refreshPendingOwner=0;
+let refreshPendingSerial=0;
 
 function formatSyncClock(date){
   try{return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hour12:false}).format(date).replace('24:','00:');}catch(e){return '';}
@@ -2640,7 +2700,7 @@ function renderLastSyncTime(){
 }
 function markSuccessfulSync(){lastSuccessfulSyncAt=new Date();renderLastSyncTime();}
 function coreMonthSyncHealthy(){
-  return !configured()||(state.accountStatusBackendReady===true&&state.attendanceAnnualLeaveBackendReady===true&&state.personnelBackendReady===true&&state.holidayWorkEligibilityReady===true&&state.holidayWorkBackendReady===true&&state.overtimeBackendReady===true&&state.overtimeConfirmBackendReady===true&&state.memoBackendReady===true&&state.memoDdayBackendReady===true);
+  return !configured()||(state.accountStatusBackendReady===true&&state.attendanceAnnualLeaveBackendReady===true&&state.personnelBackendReady===true&&state.holidayWorkEligibilityReady===true&&state.holidayWorkBackendReady===true&&state.overtimeBackendReady===true&&state.overtimeConfirmBackendReady===true&&state.fingerprintBackendReady===true&&state.memoBackendReady===true&&state.memoDdayBackendReady===true);
 }
 function currentViewSyncHealthy(){
   if(!coreMonthSyncHealthy())return false;
@@ -2702,7 +2762,7 @@ function requestRealtimeCatchup({markCatchup=false}={}){
   if(configured()&&!navigator.onLine){realtimeNeedsCatchup=true;setRealtimeStatus('offline');return;}
   // 저장·삭제·관리자 변경 중에는 자동 재조회가 mutation의 source snapshot/편집 UI를 중간에 바꾸지 않도록 뒤로 미룬다.
   // 작업 중 들어온 신호는 realtimeNeedsCatchup으로 합쳐 두고, pending 해제 뒤 한 번만 따라잡는다.
-  if(dataManagementBusy||appHasPendingOperation()||state.refreshing){realtimeNeedsCatchup=true;scheduleRealtimeRefresh(650);return;}
+  if(dataManagementBusy||appHasPendingOperation()||state.refreshing||refreshPendingOwner){realtimeNeedsCatchup=true;scheduleRealtimeRefresh(650);return;}
   const started=Date.now(),actor=Number(state.me.employee_id),token=state.sessionToken,contextEpoch=sessionContextEpoch;
   void refresh('realtime').then(()=>{
     if(sessionContextCurrent(actor,token,{epoch:contextEpoch})&&lastSuccessfulSyncAt?.getTime()>=started) realtimeNeedsCatchup=false;
@@ -2714,7 +2774,7 @@ function scheduleRealtimeRefresh(delay=220){
   if(configured()&&!navigator.onLine){realtimeNeedsCatchup=true;setRealtimeStatus('offline');return;}
   // 백업·복원·초기화뿐 아니라 일반 저장·삭제 중에도 Realtime 재조회를 직렬화한다.
   // pending 도중의 신호는 1개 catch-up으로 병합하고, 작업이 끝나기 전에는 화면/상태를 다시 읽지 않는다.
-  if(dataManagementBusy||appHasPendingOperation()||state.refreshing){
+  if(dataManagementBusy||appHasPendingOperation()||state.refreshing||refreshPendingOwner){
     realtimeNeedsCatchup=true;
     if(realtimeRefreshTimer) clearTimeout(realtimeRefreshTimer);
     realtimeRefreshTimer=setTimeout(()=>{realtimeRefreshTimer=null;scheduleRealtimeRefresh(650);},Math.max(350,delay));
@@ -2726,7 +2786,7 @@ function scheduleRealtimeRefresh(delay=220){
     if(!state.me || state.initialPinRequired || document.hidden) return;
     // 타이머 예약 뒤 오프라인으로 바뀐 경우에도 자동 실패 RPC를 시작하지 않는다.
     if(configured()&&!navigator.onLine){realtimeNeedsCatchup=true;setRealtimeStatus('offline');return;}
-    if(dataManagementBusy||appHasPendingOperation()||state.refreshing){realtimeNeedsCatchup=true;scheduleRealtimeRefresh(650);return;}
+    if(dataManagementBusy||appHasPendingOperation()||state.refreshing||refreshPendingOwner){realtimeNeedsCatchup=true;scheduleRealtimeRefresh(650);return;}
     const started=Date.now(),actor=Number(state.me.employee_id),token=state.sessionToken,contextEpoch=sessionContextEpoch;
     await refresh('realtime');
     if(sessionContextCurrent(actor,token,{epoch:contextEpoch})&&lastSuccessfulSyncAt?.getTime()>=started)realtimeNeedsCatchup=false;
@@ -2754,7 +2814,7 @@ function startRealtime(){
     // channel() 이후 on()/subscribe()가 동기 예외를 던져도 정확한 생성 채널을 catch에서 정리할 수 있게
     // 먼저 객체 참조를 캡처한 뒤 listener와 subscribe를 붙인다.
     channel=realtimeClient.channel(`staff-attendance-live-sync-${++realtimeChannelSerial}`);
-    channel.on('postgres_changes',{event:'INSERT',schema:'public',table:'realtime_signals'},()=>{if(realtimeChannel===channel)scheduleRealtimeRefresh();});
+    channel.on('postgres_changes',{event:'INSERT',schema:'public',table:'realtime_signals'},()=>{if(realtimeChannel===channel){realtimeSignalSeq++;scheduleRealtimeRefresh();}});
     realtimeChannel=channel;
     channel.subscribe(status=>{
       if(realtimeChannel!==channel) return;
@@ -3846,7 +3906,7 @@ function backupExportedText(value){
 }
 const CAPACITY_TABLE_LABELS = {
   employees:'직원/발령', attendance_entries:'근태', audit_logs:'변경이력', app_sessions:'로그인 세션',
-  realtime_signals:'실시간 동기화', personal_memos:'개인 메모', memos:'개인 메모', memo_dday_selections:'D-DAY 선택', holiday_work_entries:'휴근', overtime_entries:'초과근무', holiday_work_month_confirmations:'휴일근무 편성확정', company_events:'사내일정', holiday_work_eligibility:'휴근 가능 설정', annual_leave_settings:'연차 설정', long_service_settings:'장기 재직 설정', long_service_exclusions:'재직 제외기간', data_management_meta:'데이터관리 메타', data_safety_backups:'자동 안전백업', data_management_logs:'데이터관리 작업이력', login_attempt_limits:'로그인 보호기록'
+  realtime_signals:'실시간 동기화', personal_memos:'개인 메모', memos:'개인 메모', memo_dday_selections:'D-DAY 선택', holiday_work_entries:'휴근', overtime_entries:'초과근무', holiday_work_month_confirmations:'휴일근무 편성확정', company_events:'사내일정', holiday_work_eligibility:'휴근 가능 설정', annual_leave_settings:'연차 설정', long_service_settings:'장기 재직 설정', long_service_exclusions:'재직 제외기간', data_management_meta:'데이터관리 메타', data_safety_backups:'자동 안전백업', data_management_logs:'데이터관리 작업이력', login_attempt_limits:'로그인 보호기록', fingerprint_punch_records:'개인 지문 사진'
 };
 function formatBytes(bytes){
   const n=Math.max(0,Number(bytes)||0);
@@ -4298,7 +4358,14 @@ async function loadEmployees(){
   else{
     // 직원 목록 자체가 실패하면 이전의 '정상' 플래그를 그대로 남겨 이후 월 이동이 성공 동기화로 오인하지 않게 한다.
     state.personnelBackendReady=null;state.holidayWorkEligibilityReady=null;
-    data=await rpcPreferPersonnelChain(['list_employees_personnel_v2','list_employees_personnel_v1'],{p_token:token},{timeoutMs:READONLY_RPC_TIMEOUT_MS});
+    try{data=await rpcPreferPersonnelChain(['list_employees_personnel_v2','list_employees_personnel_v1'],{p_token:token},{timeoutMs:READONLY_RPC_TIMEOUT_MS});}
+    catch(e){
+      // 세션이 그대로인 일시적/서버 오류라면 '조회 중(null)'에 영구 고정하지 말고
+      // 실제 실패(false)로 확정해 지문·휴근 UI가 로딩 상태가 아닌 재시도 안내를 보여주게 한다.
+      // SESSION_EXPIRED 등 공통 rpc()가 이미 로그아웃한 경우에는 새 세션 상태를 덮지 않는다.
+      if(stillCurrent()){state.personnelBackendReady=false;state.holidayWorkEligibilityReady=false;}
+      throw e;
+    }
   }
   if(!stillCurrent())return false;
   state.employees=(data||[]).map(e=>({...e,id:Number(e.id),login_name:String(e.login_name||e.display_name||'').trim(),sort_order:Number(e.sort_order),is_admin:!!e.is_admin,active_from:e.active_from||'2026-01-01',active_to:e.active_to||null,company_hire_date:e.company_hire_date||null,employee_origin:e.employee_origin||null,personnel_account_status:String(e.personnel_account_status||'').trim()||null}));
@@ -4355,6 +4422,533 @@ async function loadMonthMemos(from,to){
   }
 }
 
+function clearFingerprintPhotoEphemera(){
+  fingerprintViewerContext=null;
+  const img=$('fingerprintViewerImg');if(img)img.removeAttribute('src');
+  if($('fingerprintPhotoTitle'))$('fingerprintPhotoTitle').textContent='지문 기록 사진';
+  if($('fingerprintViewerMeta'))$('fingerprintViewerMeta').textContent='';
+  const input=$('fingerprintPhotoInput');if(input)input.value='';
+}
+function fingerprintLocalStorageKey(){return `${LOCAL_FINGERPRINT_KEY_PREFIX}${Number(state.me?.employee_id)||0}`;}
+function localFingerprintRecords(){try{return JSON.parse(localStorage.getItem(fingerprintLocalStorageKey())||'[]')}catch(e){return []}}
+function saveLocalFingerprintRecords(rows){try{localStorage.setItem(fingerprintLocalStorageKey(),JSON.stringify(rows||[]))}catch(e){throw new Error('기기 저장공간이 부족합니다. 오래된 테스트 사진을 삭제한 뒤 다시 시도해 주세요.')}}
+function normalizeFingerprintRows(rows){return (Array.isArray(rows)?rows:[]).map(r=>({record_date:String(r.record_date||''),has_clock_in:!!r.has_clock_in,has_clock_out:!!r.has_clock_out,confirmed:!!r.confirmed,clock_in_uploaded_at:r.clock_in_uploaded_at||null,clock_out_uploaded_at:r.clock_out_uploaded_at||null,confirmed_at:r.confirmed_at||null,updated_at:r.updated_at||null})).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.record_date));}
+function fingerprintRecordForDate(key){return state.fingerprintRecords.find(r=>r.record_date===key)||null;}
+function fingerprintExpectedUpdatedAt(row){return row?.updated_at||null;}
+function assertLocalFingerprintFresh(current,expected){const actual=current?.updated_at||null;if((actual||null)!==(expected||null))throw new Error('STALE_FINGERPRINT');}
+function fingerprintPhotoCount(row){return (row?.has_clock_in?1:0)+(row?.has_clock_out?1:0);}
+function fingerprintCalendarMarkup(key){
+  const row=fingerprintRecordForDate(key);if(!row)return '';
+  if(row.confirmed&&row.has_clock_in&&row.has_clock_out)return '<span class="fingerprint-day-mark confirmed" title="출·퇴근 지문 확인 완료" aria-label="출퇴근 지문 확인 완료">✓지문</span>';
+  const count=fingerprintPhotoCount(row);if(!count)return '';
+  return `<span class="fingerprint-day-mark photos" title="지문 기록 사진 ${count}장" aria-label="지문 기록 사진 ${count}장">${count===1?'📷':'📷📷'}</span>`;
+}
+function fingerprintKindLabel(kind){return kind==='clock_out'?'퇴근':'출근';}
+function fingerprintKindHas(row,kind){return kind==='clock_out'?!!row?.has_clock_out:!!row?.has_clock_in;}
+function fingerprintKindUploadedAt(row,kind){return kind==='clock_out'?row?.clock_out_uploaded_at:row?.clock_in_uploaded_at;}
+function fingerprintTimestampKey(value){
+  const s=String(value||'').trim(),m=s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?(Z|([+-])(\d{2}):(\d{2}))$/i);if(!m)return null;
+  const frac=(m[7]||'').padEnd(6,'0').slice(0,6),micro=Number(frac)||0,ms=Math.floor(micro/1000),microRemainder=micro%1000;let utcMs=Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]),Number(m[5]),Number(m[6]),ms);
+  if(!Number.isFinite(utcMs))return null;if(String(m[8]).toUpperCase()!=='Z'){const offset=(Number(m[10])*60+Number(m[11]))*60000;utcMs+=m[9]==='+'?-offset:offset;}return utcMs*1000+microRemainder;
+}
+function fingerprintTimestampEqual(a,b){if(!a&&!b)return true;if(!a||!b)return false;const sa=String(a),sb=String(b);if(sa===sb)return true;const ta=fingerprintTimestampKey(sa),tb=fingerprintTimestampKey(sb);return ta!==null&&tb!==null&&ta===tb;}
+function reconcileFingerprintViewerAfterSync(){
+  const ctx=fingerprintViewerContext;if(!ctx||!$('fingerprintPhotoBackdrop')?.classList.contains('open'))return;
+  const sameActor=Number(state.me?.employee_id)===Number(ctx.employeeId),row=sameActor?fingerprintRecordForDate(ctx.key):null,has=sameActor&&fingerprintKindHas(row,ctx.kind),uploaded=has?(fingerprintKindUploadedAt(row,ctx.kind)||null):null;
+  if(has&&fingerprintTimestampEqual(uploaded,ctx.uploadedAt))return;
+  const key=ctx.key;closeBackdrop('fingerprintPhotoBackdrop',true);
+  if(state.me&&state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open'))showToast('다른 창에서 지문 사진이 변경되어 사진 보기를 닫았습니다. 최신 사진을 다시 열어 확인해 주세요.','info');
+}
+function formatFingerprintTime(value){if(!value)return '';try{return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(value)).replace('24:','00:')}catch(e){return ''}}
+function applyFingerprintMutationHint(key,{action,kind=null,confirmed=null,expectedUpdatedAt=null}={}){
+  const rows=state.fingerprintRecords.slice(),idx=rows.findIndex(r=>r.record_date===key),current=idx>=0?rows[idx]:null,currentUpdatedAt=current?.updated_at||null;
+  if(!fingerprintTimestampEqual(currentUpdatedAt,expectedUpdatedAt||null))return false;
+  if(action==='save'){
+    const row=current?{...current}:{record_date:key,has_clock_in:false,has_clock_out:false,confirmed:false,clock_in_uploaded_at:null,clock_out_uploaded_at:null,confirmed_at:null,updated_at:null};
+    if(kind==='clock_out'){row.has_clock_out=true;row.clock_out_uploaded_at=null;}else{row.has_clock_in=true;row.clock_in_uploaded_at=null;}
+    row.confirmed=false;row.confirmed_at=null;row.updated_at=null;if(idx>=0)rows[idx]=row;else rows.push(row);
+  }else if(action==='delete'){
+    if(!current)return false;const row={...current};if(kind==='clock_out'){row.has_clock_out=false;row.clock_out_uploaded_at=null;}else{row.has_clock_in=false;row.clock_in_uploaded_at=null;}row.confirmed=false;row.confirmed_at=null;row.updated_at=null;if(!row.has_clock_in&&!row.has_clock_out)rows.splice(idx,1);else rows[idx]=row;
+  }else if(action==='confirm'){
+    if(!current)return false;const row={...current,confirmed:!!confirmed,confirmed_at:null,updated_at:null};rows[idx]=row;
+  }else return false;
+  state.fingerprintRecords=normalizeFingerprintRows(rows);return true;
+}
+function fingerprintPersonnelReady(){return !configured()||state.personnelBackendReady===true;}
+function fingerprintDateNotFuture(key){return !!key&&key<=todayKey();}
+function fingerprintDateOperational(key){
+  if(!fingerprintPersonnelReady())return false;
+  const emp=state.employees.find(e=>Number(e.id)===Number(state.me?.employee_id));return !!key&&!!emp&&employeeOperationalOn(emp,key);
+}
+function fingerprintWorkday(key){
+  const emp=state.employees.find(e=>Number(e.id)===Number(state.me?.employee_id));if(!emp||!fingerprintDateOperational(key))return false;
+  if(holidayWorkForMe(key))return true;
+  const p=parseDateKey(key),shift=shiftForEmployee(emp,p.y,p.m,p.d);return ['주','주2','야','일근'].includes(shift);
+}
+function localFingerprintMetaRows(from,to){return normalizeFingerprintRows(localFingerprintRecords().filter(r=>(!from||r.record_date>=from)&&(!to||r.record_date<=to)).map(r=>({record_date:r.record_date,has_clock_in:!!r.clock_in,has_clock_out:!!r.clock_out,confirmed:!!r.confirmed,clock_in_uploaded_at:r.clock_in?.uploaded_at||null,clock_out_uploaded_at:r.clock_out?.uploaded_at||null,confirmed_at:r.confirmed_at||null,updated_at:r.updated_at||null})));}
+async function loadFingerprintRecords(from,to,{silentLoadingUi=false}={}){
+  if(!state.me){state.fingerprintRecords=[];state.fingerprintBackendReady=null;return false;}
+  const seq=++fingerprintLoadSeq,actor=Number(state.me.employee_id),token=state.sessionToken,requestFrom=String(from||''),requestTo=String(to||''),before=state.fingerprintRecords.slice();
+  const stillCurrent=()=>seq===fingerprintLoadSeq&&sessionContextCurrent(actor,token)&&(()=>{const b=monthBounds(state.year,state.month);return (!requestFrom||b.from===requestFrom)&&(!requestTo||b.to===requestTo);})();
+  if(!configured()){if(!stillCurrent())return false;state.fingerprintRecords=localFingerprintMetaRows(from,to);state.fingerprintBackendReady=true;return true;}
+  const syncOpenDetail=(keepCurrentMessage=false)=>{
+    if(state.view!=='mine'||!state.selectedDate||!$('detailBackdrop')?.classList.contains('open')||fingerprintPhotoPending||fingerprintConfirmPending||fingerprintViewPending)return;
+    renderFingerprintDetail(state.selectedDate,{preserveStatusMessage:keepCurrentMessage});
+  };
+  state.fingerprintBackendReady=null;
+  // 열린 날짜 상세창이 있는 상태에서 재조회가 시작되면 내부 쓰기 가드만 먼저 잠기고
+  // 화면 버튼은 이전 활성 상태로 남지 않게 지문 영역도 즉시 로딩 상태로 맞춥니다.
+  // 자동 Realtime처럼 조용한 재조회는 1분 주기 live-region 안내가 반복되지 않게 기존 메시지는 유지합니다.
+  // 지문 자체 저장/삭제/확인/보기 중에는 해당 작업의 진행 문구를 덮지 않도록 상위 pending 렌더를 유지합니다.
+  syncOpenDetail(!!silentLoadingUi);
+  try{const rows=await rpc('list_my_fingerprint_records',{p_token:token,p_from:from||null,p_to:to||null},{timeoutMs:READONLY_RPC_TIMEOUT_MS});if(!stillCurrent())return false;state.fingerprintRecords=normalizeFingerprintRows(rows);state.fingerprintBackendReady=true;reconcileFingerprintViewerAfterSync();syncOpenDetail(false);return true;}
+  catch(e){if(!stillCurrent())return false;state.fingerprintRecords=before;state.fingerprintBackendReady=false;syncOpenDetail(false);return false;}
+}
+function fingerprintBase64FromDataUrl(dataUrl){const i=String(dataUrl||'').indexOf(',');return i>=0?String(dataUrl).slice(i+1):'';}
+async function compressFingerprintImage(file){
+  const declaredType=String(file?.type||'').trim().toLowerCase();
+  if(!file||(declaredType&&!declaredType.startsWith('image/')))throw new Error('사진 파일만 등록할 수 있습니다.');
+  if(file.size>20*1024*1024)throw new Error('원본 사진은 20MB 이하만 선택할 수 있습니다.');
+  const objectUrl=URL.createObjectURL(file);let img=null;
+  try{img=await new Promise((resolve,reject)=>{const el=new Image();el.onload=()=>resolve(el);el.onerror=()=>reject(new Error('사진을 읽지 못했습니다.'));el.src=objectUrl;});}
+  finally{URL.revokeObjectURL(objectUrl);}
+  let width=img.naturalWidth||img.width,height=img.naturalHeight||img.height;if(!width||!height)throw new Error('사진 크기를 확인하지 못했습니다.');
+  const draw=(maxSide,quality)=>new Promise((resolve,reject)=>{try{const scale=Math.min(1,maxSide/Math.max(width,height)),w=Math.max(1,Math.round(width*scale)),h=Math.max(1,Math.round(height*scale)),canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)throw new Error('사진 압축에 실패했습니다.');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('사진 압축에 실패했습니다.')),'image/jpeg',quality);}catch(e){reject(new Error('사진 압축에 실패했습니다.'));}});
+  // 지문기 화면의 글자는 읽히되 장기 보관 DB 용량이 과도하게 커지지 않도록 1024px 안팎으로 압축한다.
+  // 정상 업로드는 110KB 이하를 목표로 하며, 서버도 128KB에서 이중 제한한다.
+  let blob=await draw(1024,.68);if(blob.size>95*1024)blob=await draw(900,.60);if(blob.size>95*1024)blob=await draw(800,.55);if(blob.size>110*1024)throw new Error('사진 용량을 충분히 줄이지 못했습니다. 다른 사진을 선택해 주세요.');
+  const dataUrl=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result||''));r.onerror=()=>reject(new Error('사진 변환에 실패했습니다.'));r.readAsDataURL(blob);});
+  const rawName=String(file.name||'fingerprint.jpg').replace(/[\u0000-\u001f\u007f]/g,'_');
+  const stem=(rawName.replace(/\.[^.]+$/,'').trim()||'fingerprint');
+  // 서버는 filename 입력을 512자로 선차단한 뒤 120자로 보관합니다. 가상 파일 제공자가 비정상적으로
+  // 긴 이름을 넘겨도 정상 사진이 압축을 마친 뒤 서버에서 거절되지 않도록 클라이언트도 보관 길이에 맞춥니다.
+  const safeName=Array.from(stem).slice(0,116).join('')+'.jpg';
+  return {base64:fingerprintBase64FromDataUrl(dataUrl),dataUrl,mime:'image/jpeg',name:safeName,bytes:blob.size};
+}
+function renderFingerprintDetail(key,{preserveStatusMessage=false}={}){
+  const row=fingerprintRecordForDate(key),ro=accountReadOnly(),personnelReady=fingerprintPersonnelReady(),personnelLoading=configured()&&state.personnelBackendReady===null,dateNotFuture=fingerprintDateNotFuture(key),dateOperational=fingerprintDateOperational(key),backendReady=!configured()||state.fingerprintBackendReady===true,backendLoading=configured()&&state.fingerprintBackendReady===null,backendBad=configured()&&state.fingerprintBackendReady===false,busy=fingerprintPhotoPending||fingerprintConfirmPending||fingerprintViewPending,writable=!ro&&backendReady&&!busy,uploadWritable=writable&&personnelReady&&dateNotFuture&&dateOperational;
+  [['clock_in','fingerprintClockIn'],['clock_out','fingerprintClockOut']].forEach(([kind,prefix])=>{const has=fingerprintKindHas(row,kind),stateEl=$(`${prefix}State`),meta=$(`${prefix}Meta`),up=$(`${prefix}UploadBtn`),view=$(`${prefix}ViewBtn`),del=$(`${prefix}DeleteBtn`);if(stateEl){stateEl.textContent=has?'등록됨':'미등록';stateEl.classList.toggle('saved',has)}if(meta)meta.textContent=has?(formatFingerprintTime(fingerprintKindUploadedAt(row,kind))||'등록됨'):'사진을 등록해 주세요.';if(up){up.textContent=has?'사진 교체':'사진 등록';up.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 ${has?'교체':'등록'}`);up.disabled=!uploadWritable}if(view){view.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 보기`);view.disabled=!has||busy||!backendReady}if(del){del.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 삭제`);del.disabled=!has||!writable}});
+  const both=!!(row?.has_clock_in&&row?.has_clock_out),confirm=$('fingerprintConfirmed'),confirmRow=$('fingerprintConfirmRow'),confirmWritable=writable&&both&&(!!row?.confirmed||(personnelReady&&dateNotFuture&&dateOperational));if(confirm){confirm.checked=!!(row?.confirmed&&both);confirm.disabled=!confirmWritable;}if(confirmRow)confirmRow.classList.toggle('disabled',!confirmWritable);
+  if(!preserveStatusMessage)$('fingerprintDetailError').textContent=ro?'조회 전용 계정에서는 지문 사진을 변경할 수 없습니다.':(backendLoading?'지문 기록을 불러오는 중입니다.':(backendBad?(row?'지문 기록 서버 연결을 확인해 주세요. 마지막으로 불러온 표시를 유지하고 있습니다.':'지문 기록 서버 연결을 확인해 주세요.'):(configured()&&!personnelReady?(personnelLoading?'인사이력 정보를 불러오는 중입니다. 새 사진 등록·교체와 확인 완료 설정은 잠시 후 이용해 주세요.':'인사이력 정보를 정상적으로 불러오지 못해 새 사진 등록·교체와 확인 완료 설정을 잠갔습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.') :(!dateNotFuture?'미래 날짜에는 새 지문 사진 등록·교체 또는 확인 완료를 설정할 수 없습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.':(!dateOperational?'재직·근무 배치 기간 밖 날짜에는 새 사진 등록·교체 또는 확인 완료를 새로 설정할 수 없습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.':(!both&&row?.confirmed?'사진이 부족하여 확인 완료가 자동 해제되었습니다.':''))))));
+}
+async function resyncFingerprintAfterMutation(key,label){const {from,to}=monthBounds(state.year,state.month),ok=await runPostMutationResync(()=>loadFingerprintRecords(from,to),label);renderCalendar();if(state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open'))renderFingerprintDetail(key);return ok;}
+function fingerprintWriteContextCatchupNeeded(){
+  // 사진 선택/압축 중 Realtime 신호가 왔지만 debounce가 아직 실행되지 않았거나
+  // 전체 refresh가 이미 진행 중이면 현재 근무일 문맥을 최신이라고 단정하지 않습니다.
+  return configured()&&(realtimeNeedsCatchup||!!realtimeRefreshTimer||!!state.refreshing||!!refreshPendingOwner);
+}
+async function refreshFingerprintWriteContextIfDeferred(actor,token,contextEpoch){
+  if(!fingerprintWriteContextCatchupNeeded())return true;
+  // 문맥 재조회 도중 다시 Realtime 신호가 들어오면 첫 조회도 곧 낡을 수 있으므로
+  // 신호 세대가 안정된 한 번을 확보하도록 최대 2회 재조회합니다.
+  for(let attempt=0;attempt<2;attempt++){
+    const signalSeqAtStart=realtimeSignalSeq;
+    const personnelOk=await loadPersonnelAssignments();
+    if(!sessionContextCurrent(actor,token,{epoch:contextEpoch}))return false;
+    const holidayOk=await loadHolidayWorks();
+    if(!sessionContextCurrent(actor,token,{epoch:contextEpoch}))return false;
+    if(personnelOk===false||holidayOk===false)return false;
+    if(realtimeSignalSeq===signalSeqAtStart)return true;
+  }
+  return false;
+}
+function fingerprintMutationNeedsAuthoritativeResync(err){
+  return /STALE_FINGERPRINT/i.test(errorText(err))||isTransientRpcError(err);
+}
+function fingerprintAuthorizationTransitionDenied(err){return /ACCOUNT_READ_ONLY/i.test(errorText(err));}
+async function recoverFingerprintAuthorizationState(key,actor,token,contextEpoch){
+  if(!sessionContextCurrent(actor,token,{epoch:contextEpoch}))return true;
+  // 서버가 이미 조회전용으로 판정했다면 Realtime/60초 재조회가 따라오기 전이라도
+  // 현재 탭의 쓰기 UI부터 보수적으로 즉시 잠근다. personnelBackendReady를 실패 상태로
+  // 내려 stale 직원목록의 'active' 값이 state.me의 최신 readonly 판정을 덮지 않게 한다.
+  state.me.is_read_only=true;state.me.personnel_account_status='readonly';state.personnelBackendReady=false;
+  applyAccountModeUI({preserveOpenDetail:true});
+  if(state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open'))renderFingerprintDetail(key,{preserveStatusMessage:true});
+
+  // 조회전용 계정도 인사이력/계정상태 조회는 허용되므로 최신 권한을 즉시 재확인한다.
+  // 그 사이 다시 active로 복구된 경우도 여기서 현재 서버 상태에 맞게 UI를 되돌린다.
+  let personnelOk=false,accountOk=false;
+  try{personnelOk=await loadPersonnelAssignments();}catch(_){personnelOk=false;}
+  if(!sessionContextCurrent(actor,token,{epoch:contextEpoch}))return true;
+  try{accountOk=await loadAccountStatus();}catch(_){accountOk=false;}
+  if(!sessionContextCurrent(actor,token,{epoch:contextEpoch}))return true;
+  applyAccountModeUI({preserveOpenDetail:true});renderCalendar();
+  if(state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open'))renderFingerprintDetail(key,{preserveStatusMessage:true});
+  if($('fingerprintDetailError')){
+    const ro=accountReadOnly();
+    $('fingerprintDetailError').textContent=ro
+      ?((personnelOk===false||accountOk===false)?'서버에서 계정이 조회 전용으로 확인되어 지문 변경을 잠갔습니다. 최신 권한 전체 확인은 완료하지 못했으니 연결 상태를 확인해 주세요.':'계정이 조회 전용 상태로 변경되어 지문 사진을 변경할 수 없습니다. 최신 권한 상태를 반영했습니다.')
+      :'요청 시점에 계정 권한이 변경되어 작업을 완료하지 못했습니다. 최신 권한 상태를 다시 확인했으니 현재 표시를 확인한 뒤 다시 시도해 주세요.';
+  }
+  return true;
+}
+async function recoverFingerprintMutationState(key,label,err,actor,token,contextEpoch){
+  if(!configured())return false;
+  if(fingerprintAuthorizationTransitionDenied(err))return recoverFingerprintAuthorizationState(key,actor,token,contextEpoch);
+  if(!fingerprintMutationNeedsAuthoritativeResync(err))return false;
+  const synced=await resyncFingerprintAfterMutation(key,label);
+  if(!sessionContextCurrent(actor,token,{epoch:contextEpoch}))return true;
+  if(/STALE_FINGERPRINT/i.test(errorText(err))){
+    $('fingerprintDetailError').textContent=synced
+      ?'이 날짜의 지문 기록이 다른 창에서 변경되어 최신 내용을 다시 불러왔습니다. 현재 표시를 확인한 뒤 다시 시도해 주세요.'
+      :'이 날짜의 지문 기록이 다른 창에서 변경되었고 최신 상태를 다시 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.';
+  }else{
+    $('fingerprintDetailError').textContent=synced
+      ?'서버 응답을 확인하지 못해 최신 상태를 다시 불러왔습니다. 현재 표시를 확인한 뒤 필요한 경우에만 다시 시도해 주세요.'
+      :'서버 응답과 최신 상태를 확인하지 못했습니다. 연결이 복구된 뒤 새로고침하여 현재 상태를 확인해 주세요.';
+  }
+  return true;
+}
+function fingerprintPickerStillCurrent(ctx){
+  return !!ctx&&sessionContextCurrent(ctx.actor,ctx.token,{epoch:ctx.contextEpoch})&&state.view==='mine'&&state.selectedDate===ctx.key&&$('detailBackdrop')?.classList.contains('open');
+}
+function fingerprintBlockingPromptSessionSnapshot(){
+  const current=String(state.sessionToken||'');
+  if(!configured()||!current)return {current,mode:'none'};
+  const tabToken=storageGet(sessionStorage,SESSION_KEY),sharedToken=storageGet(localStorage,SESSION_KEY);
+  // PC 기본 로그인은 탭 전용이므로 다른 탭의 localStorage 로그인 변경과 분리합니다.
+  // 모바일/PC 로그인 유지는 localStorage 공유 세션이므로 blocking confirm 전후의 실제 저장소 값을 직접 비교합니다.
+  if(tabToken===current)return {current,mode:'tab'};
+  if(sharedToken===current)return {current,mode:'shared'};
+  return {current,mode:'mismatch'};
+}
+function fingerprintScheduleSharedSessionReconcile(){
+  sharedSessionChangePending=true;sharedSessionUnsavedDeferred=false;reconcileSharedSessionIfNeeded();
+}
+function fingerprintCurrentSharedSessionMismatch(){
+  const current=String(state.sessionToken||'');
+  if(!configured()||!current)return false;
+  const tabToken=storageGet(sessionStorage,SESSION_KEY);
+  // PC 기본 sessionStorage 세션은 탭별 독립이므로 다른 탭의 공유 로그인과 분리합니다.
+  if(tabToken===current)return false;
+  // 모바일/PC 로그인 유지 세션은 storage 이벤트 처리 여부와 무관하게 실제 localStorage를 동기 확인합니다.
+  return storageGet(localStorage,SESSION_KEY)!==current;
+}
+function fingerprintBlockingPromptSessionChanged(snapshot){
+  if(!snapshot||snapshot.mode==='none')return false;
+  if(String(state.sessionToken||'')!==snapshot.current)return true;
+  if(snapshot.mode==='tab')return false;
+  const changed=snapshot.mode!=='shared'||storageGet(localStorage,SESSION_KEY)!==snapshot.current;
+  if(changed){
+    // confirm()이 이벤트 루프를 막는 동안에는 storage 이벤트가 아직 실행되지 않았을 수 있으므로
+    // 실제 공유 저장소 변화를 여기서 동기적으로 감지하고 동일한 세션 전환 절차를 예약합니다.
+    fingerprintScheduleSharedSessionReconcile();
+  }
+  return changed;
+}
+function clearFingerprintPickerContext(){
+  fingerprintPendingKind='';
+  fingerprintPickerContext=null;
+  const input=$('fingerprintPhotoInput');if(input)input.value='';
+}
+async function selectFingerprintPhoto(kind){
+  if(!state.selectedDate||state.view!=='mine'||!state.me||fingerprintPhotoPending||fingerprintConfirmPending)return;
+  if(accountReadOnly()){showToast('조회 전용 계정에서는 사진을 등록할 수 없습니다.','info');return;}
+  if(configured()&&state.fingerprintBackendReady!==true){$('fingerprintDetailError').textContent='지문 기록을 먼저 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
+  if(!fingerprintPersonnelReady()){$('fingerprintDetailError').textContent='인사이력 정보를 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
+  if(!fingerprintDateNotFuture(state.selectedDate)){$('fingerprintDetailError').textContent='미래 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
+  if(!fingerprintDateOperational(state.selectedDate)){$('fingerprintDetailError').textContent='재직·근무 배치 기간 밖 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
+  const ctx={actor:Number(state.me.employee_id),token:state.sessionToken,contextEpoch:sessionContextEpoch,key:state.selectedDate,kind};
+  fingerprintPendingKind=kind;fingerprintPickerContext=ctx;
+  const input=$('fingerprintPhotoInput');input.value='';input.click();
+}
+function fingerprintWriteForegroundCurrent(pageLifecycleEpoch){
+  return pageLifecycleEpoch===fingerprintPageLifecycleEpoch&&!document.hidden;
+}
+function abortFingerprintBackgroundWrite(){
+  if($('fingerprintDetailError'))$('fingerprintDetailError').textContent='앱이 백그라운드로 전환되어 사진 등록을 중단했습니다. 화면으로 돌아온 뒤 사진을 다시 선택해 주세요.';
+}
+async function handleFingerprintPhotoInput(file,pickerCtx=fingerprintPickerContext){
+  const fallbackCtx=(!pickerCtx&&file&&state.me&&state.selectedDate&&fingerprintPendingKind)?{actor:Number(state.me.employee_id),token:state.sessionToken,contextEpoch:sessionContextEpoch,key:state.selectedDate,kind:fingerprintPendingKind}:null;
+  const ctx=pickerCtx?{...pickerCtx}:fallbackCtx;
+  // OS 카메라/파일 선택기가 닫힌 직후 FileList와 선택 문맥을 DOM에 오래 남기지 않습니다.
+  clearFingerprintPickerContext();
+  if(!file)return;
+  if(!fingerprintPickerStillCurrent(ctx)){
+    if(state.me&&$('fingerprintDetailError')&&$('detailBackdrop')?.classList.contains('open'))$('fingerprintDetailError').textContent='사진을 선택하는 동안 날짜 또는 로그인 상태가 변경되어 선택한 사진을 적용하지 않았습니다.';
+    return;
+  }
+  const key=ctx.key,kind=ctx.kind,actor=ctx.actor,token=ctx.token,contextEpoch=ctx.contextEpoch,pageLifecycleEpoch=fingerprintPageLifecycleEpoch;
+  const personnelReady=fingerprintPersonnelReady(),dateNotFuture=fingerprintDateNotFuture(key);
+  if(!key||!kind||state.view!=='mine'||accountReadOnly()||(configured()&&state.fingerprintBackendReady!==true)||!personnelReady||!dateNotFuture||!fingerprintDateOperational(key)){
+    const futureDate=!accountReadOnly()&&(!configured()||state.fingerprintBackendReady===true)&&personnelReady&&!dateNotFuture;
+    const outsideEmployment=!accountReadOnly()&&(!configured()||state.fingerprintBackendReady===true)&&personnelReady&&dateNotFuture&&!fingerprintDateOperational(key);
+    if($('fingerprintDetailError'))$('fingerprintDetailError').textContent=accountReadOnly()?'현재 계정에서는 지문 사진을 변경할 수 없습니다.':(!personnelReady?'인사이력 정보를 정상적으로 불러온 뒤 다시 시도해 주세요.':(futureDate?'미래 날짜에는 지문 사진을 등록할 수 없습니다.':(outsideEmployment?'재직·근무 배치 기간 밖 날짜에는 지문 사진을 등록할 수 없습니다.':'지문 기록을 정상적으로 불러온 뒤 다시 시도해 주세요.')));
+    return;
+  }
+  const expectedUpdatedAt=fingerprintExpectedUpdatedAt(fingerprintRecordForDate(key));
+  let remoteSaveStarted=false;
+  fingerprintPhotoPending=true;renderFingerprintDetail(key);showLoading(true);$('fingerprintDetailError').textContent='사진을 압축하고 있습니다…';
+  try{
+    const image=await compressFingerprintImage(file);
+    if(!sessionContextCurrent(actor,token,{epoch:contextEpoch})||state.selectedDate!==key)return;
+    if(pageLifecycleEpoch!==fingerprintPageLifecycleEpoch){
+      if($('fingerprintDetailError'))$('fingerprintDetailError').textContent='페이지가 전환되어 사진 등록을 중단했습니다. 현재 화면에서 사진을 다시 선택해 주세요.';
+      return;
+    }
+    if(!fingerprintWriteForegroundCurrent(pageLifecycleEpoch)){abortFingerprintBackgroundWrite();return;}
+    // 공용 로그인 상태가 사진 선택/압축 중 다른 탭에서 바뀌었다면, 아직 서버 쓰기를 시작하지 않은
+    // 선택 사진을 이전 계정에 저장하지 않습니다. 새 세션 화면으로 전환된 뒤 다시 선택하도록 합니다.
+    const sharedSessionMismatch=fingerprintCurrentSharedSessionMismatch();
+    if(sharedPersistentSessionMismatch()||sharedSessionMismatch){
+      if(sharedSessionMismatch)fingerprintScheduleSharedSessionReconcile();
+      $('fingerprintDetailError').textContent='사진을 선택하는 동안 다른 탭에서 로그인 상태가 변경되었습니다. 새 로그인 상태로 전환된 뒤 사진을 다시 선택해 주세요.';
+      return;
+    }
+    if(fingerprintWriteContextCatchupNeeded()){
+      $('fingerprintDetailError').textContent='근무표 최신 상태를 확인하고 있습니다…';
+      const contextFresh=await refreshFingerprintWriteContextIfDeferred(actor,token,contextEpoch);
+      if(!sessionContextCurrent(actor,token,{epoch:contextEpoch})||state.selectedDate!==key)return;
+      if(!fingerprintWriteForegroundCurrent(pageLifecycleEpoch)){abortFingerprintBackgroundWrite();return;}
+      if(!contextFresh){$('fingerprintDetailError').textContent='근무표 최신 상태를 확인하지 못했습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.';return;}
+    }
+    if(!fingerprintWriteForegroundCurrent(pageLifecycleEpoch)){abortFingerprintBackgroundWrite();return;}
+    if(accountReadOnly()){$('fingerprintDetailError').textContent='현재 계정에서는 지문 사진을 변경할 수 없습니다.';return;}
+    if(!fingerprintPersonnelReady()){$('fingerprintDetailError').textContent='인사이력 정보를 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
+    if(!fingerprintDateNotFuture(key)){$('fingerprintDetailError').textContent='미래 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
+    if(!fingerprintDateOperational(key)){$('fingerprintDetailError').textContent='재직·근무 배치 기간 밖 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
+    if(!fingerprintWriteForegroundCurrent(pageLifecycleEpoch)){abortFingerprintBackgroundWrite();return;}
+    if(!fingerprintWorkday(key)){
+      const promptSession=fingerprintBlockingPromptSessionSnapshot();
+      if(fingerprintBlockingPromptSessionChanged(promptSession)){$('fingerprintDetailError').textContent='다른 탭에서 로그인 상태가 변경되어 사진 등록을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.';return;}
+      if(!confirm('이 날짜는 현재 근무표상 근무일이 아닙니다. 그래도 지문 기록 사진을 등록할까요?')){$('fingerprintDetailError').textContent='';return;}
+      if(fingerprintBlockingPromptSessionChanged(promptSession)){$('fingerprintDetailError').textContent='확인하는 동안 다른 탭에서 로그인 상태가 변경되어 사진 등록을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.';return;}
+    }
+    if(!fingerprintWriteForegroundCurrent(pageLifecycleEpoch)){abortFingerprintBackgroundWrite();return;}
+    $('fingerprintDetailError').textContent='사진을 저장하고 있습니다…';
+    if(!configured()){
+      const rows=localFingerprintRecords(),idx=rows.findIndex(r=>r.record_date===key),current=idx>=0?rows[idx]:null;
+      assertLocalFingerprintFresh(current,expectedUpdatedAt);
+      const row=current||{record_date:key,confirmed:false},now=new Date().toISOString();
+      row[kind]={data:image.dataUrl,mime:image.mime,name:image.name,uploaded_at:now};row.confirmed=false;row.confirmed_at=null;row.updated_at=now;
+      if(idx>=0)rows[idx]=row;else rows.push(row);saveLocalFingerprintRecords(rows);
+    }else{
+      if(fingerprintCurrentSharedSessionMismatch()){
+        fingerprintScheduleSharedSessionReconcile();
+        $('fingerprintDetailError').textContent='다른 탭에서 로그인 상태가 변경되어 사진 등록을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.';
+        return;
+      }
+      remoteSaveStarted=true;
+      await rpc('save_my_fingerprint_photo',{p_token:token,p_date:key,p_kind:kind,p_base64:image.base64,p_mime:image.mime,p_filename:image.name,p_expected_updated_at:expectedUpdatedAt},{timeoutMs:FINGERPRINT_WRITE_RPC_TIMEOUT_MS});
+    }
+    if(!sessionContextCurrent(actor,token,{epoch:contextEpoch}))return;
+    if(configured())applyFingerprintMutationHint(key,{action:'save',kind,expectedUpdatedAt});
+    const synced=await resyncFingerprintAfterMutation(key,`${fingerprintKindLabel(kind)} 지문 사진 저장`);
+    showPostMutationResult(`✓ ${fingerprintKindLabel(kind)} 지문 사진을 저장했습니다.`,`사진 저장은 완료됐지만 최신 표시를 다시 불러오지 못했습니다. 새로고침 후 확인해 주세요.`,synced);
+  }catch(e){
+    if(!sessionContextCurrent(actor,token,{epoch:contextEpoch})||state.selectedDate!==key)return;
+    const recovered=remoteSaveStarted&&await recoverFingerprintMutationState(key,`${fingerprintKindLabel(kind)} 지문 사진 저장 결과 확인`,e,actor,token,contextEpoch);
+    if(!recovered&&sessionContextCurrent(actor,token,{epoch:contextEpoch})&&state.selectedDate===key)$('fingerprintDetailError').textContent=userSafeServiceError(e,remoteSaveStarted?'사진 저장에 실패했습니다.':String(e?.message||'사진 저장에 실패했습니다.'));
+  }finally{
+    if(sessionContextCurrent(actor,token,{epoch:contextEpoch})){
+      fingerprintPhotoPending=false;
+      if(state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open')){
+        const keepError=$('fingerprintDetailError')?.textContent||'';renderFingerprintDetail(key);if(keepError)$('fingerprintDetailError').textContent=keepError;
+      }
+      showLoading(false);
+    }
+  }
+}
+function fingerprintPhotoBase64SignatureValid(mime,b64){
+  let raw='';try{raw=atob(b64);}catch(_){return false;}
+  // 서버 저장 계약과 동일하게 실제 디코딩된 사진도 100B~128KiB 범위인지 재확인합니다.
+  // 수동 DB 수정·과거 시험데이터·비정상 응답이 Base64 문자수 검사만 통과하는 것을 막습니다.
+  if(raw.length<100||raw.length>131072)return false;
+  const code=i=>raw.charCodeAt(i);
+  if(mime==='image/jpeg')return raw.length>=3&&code(0)===0xff&&code(1)===0xd8&&code(2)===0xff;
+  if(mime==='image/png')return raw.length>=8&&[0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a].every((v,i)=>code(i)===v);
+  if(mime==='image/webp')return raw.length>=12&&raw.slice(0,4)==='RIFF'&&raw.slice(8,12)==='WEBP';
+  return false;
+}
+function fingerprintPhotoResponseDataUrl(data){
+  const mime=String(data?.mime_type||'').trim().toLowerCase();
+  if(!['image/jpeg','image/png','image/webp'].includes(mime))throw new Error('FINGERPRINT_PHOTO_RESPONSE_INVALID');
+  let b64='';
+  if(data?.data_url){
+    const url=String(data.data_url||'');
+    const m=url.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=\s]+)$/i);
+    if(url.length>300000||!m||String(m[1]).toLowerCase()!==mime)throw new Error('FINGERPRINT_PHOTO_RESPONSE_INVALID');
+    b64=String(m[2]||'').replace(/\s/g,'');
+  }else b64=String(data?.data_base64||'').replace(/\s/g,'');
+  if(!b64||b64.length>200000||!/^[A-Za-z0-9+/]+={0,2}$/.test(b64))throw new Error('FINGERPRINT_PHOTO_RESPONSE_INVALID');
+  let raw='';try{raw=atob(b64);}catch(_){throw new Error('FINGERPRINT_PHOTO_RESPONSE_INVALID');}
+  if(raw.length<100||raw.length>131072||!fingerprintPhotoBase64SignatureValid(mime,b64))throw new Error('FINGERPRINT_PHOTO_RESPONSE_INVALID');
+  return `data:${mime};base64,${b64}`;
+}
+async function fingerprintPhotoDataUrlDecodable(src){
+  return await new Promise(resolve=>{
+    const img=new Image();let settled=false;
+    const finish=ok=>{if(settled)return;settled=true;clearTimeout(timer);img.onload=null;img.onerror=null;img.src='';resolve(!!ok);};
+    const timer=setTimeout(()=>finish(false),5000);
+    img.onload=()=>finish(!!(img.naturalWidth&&img.naturalHeight));
+    img.onerror=()=>finish(false);
+    img.src=src;
+  });
+}
+async function viewFingerprintPhoto(kind){
+  const key=state.selectedDate,row=key?fingerprintRecordForDate(key):null;
+  if(!key||state.view!=='mine'||!fingerprintKindHas(row,kind)||!state.me||fingerprintViewPending)return;
+  if(configured()&&state.fingerprintBackendReady!==true){renderFingerprintDetail(key);$('fingerprintDetailError').textContent='지문 기록을 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
+  // 공유(localStorage) 로그인은 storage 이벤트보다 실제 저장소 값이 먼저 바뀔 수 있습니다.
+  // 민감한 사진 조회도 옛 shared token으로 시작하지 않도록 클릭 시점에 동기 재검증합니다.
+  if(fingerprintCurrentSharedSessionMismatch()){
+    fingerprintScheduleSharedSessionReconcile();
+    renderFingerprintDetail(key);$('fingerprintDetailError').textContent='다른 탭에서 로그인 상태가 변경되어 사진 조회를 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.';return;
+  }
+  const returnFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  const actor=Number(state.me.employee_id),token=state.sessionToken,contextEpoch=sessionContextEpoch,pageLifecycleEpoch=fingerprintPageLifecycleEpoch;
+  fingerprintViewPending=true;renderFingerprintDetail(key);showLoading(true);$('fingerprintDetailError').textContent='';
+  try{
+    let data=null;
+    if(!configured()){
+      const src=localFingerprintRecords().find(r=>r.record_date===key)?.[kind];
+      if(src)data={data_url:src.data,mime_type:src.mime,filename:src.name,uploaded_at:src.uploaded_at};
+    }else{
+      const result=await rpc('get_my_fingerprint_photo',{p_token:token,p_date:key,p_kind:kind},{timeoutMs:READONLY_RPC_TIMEOUT_MS});
+      data=Array.isArray(result)?result[0]:result;
+    }
+    if(pageLifecycleEpoch!==fingerprintPageLifecycleEpoch||!sessionContextCurrent(actor,token,{epoch:contextEpoch})||state.selectedDate!==key||!$('detailBackdrop')?.classList.contains('open')||document.hidden)return;
+    // fetch 완료가 storage 이벤트 task보다 먼저 이어지는 경우에도 이전 공유계정 사진을 화면에 올리지 않습니다.
+    if(fingerprintCurrentSharedSessionMismatch()){
+      fingerprintScheduleSharedSessionReconcile();
+      $('fingerprintDetailError').textContent='사진을 불러오는 동안 다른 탭에서 로그인 상태가 변경되었습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.';return;
+    }
+    // 현재 메타데이터에는 사진이 있다고 표시되어 view가 시작됐는데 서버 본문이 0건이면,
+    // 다른 탭/기기에서 사진이 삭제된 뒤 Realtime 메타 동기화가 아직 도착하지 않은 전형적인 stale 상태입니다.
+    // 일반 조회 실패로 남기지 말고 기존 STALE_FINGERPRINT_VIEW 복구 경로로 즉시 메타데이터를 재동기화합니다.
+    if(!data)throw new Error('STALE_FINGERPRINT_VIEW');
+    const uploadedAt=data.uploaded_at||fingerprintKindUploadedAt(row,kind)||null;
+    const src=fingerprintPhotoResponseDataUrl(data);
+    if(!await fingerprintPhotoDataUrlDecodable(src))throw new Error('FINGERPRINT_PHOTO_RESPONSE_INVALID');
+    // 실제 이미지 디코딩도 비동기이므로 그 사이 로그아웃·날짜 전환·백그라운드 이동·Realtime 교체가
+    // 일어났다면 이전 사진을 늦게 화면에 올리지 않습니다.
+    if(pageLifecycleEpoch!==fingerprintPageLifecycleEpoch||!sessionContextCurrent(actor,token,{epoch:contextEpoch})||state.selectedDate!==key||!$('detailBackdrop')?.classList.contains('open')||document.hidden)return;
+    if(fingerprintCurrentSharedSessionMismatch()){
+      fingerprintScheduleSharedSessionReconcile();
+      $('fingerprintDetailError').textContent='사진을 확인하는 동안 다른 탭에서 로그인 상태가 변경되었습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.';return;
+    }
+    const currentRow=fingerprintRecordForDate(key),currentUploadedAt=fingerprintKindUploadedAt(currentRow,kind)||null;
+    if(!fingerprintKindHas(currentRow,kind)||!fingerprintTimestampEqual(uploadedAt,currentUploadedAt))throw new Error('STALE_FINGERPRINT_VIEW');
+    $('fingerprintViewerImg').src=src;
+    $('fingerprintPhotoTitle').textContent=`${formatDateKR(key)} · ${fingerprintKindLabel(kind)} 사진`;
+    $('fingerprintViewerMeta').textContent=`${fingerprintKindLabel(kind)} · ${formatFingerprintTime(uploadedAt)||'등록 사진'}`;
+    fingerprintViewerContext={employeeId:actor,key,kind,uploadedAt};
+    openBackdrop('fingerprintPhotoBackdrop');
+    if(returnFocus&&$('detailBackdrop')?.contains(returnFocus))backdropReturnFocus.set('fingerprintPhotoBackdrop',returnFocus);
+  }catch(e){
+    if(pageLifecycleEpoch!==fingerprintPageLifecycleEpoch||!sessionContextCurrent(actor,token,{epoch:contextEpoch})||state.selectedDate!==key)return;
+    if(/STALE_FINGERPRINT_VIEW/i.test(errorText(e))){
+      const {from,to}=monthBounds(state.year,state.month),expectedLoadSeq=fingerprintLoadSeq+1;
+      let synced=await runPostMutationResync(()=>loadFingerprintRecords(from,to),'지문 사진 최신 상태 확인');
+      // 원격 변경 자체가 발생시킨 Realtime 재조회가 이 직접 stale 재조회보다 나중에 시작되면
+      // load seq 보호가 앞 요청을 정상적으로 supersede하여 false를 반환할 수 있습니다.
+      // 그 최신 요청이 이미 성공해 backendReady=true라면 실제 동기화는 완료된 것이므로 실패로 오인하지 않습니다.
+      if(!synced&&fingerprintLoadSeq!==expectedLoadSeq&&state.fingerprintBackendReady===true)synced=true;
+      if(pageLifecycleEpoch===fingerprintPageLifecycleEpoch&&sessionContextCurrent(actor,token,{epoch:contextEpoch})&&state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open')){
+        renderCalendar();renderFingerprintDetail(key);
+        $('fingerprintDetailError').textContent=synced?'다른 창에서 사진이 변경되어 최신 상태를 다시 불러왔습니다. 사진 상태를 확인한 뒤 다시 열어 주세요.':'다른 창에서 사진이 변경되었고 최신 상태를 다시 불러오지 못했습니다. 새로고침 후 확인해 주세요.';
+      }
+    }else if(pageLifecycleEpoch===fingerprintPageLifecycleEpoch&&sessionContextCurrent(actor,token,{epoch:contextEpoch})&&state.selectedDate===key){
+      $('fingerprintDetailError').textContent=/FINGERPRINT_PHOTO_RESPONSE_INVALID/i.test(errorText(e))?'사진 데이터 형식을 확인하지 못했습니다. 새로고침 후 다시 시도해 주세요.':userSafeServiceError(e,'사진을 불러오지 못했습니다.');
+    }
+  }finally{
+    // pagehide 뒤 옛 요청의 finally가 새 페이지 수명주기에서 시작한 조회 상태를 풀지 않게 합니다.
+    if(pageLifecycleEpoch===fingerprintPageLifecycleEpoch&&sessionContextCurrent(actor,token,{epoch:contextEpoch})){
+      fingerprintViewPending=false;
+      const keepError=$('fingerprintDetailError')?.textContent||'';
+      if(state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open')){renderFingerprintDetail(key);if(keepError)$('fingerprintDetailError').textContent=keepError;}
+      showLoading(false);
+    }
+  }
+}
+async function deleteFingerprintPhoto(kind){
+  const key=state.selectedDate,row=key?fingerprintRecordForDate(key):null;
+  if(!key||state.view!=='mine'||!fingerprintKindHas(row,kind)||!state.me||fingerprintPhotoPending||fingerprintConfirmPending)return;
+  if(accountReadOnly()){renderFingerprintDetail(key);$('fingerprintDetailError').textContent='현재 계정에서는 지문 사진을 변경할 수 없습니다.';return;}
+  if(configured()&&state.fingerprintBackendReady!==true){renderFingerprintDetail(key);$('fingerprintDetailError').textContent='지문 기록을 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
+  const promptSession=fingerprintBlockingPromptSessionSnapshot();
+  if(fingerprintBlockingPromptSessionChanged(promptSession)){renderFingerprintDetail(key);$('fingerprintDetailError').textContent='다른 탭에서 로그인 상태가 변경되어 사진 삭제를 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.';return;}
+  if(!confirm(`${formatDateKR(key)} ${fingerprintKindLabel(kind)} 지문 사진을 삭제할까요?\n확인 완료(✓지문) 상태도 함께 해제됩니다.`))return;
+  if(fingerprintBlockingPromptSessionChanged(promptSession)){renderFingerprintDetail(key);$('fingerprintDetailError').textContent='확인하는 동안 다른 탭에서 로그인 상태가 변경되어 사진 삭제를 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.';return;}
+  const actor=Number(state.me.employee_id),token=state.sessionToken,contextEpoch=sessionContextEpoch,expectedUpdatedAt=fingerprintExpectedUpdatedAt(row);
+  let remoteDeleteStarted=false;fingerprintPhotoPending=true;renderFingerprintDetail(key);showLoading(true);
+  try{
+    if(!configured()){
+      const rows=localFingerprintRecords(),idx=rows.findIndex(r=>r.record_date===key),current=idx>=0?rows[idx]:null;
+      assertLocalFingerprintFresh(current,expectedUpdatedAt);if(idx<0||!current?.[kind])throw new Error('STALE_FINGERPRINT');
+      delete current[kind];current.confirmed=false;current.confirmed_at=null;current.updated_at=new Date().toISOString();
+      if(!current.clock_in&&!current.clock_out)rows.splice(idx,1);else rows[idx]=current;saveLocalFingerprintRecords(rows);
+    }else{
+      if(fingerprintCurrentSharedSessionMismatch()){
+        fingerprintScheduleSharedSessionReconcile();
+        $('fingerprintDetailError').textContent='다른 탭에서 로그인 상태가 변경되어 사진 삭제를 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.';
+        return;
+      }
+      remoteDeleteStarted=true;
+      await rpc('delete_my_fingerprint_photo',{p_token:token,p_date:key,p_kind:kind,p_expected_updated_at:expectedUpdatedAt},{timeoutMs:FINGERPRINT_WRITE_RPC_TIMEOUT_MS});
+    }
+    if(!sessionContextCurrent(actor,token,{epoch:contextEpoch}))return;
+    if(configured())applyFingerprintMutationHint(key,{action:'delete',kind,expectedUpdatedAt});
+    const synced=await resyncFingerprintAfterMutation(key,`${fingerprintKindLabel(kind)} 지문 사진 삭제`);
+    showPostMutationResult(`${fingerprintKindLabel(kind)} 지문 사진을 삭제했습니다.`,`사진 삭제는 완료됐지만 최신 표시를 다시 불러오지 못했습니다. 새로고침 후 확인해 주세요.`,synced);
+  }catch(e){
+    if(!sessionContextCurrent(actor,token,{epoch:contextEpoch})||state.selectedDate!==key)return;
+    const recovered=remoteDeleteStarted&&await recoverFingerprintMutationState(key,`${fingerprintKindLabel(kind)} 지문 사진 삭제 결과 확인`,e,actor,token,contextEpoch);
+    if(!recovered&&sessionContextCurrent(actor,token,{epoch:contextEpoch})&&state.selectedDate===key)$('fingerprintDetailError').textContent=userSafeServiceError(e,'사진 삭제에 실패했습니다.');
+  }finally{
+    if(sessionContextCurrent(actor,token,{epoch:contextEpoch})){
+      fingerprintPhotoPending=false;
+      const keepError=$('fingerprintDetailError')?.textContent||'';
+      if(state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open')){renderFingerprintDetail(key);if(keepError)$('fingerprintDetailError').textContent=keepError;}
+      showLoading(false);
+    }
+  }
+}
+async function toggleFingerprintConfirmed(checked){
+  const key=state.selectedDate,row=key?fingerprintRecordForDate(key):null;
+  if(!key||state.view!=='mine'||!state.me||fingerprintPhotoPending||fingerprintConfirmPending)return;
+  if(accountReadOnly()){renderFingerprintDetail(key);$('fingerprintDetailError').textContent='현재 계정에서는 지문 확인 상태를 변경할 수 없습니다.';return;}
+  if(configured()&&state.fingerprintBackendReady!==true){renderFingerprintDetail(key);$('fingerprintDetailError').textContent='지문 기록을 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
+  if(checked&&!fingerprintPersonnelReady()){renderFingerprintDetail(key);$('fingerprintDetailError').textContent='인사이력 정보를 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
+  if(checked&&!fingerprintDateNotFuture(key)){renderFingerprintDetail(key);$('fingerprintDetailError').textContent='미래 날짜에는 지문 확인 완료를 새로 설정할 수 없습니다.';return;}
+  if(checked&&!fingerprintDateOperational(key)){renderFingerprintDetail(key);$('fingerprintDetailError').textContent='재직·근무 배치 기간 밖 날짜에는 지문 확인 완료를 새로 설정할 수 없습니다.';return;}
+  if(checked&&!(row?.has_clock_in&&row?.has_clock_out)){renderFingerprintDetail(key);return;}
+  const actor=Number(state.me.employee_id),token=state.sessionToken,contextEpoch=sessionContextEpoch,expectedUpdatedAt=fingerprintExpectedUpdatedAt(row);
+  let remoteConfirmStarted=false;fingerprintConfirmPending=true;renderFingerprintDetail(key);showLoading(true);
+  try{
+    if(!configured()){
+      const rows=localFingerprintRecords(),idx=rows.findIndex(r=>r.record_date===key),current=idx>=0?rows[idx]:null;
+      assertLocalFingerprintFresh(current,expectedUpdatedAt);if(idx<0)throw new Error('STALE_FINGERPRINT');
+      if(checked&&!(current.clock_in&&current.clock_out))throw new Error('STALE_FINGERPRINT');
+      current.confirmed=!!checked;current.confirmed_at=checked?new Date().toISOString():null;current.updated_at=new Date().toISOString();rows[idx]=current;saveLocalFingerprintRecords(rows);
+    }else{
+      if(fingerprintCurrentSharedSessionMismatch()){
+        fingerprintScheduleSharedSessionReconcile();
+        $('fingerprintDetailError').textContent='다른 탭에서 로그인 상태가 변경되어 지문 확인 상태 저장을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.';
+        return;
+      }
+      remoteConfirmStarted=true;
+      await rpc('set_my_fingerprint_confirmed',{p_token:token,p_date:key,p_confirmed:!!checked,p_expected_updated_at:expectedUpdatedAt},{timeoutMs:FINGERPRINT_WRITE_RPC_TIMEOUT_MS});
+    }
+    if(!sessionContextCurrent(actor,token,{epoch:contextEpoch}))return;
+    if(configured())applyFingerprintMutationHint(key,{action:'confirm',confirmed:!!checked,expectedUpdatedAt});
+    const synced=await resyncFingerprintAfterMutation(key,'지문 확인 상태 저장');
+    showPostMutationResult(checked?'✓ 출·퇴근 지문 확인을 완료했습니다.':'지문 확인 완료를 해제했습니다.','확인 상태 저장은 완료됐지만 최신 표시를 다시 불러오지 못했습니다. 새로고침 후 확인해 주세요.',synced);
+  }catch(e){
+    if(!sessionContextCurrent(actor,token,{epoch:contextEpoch})||state.selectedDate!==key)return;
+    const recovered=remoteConfirmStarted&&await recoverFingerprintMutationState(key,'지문 확인 상태 저장 결과 확인',e,actor,token,contextEpoch);
+    if(!recovered&&sessionContextCurrent(actor,token,{epoch:contextEpoch})&&state.selectedDate===key)$('fingerprintDetailError').textContent=userSafeServiceError(e,'지문 확인 상태 저장에 실패했습니다.');
+  }finally{
+    if(sessionContextCurrent(actor,token,{epoch:contextEpoch})){
+      fingerprintConfirmPending=false;
+      const keepError=$('fingerprintDetailError')?.textContent||'';
+      if(state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open')){renderFingerprintDetail(key);if(keepError)$('fingerprintDetailError').textContent=keepError;}
+      showLoading(false);
+    }
+  }
+}
+
+
 async function loadMonthData(silent=false,markSync=true){
   const seq=++monthDataLoadSeq;
   if(!state.me)return false;
@@ -4371,12 +4965,13 @@ async function loadMonthData(silent=false,markSync=true){
     state.attendance=(data||[]).map(r=>({...r,id:Number(r.id),employee_id:Number(r.employee_id),attendance_type:normalizeAttendanceType(r.attendance_type),annual_leave_deduct:r.annual_leave_deduct===true?true:(r.annual_leave_deduct===false?false:null)}));
     const holidaySynced=await loadHolidayWorks(); if(!stillCurrent())return false;
     const overtimeSynced=await loadOvertimeData(from,to); if(!stillCurrent())return false;
+    const fingerprintSynced=await loadFingerprintRecords(from,to,{silentLoadingUi:!!silent}); if(!stillCurrent())return false;
     const memoSynced=await loadMonthMemos(from,to); if(!stillCurrent())return false;
     const ddaySynced=await loadMemoDdays(); if(!stillCurrent())return false;
-    $('statusLine').textContent=configured()?'':'테스트 모드 · 이 기기에만 저장';
     // 시각 갱신은 이 로더를 호출한 상위 동기화 작업에서 담당한다.
     // 그래야 같은 새로고침 주기의 사내일정/전용화면 실패 전에 시각이 먼저 갱신되지 않는다.
-    const healthy=holidaySynced!==false&&overtimeSynced!==false&&memoSynced!==false&&ddaySynced!==false&&coreMonthSyncHealthy();
+    const healthy=holidaySynced!==false&&overtimeSynced!==false&&fingerprintSynced!==false&&memoSynced!==false&&ddaySynced!==false&&coreMonthSyncHealthy();
+    $('statusLine').textContent=configured()?(healthy?'':'일부 데이터를 불러오지 못했습니다. 새로고침해 주세요.'):'테스트 모드 · 이 기기에만 저장';
     if(markSync&&healthy&&!['leave','longservice'].includes(state.view)&&currentViewSyncHealthy())markSuccessfulSync();
     return healthy;
   }catch(e){
@@ -4394,6 +4989,14 @@ async function refresh(source='manual'){
   const detailSnapshotAtStart=detailOpenAtStart?JSON.stringify({holiday:detailHolidaySnapshot(),overtime:detailOvertimeSnapshot(),memo:detailMemoSnapshot()}):null;
   const detailDirtyAtStart=detailHasUnsavedChanges(),unsavedAtStart=appHasUnsavedChanges();
   if(manual&&unsavedAtStart&&!confirm('저장하지 않은 내용이 있습니다. 새로고침 과정에서 현재 입력이 영향을 받을 수 있습니다. 그래도 새로고침할까요?'))return;
+  // 직원/권한 조회부터 목록·전용화면·사내일정까지 전체 refresh 수명주기를 직렬화합니다.
+  // 자동 Realtime이 수동 새로고침을 더 최신 seq로 밀어내 사용자가 요청한 전용화면 재조회를 건너뛰지 않게 합니다.
+  if(refreshPendingOwner){
+    if(source==='realtime'){realtimeNeedsCatchup=true;scheduleRealtimeRefresh(650);}
+    else showToast('이미 새로고침 중입니다. 잠시 후 다시 시도해 주세요.','info');
+    return;
+  }
+  const refreshOwner=++refreshPendingSerial;refreshPendingOwner=refreshOwner;
   const seq=++refreshLoadSeq,actor=Number(state.me.employee_id),token=state.sessionToken,contextEpoch=sessionContextEpoch,navigationSeqAtStart=monthNavigationSeq;
   const stillCurrent=()=>seq===refreshLoadSeq&&sessionContextCurrent(actor,token,{epoch:contextEpoch});
   const stopForPendingOperation=()=>{
@@ -4416,7 +5019,7 @@ async function refresh(source='manual'){
     const employeesSynced=await loadEmployees(); if(!stillCurrent()||stopForPendingOperation())return;
     const accountSynced=await loadAccountStatus(); if(!stillCurrent()||stopForPendingOperation())return;
     if(stopForNewerNavigation())return;
-    const monthSynced=await loadMonthData(false,false); if(!stillCurrent()||stopForPendingOperation())return;
+    const monthSynced=await loadMonthData(source==='realtime',false); if(!stillCurrent()||stopForPendingOperation())return;
     if(stopForNewerNavigation())return;
     const afterUiContext=`${state.me.employee_id}|${state.me.is_admin?'1':'0'}|${state.me.is_read_only?'1':'0'}|${state.me.is_disabled?'1':'0'}|${state.me.category||''}|${state.me.group_code||''}`;
     const detailOpenNow=!!$('detailBackdrop')?.classList.contains('open');
@@ -4429,24 +5032,28 @@ async function refresh(source='manual'){
     if($('memoListBackdrop')?.classList.contains('open')){await loadMemoList(false);if(!stillCurrent()||!navigationUnchanged()||stopForPendingOperation())return;}
     if($('holidayWorkListBackdrop')?.classList.contains('open')){await loadHolidayWorkList(false);if(!stillCurrent()||!navigationUnchanged()||stopForPendingOperation())return;}
     if($('overtimeListBackdrop')?.classList.contains('open')){await loadOvertimeList(false);if(!stillCurrent()||!navigationUnchanged()||stopForPendingOperation())return;}
-    let specialViewSynced=true;
+    let specialViewSynced=true,specialViewSkippedForDirty=false;
     // 자동/실시간 갱신은 사용자가 연차·장기 설정을 입력 중이면 해당 설정 화면을 다시 불러오지 않는다.
     // 로딩 중 잠깐 입력칸이 disabled되어 포커스를 잃거나 초안 편집이 끊기는 현상을 방지한다.
     if(state.view==='leave'){
-      if(source==='realtime'&&state.annualLeaveFormDirty)specialViewSynced=false;
+      if(source==='realtime'&&state.annualLeaveFormDirty){specialViewSynced=false;specialViewSkippedForDirty=true;}
       else{specialViewSynced=await loadAnnualLeaveData(false);if(!stillCurrent()||!navigationUnchanged()||stopForPendingOperation())return;}
     }
     if(state.view==='longservice'){
-      if(source==='realtime'&&state.longServiceFormDirty)specialViewSynced=false;
+      if(source==='realtime'&&state.longServiceFormDirty){specialViewSynced=false;specialViewSkippedForDirty=true;}
       else{specialViewSynced=await loadLongServiceData(false);if(!stillCurrent()||!navigationUnchanged()||stopForPendingOperation())return;}
     }
     if(!stillCurrent()||!navigationUnchanged()||stopForPendingOperation())return;
     const companyEventsSynced=await loadCompanyEvents(true);if(!stillCurrent()||!navigationUnchanged()||stopForPendingOperation())return;
-    if(employeesSynced!==false&&accountSynced!==false&&monthSynced!==false&&specialViewSynced!==false&&companyEventsSynced!==false&&currentViewSyncHealthy())markSuccessfulSync();
+    const refreshFailed=employeesSynced===false||accountSynced===false||monthSynced===false||companyEventsSynced===false||(specialViewSynced===false&&!specialViewSkippedForDirty)||(!currentViewSyncHealthy()&&!specialViewSkippedForDirty);
+    if(refreshFailed)$('statusLine').textContent='일부 데이터를 불러오지 못했습니다. 새로고침해 주세요.';
+    if(!refreshFailed&&specialViewSynced!==false&&currentViewSyncHealthy())markSuccessfulSync();
   }catch(e){
     if(!stillCurrent())return;
     $('statusLine').textContent='데이터를 새로고침하지 못했습니다.';
     if(isConfirmedSessionExpired(e)) await logout(false);
+  }finally{
+    if(refreshPendingOwner===refreshOwner)refreshPendingOwner=0;
   }
 }
 async function logout(callServer=true){
@@ -4458,7 +5065,7 @@ async function logout(callServer=true){
   const realtimeStopPromise=stopRealtime();
   if(state.sessionToken!==logoutToken)return;
   invalidateSessionBoundLoads();++monthNavigationSeq;resetSessionUiContext();showLoading(false);
-  clearStoredLoginSession(logoutToken);state.sessionToken='';state.me=null;state.initialPinRequired=false;state.accountStatusBackendReady=null;state.employees=[];state.holidayWorkEligibilityReady=null;state.attendance=[];state.attendanceAnnualLeaveBackendReady=null;state.holidayWorks=[];state.holidayWorkBackendReady=null;state.overtimeEntries=[];state.overtimeBackendReady=null;state.overtimeConfirmations=[];state.overtimeConfirmBackendReady=null;state.memos=[];state.memoBackendReady=null;state.memoDdays=[];state.memoDdayBackendReady=null;memoDdayPendingDates.clear();state.companyEvents=[];state.companyEventBackendReady=null;state.annualLeaveSettings=null;state.annualLeaveEntries=[];state.annualLeaveBackendReady=null;state.annualLeaveYear=null;state.annualLeaveFormDirty=false;state.longServiceProfile=null;state.longServiceExclusions=[];state.longServiceEntries=[];state.longServiceBackendReady=null;state.longServiceFormDirty=false;state.personnelAssignments=[];state.personnelAccountEvents=[];state.personnelSnapshots=[];state.personnelBackendReady=null;state.view='mine';
+  clearStoredLoginSession(logoutToken);state.sessionToken='';state.me=null;state.initialPinRequired=false;state.accountStatusBackendReady=null;state.employees=[];state.holidayWorkEligibilityReady=null;state.attendance=[];state.attendanceAnnualLeaveBackendReady=null;state.holidayWorks=[];state.holidayWorkBackendReady=null;state.overtimeEntries=[];state.overtimeBackendReady=null;state.overtimeConfirmations=[];state.overtimeConfirmBackendReady=null;state.fingerprintRecords=[];state.fingerprintBackendReady=null;state.memos=[];state.memoBackendReady=null;state.memoDdays=[];state.memoDdayBackendReady=null;memoDdayPendingDates.clear();state.companyEvents=[];state.companyEventBackendReady=null;state.annualLeaveSettings=null;state.annualLeaveEntries=[];state.annualLeaveBackendReady=null;state.annualLeaveYear=null;state.annualLeaveFormDirty=false;state.longServiceProfile=null;state.longServiceExclusions=[];state.longServiceEntries=[];state.longServiceBackendReady=null;state.longServiceFormDirty=false;state.personnelAssignments=[];state.personnelAccountEvents=[];state.personnelSnapshots=[];state.personnelBackendReady=null;state.view='mine';
   overtimeListRows=[];overtimeListTargetEmployeeId=null;
   holidayWorkListRows=[];holidayWorkListBackendReady=null;holidayWorkPastExpanded=false;holidayWorkListEditReturnMode=null;
   memoListRows=[];memoListBackendReady=null;memoSelectedDates.clear();memoDeleteMode=false;
@@ -4698,8 +5305,8 @@ function renderCalendar(){
       const day=weekDays[offset];
       if(!day){html+='<div class="day-cell blank"></div>';continue;}
       const {d,key}=day,wd=new Date(state.year,state.month,d).getDay(); const holiday=HOLIDAYS[key]||'';
-      const term=state.view==='mine'?(SOLAR_TERMS[key]||''):''; const mineRecords=state.view==='mine'?myRecordsForDate(key):[]; const mineRecordCount=mineRecords.length; const memo=state.view==='mine'?memoForDate(key):null; const memoPreviewVisible=!!(memo&&state.memoDisplay); const hasOvertime=state.view==='mine'&&overtimeRowsForDate(key).length>0;
-      const cls=['day-cell',wd===0?'sun':'',wd===6?'sat':'',holiday?'holiday':'',today===key?'today':'',term?'has-term':'',mineRecordCount?'has-attendance':'',memoPreviewVisible?'has-memo-preview':'',hasOvertime?'has-overtime':''].filter(Boolean).join(' ');
+      const term=state.view==='mine'?(SOLAR_TERMS[key]||''):''; const mineRecords=state.view==='mine'?myRecordsForDate(key):[]; const mineRecordCount=mineRecords.length; const memo=state.view==='mine'?memoForDate(key):null; const memoPreviewVisible=!!(memo&&state.memoDisplay); const hasOvertime=state.view==='mine'&&overtimeRowsForDate(key).length>0; const fingerprintMark=state.view==='mine'?fingerprintCalendarMarkup(key):''; const hasFingerprint=!!fingerprintMark;
+      const cls=['day-cell',wd===0?'sun':'',wd===6?'sat':'',holiday?'holiday':'',today===key?'today':'',term?'has-term':'',mineRecordCount?'has-attendance':'',memoPreviewVisible?'has-memo-preview':'',hasOvertime?'has-overtime':'',hasFingerprint?'has-fingerprint':''].filter(Boolean).join(' ');
       let body='';
       if(state.view==='mine'){
         const emp=state.employees.find(e=>e.id===state.me.employee_id); const shift=(emp&&employeeOperationalOn(emp,key))?shiftForEmployee(emp,state.year,state.month,d):''; const hw=holidayWorkForMe(key); body=(hw&&isHolidayWorkEmployee(emp,key))?holidayWorkMarkup(hw):(shift?shiftMarkup(shift):'<div class="shift-wrap"><span style="color:#c4c7cc;font-weight:800">-</span></div>');
@@ -4711,7 +5318,7 @@ function renderCalendar(){
       }
       const memoMark=memo?'<span class="memo-mark" title="개인 메모 있음" aria-label="개인 메모 있음">✎</span>':'';
       const memoPreview=memoPreviewVisible?`<div class="memo-preview" title="${escapeHtml(memo.memo_text)}">${escapeHtml(memo.memo_text)}</div>`:'';
-      html+=`<button type="button" class="${cls}" data-date="${key}"><div class="day-head"><span class="day-num">${d}</span>${memoMark}${holiday?`<span class="holiday-mini">${escapeHtml(holiday)}</span>`:''}</div>${body}${memoPreview}${term?`<span class="calendar-term-mini">${escapeHtml(term)}</span>`:''}</button>`;
+      html+=`<button type="button" class="${cls}" data-date="${key}"><div class="day-head"><span class="day-num">${d}</span>${memoMark}${holiday?`<span class="holiday-mini">${escapeHtml(holiday)}</span>`:''}</div>${fingerprintMark?`<div class="fingerprint-marker-row">${fingerprintMark}</div>`:''}${body}${memoPreview}${term?`<span class="calendar-term-mini">${escapeHtml(term)}</span>`:''}</button>`;
     }
     html+=overlay.html+'</div>';
   }
@@ -4793,7 +5400,7 @@ function openBackdrop(id){
   if(!alreadyOpen)setTimeout(()=>focusTopBackdrop(el),0);
 }
 function backdropOperationPending(id){
-  if(id==='detailBackdrop')return overtimeDaySavePending||memoSavePending||memoDeletePendingDates.size>0||holidayWorkSavePendingKeys.size>0||holidayWorkDeletePendingKeys.size>0;
+  if(id==='detailBackdrop')return overtimeDaySavePending||memoSavePending||memoDeletePendingDates.size>0||holidayWorkSavePendingKeys.size>0||holidayWorkDeletePendingKeys.size>0||fingerprintPhotoPending||fingerprintConfirmPending||fingerprintViewPending;
   if(id==='formBackdrop'||id==='attendanceListBackdrop'||id==='allAttendanceListBackdrop')return attendanceSavePending||attendanceDeletePendingIds.size>0;
   if(id==='memoListBackdrop')return memoBulkDeletePending||memoDdayPendingDates.size>0;
   if(id==='holidayWorkListBackdrop')return holidayWorkSavePendingKeys.size>0||holidayWorkDeletePendingKeys.size>0;
@@ -4824,6 +5431,7 @@ function closeBackdrop(id,force=false){
   if(id==='employeeAccountBackdrop'){ employeeAccountInitial=null; pendingEmployeeAccountId=null; }
   el.classList.remove('open');
   el.setAttribute('aria-hidden','true');
+  if(id==='fingerprintPhotoBackdrop')clearFingerprintPhotoEphemera();
   el.style.zIndex='';
   const returnFocus=backdropReturnFocus.get(id); backdropReturnFocus.delete(id);
   const openBackdropAfterClose=topOpenBackdrop();
@@ -4847,6 +5455,7 @@ function closeBackdrop(id,force=false){
   return true;
 }
 function closeAll(){
+  clearFingerprintPhotoEphemera();
   companyEventManageEditId=null;companyEventManageInitial=null;companyEventManageSourceSnapshot=null;companyEventSavePending=false;companyEventDeletePendingIds.clear();companyEventPastExpanded=false;detailDraftBaseline={key:null,holiday:null,overtime:null,memo:null};detailRecordBaseline={key:null,holiday:null,overtime:null,memo:null};personnelEditorInitial=null;personnelEditorSourceSnapshot=null;employeeAccountInitial=null;pendingEmployeeAccountId=null;if(personnelEditor?.impactTimer){clearTimeout(personnelEditor.impactTimer);personnelEditor.impactTimer=null;}
   holidayWorkListEditContext=false; holidayWorkListEditTargetEmployeeId=null; holidayWorkDetailTargetEmployeeId=null; holidayWorkListEditReturnMode=null; attendanceFormRosterContext=null; attendanceFormOpenedAsAdmin=false; attendanceFormInitial=null; attendanceFormSourceSnapshot=null; setAttendanceFormViewOnly(false); if($('targetEmployee')) $('targetEmployee').disabled=false;
   document.querySelectorAll('.backdrop.open').forEach(b=>{b.classList.remove('open');b.setAttribute('aria-hidden','true');b.style.zIndex=''});
@@ -4932,7 +5541,7 @@ function appHasUnsavedChanges(){return detailHasUnsavedChanges()||attendanceForm
 function appHasPendingOperation({includeSessionRestore=true}={}){
   // 세션 복원은 자동업데이트/공유세션 reload와는 겹치면 안 되지만, 사용자 데이터 저장 작업은 아니다.
   // includeSessionRestore=false를 쓰는 beforeunload에서는 세션 확인만으로 '저장되지 않을 수 있음' 경고를 띄우지 않는다.
-  return !!((includeSessionRestore&&sessionRestoreInFlight)||dataManagementBusy||loginPending||overtimeDaySavePending||overtimeConfirmPending||overtimeListPendingIds.size||memoSavePending||memoDeletePendingDates.size||memoBulkDeletePending||memoDdayPendingDates.size||holidayWorkSavePendingKeys.size||holidayWorkDeletePendingKeys.size||annualLeaveSavePending||longServiceSavePending||attendanceSavePending||attendanceDeletePendingIds.size||companyEventSavePending||companyEventDeletePendingIds.size||employeeActionSavePending||employeeAccountSavePending||personnelBatchSavePending||personnelBatchCancelPendingIds.size||personnelSnapshotRestorePending||resetCurrentPinsPending||holidayWorkEligibilityPendingIds.size||selfPinChangePending);
+  return !!((includeSessionRestore&&sessionRestoreInFlight)||dataManagementBusy||loginPending||overtimeDaySavePending||overtimeConfirmPending||overtimeListPendingIds.size||fingerprintPhotoPending||fingerprintConfirmPending||memoSavePending||memoDeletePendingDates.size||memoBulkDeletePending||memoDdayPendingDates.size||holidayWorkSavePendingKeys.size||holidayWorkDeletePendingKeys.size||annualLeaveSavePending||longServiceSavePending||attendanceSavePending||attendanceDeletePendingIds.size||companyEventSavePending||companyEventDeletePendingIds.size||employeeActionSavePending||employeeAccountSavePending||personnelBatchSavePending||personnelBatchCancelPendingIds.size||personnelSnapshotRestorePending||resetCurrentPinsPending||holidayWorkEligibilityPendingIds.size||selfPinChangePending);
 }
 function confirmLeaveDirtySettings(label='현재 입력'){
   if(!settingsHaveUnsavedChanges())return true;
@@ -4976,6 +5585,9 @@ function syncOpenDetailPermissionsPreservingDraft(){
     $('memoPrivateBadge').textContent=ro?'조회 전용':(!dateWritable?'재직기간 외':(backendLoading?'불러오는 중':(backendBad?'연결 확인':'나만 보임')));
     $('memoDetailError').textContent=ro?'조회 전용 계정으로 변경되어 현재 작성 중 내용은 저장할 수 없습니다.':(!dateWritable?'본인의 재직기간에 해당하는 날짜에만 메모를 저장·수정·삭제할 수 있습니다.':(backendLoading?'메모 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.':(backendBad?'메모 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.':'')));
   }
+  // 다른 상세항목의 미저장 초안을 보존하는 realtime 권한 갱신에서도
+  // 지문 영역은 초안이 없으므로 현재 계정/인사이력 기준으로 즉시 다시 잠금·해제한다.
+  if(state.view==='mine')renderFingerprintDetail(key);
   // 조회전용/권한부족 상태에서 상세창을 연 뒤 수정 권한이 생긴 경우에는
   // 당시에는 baseline이 null이어서 이후 입력을 미저장으로 감지하지 못할 수 있다.
   // 새로 쓰기 가능해지는 순간의 현재 서버 표시값을 기준값으로 잡아 이후 초안을 정상 보호한다.
@@ -5038,6 +5650,8 @@ function applyInitialDetailSectionCollapse(key,{showHolidayWork=false,mineView=f
   if(mineView){
     const overtimeDataConfirmed=!configured()||state.overtimeBackendReady===true;
     const memoDataConfirmed=!configured()||state.memoBackendReady===true;
+    const fingerprintDataConfirmed=!configured()||state.fingerprintBackendReady===true;
+    setDetailSectionCollapsed('fingerprintDetailSection','fingerprintDetailToggleBtn',fingerprintDataConfirmed&&!fingerprintRecordForDate(key));
     setDetailSectionCollapsed('overtimeDetailSection','overtimeDetailToggleBtn',overtimeDataConfirmed&&overtimeRowsForDate(key).length===0);
     setDetailSectionCollapsed('memoDetailSection','memoDetailToggleBtn',memoDataConfirmed&&!memoForDate(key));
   }
@@ -5062,6 +5676,8 @@ function renderDetail(key){
     }
     renderHolidayWorkDetail(key);
   }
+  $('fingerprintDetailSection').classList.toggle('hidden',!mineView);
+  if(mineView) renderFingerprintDetail(key);
   $('overtimeDetailSection').classList.toggle('hidden',!mineView);
   if(mineView) renderOvertimeDetail(key);
   $('memoDetailSection').classList.toggle('hidden',!mineView);
@@ -6744,9 +7360,12 @@ async function loadAccountStatus(){
 }
 function accountReadOnly(){
   if(!state.me)return true;
+  // 서버가 직접 최신 계정상태를 조회해 잠근 값은 인사 캐시보다 우선합니다.
+  // 인사이력 캐시가 순간적으로 이전 active 상태여도 readonly/disabled를 다시 풀지 않습니다.
+  if(state.me.is_read_only||state.me.is_disabled)return true;
   const emp=state.employees.find(e=>Number(e.id)===Number(state.me.employee_id));
   if(emp&&(state.personnelBackendReady===true||!configured())) return employeeAccountStatusOn(emp,todayKey())!=='active';
-  return !!state.me.is_read_only||!!state.me.is_disabled;
+  return false;
 }
 function activeAdminMode(){ return !!state.me?.is_admin&&!accountReadOnly(); }
 function employeeHasHolidayWorkHistory(emp){
@@ -7545,6 +8164,9 @@ function handleSharedSessionStorageChange(e){
   // 현재 탭이 임시 세션을 사용 중인데 sessionStorage 값만 일시적으로 유실된 경우에도,
   // 다른 탭의 공유 로그인 변경이 현재 탭 계정을 강제로 바꾸지 않게 한다.
   if(current && tabToken!==current && oldShared!==current)return;
+  // 현재 탭이 실제로 변경 전 shared 세션을 사용 중이었다면 민감 사진은 세션 전환 대기 중에도 즉시 숨깁니다.
+  // PC sessionStorage 탭 전용 세션은 fingerprintCurrentSharedSessionMismatch()가 false이므로 영향받지 않습니다.
+  if(fingerprintCurrentSharedSessionMismatch()&&$('fingerprintPhotoBackdrop')?.classList.contains('open'))closeBackdrop('fingerprintPhotoBackdrop',true);
   sharedSessionChangePending=true;sharedSessionUnsavedDeferred=false;
   reconcileSharedSessionIfNeeded();
 }
@@ -7637,8 +8259,17 @@ function wire(){
   $('companyEventsBanner').addEventListener('click',openCompanyEvents);
   $('companyEventsManageBtn').addEventListener('click',openCompanyEventManage);
   $('holidayWorkToggleBtn').addEventListener('click',()=>toggleDetailSection('holidayWorkDetailSection','holidayWorkToggleBtn'));
+  $('fingerprintDetailToggleBtn').addEventListener('click',()=>toggleDetailSection('fingerprintDetailSection','fingerprintDetailToggleBtn'));
   $('overtimeDetailToggleBtn').addEventListener('click',()=>toggleDetailSection('overtimeDetailSection','overtimeDetailToggleBtn'));
   $('memoDetailToggleBtn').addEventListener('click',()=>toggleDetailSection('memoDetailSection','memoDetailToggleBtn'));
+  $('fingerprintClockInUploadBtn').addEventListener('click',()=>selectFingerprintPhoto('clock_in'));
+  $('fingerprintClockOutUploadBtn').addEventListener('click',()=>selectFingerprintPhoto('clock_out'));
+  $('fingerprintClockInViewBtn').addEventListener('click',()=>viewFingerprintPhoto('clock_in'));
+  $('fingerprintClockOutViewBtn').addEventListener('click',()=>viewFingerprintPhoto('clock_out'));
+  $('fingerprintClockInDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_in'));
+  $('fingerprintClockOutDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_out'));
+  $('fingerprintPhotoInput').addEventListener('change',e=>{const file=e.target.files?.[0]||null,picker=fingerprintPickerContext;if(file)void handleFingerprintPhotoInput(file,picker);else clearFingerprintPickerContext();});
+  $('fingerprintConfirmed').addEventListener('change',e=>void toggleFingerprintConfirmed(e.target.checked));
   $('holidayWorkRetryBtn').addEventListener('click',retryHolidayWorkDetail);
   $('overtimeRetryBtn').addEventListener('click',retryOvertimeDetail);
   $('memoRetryBtn').addEventListener('click',retryMemoDetail);
@@ -7804,15 +8435,45 @@ function wire(){
   $('currentEmployeeList').addEventListener('change',e=>{const input=e.target.closest('[data-holiday-work-enabled]');if(input)void changeHolidayWorkEligibility(input);});
   $('startDate').addEventListener('change',()=>{ if(activeAdminMode()) populateTargetEmployees($('startDate').value,$('targetEmployee').value); updateAttendanceLeaveUI(); });
   $('targetEmployee').addEventListener('change',updateAttendanceLeaveUI);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkForAppUpdate();if(reconcileSharedSessionIfNeeded())return;if(state.initialPinRequired){void recheckInitialPinGate();return;}if(state.me){requestRealtimeCatchup({markCatchup:true});if(!realtimeChannel)startRealtime();}else if(state.sessionToken){clearSessionRestoreRetry(false); restoreSession(true);}}});
+  function markFingerprintBackgroundResume(){
+    fingerprintForegroundResumeEpoch++;
+  }
+  function resumeFingerprintForegroundOnce(){
+    if(document.hidden||fingerprintForegroundResumeHandledEpoch===fingerprintForegroundResumeEpoch)return;
+    fingerprintForegroundResumeHandledEpoch=fingerprintForegroundResumeEpoch;
+    checkForAppUpdate();if(reconcileSharedSessionIfNeeded())return;
+    if(state.initialPinRequired){void recheckInitialPinGate();return;}
+    if(state.me){requestRealtimeCatchup({markCatchup:true});if(!realtimeChannel)startRealtime();}
+    else if(state.sessionToken){clearSessionRestoreRetry(false);restoreSession(true);}
+  }
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){
+      markFingerprintBackgroundResume();
+      // 지문 사진을 열어 둔 채 앱을 벗어나면 최근 앱 미리보기/메모리에 민감 사진이 오래 남지 않게 즉시 닫습니다.
+      if($('fingerprintPhotoBackdrop')?.classList.contains('open'))closeBackdrop('fingerprintPhotoBackdrop',true);
+      return;
+    }
+    resumeFingerprintForegroundOnce();
+  });
+  window.addEventListener('pageshow',e=>{if(e.persisted)resumeFingerprintForegroundOnce();});
   window.addEventListener('storage',handleSharedSessionStorageChange);
   window.addEventListener('online',()=>{if(reconcileSharedSessionIfNeeded())return;if(state.initialPinRequired){void recheckInitialPinGate();return;}if(state.me){setRealtimeStatus('connecting');scheduleRealtimeReconnect(150);requestRealtimeCatchup({markCatchup:true});}else if(state.sessionToken){clearSessionRestoreRetry(false);restoreSession(true)}});
   window.addEventListener('offline',()=>{if(state.me){realtimeNeedsCatchup=true;setRealtimeStatus('offline')}});
+  window.addEventListener('pagehide',()=>{
+    fingerprintPageLifecycleEpoch++;
+    markFingerprintBackgroundResume();
+    clearFingerprintPickerContext();
+    // 읽기 요청은 서버 상태를 바꾸지 않으므로 BFCache 진입 시 즉시 취소해 복원 직후 다시 열 수 있게 합니다.
+    // 옛 요청의 catch/finally는 lifecycle epoch 불일치로 새 요청 상태를 건드리지 않습니다.
+    if(fingerprintViewPending){fingerprintViewPending=false;showLoading(false);}
+    if($('fingerprintPhotoBackdrop')?.classList.contains('open'))closeBackdrop('fingerprintPhotoBackdrop',true);else clearFingerprintPhotoEphemera();
+  });
   window.addEventListener('beforeunload',e=>{if(!appHasUnsavedChanges()&&!appHasPendingOperation({includeSessionRestore:false}))return;e.preventDefault();e.returnValue='';});
   // 백업·복원·초기화 중에는 60초 자동 재조회도 겹치지 않는다. 외부 변경 신호가 있었다면
   // Realtime 경로가 realtimeNeedsCatchup을 세우고 작업 종료 뒤 한 번만 따라잡는다.
   setInterval(()=>{if(state.me&&!state.initialPinRequired&&!document.hidden)requestRealtimeCatchup()},60000);
 }
+
 
 restoreUpdateSessionHandoff(); cleanupVersionQuery(); restoreTheme(); restoreTextSizeLevel(); setupLoginPersistenceUI(); syncVersionFooter(); wire(); wireDataManagement(); toggleAdminPinField(); startVersionWatcher(); restoreSession();
 </script>
