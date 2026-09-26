@@ -169,13 +169,12 @@
   .fingerprint-confirm-row{margin-top:9px;padding:8px 9px;border-radius:10px;background:#fff;border:1px solid #ccfbf1;display:flex;align-items:center;gap:7px;font-size:.78rem;font-weight:900;color:#134e4a}.fingerprint-confirm-row input{width:17px;height:17px;margin:0;accent-color:#0f766e}.fingerprint-confirm-row.disabled{color:#94a3b8;background:#f8fafc}.fingerprint-detail-error{min-height:18px;margin-top:6px;color:#b91c1c;font-size:.73rem;font-weight:800;line-height:1.4}.fingerprint-private-note{margin-top:5px;font-size:.67rem;color:#64748b;font-weight:750}.fingerprint-private-badge{display:inline-flex;align-items:center;min-height:23px;border-radius:999px;padding:3px 7px;background:#ccfbf1;color:#0f766e;font-size:.66rem;font-weight:950;white-space:nowrap}
   .fingerprint-viewer-img{display:block;width:100%;max-height:68dvh;object-fit:contain;background:#0f172a;border-radius:10px}.fingerprint-viewer-meta{margin:7px 0 0;color:#64748b;font-size:.73rem;font-weight:800;text-align:center}
   .fingerprint-source-modal{max-width:460px;padding-bottom:14px}
-  .fingerprint-source-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:8px}
+  .fingerprint-source-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px}
   .fingerprint-source-btn{min-height:112px;border:1px solid #e5e7eb;border-radius:16px;background:#fff;color:#111827;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:12px 6px;font-weight:900;font-size:.82rem}
   .fingerprint-source-btn:active{transform:translateY(1px)}
   .fingerprint-source-icon{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center}
   .fingerprint-source-icon svg{width:30px;height:30px;display:block}
   .fingerprint-source-camera{background:#eef2ff;color:#4f46e5}
-  .fingerprint-source-gallery{background:linear-gradient(145deg,#ede9fe,#fce7f3);color:#7c3aed}
   .fingerprint-source-files{background:#fff7ed;color:#ea580c}
   .fingerprint-source-hint{margin-top:9px;color:#64748b;font-size:.69rem;font-weight:750;line-height:1.45;text-align:center}
   html[data-theme="dark"] .fingerprint-source-btn{background:#111827;color:#e5e7eb;border-color:#334155}
@@ -1166,7 +1165,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260926-1557 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260926-1604 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1677,11 +1676,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5h3l1.4-2h7.2l1.4 2h3a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13.5" r="4"/></svg>
         </span><span>카메라</span>
       </button>
-      <button id="fingerprintSourceGalleryBtn" class="fingerprint-source-btn" type="button">
-        <span class="fingerprint-source-icon fingerprint-source-gallery" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m5.5 18 4.8-5 3.2 3 2.1-2.2 2.9 4.2"/></svg>
-        </span><span>갤러리</span>
-      </button>
       <button id="fingerprintSourceFilesBtn" class="fingerprint-source-btn" type="button">
         <span class="fingerprint-source-icon fingerprint-source-files" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>
@@ -1715,7 +1709,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260926-1557';
+const APP_VERSION = 'ver20260926-1604';
 const UPDATE_HISTORY = [
   {version:'ver20260917-2153',date:'2026.09.17',items:['D-DAY 표시 기능 추가']},
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
@@ -8358,7 +8352,6 @@ function wire(){
   $('fingerprintClockOutDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_out'));
   $('closeFingerprintSourceBtn').addEventListener('click',closeFingerprintSourcePicker);
   $('fingerprintSourceCameraBtn').addEventListener('click',()=>openFingerprintInputPicker('camera'));
-  $('fingerprintSourceGalleryBtn').addEventListener('click',()=>openFingerprintInputPicker('gallery'));
   $('fingerprintSourceFilesBtn').addEventListener('click',()=>void openFingerprintFilePicker());
   $('fingerprintPhotoInput').addEventListener('change',e=>{
     const file=e.target.files?.[0]||null,picker=fingerprintPickerContext;
