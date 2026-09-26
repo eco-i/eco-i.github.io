@@ -1152,7 +1152,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260926-1535 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260926-1544 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1677,7 +1677,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260926-1535';
+const APP_VERSION = 'ver20260926-1544';
 const UPDATE_HISTORY = [
   {version:'ver20260917-2153',date:'2026.09.17',items:['D-DAY 표시 기능 추가']},
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
@@ -8268,7 +8268,25 @@ function wire(){
   $('fingerprintClockOutViewBtn').addEventListener('click',()=>viewFingerprintPhoto('clock_out'));
   $('fingerprintClockInDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_in'));
   $('fingerprintClockOutDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_out'));
-  $('fingerprintPhotoInput').addEventListener('change',e=>{const file=e.target.files?.[0]||null,picker=fingerprintPickerContext;if(file)void handleFingerprintPhotoInput(file,picker);else clearFingerprintPickerContext();});
+  $('fingerprintPhotoInput').addEventListener('change',e=>{
+    const file=e.target.files?.[0]||null,picker=fingerprintPickerContext;
+    if(!file){clearFingerprintPickerContext();return;}
+    // Android/PWA gallery pickers can dispatch `change` before the app is fully foreground again.
+    // Starting compression while document.hidden is still true makes the foreground safety guard abort
+    // the upload, which looks like the gallery selection did nothing. Let the picker round-trip settle,
+    // then process only after the page is visible again.
+    const start=()=>{if(!fingerprintPickerStillCurrent(picker)){clearFingerprintPickerContext();return;}void handleFingerprintPhotoInput(file,picker);};
+    setTimeout(()=>{
+      if(!document.hidden){start();return;}
+      let done=false,timer=0;
+      const cleanup=()=>{document.removeEventListener('visibilitychange',resume);window.removeEventListener('pageshow',resume);if(timer)clearTimeout(timer);};
+      const finish=()=>{if(done)return;done=true;cleanup();if(!document.hidden)start();else clearFingerprintPickerContext();};
+      const resume=()=>{if(!document.hidden)finish();};
+      document.addEventListener('visibilitychange',resume);
+      window.addEventListener('pageshow',resume);
+      timer=setTimeout(finish,15000);
+    },120);
+  });
   $('fingerprintConfirmed').addEventListener('change',e=>void toggleFingerprintConfirmed(e.target.checked));
   $('holidayWorkRetryBtn').addEventListener('click',retryHolidayWorkDetail);
   $('overtimeRetryBtn').addEventListener('click',retryOvertimeDetail);
