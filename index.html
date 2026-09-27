@@ -1152,7 +1152,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260926-1544 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260927-0940 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1677,7 +1677,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260926-1544';
+const APP_VERSION = 'ver20260927-0940';
 const UPDATE_HISTORY = [
   {version:'ver20260917-2153',date:'2026.09.17',items:['D-DAY 표시 기능 추가']},
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
@@ -4475,6 +4475,14 @@ function applyFingerprintMutationHint(key,{action,kind=null,confirmed=null,expec
   state.fingerprintRecords=normalizeFingerprintRows(rows);return true;
 }
 function fingerprintPersonnelReady(){return !configured()||state.personnelBackendReady===true;}
+async function ensureFingerprintPersonnelReady(actor,token,contextEpoch){
+  if(fingerprintPersonnelReady())return true;
+  if(!configured())return true;
+  try{
+    const ok=await loadPersonnelAssignments();
+    return ok!==false&&sessionContextCurrent(actor,token,{epoch:contextEpoch})&&fingerprintPersonnelReady();
+  }catch(_){return false;}
+}
 function fingerprintDateNotFuture(key){return !!key&&key<=todayKey();}
 function fingerprintDateOperational(key){
   if(!fingerprintPersonnelReady())return false;
@@ -4645,10 +4653,17 @@ async function selectFingerprintPhoto(kind){
   if(!state.selectedDate||state.view!=='mine'||!state.me||fingerprintPhotoPending||fingerprintConfirmPending)return;
   if(accountReadOnly()){showToast('조회 전용 계정에서는 사진을 등록할 수 없습니다.','info');return;}
   if(configured()&&state.fingerprintBackendReady!==true){$('fingerprintDetailError').textContent='지문 기록을 먼저 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
-  if(!fingerprintPersonnelReady()){$('fingerprintDetailError').textContent='인사이력 정보를 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
+  const ctx={actor:Number(state.me.employee_id),token:state.sessionToken,contextEpoch:sessionContextEpoch,key:state.selectedDate,kind};
+  if(!fingerprintPersonnelReady()){
+    $('fingerprintDetailError').textContent='인사이력을 다시 확인하고 있습니다…';
+    if(!await ensureFingerprintPersonnelReady(ctx.actor,ctx.token,ctx.contextEpoch)){
+      if(sessionContextCurrent(ctx.actor,ctx.token,{epoch:ctx.contextEpoch})&&$('fingerprintDetailError'))$('fingerprintDetailError').textContent='인사이력 정보를 정상적으로 불러온 뒤 다시 시도해 주세요.';
+      return;
+    }
+  }
+  if(!sessionContextCurrent(ctx.actor,ctx.token,{epoch:ctx.contextEpoch})||state.selectedDate!==ctx.key)return;
   if(!fingerprintDateNotFuture(state.selectedDate)){$('fingerprintDetailError').textContent='미래 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
   if(!fingerprintDateOperational(state.selectedDate)){$('fingerprintDetailError').textContent='재직·근무 배치 기간 밖 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
-  const ctx={actor:Number(state.me.employee_id),token:state.sessionToken,contextEpoch:sessionContextEpoch,key:state.selectedDate,kind};
   fingerprintPendingKind=kind;fingerprintPickerContext=ctx;
   const input=$('fingerprintPhotoInput');input.value='';input.click();
 }
@@ -4669,7 +4684,13 @@ async function handleFingerprintPhotoInput(file,pickerCtx=fingerprintPickerConte
     return;
   }
   const key=ctx.key,kind=ctx.kind,actor=ctx.actor,token=ctx.token,contextEpoch=ctx.contextEpoch,pageLifecycleEpoch=fingerprintPageLifecycleEpoch;
-  const personnelReady=fingerprintPersonnelReady(),dateNotFuture=fingerprintDateNotFuture(key);
+  let personnelReady=fingerprintPersonnelReady();
+  if(!personnelReady){
+    $('fingerprintDetailError').textContent='인사이력을 다시 확인하고 있습니다…';
+    personnelReady=await ensureFingerprintPersonnelReady(actor,token,contextEpoch);
+    if(!sessionContextCurrent(actor,token,{epoch:contextEpoch})||state.selectedDate!==key)return;
+  }
+  const dateNotFuture=fingerprintDateNotFuture(key);
   if(!key||!kind||state.view!=='mine'||accountReadOnly()||(configured()&&state.fingerprintBackendReady!==true)||!personnelReady||!dateNotFuture||!fingerprintDateOperational(key)){
     const futureDate=!accountReadOnly()&&(!configured()||state.fingerprintBackendReady===true)&&personnelReady&&!dateNotFuture;
     const outsideEmployment=!accountReadOnly()&&(!configured()||state.fingerprintBackendReady===true)&&personnelReady&&dateNotFuture&&!fingerprintDateOperational(key);
@@ -4704,7 +4725,14 @@ async function handleFingerprintPhotoInput(file,pickerCtx=fingerprintPickerConte
     }
     if(!fingerprintWriteForegroundCurrent(pageLifecycleEpoch)){abortFingerprintBackgroundWrite();return;}
     if(accountReadOnly()){$('fingerprintDetailError').textContent='현재 계정에서는 지문 사진을 변경할 수 없습니다.';return;}
-    if(!fingerprintPersonnelReady()){$('fingerprintDetailError').textContent='인사이력 정보를 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
+    if(!fingerprintPersonnelReady()){
+      $('fingerprintDetailError').textContent='인사이력을 다시 확인하고 있습니다…';
+      if(!await ensureFingerprintPersonnelReady(actor,token,contextEpoch)){
+        if(sessionContextCurrent(actor,token,{epoch:contextEpoch})&&state.selectedDate===key)$('fingerprintDetailError').textContent='인사이력 정보를 정상적으로 불러온 뒤 다시 시도해 주세요.';
+        return;
+      }
+      if(!sessionContextCurrent(actor,token,{epoch:contextEpoch})||state.selectedDate!==key)return;
+    }
     if(!fingerprintDateNotFuture(key)){$('fingerprintDetailError').textContent='미래 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
     if(!fingerprintDateOperational(key)){$('fingerprintDetailError').textContent='재직·근무 배치 기간 밖 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
     if(!fingerprintWriteForegroundCurrent(pageLifecycleEpoch)){abortFingerprintBackgroundWrite();return;}
@@ -4746,6 +4774,7 @@ async function handleFingerprintPhotoInput(file,pickerCtx=fingerprintPickerConte
         const keepError=$('fingerprintDetailError')?.textContent||'';renderFingerprintDetail(key);if(keepError)$('fingerprintDetailError').textContent=keepError;
       }
       showLoading(false);
+      if(realtimeNeedsCatchup&&!document.hidden)scheduleRealtimeRefresh(650);
     }
   }
 }
@@ -8270,7 +8299,11 @@ function wire(){
   $('fingerprintClockOutDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_out'));
   $('fingerprintPhotoInput').addEventListener('change',e=>{
     const file=e.target.files?.[0]||null,picker=fingerprintPickerContext;
-    if(!file){clearFingerprintPickerContext();return;}
+    if(!file){
+      clearFingerprintPickerContext();
+      if(realtimeNeedsCatchup&&!document.hidden)scheduleRealtimeRefresh(650);
+      return;
+    }
     // Android/PWA gallery pickers can dispatch `change` before the app is fully foreground again.
     // Starting compression while document.hidden is still true makes the foreground safety guard abort
     // the upload, which looks like the gallery selection did nothing. Let the picker round-trip settle,
@@ -8461,7 +8494,13 @@ function wire(){
     fingerprintForegroundResumeHandledEpoch=fingerprintForegroundResumeEpoch;
     checkForAppUpdate();if(reconcileSharedSessionIfNeeded())return;
     if(state.initialPinRequired){void recheckInitialPinGate();return;}
-    if(state.me){requestRealtimeCatchup({markCatchup:true});if(!realtimeChannel)startRealtime();}
+    if(state.me){
+      // 네이티브 카메라/파일 선택기에서 복귀한 순간에는 전체 Realtime 새로고침을
+      // 사진 change 처리와 경쟁시키지 않는다. personnelBackendReady가 일시적으로
+      // null/false가 되어 선택 사진이 무작위로 중단되는 race를 막는다.
+      if(fingerprintPickerContext){realtimeNeedsCatchup=true;return;}
+      requestRealtimeCatchup({markCatchup:true});if(!realtimeChannel)startRealtime();
+    }
     else if(state.sessionToken){clearSessionRestoreRetry(false);restoreSession(true);}
   }
   document.addEventListener('visibilitychange',()=>{
@@ -8479,10 +8518,10 @@ function wire(){
     // 이때 선택 문맥을 즉시 지우면 사용자가 사진을 골라도 change 처리에서 문맥이 없어져 조용히 중단될 수 있다.
     // BFCache로 실제 복귀한 경우에는 change가 오지 않으면 짧은 유예 뒤 선택 문맥만 정리한다.
     if(e.persisted&&fingerprintPickerContext){
-      setTimeout(()=>{
-        const input=$('fingerprintPhotoInput');
-        if(fingerprintPickerContext&&!(input?.files?.length))clearFingerprintPickerContext();
-      },1200);
+      // 파일 선택 round-trip의 정리는 input change/cancel 경로가 담당한다.
+      // BFCache 복귀 직후 고정 지연으로 context를 지우면 느린 기기에서 change보다 먼저
+      // 실행되어 선택 사진이 무작위로 무시될 수 있으므로 여기서는 유지한다.
+      realtimeNeedsCatchup=true;
     }
   });
   window.addEventListener('storage',handleSharedSessionStorageChange);
