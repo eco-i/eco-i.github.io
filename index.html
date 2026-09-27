@@ -1165,7 +1165,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260927-0912 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260927-0920 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1192,8 +1192,8 @@
       <div class="fingerprint-detail-head detail-collapsible-head"><div class="fingerprint-detail-title">지문 출퇴근 기록</div><div class="detail-head-tools"><span class="fingerprint-private-badge">나만 보임</span><button id="fingerprintDetailToggleBtn" class="detail-section-toggle" type="button" aria-expanded="true" aria-controls="fingerprintDetailSection">펼침 ▲</button></div></div>
       <div class="fingerprint-detail-help">지문기에서 출근·퇴근 처리가 된 화면을 사진으로 남겨두세요. 사진은 자동 압축되며 본인 계정에서만 확인할 수 있습니다.</div>
       <div class="fingerprint-photo-grid">
-        <div class="fingerprint-photo-card" data-fingerprint-kind="clock_in"><div class="fingerprint-photo-label"><span>출근 사진</span><span id="fingerprintClockInState" class="fingerprint-photo-state">미등록</span></div><div id="fingerprintClockInMeta" class="fingerprint-photo-meta">사진을 등록해 주세요.</div><div class="fingerprint-photo-actions"><button id="fingerprintClockInUploadBtn" class="fingerprint-upload-btn" type="button" aria-label="출근 사진 등록">사진 등록</button><button id="fingerprintClockInViewBtn" class="fingerprint-view-btn" type="button" aria-label="출근 사진 보기" disabled>보기</button><button id="fingerprintClockInDeleteBtn" class="fingerprint-delete-btn" type="button" aria-label="출근 사진 삭제" disabled>삭제</button></div></div>
-        <div class="fingerprint-photo-card" data-fingerprint-kind="clock_out"><div class="fingerprint-photo-label"><span>퇴근 사진</span><span id="fingerprintClockOutState" class="fingerprint-photo-state">미등록</span></div><div id="fingerprintClockOutMeta" class="fingerprint-photo-meta">사진을 등록해 주세요.</div><div class="fingerprint-photo-actions"><button id="fingerprintClockOutUploadBtn" class="fingerprint-upload-btn" type="button" aria-label="퇴근 사진 등록">사진 등록</button><button id="fingerprintClockOutViewBtn" class="fingerprint-view-btn" type="button" aria-label="퇴근 사진 보기" disabled>보기</button><button id="fingerprintClockOutDeleteBtn" class="fingerprint-delete-btn" type="button" aria-label="퇴근 사진 삭제" disabled>삭제</button></div></div>
+        <div class="fingerprint-photo-card" data-fingerprint-kind="clock_in"><div class="fingerprint-photo-label"><span>출근 사진</span><span id="fingerprintClockInState" class="fingerprint-photo-state">미등록</span></div><div id="fingerprintClockInMeta" class="fingerprint-photo-meta">사진을 등록해 주세요.</div><div class="fingerprint-photo-actions"><button id="fingerprintClockInCameraBtn" class="fingerprint-upload-btn" type="button" aria-label="출근 사진 카메라 촬영">카메라</button><button id="fingerprintClockInFilesBtn" class="fingerprint-upload-btn fingerprint-files-btn" type="button" aria-label="출근 사진 내 파일에서 선택">내 파일</button><button id="fingerprintClockInViewBtn" class="fingerprint-view-btn" type="button" aria-label="출근 사진 보기" disabled>보기</button><button id="fingerprintClockInDeleteBtn" class="fingerprint-delete-btn" type="button" aria-label="출근 사진 삭제" disabled>삭제</button></div></div>
+        <div class="fingerprint-photo-card" data-fingerprint-kind="clock_out"><div class="fingerprint-photo-label"><span>퇴근 사진</span><span id="fingerprintClockOutState" class="fingerprint-photo-state">미등록</span></div><div id="fingerprintClockOutMeta" class="fingerprint-photo-meta">사진을 등록해 주세요.</div><div class="fingerprint-photo-actions"><button id="fingerprintClockOutCameraBtn" class="fingerprint-upload-btn" type="button" aria-label="퇴근 사진 카메라 촬영">카메라</button><button id="fingerprintClockOutFilesBtn" class="fingerprint-upload-btn fingerprint-files-btn" type="button" aria-label="퇴근 사진 내 파일에서 선택">내 파일</button><button id="fingerprintClockOutViewBtn" class="fingerprint-view-btn" type="button" aria-label="퇴근 사진 보기" disabled>보기</button><button id="fingerprintClockOutDeleteBtn" class="fingerprint-delete-btn" type="button" aria-label="퇴근 사진 삭제" disabled>삭제</button></div></div>
       </div>
       <label id="fingerprintConfirmRow" class="fingerprint-confirm-row disabled"><input id="fingerprintConfirmed" type="checkbox" disabled><span>출·퇴근 지문 정상 확인</span></label>
       <div class="fingerprint-private-note">※ 개인 확인용 기록입니다. 관리자 화면에는 표시되지 않습니다.</div>
@@ -1709,7 +1709,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260927-0912';
+const APP_VERSION = 'ver20260927-0920';
 const UPDATE_HISTORY = [
   {version:'ver20260917-2153',date:'2026.09.17',items:['D-DAY 표시 기능 추가']},
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
@@ -4560,7 +4560,7 @@ async function compressFingerprintImage(file){
 }
 function renderFingerprintDetail(key,{preserveStatusMessage=false}={}){
   const row=fingerprintRecordForDate(key),ro=accountReadOnly(),personnelReady=fingerprintPersonnelReady(),personnelLoading=configured()&&state.personnelBackendReady===null,dateNotFuture=fingerprintDateNotFuture(key),dateOperational=fingerprintDateOperational(key),backendReady=!configured()||state.fingerprintBackendReady===true,backendLoading=configured()&&state.fingerprintBackendReady===null,backendBad=configured()&&state.fingerprintBackendReady===false,busy=fingerprintPhotoPending||fingerprintConfirmPending||fingerprintViewPending,writable=!ro&&backendReady&&!busy,uploadWritable=writable&&personnelReady&&dateNotFuture&&dateOperational;
-  [['clock_in','fingerprintClockIn'],['clock_out','fingerprintClockOut']].forEach(([kind,prefix])=>{const has=fingerprintKindHas(row,kind),stateEl=$(`${prefix}State`),meta=$(`${prefix}Meta`),up=$(`${prefix}UploadBtn`),view=$(`${prefix}ViewBtn`),del=$(`${prefix}DeleteBtn`);if(stateEl){stateEl.textContent=has?'등록됨':'미등록';stateEl.classList.toggle('saved',has)}if(meta)meta.textContent=has?(formatFingerprintTime(fingerprintKindUploadedAt(row,kind))||'등록됨'):'사진을 등록해 주세요.';if(up){up.textContent=has?'사진 교체':'사진 등록';up.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 ${has?'교체':'등록'}`);up.disabled=!uploadWritable}if(view){view.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 보기`);view.disabled=!has||busy||!backendReady}if(del){del.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 삭제`);del.disabled=!has||!writable}});
+  [['clock_in','fingerprintClockIn'],['clock_out','fingerprintClockOut']].forEach(([kind,prefix])=>{const has=fingerprintKindHas(row,kind),stateEl=$(`${prefix}State`),meta=$(`${prefix}Meta`),camera=$(`${prefix}CameraBtn`),files=$(`${prefix}FilesBtn`),view=$(`${prefix}ViewBtn`),del=$(`${prefix}DeleteBtn`);if(stateEl){stateEl.textContent=has?'등록됨':'미등록';stateEl.classList.toggle('saved',has)}if(meta)meta.textContent=has?(formatFingerprintTime(fingerprintKindUploadedAt(row,kind))||'등록됨'):'사진을 등록해 주세요.';if(camera){camera.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 ${has?'교체용 ':''}카메라 촬영`);camera.disabled=!uploadWritable}if(files){files.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 ${has?'교체용 ':''}내 파일 선택`);files.disabled=!uploadWritable}if(view){view.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 보기`);view.disabled=!has||busy||!backendReady}if(del){del.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 삭제`);del.disabled=!has||!writable}});
   const both=!!(row?.has_clock_in&&row?.has_clock_out),confirm=$('fingerprintConfirmed'),confirmRow=$('fingerprintConfirmRow'),confirmWritable=writable&&both&&(!!row?.confirmed||(personnelReady&&dateNotFuture&&dateOperational));if(confirm){confirm.checked=!!(row?.confirmed&&both);confirm.disabled=!confirmWritable;}if(confirmRow)confirmRow.classList.toggle('disabled',!confirmWritable);
   if(!preserveStatusMessage)$('fingerprintDetailError').textContent=ro?'조회 전용 계정에서는 지문 사진을 변경할 수 없습니다.':(backendLoading?'지문 기록을 불러오는 중입니다.':(backendBad?(row?'지문 기록 서버 연결을 확인해 주세요. 마지막으로 불러온 표시를 유지하고 있습니다.':'지문 기록 서버 연결을 확인해 주세요.'):(configured()&&!personnelReady?(personnelLoading?'인사이력 정보를 불러오는 중입니다. 새 사진 등록·교체와 확인 완료 설정은 잠시 후 이용해 주세요.':'인사이력 정보를 정상적으로 불러오지 못해 새 사진 등록·교체와 확인 완료 설정을 잠갔습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.') :(!dateNotFuture?'미래 날짜에는 새 지문 사진 등록·교체 또는 확인 완료를 설정할 수 없습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.':(!dateOperational?'재직·근무 배치 기간 밖 날짜에는 새 사진 등록·교체 또는 확인 완료를 새로 설정할 수 없습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.':(!both&&row?.confirmed?'사진이 부족하여 확인 완료가 자동 해제되었습니다.':''))))));
 }
@@ -4675,7 +4675,7 @@ function clearFingerprintPickerContext(){
   fingerprintExternalFilePickerActive=false;
   const input=$('fingerprintPhotoInput');if(input){input.value='';input.removeAttribute('capture');}
 }
-async function selectFingerprintPhoto(kind){
+async function selectFingerprintPhoto(kind,source='files'){
   if(!state.selectedDate||state.view!=='mine'||!state.me||fingerprintPhotoPending||fingerprintConfirmPending)return;
   if(accountReadOnly()){showToast('조회 전용 계정에서는 사진을 등록할 수 없습니다.','info');return;}
   if(configured()&&state.fingerprintBackendReady!==true){$('fingerprintDetailError').textContent='지문 기록을 먼저 정상적으로 불러온 뒤 다시 시도해 주세요.';return;}
@@ -4684,9 +4684,9 @@ async function selectFingerprintPhoto(kind){
   if(!fingerprintDateOperational(state.selectedDate)){$('fingerprintDetailError').textContent='재직·근무 배치 기간 밖 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
   const ctx={actor:Number(state.me.employee_id),token:state.sessionToken,contextEpoch:sessionContextEpoch,key:state.selectedDate,kind};
   fingerprintPendingKind=kind;fingerprintPickerContext=ctx;
-  // 실제 기기에서 정상 동작이 확인된 기본 file input을 바로 연다.
-  // 별도의 사이트 내부 '작업 선택' 팝업은 표시하지 않는다.
-  openFingerprintInputPicker('files');
+  // 카메라와 기존 파일 선택을 한 시스템 chooser에 섞지 않는다.
+  // 카메라는 capture 경로, 내 파일은 일반 file-input 경로로 분리한다.
+  openFingerprintInputPicker(source==='camera'?'camera':'files');
 }
 function closeFingerprintSourcePicker(){
   closeBackdrop('fingerprintSourceBackdrop',true);
@@ -8324,15 +8324,14 @@ function wire(){
   $('fingerprintDetailToggleBtn').addEventListener('click',()=>toggleDetailSection('fingerprintDetailSection','fingerprintDetailToggleBtn'));
   $('overtimeDetailToggleBtn').addEventListener('click',()=>toggleDetailSection('overtimeDetailSection','overtimeDetailToggleBtn'));
   $('memoDetailToggleBtn').addEventListener('click',()=>toggleDetailSection('memoDetailSection','memoDetailToggleBtn'));
-  $('fingerprintClockInUploadBtn').addEventListener('click',()=>selectFingerprintPhoto('clock_in'));
-  $('fingerprintClockOutUploadBtn').addEventListener('click',()=>selectFingerprintPhoto('clock_out'));
+  $('fingerprintClockInCameraBtn').addEventListener('click',()=>selectFingerprintPhoto('clock_in','camera'));
+  $('fingerprintClockInFilesBtn').addEventListener('click',()=>selectFingerprintPhoto('clock_in','files'));
+  $('fingerprintClockOutCameraBtn').addEventListener('click',()=>selectFingerprintPhoto('clock_out','camera'));
+  $('fingerprintClockOutFilesBtn').addEventListener('click',()=>selectFingerprintPhoto('clock_out','files'));
   $('fingerprintClockInViewBtn').addEventListener('click',()=>viewFingerprintPhoto('clock_in'));
   $('fingerprintClockOutViewBtn').addEventListener('click',()=>viewFingerprintPhoto('clock_out'));
   $('fingerprintClockInDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_in'));
   $('fingerprintClockOutDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_out'));
-  $('closeFingerprintSourceBtn').addEventListener('click',closeFingerprintSourcePicker);
-  $('fingerprintSourceCameraBtn').addEventListener('click',()=>openFingerprintInputPicker('camera'));
-  $('fingerprintSourceFilesBtn').addEventListener('click',openFingerprintFilePicker);
   $('fingerprintPhotoInput').addEventListener('change',e=>{
     const file=e.target.files?.[0]||null,picker=fingerprintPickerContext;
     if(!file){clearFingerprintPickerContext();return;}
