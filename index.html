@@ -1152,7 +1152,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260927-0940 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260927-0944 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1677,7 +1677,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260927-0940';
+const APP_VERSION = 'ver20260927-0944';
 const UPDATE_HISTORY = [
   {version:'ver20260917-2153',date:'2026.09.17',items:['D-DAY 표시 기능 추가']},
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
@@ -2035,6 +2035,7 @@ let fingerprintPageLifecycleEpoch=0;
 let fingerprintForegroundResumeEpoch=0;
 let fingerprintForegroundResumeHandledEpoch=0;
 let fingerprintPickerContext=null;
+let fingerprintPickerFlowActive=false;
 let fingerprintViewerContext=null;
 const overtimeListPendingIds=new Set();
 let overtimeConfirmPending=false;
@@ -2092,7 +2093,7 @@ function invalidateSessionBoundLoads(){
   overtimeDataLoadSeq++; overtimeListLoadSeq++; fingerprintLoadSeq++; memoMonthLoadSeq++; memoDdayLoadSeq++; memoListLoadSeq++; annualLeaveLoadSeq++; longServiceLoadSeq++;
   monthDataLoadSeq++; refreshLoadSeq++; holidayWorkDataLoadSeq++; accountStatusLoadSeq++; employeeLoadSeq++; personnelLoadSeq++; holidayEligibilityLoadSeq++;
   attendanceListLoadSeq++; allAttendanceListLoadSeq++; auditPageLoadSeq++; employeePinLoadSeq++; safetyBackupLoadSeq++; companyEventLoadSeq++; capacityLoadSeq++; personnelImpactLoadSeq++; holidayWorkListLoadSeq++;
-  overtimeListPendingIds.clear(); overtimeConfirmPending=false; overtimeDaySavePending=false; fingerprintPhotoPending=false; fingerprintConfirmPending=false; fingerprintViewPending=false; fingerprintPendingKind=''; fingerprintPickerContext=null; attendanceSavePending=false; attendanceDeletePendingIds.clear();
+  overtimeListPendingIds.clear(); overtimeConfirmPending=false; overtimeDaySavePending=false; fingerprintPhotoPending=false; fingerprintConfirmPending=false; fingerprintViewPending=false; fingerprintPendingKind=''; fingerprintPickerContext=null; fingerprintPickerFlowActive=false; attendanceSavePending=false; attendanceDeletePendingIds.clear();
   memoSavePending=false; memoDeletePendingDates.clear(); memoBulkDeletePending=false; memoDdayPendingDates.clear(); holidayWorkSavePendingKeys.clear(); holidayWorkDeletePendingKeys.clear(); annualLeaveSavePending=false; longServiceSavePending=false;
   companyEventSavePending=false; companyEventDeletePendingIds.clear(); employeeActionSavePending=false; employeeAccountSavePending=false; personnelBatchSavePending=false; personnelBatchCancelPendingIds.clear(); personnelSnapshotRestorePending=false; resetCurrentPinsPending=false; holidayWorkEligibilityPendingIds.clear(); selfPinChangePending=false;
   detailRecordBaseline={key:null,holiday:null,overtime:null,memo:null}; annualLeaveSourceSnapshot=null; longServiceSourceSnapshot=null;
@@ -2411,7 +2412,7 @@ async function checkForAppUpdate(){
   // 다른 탭의 공유 로그인 전환이 대기 중이면 세션 정합성을 먼저 맞춘다.
   // 옛 세션으로 update handoff를 만든 뒤 새 문서에서 다시 살아나는 경합을 막는다.
   // 브라우저가 명확히 오프라인이면 3초 주기 version.json 실패 fetch를 반복하지 않는다.
-  if(versionReloading || versionCheckInFlight || document.hidden || !navigator.onLine || sharedPersistentSessionMismatch()) return;
+  if(versionReloading || versionCheckInFlight || fingerprintPickerFlowActive || document.hidden || !navigator.onLine || sharedPersistentSessionMismatch()) return;
   versionCheckInFlight=true;
   let ownsReloadLock=false;
   try{
@@ -2756,6 +2757,7 @@ function scheduleRealtimeReconnect(delay=5000){
 function requestRealtimeCatchup({markCatchup=false}={}){
   if(markCatchup) realtimeNeedsCatchup=true;
   if(!state.me || state.initialPinRequired || document.hidden) return;
+  if(fingerprintPickerFlowActive){realtimeNeedsCatchup=true;return;}
   // 브라우저가 명확히 오프라인인 동안에는 자동 Realtime catch-up이 실패 RPC를 반복해
   // 기존 정상 화면의 backend-ready 상태/상태문구를 불필요하게 실패 상태로 바꾸지 않게 보류한다.
   // online 이벤트에서 markCatchup=true로 다시 한 번 최신 데이터를 따라잡는다.
@@ -2771,6 +2773,7 @@ function requestRealtimeCatchup({markCatchup=false}={}){
 
 function scheduleRealtimeRefresh(delay=220){
   if(!state.me || state.initialPinRequired || document.hidden) return;
+  if(fingerprintPickerFlowActive){realtimeNeedsCatchup=true;return;}
   if(configured()&&!navigator.onLine){realtimeNeedsCatchup=true;setRealtimeStatus('offline');return;}
   // 백업·복원·초기화뿐 아니라 일반 저장·삭제 중에도 Realtime 재조회를 직렬화한다.
   // pending 도중의 신호는 1개 catch-up으로 병합하고, 작업이 끝나기 전에는 화면/상태를 다시 읽지 않는다.
@@ -4478,10 +4481,32 @@ function fingerprintPersonnelReady(){return !configured()||state.personnelBacken
 async function ensureFingerprintPersonnelReady(actor,token,contextEpoch){
   if(fingerprintPersonnelReady())return true;
   if(!configured())return true;
+  const stillCurrent=()=>sessionContextCurrent(actor,token,{epoch:contextEpoch});
+  const waitLatest=async(timeoutMs=3500)=>{
+    const deadline=Date.now()+timeoutMs;
+    while(stillCurrent()&&Date.now()<deadline){
+      if(fingerprintPersonnelReady())return true;
+      // 최신 조회가 명시적 실패(false)로 끝났다면 더 기다려도 회복되지 않으므로 중단한다.
+      if(state.personnelBackendReady===false)return false;
+      await new Promise(r=>setTimeout(r,80));
+    }
+    return stillCurrent()&&fingerprintPersonnelReady();
+  };
   try{
+    const seqBefore=personnelLoadSeq;
     const ok=await loadPersonnelAssignments();
-    return ok!==false&&sessionContextCurrent(actor,token,{epoch:contextEpoch})&&fingerprintPersonnelReady();
-  }catch(_){return false;}
+    if(!stillCurrent())return false;
+    if(fingerprintPersonnelReady())return true;
+    // 내 조회가 더 최신 인사조회에 밀려 false가 된 경우, 최신 조회의 정상 완료를 실패로 오인하지 않는다.
+    if(ok===false && (personnelLoadSeq>seqBefore+1 || state.personnelBackendReady===null)){
+      if(await waitLatest())return true;
+    }
+    if(state.personnelBackendReady===null && await waitLatest())return true;
+    return fingerprintPersonnelReady();
+  }catch(_){
+    if(!stillCurrent())return false;
+    return await waitLatest(1200);
+  }
 }
 function fingerprintDateNotFuture(key){return !!key&&key<=todayKey();}
 function fingerprintDateOperational(key){
@@ -4664,7 +4689,7 @@ async function selectFingerprintPhoto(kind){
   if(!sessionContextCurrent(ctx.actor,ctx.token,{epoch:ctx.contextEpoch})||state.selectedDate!==ctx.key)return;
   if(!fingerprintDateNotFuture(state.selectedDate)){$('fingerprintDetailError').textContent='미래 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
   if(!fingerprintDateOperational(state.selectedDate)){$('fingerprintDetailError').textContent='재직·근무 배치 기간 밖 날짜에는 지문 사진을 등록할 수 없습니다.';return;}
-  fingerprintPendingKind=kind;fingerprintPickerContext=ctx;
+  fingerprintPendingKind=kind;fingerprintPickerContext=ctx;fingerprintPickerFlowActive=true;
   const input=$('fingerprintPhotoInput');input.value='';input.click();
 }
 function fingerprintWriteForegroundCurrent(pageLifecycleEpoch){
@@ -8299,21 +8324,28 @@ function wire(){
   $('fingerprintClockOutDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_out'));
   $('fingerprintPhotoInput').addEventListener('change',e=>{
     const file=e.target.files?.[0]||null,picker=fingerprintPickerContext;
+    const finishPickerFlow=()=>{
+      fingerprintPickerFlowActive=false;
+      if(realtimeNeedsCatchup&&!document.hidden)scheduleRealtimeRefresh(650);
+    };
     if(!file){
       clearFingerprintPickerContext();
-      if(realtimeNeedsCatchup&&!document.hidden)scheduleRealtimeRefresh(650);
+      finishPickerFlow();
       return;
     }
     // Android/PWA gallery pickers can dispatch `change` before the app is fully foreground again.
-    // Starting compression while document.hidden is still true makes the foreground safety guard abort
-    // the upload, which looks like the gallery selection did nothing. Let the picker round-trip settle,
-    // then process only after the page is visible again.
-    const start=()=>{if(!fingerprintPickerStillCurrent(picker)){clearFingerprintPickerContext();return;}void handleFingerprintPhotoInput(file,picker);};
+    // 사진 처리 전체가 끝날 때까지 picker flow를 active로 유지해 자동 update/Realtime 재조회를 끼워 넣지 않는다.
+    const start=()=>{
+      if(!fingerprintPickerStillCurrent(picker)){
+        clearFingerprintPickerContext();finishPickerFlow();return;
+      }
+      void handleFingerprintPhotoInput(file,picker).finally(finishPickerFlow);
+    };
     setTimeout(()=>{
       if(!document.hidden){start();return;}
       let done=false,timer=0;
       const cleanup=()=>{document.removeEventListener('visibilitychange',resume);window.removeEventListener('pageshow',resume);if(timer)clearTimeout(timer);};
-      const finish=()=>{if(done)return;done=true;cleanup();if(!document.hidden)start();else clearFingerprintPickerContext();};
+      const finish=()=>{if(done)return;done=true;cleanup();if(!document.hidden)start();else{clearFingerprintPickerContext();finishPickerFlow();}};
       const resume=()=>{if(!document.hidden)finish();};
       document.addEventListener('visibilitychange',resume);
       window.addEventListener('pageshow',resume);
@@ -8498,7 +8530,7 @@ function wire(){
       // 네이티브 카메라/파일 선택기에서 복귀한 순간에는 전체 Realtime 새로고침을
       // 사진 change 처리와 경쟁시키지 않는다. personnelBackendReady가 일시적으로
       // null/false가 되어 선택 사진이 무작위로 중단되는 race를 막는다.
-      if(fingerprintPickerContext){realtimeNeedsCatchup=true;return;}
+      if(fingerprintPickerFlowActive||fingerprintPickerContext){realtimeNeedsCatchup=true;return;}
       requestRealtimeCatchup({markCatchup:true});if(!realtimeChannel)startRealtime();
     }
     else if(state.sessionToken){clearSessionRestoreRetry(false);restoreSession(true);}
@@ -8532,7 +8564,7 @@ function wire(){
     markFingerprintBackgroundResume();
     // 네이티브 파일 선택기가 pagehide를 발생시키는 브라우저에서도 현재 선택 문맥은 유지한다.
     // 선택기가 열려 있지 않은 일반 pagehide에서만 임시 input/context를 즉시 정리한다.
-    if(!fingerprintPickerContext)clearFingerprintPickerContext();
+    if(!fingerprintPickerFlowActive&&!fingerprintPickerContext)clearFingerprintPickerContext();
     // 읽기 요청은 서버 상태를 바꾸지 않으므로 BFCache 진입 시 즉시 취소해 복원 직후 다시 열 수 있게 합니다.
     // 옛 요청의 catch/finally는 lifecycle epoch 불일치로 새 요청 상태를 건드리지 않습니다.
     if(fingerprintViewPending){fingerprintViewPending=false;showLoading(false);}
