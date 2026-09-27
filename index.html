@@ -1165,7 +1165,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260926-1604 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20260927-0900 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1709,7 +1709,7 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20260926-1604';
+const APP_VERSION = 'ver20260927-0900';
 const UPDATE_HISTORY = [
   {version:'ver20260917-2153',date:'2026.09.17',items:['D-DAY 표시 기능 추가']},
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
@@ -4707,32 +4707,10 @@ function openFingerprintInputPicker(source){
   else input.removeAttribute('capture');
   input.click();
 }
-async function openFingerprintFilePicker(){
-  const ctx=fingerprintPickerContext?{...fingerprintPickerContext}:null;
-  if(!ctx||!fingerprintPickerStillCurrent(ctx)){closeFingerprintSourcePicker();return;}
-  closeBackdrop('fingerprintSourceBackdrop',true);
-  reopenFingerprintPickerContext(ctx);
-  if(typeof window.showOpenFilePicker!=='function'){
-    openFingerprintInputPicker('gallery');
-    return;
-  }
-  fingerprintExternalFilePickerActive=true;
-  try{
-    const handles=await window.showOpenFilePicker({
-      multiple:false,
-      types:[{description:'이미지 파일',accept:{'image/*':['.jpg','.jpeg','.png','.webp','.heic','.heif']}}]
-    });
-    const file=handles?.[0]?await handles[0].getFile():null;
-    const current=fingerprintPickerContext?{...fingerprintPickerContext}:ctx;
-    fingerprintExternalFilePickerActive=false;
-    if(!file){clearFingerprintPickerContext();return;}
-    await handleFingerprintPhotoInput(file,current);
-  }catch(e){
-    fingerprintExternalFilePickerActive=false;
-    if(e?.name==='AbortError'){clearFingerprintPickerContext();return;}
-    if($('fingerprintDetailError'))$('fingerprintDetailError').textContent='내 파일을 열지 못했습니다. 갤러리 또는 카메라를 이용해 주세요.';
-    clearFingerprintPickerContext();
-  }
+function openFingerprintFilePicker(){
+  // Android/PWA에서는 File System Access API 복귀 타이밍이 다를 수 있어
+  // 실제 기기에서 정상 동작이 확인된 기존 <input type="file"> 경로를 사용한다.
+  openFingerprintInputPicker('files');
 }
 function fingerprintWriteForegroundCurrent(pageLifecycleEpoch){
   return pageLifecycleEpoch===fingerprintPageLifecycleEpoch&&!document.hidden;
@@ -8352,7 +8330,7 @@ function wire(){
   $('fingerprintClockOutDeleteBtn').addEventListener('click',()=>deleteFingerprintPhoto('clock_out'));
   $('closeFingerprintSourceBtn').addEventListener('click',closeFingerprintSourcePicker);
   $('fingerprintSourceCameraBtn').addEventListener('click',()=>openFingerprintInputPicker('camera'));
-  $('fingerprintSourceFilesBtn').addEventListener('click',()=>void openFingerprintFilePicker());
+  $('fingerprintSourceFilesBtn').addEventListener('click',openFingerprintFilePicker);
   $('fingerprintPhotoInput').addEventListener('change',e=>{
     const file=e.target.files?.[0]||null,picker=fingerprintPickerContext;
     if(!file){clearFingerprintPickerContext();return;}
