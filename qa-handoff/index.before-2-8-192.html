@@ -997,7 +997,8 @@
             <div class="annual-leave-input-part"><input id="annualBaselineMinutes" type="text" inputmode="numeric" aria-label="기준 잔여연차 분" pattern="[0-9]*" maxlength="2"><span class="annual-leave-unit">분</span></div>
           </div>
         </div>
-        <div id="annualLeaveNormalBlocks" class="hidden">          <div class="annual-leave-setting-block">
+        <div id="annualLeaveNormalBlocks" class="hidden">
+          <div class="annual-leave-setting-block">
             <label class="annual-leave-setting-label">올해 부여연차</label>
             <div class="annual-leave-input-grid">
               <div class="annual-leave-input-part"><input id="annualGrantDays" type="text" inputmode="numeric" aria-label="올해 부여연차 일" pattern="[0-9]*" maxlength="3"><span class="annual-leave-unit">일</span></div>
@@ -1996,7 +1997,8 @@ async function storeAdminUnlockForFreshLogin(token,persistent,attempt){
     let elapsed;
     try{elapsed=performance.now()-started;}catch(e){elapsed=Date.now()-started;}
     if(!Number.isFinite(elapsed)||elapsed>=deadlineMs)return false;
-    // shared mutex의 일시 경합만 재시도한다. 소유권/저장 실패(false)는 즉시 실패로 확정한다.    await new Promise(r=>setTimeout(r,60));
+    // shared mutex의 일시 경합만 재시도한다. 소유권/저장 실패(false)는 즉시 실패로 확정한다.
+    await new Promise(r=>setTimeout(r,60));
   }
 }
 
@@ -2995,7 +2997,8 @@ function errorText(err){ return String(err?.message||err||''); }
 function isConfirmedSessionExpired(err){
   const msg=errorText(err).toUpperCase();
   return msg.includes('SESSION_EXPIRED') || msg.includes('SESSION_INVALID_CONFIRMED');
-}function isAdminSessionLocked(err){ return errorText(err).toLowerCase()==='admin_locked'; }
+}
+function isAdminSessionLocked(err){ return errorText(err).toLowerCase()==='admin_locked'; }
 function isInvalidLoginError(err){ return errorText(err).toUpperCase().includes('INVALID_LOGIN'); }
 function isAdminPinInvalidError(err){ return errorText(err).toUpperCase().includes('ADMIN_PIN_INVALID'); }
 function isInitialPinChangeRequiredError(err){ return errorText(err).toUpperCase().includes('INITIAL_PIN_CHANGE_REQUIRED'); }
@@ -3994,7 +3997,8 @@ function localHolidayWorks(){
   try{ const rows=JSON.parse(localStorage.getItem(LOCAL_HOLIDAY_WORK_KEY)||'[]'); return Array.isArray(rows)?rows:[]; }catch(e){ return []; }
 }
 function saveLocalHolidayWorks(rows){ localStorage.setItem(LOCAL_HOLIDAY_WORK_KEY,JSON.stringify(rows)); }
-function normalizeHolidayWorkRows(rows){  return (rows||[]).map(r=>({...r,id:Number(r.id),employee_id:Number(r.employee_id),work_date:String(r.work_date||'').slice(0,10),start_time:timeShort(r.start_time),end_time:timeShort(r.end_time),net_minutes:Number(r.net_minutes)||0})).filter(r=>r.employee_id&&r.work_date);
+function normalizeHolidayWorkRows(rows){
+  return (rows||[]).map(r=>({...r,id:Number(r.id),employee_id:Number(r.employee_id),work_date:String(r.work_date||'').slice(0,10),start_time:timeShort(r.start_time),end_time:timeShort(r.end_time),net_minutes:Number(r.net_minutes)||0})).filter(r=>r.employee_id&&r.work_date);
 }
 function strictRpcTimeValue(value){
   if(typeof value!=='string'||!/^\d{2}:\d{2}(?::\d{2}(?:\.\d{1,6})?)?$/.test(value))throw new Error('RPC 시간 응답 형식이 올바르지 않습니다.');
@@ -4993,7 +4997,8 @@ async function login(){
         await stopRealtime();
         state.me=null;
         showSessionReconnectNotice();
-        scheduleSessionRestoreRetry();      }else{
+        scheduleSessionRestoreRetry();
+      }else{
         $('loginError').textContent=isTransientRpcError(e)?'서버 연결이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.':'로그인 서버 응답을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.';
       }
     }
@@ -5992,7 +5997,8 @@ function fingerprintPhotoResponseDataUrl(data){
   return `data:${mime};base64,${b64}`;
 }
 async function fingerprintPhotoDataUrlDecodable(src){
-  return await new Promise(resolve=>{    const img=new Image();let settled=false;
+  return await new Promise(resolve=>{
+    const img=new Image();let settled=false;
     const finish=ok=>{if(settled)return;settled=true;clearTimeout(timer);img.onload=null;img.onerror=null;img.src='';resolve(!!ok);};
     const timer=setTimeout(()=>finish(false),5000);
     img.onload=()=>finish(!!(img.naturalWidth&&img.naturalHeight));
@@ -6991,7 +6997,8 @@ function openBackdropHasEnteredValue(backdropId,inputIds){
   if(!backdrop?.classList.contains('open'))return false;
   return inputIds.some(id=>String($(id)?.value||'').trim()!=='');
 }
-function transientSensitiveFormHasUnsavedChanges(){  // 자동 버전 업데이트가 저장 버튼을 누르기 전의 민감 입력/복원 준비 상태를 조용히 날리지 않게 한다.
+function transientSensitiveFormHasUnsavedChanges(){
+  // 자동 버전 업데이트가 저장 버튼을 누르기 전의 민감 입력/복원 준비 상태를 조용히 날리지 않게 한다.
   // 닫힌 팝업에 남은 브라우저 autofill 값은 업데이트를 막지 않고, 실제로 열린 작업창만 보호한다.
   if(openBackdropHasEnteredValue('employeeActionBackdrop',['employeePin','employeeAdminPin']))return true;
   if(openBackdropHasEnteredValue('selfPinBackdrop',['selfPinCurrent','selfPinNew','selfPinConfirm']))return true;
@@ -7990,7 +7997,8 @@ function renderHolidayWorkList(){
   $('holidayWorkListBody').innerHTML=parts.join('');
 }
 async function loadHolidayWorkList(showSpinner=true){
-  const requestSeq=++holidayWorkListLoadSeq;  if(!state.me)return false;
+  const requestSeq=++holidayWorkListLoadSeq;
+  if(!state.me)return false;
   const actor=Number(state.me.employee_id),token=state.sessionToken,contextEpoch=sessionContextEpoch,adminAtStart=activeAdminMode();
   if(adminAtStart)populateHolidayWorkListEmployees(false);
   const allModeAtStart=adminAtStart&&holidayWorkListAllMode(),targetAtStart=adminAtStart?(allModeAtStart?null:holidayWorkListTargetEmployee()):null;
@@ -8989,7 +8997,8 @@ function employeeGroupOn(emp,key=todayKey()){ const a=personnelAssignmentOn(emp,
 function employeeSortOrderOn(emp,key=todayKey()){ const a=personnelAssignmentOn(emp,key); return Number(a?.sort_order??emp?.sort_order??999); }
 function normalizePersonnelAccountEvent(r){return {...r,id:Number(r.id)||0,employee_id:Number(r.employee_id),account_status:String(r.account_status||'disabled'),effective_date:String(r.effective_date||'').slice(0,10),created_at:String(r.created_at||'')};}
 function validRpcObjectRowList(rows){return Array.isArray(rows)&&rows.every(r=>!!r&&typeof r==='object'&&!Array.isArray(r));}
-function strictRpcDate(value,{nullable=false}={}){  if(value==null){if(nullable)return null;throw new Error('RPC 날짜 응답 형식이 올바르지 않습니다.');}
+function strictRpcDate(value,{nullable=false}={}){
+  if(value==null){if(nullable)return null;throw new Error('RPC 날짜 응답 형식이 올바르지 않습니다.');}
   if(typeof value!=='string'||!lsParseISO(value))throw new Error('RPC 날짜 응답 형식이 올바르지 않습니다.');
   return value;
 }
@@ -9988,7 +9997,8 @@ function strictDataResetPreviewRpc(preview,sections){
   dataRpcExactSections(obj.sections,sections,ADMIN_DATA_SECTION_KEYS.filter(k=>k!=='audit_logs'),code);dataRpcRevision(obj.current_revision,code);return obj;
 }
 function strictSafetyBackupRowsRpc(rows){
-  const code='INVALID_SAFETY_BACKUP_PAYLOAD';if(!validRpcObjectRowList(rows)||rows.length>5)throw new Error(code);  const allowed=ADMIN_DATA_SECTION_KEYS.filter(k=>k!=='audit_logs'),seen=new Set();
+  const code='INVALID_SAFETY_BACKUP_PAYLOAD';if(!validRpcObjectRowList(rows)||rows.length>5)throw new Error(code);
+  const allowed=ADMIN_DATA_SECTION_KEYS.filter(k=>k!=='audit_logs'),seen=new Set();
   return rows.map(r=>{let id,createdBy;try{id=strictRpcInteger(r.id,{min:1});createdBy=strictRpcInteger(r.created_by,{nullable:true,min:1});}catch(_){throw new Error(code);}if(seen.has(id)||!['admin_restore','admin_reset','safety_restore'].includes(r.operation_type)||typeof r.created_at!=='string'||!Number.isFinite(Date.parse(r.created_at))||(r.created_by_name!=null&&typeof r.created_by_name!=='string'))throw new Error(code);seen.add(id);const included=dataRpcExactSections(r.included_sections,null,allowed,code);dataRpcCountMap(r.section_counts,included,code);return {...r,id,created_by:createdBy,included_sections:included};});
 }
 function strictSafetyRestorePreviewRpc(preview,expectedSections){
@@ -10987,7 +10997,8 @@ function wire(){
   $('savePersonnelBatchBtn').addEventListener('click',savePersonnelBatch);
   $('addExistingPersonnelItemBtn').addEventListener('click',()=>{const eff=$('personnelEffectiveDate').value||todayKey(),used=new Set(personnelEditor.items.filter(i=>i.kind==='existing').map(i=>Number(i.employee_id))),emp=state.employees.find(e=>!used.has(Number(e.id)))||state.employees[0];if(emp){personnelEditor.items.push(makePersonnelExistingItem(emp.id,eff));renderPersonnelBatchItems();}});
   $('addNewPersonnelItemBtn').addEventListener('click',()=>{personnelEditor.items.push(makePersonnelNewItem($('personnelEffectiveDate').value||todayKey()));renderPersonnelBatchItems();});
-  $('personnelEffectiveDate').addEventListener('change',()=>{const eff=$('personnelEffectiveDate').value||todayKey();personnelEditor.items.forEach(it=>{if(it.kind==='new'&&it.entry_type==='new_hire'&&!it.hireDateTouched)it.company_hire_date=eff;if(it.kind==='existing'){const d=personnelExistingItemDefaults(it.employee_id,eff);if(!it.targetTouched)it.target_code=d.target_code;if(!it.accountTouched)it.account_status=(it.target_code==='TRANSFER'||it.target_code==='RETIRED')?'readonly':d.account_status;it.sourceSnapshot=d.sourceSnapshot;}});renderPersonnelBatchItems();});  $('personnelBatchItems').addEventListener('input',e=>{const itemEl=e.target.closest('[data-personnel-index]'),field=e.target.dataset.personnelField;if(!itemEl||!field||e.target.tagName!=='INPUT')return;const idx=Number(itemEl.dataset.personnelIndex);updatePersonnelItem(idx,field,e.target.value,{render:false});});
+  $('personnelEffectiveDate').addEventListener('change',()=>{const eff=$('personnelEffectiveDate').value||todayKey();personnelEditor.items.forEach(it=>{if(it.kind==='new'&&it.entry_type==='new_hire'&&!it.hireDateTouched)it.company_hire_date=eff;if(it.kind==='existing'){const d=personnelExistingItemDefaults(it.employee_id,eff);if(!it.targetTouched)it.target_code=d.target_code;if(!it.accountTouched)it.account_status=(it.target_code==='TRANSFER'||it.target_code==='RETIRED')?'readonly':d.account_status;it.sourceSnapshot=d.sourceSnapshot;}});renderPersonnelBatchItems();});
+  $('personnelBatchItems').addEventListener('input',e=>{const itemEl=e.target.closest('[data-personnel-index]'),field=e.target.dataset.personnelField;if(!itemEl||!field||e.target.tagName!=='INPUT')return;const idx=Number(itemEl.dataset.personnelIndex);updatePersonnelItem(idx,field,e.target.value,{render:false});});
   $('personnelBatchItems').addEventListener('change',e=>{const itemEl=e.target.closest('[data-personnel-index]'),field=e.target.dataset.personnelField;if(!itemEl||!field)return;const needsRender=e.target.tagName==='SELECT'||field==='employee_id';updatePersonnelItem(Number(itemEl.dataset.personnelIndex),field,e.target.value,{render:needsRender});});
   $('personnelBatchItems').addEventListener('click',e=>{const b=e.target.closest('[data-personnel-remove]');if(!b)return;personnelEditor.items.splice(Number(b.dataset.personnelRemove),1);renderPersonnelBatchItems();});
   $('confirmPersonnelSnapshotRestoreBtn').addEventListener('click',restorePersonnelSnapshot);
