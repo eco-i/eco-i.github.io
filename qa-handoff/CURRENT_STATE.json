@@ -1,0 +1,15 @@
+{
+  "project": "근무모아",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "last_completed_block": "2-8-191",
+  "next_block": "2-8-192",
+  "cumulative_defects": 350,
+  "official_sha256": "0e6df82d15531585cbe09365a07b9a967c32b6f0ee044b5d75642b693758a455",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "baseline_path": "qa-handoff/index.before-2-8-192.html",
+  "latest_report_path": "qa-handoff/QA_2-8-191_REPORT.md",
+  "start_here_path": "qa-handoff/START_HERE_NEW_CHAT.md",
+  "updated_kst": "2026-10-06T22:56:00+09:00"
+}
