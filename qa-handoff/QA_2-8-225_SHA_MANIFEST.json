@@ -1,0 +1,33 @@
+{
+  "project": "근무모아",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "block": "2-8-225",
+  "prev_block": "2-8-224",
+  "next_block": "2-8-226",
+  "model_mode": "High",
+  "status": "CLEAN_LOCAL_CHROMIUM_MOCK_WITH_LIMITS",
+  "start_utc": "2026-10-11T00:43:50+00:00",
+  "end_utc": "2026-10-11T01:03:58.916109+00:00",
+  "elapsed_seconds": 1208.92,
+  "original_defects": 499,
+  "new_defects": 1,
+  "cumulative_defects": 500,
+  "app_version": "ver20260927-0944",
+  "sql_modified": false,
+  "deployed": false,
+  "files": {
+    "index.before-2-8-225.html": {
+      "bytes": 1155541,
+      "sha256": "136d00bf9b270dd033340e05a7aa29e4401f3be3551b212f7ee3e3fd3515331c"
+    },
+    "index.working-2-8-225.html": {
+      "bytes": 1155896,
+      "sha256": "a98a8572e8ff60c67af47c98bf282f9a42584bb02676b3f88c1f0b0fe29685a9"
+    },
+    "index.before-2-8-226.html": {
+      "bytes": 1155896,
+      "sha256": "a98a8572e8ff60c67af47c98bf282f9a42584bb02676b3f88c1f0b0fe29685a9"
+    }
+  }
+}
