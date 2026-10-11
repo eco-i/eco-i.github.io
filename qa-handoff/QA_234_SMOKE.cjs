@@ -185,6 +185,47 @@ check('No console access to live Supabase needed',()=>true);
   await page.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForTimeout(200);
 
+  // Queued Web Lock must recheck the live login attempt INSIDE the granted callback.
+  const isolatedContext=await browser.newContext({viewport:{width:390,height:844}});
+  const isolated=await isolatedContext.newPage();
+  await isolated.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await isolated.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded',timeout:30000});
+  const canceled=await isolated.evaluate(async()=>{
+    let releaseLock,signalReady;
+    const ready=new Promise(r=>signalReady=r);
+    const blocker=withBrowserSharedSessionLock(async()=>{
+      signalReady();
+      await new Promise(r=>releaseLock=r);
+      return true;
+    });
+    await ready;
+    state.sessionToken='qa234-outdated-token';loginAttemptSeq++;
+    const attempt=loginAttemptSeq;
+    const queued=storeLoginSessionForFreshLogin('qa234-outdated-token',true,attempt);
+    loginAttemptSeq++;state.sessionToken='qa234-next-token';
+    releaseLock();await blocker;
+    const outcome=await queued;
+    return {outcome,token:storageGet(localStorage,SESSION_KEY)};
+  });
+  check('Canceled login blocked while Web Lock queued',()=>canceled.outcome===false&&canceled.token!=='qa234-outdated-token');
+  const canceledAdmin=await isolated.evaluate(async()=>{
+    const token='qa234-admin-old';
+    await withBrowserSharedSessionLock(()=>storeLoginSession(token,true));
+    let releaseLock,signalReady;const ready=new Promise(r=>signalReady=r);
+    const blocker=withBrowserSharedSessionLock(async()=>{signalReady();await new Promise(r=>releaseLock=r);return true;});
+    await ready;
+    state.sessionToken=token;loginAttemptSeq++;
+    const attempt=loginAttemptSeq,queued=storeAdminUnlockForFreshLogin(token,true,attempt);
+    state.sessionToken='qa234-admin-new';loginAttemptSeq++;
+    releaseLock();await blocker;
+    const outcome=await queued,stored=storageGet(localStorage,ADMIN_UNLOCK_KEY);
+    await withBrowserSharedSessionLock(()=>clearStoredLoginSession(token));
+    return {outcome,stored};
+  });
+  check('Canceled admin unlock blocked while Web Lock queued',()=>canceledAdmin.outcome===false&&canceledAdmin.stored!=='qa234-admin-old');
+  await isolatedContext.close();
+  console.log('QA234_CANCELLED_ASYNC',JSON.stringify({login:canceled,admin:canceledAdmin}));
+
   const imageChecks=await page.evaluate(async()=>{
     const c=document.createElement('canvas');c.width=320;c.height=320;
     const cx=c.getContext('2d');for(let i=0;i<320;i++){cx.fillStyle='rgb('+i+',88,155)';cx.fillRect(i,0,1,320)}
