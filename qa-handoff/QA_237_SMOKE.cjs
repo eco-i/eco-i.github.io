@@ -687,6 +687,37 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
   await crossCtx.close();
 
 
+  // 237: Cross-tab site-data clear sends a StorageEvent with key===null.
+  // A shared persistent login must not leave an old privileged UI visible
+  // after its backing browser session storage is wiped in a different tab.
+  const clearCtx=await browser.newContext({viewport:{width:390,height:844}});
+  const clearVictim=await clearCtx.newPage(),clearPeer=await clearCtx.newPage();
+  for(const tab of [clearVictim,clearPeer]){
+    await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  }
+  await clearVictim.evaluate(()=>{
+    localStorage.setItem(SESSION_KEY,'qa237-site-clear-admin');
+    state.sessionToken='qa237-site-clear-admin';
+    state.me={employee_id:237,is_admin:true,display_name:'QA site-clear admin'};
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('loginView').classList.add('hidden');
+    window.__qa237_clearEvent=false;
+    window.addEventListener('storage',e=>{if(e.key===null)window.__qa237_clearEvent=true;});
+  });
+  await clearPeer.evaluate(()=>localStorage.clear());
+  await clearVictim.waitForTimeout(350);
+  const siteClear=await clearVictim.evaluate(()=>({
+    clearEvent:!!window.__qa237_clearEvent,
+    sharedToken:localStorage.getItem(SESSION_KEY),
+    oldAdminVisible:!!state.me?.is_admin&&!document.getElementById('appView').classList.contains('hidden'),
+    currentToken:state.sessionToken
+  }));
+  console.log('QA237_CROSS_TAB_CLEAR',JSON.stringify(siteClear));
+  check('Actual storage clear generates key-null event',()=>siteClear.clearEvent);
+  check('Cross-tab site-data clear revokes stale shared-admin UI',()=>!siteClear.oldAdminVisible);
+  await clearCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
