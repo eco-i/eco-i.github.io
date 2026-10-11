@@ -12,13 +12,13 @@ function check(name,fn){const result=fn(); assert(result!==false, name+' returne
 check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('1161068 byte baseline',()=>Buffer.byteLength(baseline)===1161068);
 check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
-check('235 original official SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a');
+check('236 official completed SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a');
 check('Web Locks critical sections applied',()=>html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
-check('Official 235 baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
+check('Official 237 start baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('237 start file unchanged',()=>html===baseline&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
-check('235 correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
+check('Previous session-safety correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 check('236 baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a');
-check('236 candidate product SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a');
+check('237 unchanged product candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a');
 console.log('QA237_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
@@ -26,7 +26,7 @@ const bodyBeforeJs=html.slice(0,html.indexOf('<script async src='));
 const ids=[...bodyBeforeJs.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
 check('No duplicated static DOM IDs',()=>new Set(ids).size===ids.length);
 check('4-group overhaul decision path present',()=>html.includes("key>='2026-10-01'&&key<='2026-10-15'"));
-check('No console access to live Supabase needed',()=>true);
+check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live-db-fixture-DO-NOT-USE')&&typeof http.createServer==='function');
 (async()=>{
  let server, browser;
  try {
@@ -594,6 +594,7 @@ check('No console access to live Supabase needed',()=>true);
   });
   console.log('QA237_NOLOCK_MOBILE_LOGOUT',JSON.stringify(mobileLogout));
   check('Mobile Web Locks unsupported: logout blocks same token restoration',()=>!mobileLogout.restoredToken&&mobileLogout.suppressed&&mobileLogout.storageToken==='qa237-mobile-without-weblocks');
+  check('Mobile Web Locks unsupported: logout immediately revokes confidential UI',()=>mobileLogout.immediate.token===''&&!mobileLogout.immediate.admin&&!mobileLogout.immediate.appVisible);
   await noLockMobileCtx.addInitScript(()=>Object.defineProperty(navigator,'locks',{configurable:true,value:null}));
   await noLockMobile.reload({waitUntil:'domcontentloaded'});
   const afterReload=await noLockMobile.evaluate(()=>({
