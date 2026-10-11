@@ -1108,6 +1108,33 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa238-live
     const dim=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,view:document.documentElement.clientWidth}));
     check('Default mobile/PC screen no horizontal overflow '+width,()=>dim.scroll<=dim.view+2);
   }
+  // 238: Actual authenticated calendar DOM smoke in Chrome without
+  // backend access. These are synthetic local-only employee fixtures, not
+  // claims of real Supabase session authorization.
+  const calCtx=await browser.newContext({viewport:{width:390,height:844}});
+  const calPage=await calCtx.newPage();
+  await calPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await calPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const renderedCalendar=await calPage.evaluate(()=>{
+    state.sessionToken='qa238-ui-fixture';
+    state.me={employee_id:238,is_admin:false,display_name:'QA Worker',group_code:'B'};
+    state.employees=[{id:238,employee_id:238,display_name:'QA Worker',group_code:'B',active_from:'2026-01-01',employment_status:'working'}];
+    state.year=2026;state.month=9;state.view='mine';state.refreshing=false;
+    document.getElementById('loginView').classList.add('hidden');
+    document.getElementById('appView').classList.remove('hidden');
+    renderCalendar();
+    return {title:document.getElementById('monthTitle').textContent,days:document.querySelectorAll('.day-cell:not(.blank)').length};
+  });
+  console.log('QA238_AUTH_CALENDAR',JSON.stringify(renderedCalendar));
+  check('Authenticated local-only October calendar shows all 31 days',()=>renderedCalendar.title.includes('2026년 10월')&&renderedCalendar.days===31);
+  const liveCalendarWidths=[320,360,390,430,768,1024,1440];
+  for(const width of liveCalendarWidths){
+    await calPage.setViewportSize({width,height:900});
+    const dim=await calPage.evaluate(()=>({scroll:document.documentElement.scrollWidth,view:document.documentElement.clientWidth}));
+    check('Authenticated calendar avoids horizontal viewport overflow '+width,()=>dim.scroll<=dim.view+2);
+  }
+  await calCtx.close();
+
   console.log('QA238_SUMMARY',JSON.stringify({passed:pass.length,failed:0,checks:pass,viewport_widths:widths,real_chromium:true,live_supabase:false,native_android:false,real_storage_two_tabs:true,backend_auth_multitab:false,bfcache:false}));
  } catch(e){console.error('QA238_FAIL',e.stack||String(e)); console.log('QA238_PARTIAL',JSON.stringify({passed:pass.length,checks:pass})); process.exitCode=1;}
  finally{if(browser)await browser.close();if(server)await new Promise(resolve=>server.close(resolve));}
