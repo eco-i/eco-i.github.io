@@ -1,14 +1,17 @@
 'use strict';
 const fs=require('fs'), crypto=require('crypto'),vm=require('vm'),assert=require('assert');
 const http=require('http'); const {chromium}=require('playwright-core');
-const file='qa-handoff/index.before-2-8-234.html';
+const baseline=fs.readFileSync('qa-handoff/index.before-2-8-234.html','utf8');
+const file='qa-handoff/index.working-2-8-234.html';
 const html=fs.readFileSync(file,'utf8');
 const expected='a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0';
 const pass=[];
 function check(name,fn){const result=fn(); assert(result!==false, name+' returned false');pass.push(name);}
-check('SHA256 official',()=>crypto.createHash('sha256').update(html).digest('hex')===expected);
-check('1157310 byte baseline',()=>Buffer.byteLength(html)===1157310);
+check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
+check('1157310 byte baseline',()=>Buffer.byteLength(baseline)===1157310);
 check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
+check('QA 234 mutex-only patch',()=>html!==baseline&&html.includes('const peers=Object.keys(localStorage)')&&baseline.includes('if(at<now || (at===now && key<myKey))'));
+console.log('QA234_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
 const bodyBeforeJs=html.slice(0,html.indexOf('<script async src='));
