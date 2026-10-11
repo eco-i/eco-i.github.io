@@ -684,6 +684,28 @@ check('No console access to live Supabase needed',()=>true);
   await crossCtx.close();
 
 
+  // Browser navigation with possible BFCache restoration: password inputs
+  // must be cleared on pagehide even when the document is re-used.
+  const navCtx=await browser.newContext({viewport:{width:390,height:844}});
+  const navPage=await navCtx.newPage();
+  await navPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await navPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  await navPage.evaluate(()=>{
+    document.getElementById('loginPin').value='1234';
+    document.getElementById('loginAdminPin').value='5678';
+    window.addEventListener('pageshow',event=>sessionStorage.setItem('__qa236_bfcache_event__',event.persisted?'persisted':'fresh'));
+  });
+  await navPage.goto('http://127.0.0.1:'+port+'/away',{waitUntil:'domcontentloaded'});
+  await navPage.goBack({waitUntil:'domcontentloaded'});
+  const navSecret=await navPage.evaluate(()=>({
+    pin:document.getElementById('loginPin').value,
+    adminPin:document.getElementById('loginAdminPin').value,
+    restoration:sessionStorage.getItem('__qa236_bfcache_event__')||'unknown'
+  }));
+  check('Real browser back navigation clears old PIN fields',()=>!navSecret.pin&&!navSecret.adminPin);
+  console.log('QA236_BROWSER_BACK',JSON.stringify(navSecret));
+  await navCtx.close();
+
   const imageChecks=await page.evaluate(async()=>{
     const c=document.createElement('canvas');c.width=320;c.height=320;
     const cx=c.getContext('2d');for(let i=0;i<320;i++){cx.fillStyle='rgb('+i+',88,155)';cx.fillRect(i,0,1,320)}
