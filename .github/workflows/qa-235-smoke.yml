@@ -1,0 +1,24 @@
+name: QA 2-8-235 Chromium extended regression
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-235-smoke.yml"
+      - "qa-handoff/QA_235_SMOKE.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  extended:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa-235 --no-audit --no-fund playwright-core@1.55.1
+      - name: Run complete legacy / multi-tab Chromium suite
+        env:
+          NODE_PATH: /tmp/qa-235/node_modules
+        run: node qa-handoff/QA_235_SMOKE.cjs
