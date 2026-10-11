@@ -180,7 +180,10 @@ check('No console access to live Supabase needed',()=>true);
 
   console.log('QA234_MUTEX_REAL',JSON.stringify({lock_critical_sections:successes,overlaps,late_logout_protected:true,admin_unlock_protected:true}));
   await other.close();
-
+  // Real storage-event session reconciliation may navigate the old tab.
+  // Start the unrelated image/viewport suite in a clean document after auth races.
+  await page.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded',timeout:30000});
+  await page.waitForTimeout(200);
 
   const imageChecks=await page.evaluate(async()=>{
     const c=document.createElement('canvas');c.width=320;c.height=320;
