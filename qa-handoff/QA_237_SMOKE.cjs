@@ -740,6 +740,41 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
     ()=>isolatedAfterClear.tabToken==='qa237-pc-isolated'&&isolatedAfterClear.token==='qa237-pc-isolated'&&isolatedAfterClear.actor===238&&isolatedAfterClear.appVisible);
   await clearCtx.close();
 
+  // 237: Mobile legacy sessionStorage can coexist with shared storage after
+  // partial migration. The shared logout marker must still revoke mobile UI;
+  // only desktop tab-exclusive sessions are exempt from this event.
+  const legacyMobileCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const legacyVictim=await legacyMobileCtx.newPage(),legacySender=await legacyMobileCtx.newPage();
+  for(const tab of [legacyVictim,legacySender]){
+    await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  }
+  await legacyVictim.evaluate(()=>{
+    const token='qa237-mobile-legacy-duplicate';
+    localStorage.setItem(SESSION_KEY,token);
+    sessionStorage.setItem(SESSION_KEY,token);
+    state.sessionToken=token;
+    state.me={employee_id:237,is_admin:true,display_name:'Legacy Mobile Admin'};
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('loginView').classList.add('hidden');
+    window.__qa237_legacyMarker=false;
+    window.addEventListener('storage',e=>{if(e.key===SHARED_SESSION_LOGOUT_SUPPRESSION_KEY&&e.newValue===token)window.__qa237_legacyMarker=true;});
+  });
+  await legacySender.evaluate(()=>localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa237-mobile-legacy-duplicate'));
+  await legacyVictim.waitForTimeout(350);
+  const legacyAfter=await legacyVictim.evaluate(()=>({
+    markerReceived:!!window.__qa237_legacyMarker,
+    isMobile:MOBILE_SESSION_DEVICE,
+    sessionStorageToken:sessionStorage.getItem(SESSION_KEY),
+    actor:state.me?.employee_id??null,
+    currentToken:state.sessionToken,
+    visible:!document.getElementById('appView').classList.contains('hidden')
+  }));
+  console.log('QA237_MOBILE_LEGACY_MARKER',JSON.stringify(legacyAfter));
+  check('Mobile legacy suppression test uses real delivered cross-tab event',()=>legacyAfter.markerReceived&&legacyAfter.isMobile);
+  check('Mobile legacy sessionStorage cannot bypass shared logout revocation',()=>!legacyAfter.actor&&!legacyAfter.visible);
+  await legacyMobileCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
