@@ -18,8 +18,9 @@ check('Web Locks critical sections applied',()=>html.includes('withBrowserShared
 check('Official 237 start baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('237 start baseline remained immutable while candidate fixed',()=>html.includes('if(e.key===null)')&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
 check('Previous session-safety correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
+check('238 mobile tab-only carveout eliminated',()=>html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return false;")&&html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return {current,mode:'tab'};")&&html.includes("if(!MOBILE_SESSION_DEVICE && current && tabToken===current){ sharedSessionChangePending="));
 check('236 baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='f5d75a76d182629d1b8fa97002a726249f8860c729db4b47fdfa74d9707cc30f');
-check('238 candidate matches official baseline before any repairs',()=>crypto.createHash('sha256').update(html).digest('hex')==='f5d75a76d182629d1b8fa97002a726249f8860c729db4b47fdfa74d9707cc30f');
+check('238 mobile legacy ownership guard candidate pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='6d6af0c6ef5608c47ac70902161c8ee4c65f934b8de473f1735e5823697fd9b3');
 console.log('QA238_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
