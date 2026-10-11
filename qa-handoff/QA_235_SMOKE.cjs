@@ -313,6 +313,23 @@ check('No console access to live Supabase needed',()=>true);
   });
   check('No Web Locks: shared session mutations fail closed',()=>legacyUnavailable.res===null&&legacyUnavailable.unsafeDirect===null&&legacyUnavailable.preserved);
   console.log('QA235_UNSUPPORTED',JSON.stringify(legacyUnavailable));
+  const desktopNoLock=await page.evaluate(async()=>{
+    const original=navigator.locks,oldToken=state.sessionToken;
+    try{
+      Object.defineProperty(navigator,'locks',{configurable:true,value:null});
+      const token='qa235-desktop-tabonly',attempt=++loginAttemptSeq;
+      state.sessionToken=token;
+      const stored=await storeLoginSessionForFreshLogin(token,false,attempt);
+      return {stored,tabToken:storageGet(sessionStorage,SESSION_KEY),sharedToken:storageGet(localStorage,SESSION_KEY)};
+    }finally{
+      sessionStorage.removeItem(SESSION_KEY);
+      state.sessionToken=oldToken;
+      Object.defineProperty(navigator,'locks',{configurable:true,value:original});
+    }
+  });
+  console.log('QA235_PC_NOLOCK_TEMP_LOGIN',JSON.stringify(desktopNoLock));
+  check('Desktop temporary login must not depend on Web Locks',()=>desktopNoLock.stored===true&&desktopNoLock.tabToken==='qa235-desktop-tabonly');
+
 
 
   const imageChecks=await page.evaluate(async()=>{
