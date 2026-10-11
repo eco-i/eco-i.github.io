@@ -613,6 +613,40 @@ check('No console access to live Supabase needed',()=>true);
   await noLockMobileCtx.close();
 
 
+  // 236: Dispatch of the old token's server invalidation must not be blocked
+  // by another tab holding the browser-wide LOCAL storage lock. RPC is mocked:
+  // no network requests or production tokens are used.
+  const remoteCtx=await browser.newContext({viewport:{width:390,height:844}});
+  const remoteHold=await remoteCtx.newPage(),remoteTab=await remoteCtx.newPage();
+  for(const tab of [remoteHold,remoteTab]){await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});}
+  void remoteHold.evaluate(()=>navigator.locks.request(SHARED_SESSION_BROWSER_LOCK,{mode:'exclusive'},()=>new Promise(resolve=>{
+    window.__qa236_releaseServerHold=resolve;document.body.dataset.qa236ServerHold='1';
+  })));
+  await remoteHold.waitForFunction(()=>document.body.dataset.qa236ServerHold==='1');
+  const serverStarted=await remoteTab.evaluate(()=>{
+    window.__qa236_savedRpc=window.rpc;window.__qa236_savedConfigured=window.configured;
+    window.__qa236_serverCalls=[];
+    window.rpc=async function(name,payload,options){
+      window.__qa236_serverCalls.push({name,token:payload?.p_token,keepalive:options?.keepalive});
+      return {};
+    };
+    window.configured=()=>true;
+    state.sessionToken='qa236-server-revoke';
+    state.me={employee_id:500,is_admin:true};
+    window.__qa236_pendingServerLogout=logout(true);
+    return {calls:window.__qa236_serverCalls.slice(),role:state.me,token:state.sessionToken};
+  });
+  await remoteTab.waitForTimeout(120);
+  const duringServerHold=await remoteTab.evaluate(()=>window.__qa236_serverCalls.slice());
+  await remoteHold.evaluate(()=>window.__qa236_releaseServerHold());
+  await remoteTab.evaluate(()=>window.__qa236_pendingServerLogout);
+  const serverFinal=await remoteTab.evaluate(()=>{const result=window.__qa236_serverCalls.slice();window.rpc=window.__qa236_savedRpc;window.configured=window.__qa236_savedConfigured;return result;});
+  console.log('QA236_SERVER_LOGOUT',JSON.stringify({serverStarted,duringServerHold,serverFinal}));
+  check('Server logout is dispatched before contended local Web Lock releases',()=>duringServerHold.length===1&&duringServerHold[0].name==='logout_employee'&&duringServerHold[0].token==='qa236-server-revoke'&&duringServerHold[0].keepalive===true);
+  check('Server logout uses captured old token once',()=>serverFinal.length===1&&!serverStarted.role&&!serverStarted.token);
+  await remoteCtx.close();
+
+
   const imageChecks=await page.evaluate(async()=>{
     const c=document.createElement('canvas');c.width=320;c.height=320;
     const cx=c.getContext('2d');for(let i=0;i<320;i++){cx.fillStyle='rgb('+i+',88,155)';cx.fillRect(i,0,1,320)}
