@@ -1866,6 +1866,9 @@ function storageRemove(storage,key){ try{ storage.removeItem(key); }catch(e){} }
 const SHARED_SESSION_MUTEX_PREFIX='staffAttendance_sharedSessionMutex_v1:';
 const SHARED_SESSION_MUTEX_TTL_MS=4000;
 const SHARED_SESSION_BROWSER_LOCK='staffAttendance_sharedSessionBrowserLock_v3';
+// Token-specific persistent suppression protects a signed-out mobile session
+// if Web Locks are unavailable and the shared token cannot be deleted.
+const SHARED_SESSION_LOGOUT_SUPPRESSION_KEY='staffAttendance_sharedLoggedOutToken_v1';
 let sharedSessionMutexDepth=0;
 let sharedBrowserMutexHeld=0;
 let deferredAdminUnlockRestoreToken='';
@@ -1954,8 +1957,13 @@ function scheduleSharedSessionCleanup(token){
   setTimeout(retry,80);
 }
 function storedSessionToken(){
-  const localToken=storageGet(localStorage,SESSION_KEY);
-  const temporaryToken=storageGet(sessionStorage,SESSION_KEY);
+  const forbidden=storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+  const rawLocal=storageGet(localStorage,SESSION_KEY),rawTab=storageGet(sessionStorage,SESSION_KEY);
+  // Logout is never undone by a later boot just because the atomic shared
+  // delete could not execute in a Web Locks-unsupported browser. A newer token
+  // is not affected because the block applies only to the exact old token.
+  const localToken=rawLocal&&rawLocal!==forbidden?rawLocal:'';
+  const temporaryToken=rawTab&&rawTab!==forbidden?rawTab:'';
   return MOBILE_SESSION_DEVICE ? (localToken||temporaryToken) : (temporaryToken||localToken);
 }
 function sessionIsPersistent(token=storedSessionToken()){
@@ -2086,7 +2094,7 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
       if(!ok)return false;
       // fresh shared login의 token 저장과 logout tombstone 해제를 같은 mutex 안에서 처리해,
       // 옛 logout cleanup이 같은 token의 새 세션을 지우는 TOCTOU를 막는다.
-      if(clearLogoutTombstone)clearUpdateHandoffLogoutTombstone(token);
+      if(clearLogoutTombstone){clearUpdateHandoffLogoutTombstone(token);if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)storageRemove(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);}
       storageRemove(sessionStorage,SESSION_KEY);storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);storageRemove(localStorage,PC_REMEMBER_KEY);
       return storageGet(localStorage,SESSION_KEY)===token;
     });
@@ -2099,7 +2107,7 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
       const rememberStored=tokenStored&&storageSet(localStorage,PC_REMEMBER_KEY,'1');
       const ok=tokenStored&&rememberStored;
       if(ok){
-        if(clearLogoutTombstone)clearUpdateHandoffLogoutTombstone(token);
+        if(clearLogoutTombstone){clearUpdateHandoffLogoutTombstone(token);if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)storageRemove(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);}
         storageRemove(sessionStorage,SESSION_KEY);storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);storageRemove(localStorage,ADMIN_UNLOCK_KEY);
         return true;
       }
@@ -6731,6 +6739,12 @@ async function logout(callServer=true){
   const realtimeStopPromise=stopRealtime();
   if(state.sessionToken!==logoutToken)return;
   invalidateSessionBoundLoads();++monthNavigationSeq;resetSessionUiContext();showLoading(false);
+  // Revoke local UI immediately. If shared-token deletion is blocked because
+  // Web Locks is unsupported, persist a token-specific logout suppression
+  // independently of the shared token key (never delete a newer token).
+  if(logoutToken&&storageGet(localStorage,SESSION_KEY)===logoutToken){
+    storageSet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,logoutToken);
+  }
   state.sessionToken='';const sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken);state.me=null;state.initialPinRequired=false;state.accountStatusBackendReady=null;state.accountStatusPersonnelAuthoritative=null;state.employees=[];state.holidayWorkEligibilityReady=null;state.attendance=[];attendanceMonthContextKey='';state.attendanceAnnualLeaveBackendReady=null;state.holidayWorks=[];state.holidayWorkBackendReady=null;state.overtimeEntries=[];state.overtimeBackendReady=null;state.overtimeConfirmations=[];state.overtimeConfirmBackendReady=null;state.fingerprintRecords=[];state.fingerprintBackendReady=null;state.memos=[];state.memoBackendReady=null;state.memoDdays=[];state.memoDdayBackendReady=null;memoDdayPendingDates.clear();state.companyEvents=[];state.companyEventBackendReady=null;state.annualLeaveSettings=null;state.annualLeaveEntries=[];state.annualLeaveBackendReady=null;state.annualLeaveYear=null;state.annualLeaveFormDirty=false;state.longServiceProfile=null;state.longServiceExclusions=[];state.longServiceEntries=[];state.longServiceBackendReady=null;state.longServiceFormDirty=false;state.personnelAssignments=[];state.personnelAccountEvents=[];state.personnelSnapshots=[];state.personnelBackendReady=null;state.personnelSnapshotBackendReady=null;state.view='mine';
   overtimeListRows=[];overtimeListBackendReady=null;overtimeListContextKey='';overtimeListTargetEmployeeId=null;
   holidayWorkListRows=[];holidayWorkListBackendReady=null;holidayWorkListContextKey='';holidayWorkPastExpanded=false;holidayWorkListEditReturnMode=null;
