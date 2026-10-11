@@ -543,6 +543,31 @@ check('No console access to live Supabase needed',()=>true);
   check('Logout preserves signed-out state while lock is held',()=>!delayedLogout.meStillPrivileged&&!delayedLogout.appVisible);
   await delayedContext.close();
 
+  // 236: A new login must not be cleared by the previous logout's delayed
+  // cleanup after a real queued Web Lock. This checks current state ownership,
+  // not only storage contents.
+  const reentryContext=await browser.newContext({viewport:{width:430,height:850}});
+  const blocker=await reentryContext.newPage(),reentry=await reentryContext.newPage();
+  for(const t of [blocker,reentry]){await t.route('https://cdn.jsdelivr.net/**',r=>r.abort());await t.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});}
+  void blocker.evaluate(()=>navigator.locks.request(SHARED_SESSION_BROWSER_LOCK,{mode:'exclusive'},()=>new Promise(resolve=>{
+    window.__qa236_releaseReentry=resolve;
+    document.documentElement.dataset.qa236ReentryLocked='1';
+  })));
+  await blocker.waitForFunction(()=>document.documentElement.dataset.qa236ReentryLocked==='1');
+  const replacedState=await reentry.evaluate(()=>{
+    state.sessionToken='qa236-prev-session';state.me={employee_id:1,is_admin:true,display_name:'previous'};
+    window.__qa236_oldSignout=logout(false);
+    state.sessionToken='qa236-next-session';state.me={employee_id:2,is_admin:false,display_name:'new'};
+    return {token:state.sessionToken,actor:state.me.employee_id};
+  });
+  await blocker.evaluate(()=>window.__qa236_releaseReentry());
+  await reentry.evaluate(()=>window.__qa236_oldSignout);
+  const afterDelayedLogout=await reentry.evaluate(()=>({token:state.sessionToken,actor:state.me?.employee_id}));
+  check('Delayed old logout cannot clear new authenticated state',
+    ()=>replacedState.token==='qa236-next-session'&&afterDelayedLogout.token==='qa236-next-session'&&afterDelayedLogout.actor===2);
+  console.log('QA236_REENTRY',JSON.stringify({replacedState,afterDelayedLogout}));
+  await reentryContext.close();
+
   const imageChecks=await page.evaluate(async()=>{
     const c=document.createElement('canvas');c.width=320;c.height=320;
     const cx=c.getContext('2d');for(let i=0;i<320;i++){cx.fillStyle='rgb('+i+',88,155)';cx.fillRect(i,0,1,320)}
