@@ -793,6 +793,35 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
   check('Mobile legacy sessionStorage cannot bypass shared logout revocation',()=>!legacyAfter.actor&&!legacyAfter.visible);
   await legacyMobileCtx.close();
 
+  // Mobile legacy tab storage also must NOT exempt a shared session from
+  // a real cross-tab localStorage.clear() key-null event.
+  const mobileClearCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const mobileClearVictim=await mobileClearCtx.newPage(),mobileClearSender=await mobileClearCtx.newPage();
+  for(const tab of [mobileClearVictim,mobileClearSender]){
+    await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  }
+  await mobileClearVictim.waitForTimeout(250);
+  await mobileClearVictim.evaluate(()=>{
+    const token='qa237-mobile-clear-with-legacy-tab-token';
+    localStorage.setItem(SESSION_KEY,token);
+    sessionStorage.setItem(SESSION_KEY,token);
+    state.sessionToken=token;state.me={employee_id:240,is_admin:true};
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('loginView').classList.add('hidden');
+  });
+  await mobileClearSender.evaluate(()=>localStorage.clear());
+  await mobileClearVictim.waitForTimeout(250);
+  const mobileClearResult=await mobileClearVictim.evaluate(()=>({
+    isMobile:MOBILE_SESSION_DEVICE,actor:state.me?.employee_id??null,
+    privilegedVisible:!!state.me?.is_admin&&!document.getElementById('appView').classList.contains('hidden'),
+    stored:localStorage.getItem(SESSION_KEY)
+  }));
+  console.log('QA237_MOBILE_LEGACY_SITE_CLEAR',JSON.stringify(mobileClearResult));
+  check('Mobile legacy duplicate token cannot preserve old admin UI after site clear',
+    ()=>mobileClearResult.isMobile&&!mobileClearResult.privilegedVisible&&mobileClearResult.actor===null&&!mobileClearResult.stored);
+  await mobileClearCtx.close();
+
   // Suppression marker must not terminate a separate PC-only session:
   // its sessionStorage login is owned by this tab, not localStorage.
   const isolatedMarkerCtx=await browser.newContext({viewport:{width:390,height:844}});
