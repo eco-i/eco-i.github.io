@@ -568,6 +568,32 @@ check('No console access to live Supabase needed',()=>true);
   console.log('QA236_REENTRY',JSON.stringify({replacedState,afterDelayedLogout}));
   await reentryContext.close();
 
+  // 236: On mobile browsers without Web Locks, logout must not resurrect a
+  // persistent shared login on next load. The stored logout tombstone exists
+  // even when the protected shared-token delete was impossible.
+  const noLockMobileCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/125.0 Mobile Safari/537.36'});
+  const noLockMobile=await noLockMobileCtx.newPage();
+  await noLockMobile.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await noLockMobile.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const mobileLogout=await noLockMobile.evaluate(async()=>{
+    const realLocks=navigator.locks;
+    try{
+      Object.defineProperty(navigator,'locks',{configurable:true,value:null});
+      const token='qa236-mobile-without-weblocks';
+      localStorage.setItem(SESSION_KEY,token);state.sessionToken=token;
+      state.me={employee_id:111,is_admin:true,display_name:'QA 관리자'};
+      document.getElementById('appView').classList.remove('hidden');
+      window.__qa236_mobilePending=logout(false);
+      const immediate={token:state.sessionToken,admin:!!state.me,appVisible:!document.getElementById('appView').classList.contains('hidden')};
+      await window.__qa236_mobilePending;
+      return {immediate,storageToken:localStorage.getItem(SESSION_KEY),restoredToken:storedSessionToken(),tombstone:updateHandoffTokenWasLoggedOut(token)};
+    }finally{Object.defineProperty(navigator,'locks',{configurable:true,value:realLocks});}
+  });
+  console.log('QA236_NOLOCK_MOBILE_LOGOUT',JSON.stringify(mobileLogout));
+  check('Mobile Web Locks unsupported: logout tombstone blocks same token reload',()=>!mobileLogout.restoredToken&&mobileLogout.tombstone);
+  await noLockMobileCtx.close();
+
+
   const imageChecks=await page.evaluate(async()=>{
     const c=document.createElement('canvas');c.width=320;c.height=320;
     const cx=c.getContext('2d');for(let i=0;i<320;i++){cx.fillStyle='rgb('+i+',88,155)';cx.fillRect(i,0,1,320)}
