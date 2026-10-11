@@ -387,6 +387,35 @@ check('No console access to live Supabase needed',()=>true);
   console.log('QA235_PC_COLD_RESTORE',JSON.stringify(restoreTests));
   await restoreContext.close();
 
+  // Locks API is present but its request rejects (restricted browser policy).
+  // Only genuinely tab-scoped mutations may proceed.
+  const restrictedContext=await browser.newContext({viewport:{width:390,height:844}});
+  const restrictedPage=await restrictedContext.newPage();
+  await restrictedPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await restrictedPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const restricted=await restrictedPage.evaluate(async()=>{
+    const savedLocks=navigator.locks,savedToken=state.sessionToken;
+    try{
+      Object.defineProperty(navigator,'locks',{configurable:true,value:{request(){throw new Error('Lock denied by browser policy')}}});
+      const before=storageGet(localStorage,SESSION_KEY);
+      const rejected=await withBrowserSharedSessionLock(()=>storeLoginSession('qa235-shared-denied',true));
+      state.sessionToken='qa235-tabonly-denied';
+      const attempt=++loginAttemptSeq;
+      const tabLogin=await storeLoginSessionForFreshLogin(state.sessionToken,false,attempt);
+      const tabAdmin=await storeAdminUnlockForFreshLogin(state.sessionToken,false,attempt);
+      const adminProof=storageGet(sessionStorage,ADMIN_UNLOCK_KEY);
+      await safelyClearStoredLoginSession(state.sessionToken);
+      return {rejected,tabLogin,tabAdmin,adminProof,sharedUnchanged:before===storageGet(localStorage,SESSION_KEY),tabCleared:!storageGet(sessionStorage,SESSION_KEY)};
+    }finally{
+      Object.defineProperty(navigator,'locks',{configurable:true,value:savedLocks});
+      state.sessionToken=savedToken;
+    }
+  });
+  check('Rejected Web Locks request must not mutate shared sessions',()=>restricted.rejected===null&&restricted.sharedUnchanged===true);
+  check('Rejected Web Locks request still permits isolated desktop login',()=>restricted.tabLogin===true&&restricted.tabAdmin===true&&restricted.adminProof==='qa235-tabonly-denied'&&restricted.tabCleared===true);
+  console.log('QA235_LOCKS_REJECTED',JSON.stringify(restricted));
+  await restrictedContext.close();
+
   // Four simultaneous REAL Chromium same-origin tabs, separate JS heaps.
   const fourTabContext=await browser.newContext({viewport:{width:430,height:900}});
   let criticalActive=0,criticalOverlaps=0,criticalEvents=0;
