@@ -977,13 +977,19 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa238-live
       localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa238-later-shared-B');
       sessionStorage.setItem(SESSION_KEY,'qa238-stale-legacy-A');
       const staleFallback=storedSessionToken();
+      // When Web Locks *are* available, cleanup may delete shared B; its
+      // exact-token logout suppression marker still identifies this legacy A
+      // fallback as unsafe.
+      localStorage.removeItem(SESSION_KEY);
+      const afterSharedTokenDeletion=storedSessionToken();
       localStorage.setItem(SESSION_KEY,'qa238-fresh-shared-C');
       const freshCandidate=storedSessionToken();
-      return {mobile:MOBILE_SESSION_DEVICE,staleFallback,freshCandidate,shared:localStorage.getItem(SESSION_KEY)};
+      return {mobile:MOBILE_SESSION_DEVICE,staleFallback,afterSharedTokenDeletion,freshCandidate,shared:localStorage.getItem(SESSION_KEY)};
     }finally{Object.defineProperty(navigator,'locks',{configurable:true,value:locks});}
   });
   console.log('QA238_SUPPRESSED_LOCAL_LEGACY_FALLBACK',JSON.stringify(fallback));
   check('Mobile suppressed newer shared logout cannot resurrect old tab-only legacy token',()=>fallback.mobile&&!fallback.staleFallback);
+  check('Mobile completed deletion with retained logout marker also cannot restore stale legacy token',()=>!fallback.afterSharedTokenDeletion);
   check('Mobile distinct newer shared login remains selectable',()=>fallback.freshCandidate==='qa238-fresh-shared-C');
   await fallbackCtx.close();
 
