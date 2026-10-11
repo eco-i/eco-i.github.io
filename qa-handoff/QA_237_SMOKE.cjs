@@ -707,6 +707,12 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
     await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
     await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
   }
+  await Promise.all([clearVictim,clearPeer].map(tab=>tab.waitForTimeout(450)));
+  // Any initial session migration/navigation must settle before installing the
+  // event witness; use Node-observed events rather than a document-global
+  // flag that is erased by an automatic navigation.
+  let clearEventCount=0;
+  await clearCtx.exposeBinding('__qa237ObserveClear',()=>{clearEventCount++;});
   await clearVictim.evaluate(()=>{
     localStorage.setItem(SESSION_KEY,'qa237-site-clear-admin');
     state.sessionToken='qa237-site-clear-admin';
@@ -715,7 +721,7 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
     document.getElementById('loginView').classList.add('hidden');
     window.__qa237_clearEvent=false;
     sessionStorage.removeItem('__qa237_clear_event_received__');
-    window.addEventListener('storage',e=>{if(e.key===null){window.__qa237_clearEvent=true;sessionStorage.setItem('__qa237_clear_event_received__','1');}});
+    window.addEventListener('storage',e=>{if(e.key===null){window.__qa237_clearEvent=true;sessionStorage.setItem('__qa237_clear_event_received__','1');void window.__qa237ObserveClear();}});
   });
   await clearPeer.evaluate(()=>localStorage.clear());
   await clearVictim.waitForTimeout(350);
@@ -726,7 +732,7 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
     currentToken:state.sessionToken
   }));
   console.log('QA237_CROSS_TAB_CLEAR',JSON.stringify(siteClear));
-  check('Actual storage clear generates key-null event',()=>siteClear.clearEvent);
+  check('Actual storage clear generates key-null event',()=>clearEventCount>0||siteClear.clearEvent);
   check('Cross-tab site-data clear revokes stale shared-admin UI',()=>!siteClear.oldAdminVisible);
   // Desktop independent sessionStorage login must be preserved when a
   // different tab clears the shared localStorage namespace.
@@ -825,19 +831,25 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
     await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
     await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
   }
-  // The fourth tab must own the genuinely persisted newer shared token.
-  await manyTabs[0].evaluate(()=>localStorage.setItem(SESSION_KEY,'qa237-four-tab-new'));
-  for(let i=0;i<4;i++){
+  // Real chronology: three tabs have old shared login. Fourth tab then
+  // establishes a newer shared login, which first revokes the old views.
+  await manyTabs[0].evaluate(()=>localStorage.setItem(SESSION_KEY,'qa237-four-tab-old'));
+  for(let i=0;i<3;i++){
     await manyTabs[i].evaluate(({i})=>{
-      const token=i===3?'qa237-four-tab-new':'qa237-four-tab-old';
-      state.sessionToken=token;state.me={employee_id:1000+i,is_admin:i<3};
-      if(i===1)sessionStorage.setItem(SESSION_KEY,token);
+      state.sessionToken='qa237-four-tab-old';state.me={employee_id:1000+i,is_admin:true};
+      if(i===1)sessionStorage.setItem(SESSION_KEY,'qa237-four-tab-old');
       document.getElementById('appView').classList.remove('hidden');
       document.getElementById('loginView').classList.add('hidden');
-      window.__qa237_markerCount=0;
-      window.addEventListener('storage',event=>{if(event.key===SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)window.__qa237_markerCount++});
     },{i});
   }
+  await manyTabs[3].evaluate(async()=>{
+    const token='qa237-four-tab-new';
+    state.sessionToken=token;state.me={employee_id:1003,is_admin:false};
+    await withBrowserSharedSessionLock(()=>storeLoginSession(token,true));
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('loginView').classList.add('hidden');
+  });
+  await manyTabs[3].waitForTimeout(300);
   await manyTabs[3].evaluate(()=>localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa237-four-tab-old'));
   await manyTabs[3].waitForTimeout(400);
   const manyResults=await Promise.all(manyTabs.map(tab=>tab.evaluate(()=>({
