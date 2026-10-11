@@ -5,6 +5,7 @@ const baseline=fs.readFileSync('qa-handoff/index.before-2-8-237.html','utf8');
 const file='qa-handoff/index.working-2-8-237.html';
 const html=fs.readFileSync(file,'utf8');
 const expected='5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a';
+// QA 237 stable-source repeat: independent frozen SHA-256 final verification
 // QA 237 stabilized mutex stress regression v2
 // QA 237 verified Web Lock real two-tab test, syntax correction
 const pass=[];
