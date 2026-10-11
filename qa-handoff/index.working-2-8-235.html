@@ -2189,6 +2189,12 @@ function ensureAdminUnlockForRestore(isAdmin,token){
   // 자동업데이트 handoff처럼 기존 관리자 인증의 소유권이 명시적으로 증명되는 복구는 위 전용 경로만 허용한다.
   return false;
 }
+// PC's sessionStorage-only restore never edits shared session state and must
+// remain valid in browsers with no Web Locks support.
+async function ensureAdminUnlockForRestoreWithScope(isAdmin,token){
+  if(!MOBILE_SESSION_DEVICE&&!sessionIsPersistent(token))return ensureAdminUnlockForRestore(isAdmin,token);
+  return await withBrowserSharedSessionLock(()=>ensureAdminUnlockForRestore(isAdmin,token));
+}
 function migrateLegacySessionForDevice(){
   if(MOBILE_SESSION_DEVICE){
     // mobile legacy sessionStorage → shared localStorage 이관도 다른 탭의 로그인과 같은 mutex를 사용한다.
@@ -5202,7 +5208,7 @@ async function restoreSession(isRetry=false){
       const m=/^local:(\d+)$/.exec(restoreToken);if(!m)throw new Error('local_expired');
       const emp=localEmployees().find(e=>e.id===Number(m[1])&&employeeCanLoginLocal(e,todayKey()));if(!emp)throw new Error('local_expired');
       if(!tokenStillCurrent())return;
-      if(!await withBrowserSharedSessionLock(()=>ensureAdminUnlockForRestore(emp.is_admin,restoreToken)))throw new Error('admin_locked');
+      if(!await ensureAdminUnlockForRestoreWithScope(emp.is_admin,restoreToken))throw new Error('admin_locked');
       await enterApp({employee_id:emp.id,display_name:emp.display_name,category:emp.category,is_admin:emp.is_admin});
     }else{
       const mustChangeInitial=await initialPinStatus(restoreToken);
@@ -5219,7 +5225,7 @@ async function restoreSession(isRetry=false){
       if(!tokenStillCurrent())return;
       if(Array.isArray(data)&&data.length===0)throw new Error('SESSION_INVALID_CONFIRMED');
       const me=strictEmployeeIdentityRpcRow(data);
-      if(!await withBrowserSharedSessionLock(()=>ensureAdminUnlockForRestore(me.is_admin,restoreToken)))throw new Error('admin_locked');
+      if(!await ensureAdminUnlockForRestoreWithScope(me.is_admin,restoreToken))throw new Error('admin_locked');
       if(mustChangeInitial) enterInitialPinGate(me); else await enterApp(me);
     }
     if(!tokenStillCurrent())return;
