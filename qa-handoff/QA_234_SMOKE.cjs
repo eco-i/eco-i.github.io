@@ -104,14 +104,21 @@ check('No console access to live Supabase needed',()=>true);
   await page.evaluate(()=>sessionStorage.setItem('__qa234_private__','secret'));
   const tabStorageIsolated=await other.evaluate(()=>sessionStorage.getItem('__qa234_private__')===null);
   check('Two actual tabs isolate sessionStorage',()=>tabStorageIsolated);
-  let collisions=0;
-  for(let k=0;k<50;k++){
+  let collisions=0;const samples=[],outcomes={both:0,left:0,right:0,none:0};
+  for(let k=0;k<150;k++){
     const [a,b]=await Promise.all([page.evaluate(()=>acquireSharedSessionMutex()),other.evaluate(()=>acquireSharedSessionMutex())]);
-    if(a&&b)collisions++;
+    const category=a&&b?'both':a?'left':b?'right':'none';outcomes[category]++;
+    if(a&&b){collisions++;
+      if(samples.length<5){
+        const diag=await Promise.all([page.evaluate(()=>({owner:SHARED_SESSION_MUTEX_OWNER,depth:sharedSessionMutexDepth,now:sharedSessionMutexNow(),locks:Object.entries(localStorage).filter(e=>e[0].startsWith(SHARED_SESSION_MUTEX_PREFIX))})),other.evaluate(()=>({owner:SHARED_SESSION_MUTEX_OWNER,depth:sharedSessionMutexDepth,now:sharedSessionMutexNow(),locks:Object.entries(localStorage).filter(e=>e[0].startsWith(SHARED_SESSION_MUTEX_PREFIX))}))]);
+        samples.push({iteration:k,diag});
+      }
+    }
     await Promise.all([page.evaluate(()=>releaseSharedSessionMutex()),other.evaluate(()=>releaseSharedSessionMutex())]);
   }
-  check('Two-tab cooperative mutex 50 attempts',()=>collisions===0);
-  console.log('QA234_EXTRA',JSON.stringify({roster_cases:2920,multitab_mutex_attempts:50,collisions,real_two_tab_storage:true,backend_auth_multitab:false}));
+  console.log('QA234_MUTEX_DIAGNOSTIC',JSON.stringify({attempts:150,collisions,outcomes,samples}));
+  check('Two-tab cooperative mutex 150 attempts',()=>collisions===0);
+  console.log('QA234_EXTRA',JSON.stringify({roster_cases:2920,multitab_mutex_attempts:150,collisions,real_two_tab_storage:true,backend_auth_multitab:false}));
   await other.close();
 
   const widths=[320,360,390,430,768,1024,1440];
