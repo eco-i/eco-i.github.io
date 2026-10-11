@@ -66,6 +66,52 @@ check('No console access to live Supabase needed',()=>true);
    return results;
   });
   for(const x of evaluated)check(x.name,()=>{if(!x.ok)throw Error(x.detail||x.name);return true;});
+
+  const extras=await page.evaluate(()=>{
+    const results=[],add=(name,ok,detail)=>results.push({name,ok:!!ok,detail:detail||''});
+    const patterns={A:['야','야','비','비','주','주','휴','휴'],B:['비','비','주','주','휴','휴','야','야'],C:['주','주','휴','휴','야','야','비','비'],D:['휴','휴','야','야','비','비','주','주']};
+    const anchor=Date.UTC(2026,8,1),holidays=new Set(['2026-10-03','2026-10-05','2026-10-09']);let count=0;const errors=[];
+    for(let y=2026;y<=2027;y++)for(let m=0;m<12;m++)for(let d=1;d<=new Date(Date.UTC(y,m+1,0)).getUTCDate();d++){
+      const dt=new Date(Date.UTC(y,m,d)),key=dt.toISOString().slice(0,10),offset=Math.round((dt.valueOf()-anchor)/86400000);
+      for(const g of ['A','B','C','D']){
+        let expected=patterns[g][((offset%8)+8)%8];
+        if(key>='2026-10-01'&&key<='2026-10-15')expected=holidays.has(key)||[0,6].includes(dt.getUTCDay())?'휴':g==='C'&&key==='2026-10-15'?'야':'주2';
+        const actual=shiftForGroup(g,y,m,d);if(actual!==expected&&errors.length<5)errors.push({key,g,expected,actual});count++;
+      }
+    }
+    add('2920 independently expected group-shifts',count===2920&&errors.length===0,JSON.stringify(errors));
+    const c={id:987654,display_name:'QA',group_code:'C',category:'C조',active_from:'2026-01-01'};
+    const b={...c,id:987655,group_code:'B',category:'B조'};
+    add('Night 11h full day',annualLeaveFullDayMinutes(c,'2026-09-05')===660);
+    add('Day 11h full day',annualLeaveFullDayMinutes(b,'2026-09-03')===660);
+    add('Overhaul 8h full day',annualLeaveFullDayMinutes(c,'2026-10-01')===480);
+    add('Off shift 0h full day',annualLeaveFullDayMinutes(c,'2026-09-03')===0);
+    const rec={attendance_type:'연가',absence_mode:'time',start_date:'2026-09-05',end_date:'2026-09-05',start_time:'23:00',end_time:'02:00'};
+    add('Night leave midnight 3h',annualLeaveMinutesForRecord(rec,c,'2026-01-01','2026-12-31')===180);
+    add('Night leave 01:00-03:00 2h',annualLeaveMinutesForRecord({...rec,start_time:'01:00',end_time:'03:00'},c,'2026-01-01','2026-12-31')===120);
+    add('Night leave 09:00-10:00 0h',annualLeaveMinutesForRecord({...rec,start_time:'09:00',end_time:'10:00'},c,'2026-01-01','2026-12-31')===0);
+    add('HTML escape injection payload',!escapeHtml('<img src=x onerror=alert(1)>').includes('<img'));
+    add('Invalid calendar date rejection',['2026-02-30','2026-00-01','2026-13-01','2026-04-31','2026-02-29'].every(key=>lsParseISO(key)===null));
+    return results;
+  });
+  for(const x of extras)check(x.name,()=>{if(!x.ok)throw Error(x.detail||x.name);return true;});
+  const other=await page.context().newPage();await other.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await other.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded',timeout:30000});
+  await other.evaluate(()=>{window.qa234Seen=false;window.addEventListener('storage',e=>{if(e.key==='__qa234_signal__'&&e.newValue==='ping')window.qa234Seen=true;})});
+  await page.evaluate(()=>localStorage.setItem('__qa234_signal__','ping'));await page.waitForTimeout(130);
+  check('Two actual same-origin tabs see storage event',await other.evaluate(()=>window.qa234Seen));
+  await page.evaluate(()=>sessionStorage.setItem('__qa234_private__','secret'));
+  check('Two actual tabs isolate sessionStorage',await other.evaluate(()=>sessionStorage.getItem('__qa234_private__')===null));
+  let collisions=0;
+  for(let k=0;k<50;k++){
+    const [a,b]=await Promise.all([page.evaluate(()=>acquireSharedSessionMutex()),other.evaluate(()=>acquireSharedSessionMutex())]);
+    if(a&&b)collisions++;
+    await Promise.all([page.evaluate(()=>releaseSharedSessionMutex()),other.evaluate(()=>releaseSharedSessionMutex())]);
+  }
+  check('Two-tab cooperative mutex 50 attempts',collisions===0);
+  console.log('QA234_EXTRA',JSON.stringify({roster_cases:2920,multitab_mutex_attempts:50,collisions,real_two_tab_storage:true,backend_auth_multitab:false}));
+  await other.close();
+
   const widths=[320,360,390,430,768,1024,1440];
   for(const width of widths){
     await page.setViewportSize({width,height:900});await page.waitForTimeout(70);
