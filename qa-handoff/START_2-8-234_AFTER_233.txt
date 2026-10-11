@@ -1,0 +1,8 @@
+★★★근무모아 2차·깊이 8단계 다음 블록 인계★★★
+최신 유효 완료: 2-8-233 (CLEAN, 신규 결함 0종). 다음: 2-8-234.
+누적 공식 제품 결함 504종, APP_VERSION ver20260927-0944 변경 없음.
+공식 기준: qa-handoff/index.before-2-8-234.html, SHA-256 a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0.
+보고서: qa-handoff/QA_2-8-233_REPORT.md, 근거: qa-handoff/QA_233_EVIDENCE_AUDIT.json.
+High·깊이 8단계·실제 검수 20분 이상·종료 전 버전명 변경 금지.
+운영 main/SQL/배포 변경 금지. GitHub QA 브랜치만 업데이트. ZIP 요청·제안 금지.
+실 Supabase/Android/실제 다중탭/BFCache 미검증.

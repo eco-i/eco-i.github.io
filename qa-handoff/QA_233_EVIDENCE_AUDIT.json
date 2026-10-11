@@ -1,0 +1,41 @@
+{
+  "baseline_and_syntax": "pass",
+  "baseline_sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0",
+  "app_version": "ver20260927-0944",
+  "standalone_independent_checks": 16084,
+  "security_contract_checks": 27,
+  "session_ownership_checks": 15,
+  "modal_and_auth_flow_checks": 37,
+  "calendar_full_month_viewport_checks": 1680,
+  "repeated_randomized_checks": 168399,
+  "repeated_randomized_batches": 729,
+  "total_assertions_with_repeated_cases": 186242,
+  "photo_local_real_file_picker": {
+    "register": true,
+    "replace": true,
+    "viewer": true,
+    "delete": true,
+    "logout_during_selection_discards": true
+  },
+  "initial_false_alarm_tests": [
+    "shift status 비 omitted in test oracle; corrected and rerun",
+    "WEBP fixture under 100B; regenerated realistic image >100B",
+    "login overlay hidden explicitly for authenticated calendar rendering",
+    "browser local file URL blocked by runtime; in-memory html + stub storage used"
+  ],
+  "incomplete_attempts": [
+    "combined all-width calendar test hit 120s execution timeout after 1440/1680 cases; final 240 independently rerun and passed"
+  ],
+  "product_defects_new": 0,
+  "official_product_defects_cumulative": 504,
+  "real_backend_tested": false,
+  "real_android_tested": false,
+  "real_multi_tab_tested": false,
+  "native_bfcache_tested": false,
+  "started_kst_minute": "2026-10-11 16:03",
+  "finalized_kst": "2026-10-11 16:24:19 KST",
+  "min_20_elapsed_confirmed": true,
+  "production_deployed": false,
+  "sql_modified": false,
+  "app_version_modified": false
+}

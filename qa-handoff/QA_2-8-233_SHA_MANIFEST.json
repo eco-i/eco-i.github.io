@@ -1,0 +1,29 @@
+{
+  "block": "2-8-233",
+  "status": "CLEAN_LOCAL_CHROMIUM_MOCK",
+  "started_kst_minute": "2026-10-11 16:03",
+  "finished_kst": "2026-10-11 16:24:19 KST",
+  "min_20_minutes_met": true,
+  "previous_block": "2-8-232",
+  "next_block": "2-8-234",
+  "new_product_defects": 0,
+  "official_cumulative_defects": 504,
+  "app_version": "ver20260927-0944",
+  "sql_modified": false,
+  "production_deployed": false,
+  "files": {
+    "index.before-2-8-233.html": {
+      "bytes": 1157310,
+      "sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0"
+    },
+    "index.working-2-8-233.html": {
+      "bytes": 1157310,
+      "sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0"
+    },
+    "index.before-2-8-234.html": {
+      "bytes": 1157310,
+      "sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0"
+    }
+  },
+  "evidence_sha256": "1394c26e13ac82d969e6c2c9e4c8409c2723867ac986f879b5f95ab790beaf97"
+}
