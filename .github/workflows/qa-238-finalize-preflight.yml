@@ -1,0 +1,28 @@
+name: QA 2-8-238 finalization preflight (no state change)
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-238-finalize-preflight.yml"
+      - "qa-handoff/QA_238_FINALIZE.cjs"
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and immutable SHA preflight, no finalization
+        run: |
+          node --check qa-handoff/QA_238_FINALIZE.cjs
+          node - <<'NODE'
+          const fs=require('fs'),crypto=require('crypto');
+          const sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
+          const prior=JSON.parse(fs.readFileSync('qa-handoff/CURRENT_STATE.json','utf8'));
+          if(prior.last_completed_block!=='2-8-237'||prior.next_block!=='2-8-238'||prior.cumulative_defects!==510)throw Error('Unexpected official state');
+          if(sha('qa-handoff/index.before-2-8-238.html')!=='f5d75a76d182629d1b8fa97002a726249f8860c729db4b47fdfa74d9707cc30f')throw Error('Start corrupted');
+          const target='1292955d4ae7fd90c3bcf8e6ccc6d5ea9595bd9d34215e27aa06baa98dd98360';
+          if(sha('index.html')!==target||sha('qa-handoff/index.working-2-8-238.html')!==target)throw Error('Final product sha not matched');
+          console.log('QA238_PREFLIGHT_OK',JSON.stringify({official:prior.last_completed_block,next:prior.next_block,candidate_sha256:target,candidate_bytes:fs.statSync('index.html').size}));
+          NODE
