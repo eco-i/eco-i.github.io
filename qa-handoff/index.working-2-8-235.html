@@ -2027,7 +2027,8 @@ async function storeAdminUnlockForFreshLogin(token,persistent,attempt){
   const deadlineMs=SHARED_SESSION_MUTEX_TTL_MS+500;
   while(true){
     if(attempt!==loginAttemptSeq||String(state.sessionToken||'')!==token)return false;
-    const result=await withBrowserSharedSessionLock(()=>attempt===loginAttemptSeq&&String(state.sessionToken||'')===token?storeAdminUnlock(token,persistent):false);
+    const mutation=()=>attempt===loginAttemptSeq&&String(state.sessionToken||'')===token?storeAdminUnlock(token,persistent):false;
+    const result=!MOBILE_SESSION_DEVICE&&!persistent ? mutation() : await withBrowserSharedSessionLock(mutation);
     if(result!==null)return result===true;
     let elapsed;
     try{elapsed=performance.now()-started;}catch(e){elapsed=Date.now()-started;}
@@ -2037,6 +2038,16 @@ async function storeAdminUnlockForFreshLogin(token,persistent,attempt){
   }
 }
 
+// A desktop tab-only session does not mutate another tab's shared login.
+// Its logout/error cleanup must remain usable without the Web Locks API.
+async function safelyClearStoredLoginSession(token){
+  const current=String(token||'');
+  if(!MOBILE_SESSION_DEVICE&&current&&storageGet(sessionStorage,SESSION_KEY)===current){
+    clearStoredLoginSession(current);
+    return true;
+  }
+  return await withBrowserSharedSessionLock(()=>clearStoredLoginSession(current));
+}
 function clearStoredLoginSession(token=''){
   const current=String(token||storedSessionToken()||'');
   // 명시적/확정 로그아웃된 세션은 짧은 자동업데이트 handoff가 다시 살려내지 못하게 표시한다.
@@ -2124,7 +2135,8 @@ async function storeLoginSessionForFreshLogin(token,persistent,attempt){
   const deadlineMs=SHARED_SESSION_MUTEX_TTL_MS+500;
   while(true){
     if(attempt!==loginAttemptSeq||String(state.sessionToken||'')!==token)return false;
-    const result=await withBrowserSharedSessionLock(()=>attempt===loginAttemptSeq&&String(state.sessionToken||'')===token?storeLoginSession(token,persistent,true):false);
+    const mutation=()=>attempt===loginAttemptSeq&&String(state.sessionToken||'')===token?storeLoginSession(token,persistent,true):false;
+    const result=!MOBILE_SESSION_DEVICE&&!persistent ? mutation() : await withBrowserSharedSessionLock(mutation);
     if(result!==null)return result===true;
     let elapsed;try{elapsed=performance.now()-started;}catch(e){elapsed=Date.now()-started;}
     if(!Number.isFinite(elapsed)||elapsed>=deadlineMs)return false;
@@ -2146,7 +2158,8 @@ function revokeAdminUnlockForToken(token){
   token=String(token||'');if(!token)return;
   if(String(deferredAdminDraftUnlockProofToken||'')===token)clearDeferredAdminDraftUnlockProof();
   const persistent=MOBILE_SESSION_DEVICE?true:sessionIsPersistent(token);
-  void withBrowserSharedSessionLock(()=>clearAdminUnlockForSession(token,persistent));
+  if(!MOBILE_SESSION_DEVICE&&!persistent)clearAdminUnlockForSession(token,false);
+  else void withBrowserSharedSessionLock(()=>clearAdminUnlockForSession(token,persistent));
   // shared mutex를 잠깐 얻지 못했더라도 권한 박탈 전의 관리자 2차 인증 표식이 같은 token에 남지 않게
   // token 조건부 cleanup을 예약한다. 새 로그인은 새 token을 쓰므로 뒤늦은 cleanup이 새 관리자 세션을 지우지 않는다.
   if(storageGet(localStorage,ADMIN_UNLOCK_KEY)===token)scheduleSharedAdminUnlockCleanup(token);
@@ -3281,7 +3294,7 @@ function showLocalPreviewLoginAfterRestoreFailure(){
   // 실제 GitHub Pages의 https:// 세션 유지/재시도 정책에는 영향을 주지 않는다.
   clearSessionRestoreRetry();
   const previewExpiredToken=state.sessionToken;
-  void withBrowserSharedSessionLock(()=>clearStoredLoginSession(previewExpiredToken));
+  void safelyClearStoredLoginSession(previewExpiredToken);
   invalidateSessionBoundLoads();
   state.sessionToken='';
   state.me=null;
@@ -5103,7 +5116,7 @@ async function login(){
       const localAdminStored=!emp.is_admin || (localSessionStored&&await storeAdminUnlockForFreshLogin(localLoginToken,persistSession,attempt));
       if(attempt!==loginAttemptSeq||state.sessionToken!==localLoginToken)return;
       if(!localSessionStored||!localAdminStored){
-        await withBrowserSharedSessionLock(()=>clearStoredLoginSession(localLoginToken));if(state.sessionToken===localLoginToken)state.sessionToken='';
+        await safelyClearStoredLoginSession(localLoginToken);if(state.sessionToken===localLoginToken)state.sessionToken='';
         throw new Error('SESSION_STORAGE_WRITE_FAILED');
       }
       if(!emp.is_admin) await withBrowserSharedSessionLock(()=>clearAdminUnlockForSession(state.sessionToken,persistSession));
@@ -5125,7 +5138,7 @@ async function login(){
       if(attempt!==loginAttemptSeq||state.sessionToken!==loginToken)return;
       if(!sessionStored||!adminStored){
         const failedToken=loginToken;
-        await withBrowserSharedSessionLock(()=>clearStoredLoginSession(failedToken));if(state.sessionToken===failedToken)state.sessionToken='';
+        await safelyClearStoredLoginSession(failedToken);if(state.sessionToken===failedToken)state.sessionToken='';
         try{await rpc('logout_employee',{p_token:failedToken},{timeoutMs:SESSION_CHECK_TIMEOUT_MS,keepalive:true});}catch(_){}
         throw new Error('SESSION_STORAGE_WRITE_FAILED');
       }
@@ -6712,7 +6725,7 @@ async function logout(callServer=true){
   const realtimeStopPromise=stopRealtime();
   if(state.sessionToken!==logoutToken)return;
   invalidateSessionBoundLoads();++monthNavigationSeq;resetSessionUiContext();showLoading(false);
-  state.sessionToken='';await withBrowserSharedSessionLock(()=>clearStoredLoginSession(logoutToken));state.me=null;state.initialPinRequired=false;state.accountStatusBackendReady=null;state.accountStatusPersonnelAuthoritative=null;state.employees=[];state.holidayWorkEligibilityReady=null;state.attendance=[];attendanceMonthContextKey='';state.attendanceAnnualLeaveBackendReady=null;state.holidayWorks=[];state.holidayWorkBackendReady=null;state.overtimeEntries=[];state.overtimeBackendReady=null;state.overtimeConfirmations=[];state.overtimeConfirmBackendReady=null;state.fingerprintRecords=[];state.fingerprintBackendReady=null;state.memos=[];state.memoBackendReady=null;state.memoDdays=[];state.memoDdayBackendReady=null;memoDdayPendingDates.clear();state.companyEvents=[];state.companyEventBackendReady=null;state.annualLeaveSettings=null;state.annualLeaveEntries=[];state.annualLeaveBackendReady=null;state.annualLeaveYear=null;state.annualLeaveFormDirty=false;state.longServiceProfile=null;state.longServiceExclusions=[];state.longServiceEntries=[];state.longServiceBackendReady=null;state.longServiceFormDirty=false;state.personnelAssignments=[];state.personnelAccountEvents=[];state.personnelSnapshots=[];state.personnelBackendReady=null;state.personnelSnapshotBackendReady=null;state.view='mine';
+  state.sessionToken='';await safelyClearStoredLoginSession(logoutToken);state.me=null;state.initialPinRequired=false;state.accountStatusBackendReady=null;state.accountStatusPersonnelAuthoritative=null;state.employees=[];state.holidayWorkEligibilityReady=null;state.attendance=[];attendanceMonthContextKey='';state.attendanceAnnualLeaveBackendReady=null;state.holidayWorks=[];state.holidayWorkBackendReady=null;state.overtimeEntries=[];state.overtimeBackendReady=null;state.overtimeConfirmations=[];state.overtimeConfirmBackendReady=null;state.fingerprintRecords=[];state.fingerprintBackendReady=null;state.memos=[];state.memoBackendReady=null;state.memoDdays=[];state.memoDdayBackendReady=null;memoDdayPendingDates.clear();state.companyEvents=[];state.companyEventBackendReady=null;state.annualLeaveSettings=null;state.annualLeaveEntries=[];state.annualLeaveBackendReady=null;state.annualLeaveYear=null;state.annualLeaveFormDirty=false;state.longServiceProfile=null;state.longServiceExclusions=[];state.longServiceEntries=[];state.longServiceBackendReady=null;state.longServiceFormDirty=false;state.personnelAssignments=[];state.personnelAccountEvents=[];state.personnelSnapshots=[];state.personnelBackendReady=null;state.personnelSnapshotBackendReady=null;state.view='mine';
   overtimeListRows=[];overtimeListBackendReady=null;overtimeListContextKey='';overtimeListTargetEmployeeId=null;
   holidayWorkListRows=[];holidayWorkListBackendReady=null;holidayWorkListContextKey='';holidayWorkPastExpanded=false;holidayWorkListEditReturnMode=null;
   memoListRows=[];memoListBackendReady=null;memoSelectedDates.clear();memoDeleteMode=false;
