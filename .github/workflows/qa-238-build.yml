@@ -22,4 +22,6 @@ jobs:
           git diff --check
           git add qa-handoff/index.working-2-8-238.html qa-handoff/QA_238_SMOKE.cjs
           git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'qa(2-8-238): initialize deep regression suite on 237 verified baseline'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
           git push origin HEAD:qa-2-8
