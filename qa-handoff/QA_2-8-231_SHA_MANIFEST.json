@@ -1,0 +1,22 @@
+{
+  "project": "근무모아",
+  "block": "2-8-231",
+  "previous_block": "2-8-230",
+  "next_block": "2-8-232",
+  "status": "CLEAN_LOCAL_CHROMIUM_MOCK",
+  "qa_depth": 8,
+  "model_mode": "High",
+  "start_kst": "2026-10-11T14:08:07+09:00",
+  "end_kst": "2026-10-11T14:28:09+09:00",
+  "elapsed_seconds": 1202,
+  "new_product_defects": 0,
+  "official_cumulative_defects": 504,
+  "app_version": "ver20260927-0944",
+  "sql_modified": false,
+  "deployed": false,
+  "baseline_html_sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0",
+  "working_html_sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0",
+  "next_html_sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0",
+  "html_bytes": 1157310,
+  "limits": "No live Supabase, Android, real same-origin multi-tab or native BFCache."
+}

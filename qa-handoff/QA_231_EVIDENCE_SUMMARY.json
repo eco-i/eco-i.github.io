@@ -1,0 +1,39 @@
+{
+  "block": "2-8-231",
+  "source": "Individual local Chromium and independent reference test result files",
+  "outcome": "No observed product defect in executed local/mock cases",
+  "cases": {
+    "shift_schedule": 2920,
+    "overhaul": 60,
+    "holiday_group": 184,
+    "long_service_anniversary": 1000,
+    "personnel_sort_order": 10000,
+    "personnel_priority": 8000,
+    "responsive": 256,
+    "toolbar_no_clip": 576,
+    "rpc_contract": 20000,
+    "leave_interval": 20000,
+    "restore_count": 2000,
+    "rpc_race": 12,
+    "date_picker_months": 24,
+    "modal_focus": 32
+  },
+  "tests": [
+    "JS syntax PASS",
+    "DOM ID 457 no duplication",
+    "login/logout + temporary PIN clearing PASS",
+    "real Canvas JPEG encode/decode in Chromium PASS",
+    "reject invalid/corrupted/oversized photo PASS",
+    "read-only permission UI PASS",
+    "backup/restore response validators PASS",
+    "HTML insertion rendered as plain text PASS",
+    "RPC stale owner token fencing 12 PASS"
+  ],
+  "test_exclusions": [
+    "Final batched tool-timeout attempt not counted",
+    "Live Supabase and RLS not tested",
+    "Android native file chooser and camera not tested",
+    "Native BFCache and actual same-origin multi-tab storage concurrency not tested"
+  ],
+  "notes": "Summary of previously executed test evidence; browser was in-memory mock under restricted local navigation."
+}
