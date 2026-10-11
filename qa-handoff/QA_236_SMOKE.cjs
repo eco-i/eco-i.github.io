@@ -670,6 +670,16 @@ check('No console access to live Supabase needed',()=>true);
   const otherAfter=await otherTab.evaluate(()=>({actor:state.me?.employee_id||null,token:state.sessionToken,appVisible:!document.getElementById('appView').classList.contains('hidden')}));
   console.log('QA236_MOBILE_CROSS_TAB_LOGOUT',JSON.stringify(otherAfter));
   check('Suppressed mobile session logs out sibling tab without requiring shared token delete',()=>!otherAfter.actor&&!otherAfter.appVisible);
+  // Never revoke an unrelated newer login when an old-token suppression
+  // arrives late from a different tab.
+  await otherTab.evaluate(()=>{
+    state.sessionToken='qa236-unrelated-newer';state.me={employee_id:2366,is_admin:false};
+    document.getElementById('appView').classList.remove('hidden');
+  });
+  await oldTab.evaluate(()=>localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa236-late-old-token'));
+  await otherTab.waitForTimeout(100);
+  const unrelatedStillCurrent=await otherTab.evaluate(()=>({token:state.sessionToken,actor:state.me?.employee_id}));
+  check('Old-token suppression cannot revoke an unrelated newer login',()=>unrelatedStillCurrent.token==='qa236-unrelated-newer'&&unrelatedStillCurrent.actor===2366);
   await crossCtx.close();
 
 
