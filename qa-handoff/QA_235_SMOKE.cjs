@@ -16,6 +16,7 @@ check('235 original official SHA256 pinned',()=>crypto.createHash('sha256').upda
 check('Web Locks critical sections applied',()=>html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
 check('Official 235 baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('235 product repair candidate present',()=>html!==baseline&&html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
+check('QA235 final product HTML SHA256 pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='f67887f5427da8331eaa134fbaeec73493815ac52e4c1cbcbbcaec1e42dbc50e');
 console.log('QA235_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
