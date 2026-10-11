@@ -150,7 +150,8 @@ check('No console access to live Supabase needed',()=>true);
   const adminPreserved=await other.evaluate(()=>storageGet(localStorage,ADMIN_UNLOCK_KEY)==='qa234-exclusive-B');
   check('Admin unlock new token preserved against old cleanup',()=>adminSet===true&&staleAdminCleanup===true&&adminPreserved);
   const removed=await other.evaluate(async token=>withBrowserSharedSessionLock(()=>clearSharedSessionIfToken(token)),tokenB);
-  check('Latest shared token can be removed explicitly',()=>removed===true&&await other.evaluate(()=>!storageGet(localStorage,SESSION_KEY)));
+  const tokenErased=await other.evaluate(()=>!storageGet(localStorage,SESSION_KEY));
+  check('Latest shared token can be removed explicitly',()=>removed===true&&tokenErased);
   console.log('QA234_MUTEX_REAL',JSON.stringify({lock_critical_sections:successes,overlaps,late_logout_protected:true,admin_unlock_protected:true}));
   await other.close();
 
