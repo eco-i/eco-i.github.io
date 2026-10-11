@@ -1,0 +1,28 @@
+name: QA 2-8-238 official finalize and 239 baseline
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-238-finalize.yml"
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+          persist-credentials: true
+      - name: Gate 20-minute QA work, verify SHA and write official state
+        run: node qa-handoff/QA_238_FINALIZE.cjs
+      - name: Verify and commit official 238 handoff only on QA branch
+        run: |
+          git diff --check
+          git add qa-handoff/CURRENT_STATE.json qa-handoff/START_HERE_NEW_CHAT.md qa-handoff/START_2-8-239_AFTER_238.txt qa-handoff/QA_2-8-238_REPORT.md qa-handoff/QA_238_EVIDENCE_AUDIT.json qa-handoff/QA_2-8-238_SHA_MANIFEST.json qa-handoff/index.before-2-8-239.html
+          git diff --cached --stat
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'qa(2-8-238): complete 2 defects, 512 cumulative, prepare verified 239 baseline'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
