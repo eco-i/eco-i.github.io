@@ -1,0 +1,68 @@
+{
+  "block": "2-8-236",
+  "status": "COMPLETE",
+  "round": 2,
+  "depth": 8,
+  "mode": "High",
+  "started_kst": "2026-10-11T19:43:23+09:00",
+  "completed_kst": "2026-10-11T20:04:07+09:00",
+  "elapsed_sec": 1244,
+  "previous_completed": "2-8-235",
+  "next_block": "2-8-237",
+  "new_product_defects": 2,
+  "official_total_defects": 508,
+  "baseline_sha256": "f67887f5427da8331eaa134fbaeec73493815ac52e4c1cbcbbcaec1e42dbc50e",
+  "baseline_bytes": 1158706,
+  "final_sha256": "5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a",
+  "final_bytes": 1161068,
+  "final_runs": [
+    {
+      "id": 38134099849,
+      "conclusion": "success",
+      "passed": 105,
+      "failed": 0
+    },
+    {
+      "id": 38134173052,
+      "conclusion": "success",
+      "passed": 105,
+      "failed": 0
+    }
+  ],
+  "reproductions": [
+    {
+      "id": 38133117909,
+      "defect": "logout admin state stale during Web Locks wait"
+    },
+    {
+      "id": 38133356294,
+      "defect": "unsupported mobile shared token resurrected after logout"
+    },
+    {
+      "id": 38133712966,
+      "defect": "same family cross-tab old admin view not revoked"
+    }
+  ],
+  "scope": {
+    "roster_cases": 2920,
+    "annual_leave_fuzz_sets": 500,
+    "two_tabs_critical_sections": 150,
+    "four_tabs_critical_sections": 400,
+    "storage_fault_injections": true,
+    "mobile_ua_emulation": true,
+    "real_storage_events": true,
+    "pin_cleared_on_browser_back": true,
+    "bfcache_persisted": "not confirmed",
+    "remote_server_logout": "mock only"
+  },
+  "missing": [
+    "real Supabase/RLS",
+    "real Android camera/file chooser",
+    "real authenticated multi-tab backend sessions",
+    "BFCache persisted true",
+    "production data backup restore"
+  ],
+  "deploy": false,
+  "sql_changed": false,
+  "version": "ver20260927-0944"
+}
