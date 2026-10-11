@@ -1964,7 +1964,7 @@ function storedSessionToken(){
   // is not affected because the block applies only to the exact old token.
   const localToken=rawLocal&&rawLocal!==forbidden?rawLocal:'';
   const temporaryToken=rawTab&&rawTab!==forbidden?rawTab:'';
-  return MOBILE_SESSION_DEVICE ? (localToken||temporaryToken) : (temporaryToken||localToken);
+  return MOBILE_SESSION_DEVICE ? (rawLocal ? localToken : temporaryToken) : (temporaryToken||localToken);
 }
 function sessionIsPersistent(token=storedSessionToken()){
   if(!token || storageGet(localStorage,SESSION_KEY)!==token)return false;
