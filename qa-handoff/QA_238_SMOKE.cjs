@@ -962,6 +962,30 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa238-live
   check('Mobile stale ordinary authenticated read rejected before RPC dispatch',()=>guarded.read);
   await guardMobileCtx.close();
 
+  // 238: Legacy mobile tab token must never replace a newer shared token
+  // that was explicitly logged out but could not be deleted without Web Locks.
+  const fallbackCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const fallbackPage=await fallbackCtx.newPage();
+  await fallbackPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await fallbackPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const fallback=await fallbackPage.evaluate(()=>{
+    const locks=navigator.locks;
+    try{
+      Object.defineProperty(navigator,'locks',{configurable:true,value:null});
+      localStorage.setItem(SESSION_KEY,'qa238-later-shared-B');
+      localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa238-later-shared-B');
+      sessionStorage.setItem(SESSION_KEY,'qa238-stale-legacy-A');
+      const staleFallback=storedSessionToken();
+      localStorage.setItem(SESSION_KEY,'qa238-fresh-shared-C');
+      const freshCandidate=storedSessionToken();
+      return {mobile:MOBILE_SESSION_DEVICE,staleFallback,freshCandidate,shared:localStorage.getItem(SESSION_KEY)};
+    }finally{Object.defineProperty(navigator,'locks',{configurable:true,value:locks});}
+  });
+  console.log('QA238_SUPPRESSED_LOCAL_LEGACY_FALLBACK',JSON.stringify(fallback));
+  check('Mobile suppressed newer shared logout cannot resurrect old tab-only legacy token',()=>fallback.mobile&&!fallback.staleFallback);
+  check('Mobile distinct newer shared login remains selectable',()=>fallback.freshCandidate==='qa238-fresh-shared-C');
+  await fallbackCtx.close();
+
   // Desktop sessionStorage login remains independent of another tab's
   // shared localStorage login; no false logout or RPC rejection.
   const pcGuardCtx=await browser.newContext({viewport:{width:1366,height:900}});
