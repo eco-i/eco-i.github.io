@@ -805,6 +805,39 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
     ()=>pcMarker.eventSeen&&pcMarker.token==='qa237-desktop-temporary-marker'&&pcMarker.tabToken===pcMarker.token&&pcMarker.actor===239&&pcMarker.visible);
   await isolatedMarkerCtx.close();
 
+  // 237: Send one authoritative logout marker to four real Android-like tabs.
+  // Three old-token tabs (one with legacy tab storage) must all revoke, while
+  // a fourth tab already using a different token must remain untouched.
+  const manyCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const manyTabs=await Promise.all(Array.from({length:4},()=>manyCtx.newPage()));
+  for(const tab of manyTabs){
+    await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  }
+  await manyTabs[0].evaluate(()=>localStorage.setItem(SESSION_KEY,'qa237-four-tab-old'));
+  for(let i=0;i<4;i++){
+    await manyTabs[i].evaluate(({i})=>{
+      const token=i===3?'qa237-four-tab-new':'qa237-four-tab-old';
+      state.sessionToken=token;state.me={employee_id:1000+i,is_admin:i<3};
+      if(i===1)sessionStorage.setItem(SESSION_KEY,token);
+      document.getElementById('appView').classList.remove('hidden');
+      document.getElementById('loginView').classList.add('hidden');
+      window.__qa237_markerCount=0;
+      window.addEventListener('storage',event=>{if(event.key===SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)window.__qa237_markerCount++});
+    },{i});
+  }
+  await manyTabs[3].evaluate(()=>localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa237-four-tab-old'));
+  await manyTabs[3].waitForTimeout(400);
+  const manyResults=await Promise.all(manyTabs.map(tab=>tab.evaluate(()=>({
+    current:state.sessionToken,actor:state.me?.employee_id??null,
+    shown:!document.getElementById('appView').classList.contains('hidden'),
+    mobile:MOBILE_SESSION_DEVICE
+  }))));
+  console.log('QA237_FOUR_TAB_LOGOUT_FANOUT',JSON.stringify(manyResults));
+  check('Four real mobile tabs: three old-token privileged screens close',()=>manyResults.slice(0,3).every(r=>r.mobile&&!r.current&&!r.actor&&!r.shown));
+  check('Four real mobile tabs: unrelated newer session stays intact',()=>manyResults[3].mobile&&manyResults[3].current==='qa237-four-tab-new'&&manyResults[3].actor===1003&&manyResults[3].shown);
+  await manyCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
