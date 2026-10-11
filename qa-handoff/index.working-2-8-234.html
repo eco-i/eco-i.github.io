@@ -1860,16 +1860,21 @@ function storageRemove(storage,key){ try{ storage.removeItem(key); }catch(e){} }
 // 같은 기기의 여러 탭이 shared localStorage 세션을 동시에 변경할 때 get→set/remove 사이 TOCTOU로
 // 더 최신 로그인 토큰을 덮거나 지우지 않도록, 현재 버전의 공유 세션 변경을 짧은 협력 mutex로 직렬화한다.
 // 각 탭은 자기 요청키를 따로 사용하므로 read-modify-write 한 키를 서로 덮지 않는다.
-const SHARED_SESSION_MUTEX_PREFIX='staffAttendance_sharedSessionMutex_v1:';
+// QA 2-8-234: localStorage 1-phase peer scan is not mutually exclusive between
+// simultaneous real Chromium tabs. Two-phase bakery-style entry publishes an
+// intention before choosing a ticket; rivals compare tickets deterministically.
+// This is intentionally synchronous because existing callers execute small
+// read-modify-write sections without awaiting; on collision, acquisition fails
+// closed and existing retry paths handle contention.
+const SHARED_SESSION_MUTEX_PREFIX='staffAttendance_sharedSessionMutex_v2:';
 const SHARED_SESSION_MUTEX_TTL_MS=4000;
-const SHARED_SESSION_MUTEX_OWNER=(()=>{try{return crypto.randomUUID()}catch(e){return `${Date.now()}-${Math.random().toString(36).slice(2)}`}})();
+const SHARED_SESSION_MUTEX_OWNER=(()=>{try{return crypto.randomUUID()}catch(e){return `${Date.now()}-${Math.random().toString(36).slice(2)`}})();
+const SHARED_SESSION_MUTEX_CHOOSING=SHARED_SESSION_MUTEX_PREFIX+'choosing:';
+const SHARED_SESSION_MUTEX_TICKET=SHARED_SESSION_MUTEX_PREFIX+'ticket:';
 let sharedSessionMutexDepth=0;
 let deferredAdminUnlockRestoreToken='';
-function sharedSessionMutexKey(){return SHARED_SESSION_MUTEX_PREFIX+SHARED_SESSION_MUTEX_OWNER;}
+function sharedSessionMutexKey(){return SHARED_SESSION_MUTEX_TICKET+SHARED_SESSION_MUTEX_OWNER;}
 function sharedSessionMutexNow(){
-  // Date.now()는 기기 시각 자동보정/수동변경에 따라 앞뒤로 점프할 수 있어 lease 판정에 쓰면
-  // 활성 lock을 stale로 오인할 수 있다. Performance 시간원은 문서 생존 동안 단조 증가하고
-  // timeOrigin을 더한 epoch 형태라 같은 브라우저의 탭끼리 비교할 수 있다.
   try{
     const origin=Number(performance?.timeOrigin),now=Number(performance?.now?.());
     const value=origin+now;
@@ -1877,25 +1882,53 @@ function sharedSessionMutexNow(){
   }catch(e){}
   return Date.now();
 }
-function clearSharedSessionMutexRequest(key=sharedSessionMutexKey()){storageSet(localStorage,key,'0');storageRemove(localStorage,key);}
+function clearSharedSessionMutexRequest(key=sharedSessionMutexKey()){
+  storageRemove(localStorage,key);
+  storageRemove(localStorage,SHARED_SESSION_MUTEX_CHOOSING+SHARED_SESSION_MUTEX_OWNER);
+}
+function sharedSessionMutexPeerRecord(key,now,isTicket){
+  const raw=storageGet(localStorage,key),parts=raw.split('|');
+  const at=Number(isTicket?parts[1]:parts[0]),ticket=isTicket?Number(parts[0]):0;
+  const age=now-at;
+  if(!raw||!Number.isFinite(at)||at<=0||age>SHARED_SESSION_MUTEX_TTL_MS||age<-5000||isTicket&&(!Number.isSafeInteger(ticket)||ticket<1)){
+    // Never delete another owner's unrecognized or malformed key: the owner
+    // may be concurrently completing a write. Ignore the key in this pass.
+    return null;
+  }
+  return {at,ticket};
+}
 function acquireSharedSessionMutex(){
   if(sharedSessionMutexDepth>0){sharedSessionMutexDepth++;return true;}
-  const myKey=sharedSessionMutexKey(),now=sharedSessionMutexNow(),stamp=String(now);
-  if(!storageSet(localStorage,myKey,stamp))return false;
-  let blocked=false;
+  const mine=sharedSessionMutexKey(),intent=SHARED_SESSION_MUTEX_CHOOSING+SHARED_SESSION_MUTEX_OWNER;
+  const now=sharedSessionMutexNow(),mark=String(now);
+  if(!storageSet(localStorage,intent,mark))return false;
+  let ticket=1,blocked=false;
   try{
-    for(let i=localStorage.length-1;i>=0;i--){
-      const key=localStorage.key(i);
-      if(!key||!key.startsWith(SHARED_SESSION_MUTEX_PREFIX)||key===myKey)continue;
-      const at=Number(storageGet(localStorage,key)||0),age=now-at;
-      if(!Number.isFinite(at)||at<=0||age>SHARED_SESSION_MUTEX_TTL_MS||age<-5000){storageRemove(localStorage,key);continue;}
-      // 더 먼저 게시된 요청에만 양보한다. 타이머 정밀도 축소로 timestamp가 정확히 같을 때는
-      // mutex key(owner UUID)를 tie-breaker로 사용해 두 탭이 서로 동시에 양보하며 둘 다 실패하는 livelock을 막는다.
-      // 내 요청 뒤에 생긴 요청은 내 키를 보고 스스로 양보하므로 현재 작업을 방해하지 않는다.
-      if(at<now || (at===now && key<myKey)){blocked=true;break;}
+    // Phase one: announce intent before observing any currently published tickets.
+    for(const key of Object.keys(localStorage)){
+      if(!key.startsWith(SHARED_SESSION_MUTEX_TICKET)||key===mine)continue;
+      const record=sharedSessionMutexPeerRecord(key,now,true);
+      if(record)ticket=Math.max(ticket,record.ticket+1);
     }
+    if(!storageSet(localStorage,mine,`${ticket}|${mark}`)){clearSharedSessionMutexRequest(mine);return false;}
+    storageRemove(localStorage,intent);
+    // Phase two: a competing chooser cannot be ignored, even if it hasn't
+    // published its ticket yet. A new chooser that starts after our scan must
+    // see our ticket before its own entry scan can finish.
+    for(const key of Object.keys(localStorage)){
+      if(!key.startsWith(SHARED_SESSION_MUTEX_CHOOSING)||key===intent)continue;
+      if(sharedSessionMutexPeerRecord(key,now,false)){blocked=true;break;}
+    }
+    if(!blocked){
+      for(const key of Object.keys(localStorage)){
+        if(!key.startsWith(SHARED_SESSION_MUTEX_TICKET)||key===mine)continue;
+        const other=sharedSessionMutexPeerRecord(key,now,true);
+        if(other&&(other.ticket<ticket||(other.ticket===ticket&&key<mine))){blocked=true;break;}
+      }
+    }
+    if(storageGet(localStorage,mine)!==`${ticket}|${mark}`)blocked=true;
   }catch(e){blocked=true;}
-  if(blocked||storageGet(localStorage,myKey)!==stamp){clearSharedSessionMutexRequest(myKey);return false;}
+  if(blocked){clearSharedSessionMutexRequest(mine);return false;}
   sharedSessionMutexDepth=1;return true;
 }
 function releaseSharedSessionMutex(){

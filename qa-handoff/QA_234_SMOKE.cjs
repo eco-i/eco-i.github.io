@@ -11,7 +11,7 @@ function check(name,fn){const result=fn(); assert(result!==false, name+' returne
 check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('1157310 byte baseline',()=>Buffer.byteLength(baseline)===1157310);
 check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
-check('Rejected mutex prototypes reverted to 233 official bytes',()=>html===baseline);
+check('Two-phase v2 mutex applied',()=>html!==baseline&&html.includes('staffAttendance_sharedSessionMutex_v2:'));
 console.log('QA234_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
