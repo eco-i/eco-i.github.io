@@ -1,0 +1,45 @@
+{
+  "project": "근무모아",
+  "round": 2,
+  "depth": 8,
+  "block": "2-8-228",
+  "previous_block": "2-8-227",
+  "next_block": "2-8-229",
+  "status": "CLEAN_LOCAL_CHROMIUM_MOCK",
+  "started_kst": "2026-10-11T11:21:35+09:00",
+  "minimum_20_minutes_met_at_kst": "2026-10-11T11:41:35+09:00",
+  "final_regression_verified_at_kst": "2026-10-11T11:42:40+09:00",
+  "elapsed_at_final_regression_seconds": 1265,
+  "new_product_defects": 1,
+  "cumulative_product_defects": 502,
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "production_deployed": false,
+  "source_limitations": [
+    "No live Supabase",
+    "No Android device",
+    "No real same-origin multi-tab",
+    "No native BFCache"
+  ],
+  "files": {
+    "index.before-2-8-228.html": {
+      "sha256": "d51ca04439ff800f4438a3d83f4af9addf8e99e8443dc37a26aa167497a0ba53",
+      "bytes": 1155908
+    },
+    "index.working-2-8-228.html": {
+      "sha256": "a2d4bd02193eb5c8efa653bc7d91b1f7c9e265991a47eacd65c010063c8bd33e",
+      "bytes": 1156890
+    },
+    "index.before-2-8-229.html": {
+      "sha256": "a2d4bd02193eb5c8efa653bc7d91b1f7c9e265991a47eacd65c010063c8bd33e",
+      "bytes": 1156890
+    }
+  },
+  "focused_display_checks": {
+    "normal_calendar": 104,
+    "absence_mode": 144,
+    "failures": 0,
+    "js_errors": 0
+  },
+  "notes": "One responsive UI defect encompassing month title and prev/next toolbar overflow; only CSS changed."
+}

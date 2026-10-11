@@ -931,6 +931,20 @@
   html[data-theme="dark"] .weekdays div:last-child,html[data-theme="dark"] .date-picker-weekdays .sat{color:#93c5fd}
   .dday-summary-item .overtime-summary-label{color:#475569}
   html[data-theme="dark"] .dday-summary-item .overtime-summary-label{color:#94a3b8}
+  /* QA 2-8-228: 큰 글자 설정에서도 달력 상단 월 제목/이전·다음달 버튼의 2줄 오버플로 방지 */
+  .calendar-toolbar .nav-btn,.calendar-toolbar.absence-mode .nav-btn{font-size:clamp(11px,calc(12px * var(--text-scale,1)),14px);white-space:nowrap}
+  @media(max-width:520px){
+    .calendar-toolbar .nav-btn,.calendar-toolbar.absence-mode .nav-btn{font-size:min(calc(10px * var(--text-scale,1)),12px)}
+  }
+  @media(min-width:371px) and (max-width:392px){
+    .calendar-toolbar.absence-mode .month-title{font-size:min(calc(18px * var(--text-scale,1)),16px);white-space:nowrap;padding-inline:2px}
+  }
+  @media(max-width:370px){
+    .calendar-toolbar.absence-mode .month-title{font-size:min(calc(18px * var(--text-scale,1)),clamp(12px,calc(2.4vw + 4px),14px));white-space:nowrap;padding-inline:2px}
+  }
+  @media(max-width:350px){
+    .calendar-toolbar .month-title{font-size:min(calc(18px * var(--text-scale,1)),24px);white-space:nowrap;padding-inline:2px}
+  }
 </style>
 </head>
 <body>
