@@ -1882,23 +1882,17 @@ function acquireSharedSessionMutex(){
   if(sharedSessionMutexDepth>0){sharedSessionMutexDepth++;return true;}
   const myKey=sharedSessionMutexKey(),now=sharedSessionMutexNow(),stamp=String(now);
   if(!storageSet(localStorage,myKey,stamp))return false;
-  // 공유 localStorage 게시가 다른 탭의 동시 JS 실행에 반영될 짧은 기회를 준다.
-  // 예전 즉시 검사 방식에서는 2개 탭의 150회 경합 중 84회에 동시 입장이 재현되었다.
-  // 이 짧은 동기 안정화 뒤 활성 경쟁자를 모두 거부하며, 정식 Web Locks 전환 전 안전장치로 둔다.
-  const settleStart=sharedSessionMutexNow();
-  for(let spin=0;spin<150000&&sharedSessionMutexNow()-settleStart<6;spin++){void localStorage.length;}
   let blocked=false;
   try{
-    // QA 2-8-234: 공유 저장소 열거 중 다른 탭이 키를 삽입하면 역순 index 순회가
-    // 기존 키를 건너뛰어 두 탭 모두 잠금을 얻는 TOCTOU가 발생할 수 있다.
-    // 스냅샷 키 목록을 사용하고, 관측된 활성 경쟁자는 시각/UUID 순서에 관계없이
-    // 안전하게 양보한다. 동시 요청은 양쪽 모두 일시 실패할 수 있으나,
-    // 자동 재시도에서 하나만 진행하여 세션 토큰의 교차 삭제를 방지한다.
-    const peers=Object.keys(localStorage).filter(key=>key.startsWith(SHARED_SESSION_MUTEX_PREFIX)&&key!==myKey);
-    for(const key of peers){
+    for(let i=localStorage.length-1;i>=0;i--){
+      const key=localStorage.key(i);
+      if(!key||!key.startsWith(SHARED_SESSION_MUTEX_PREFIX)||key===myKey)continue;
       const at=Number(storageGet(localStorage,key)||0),age=now-at;
       if(!Number.isFinite(at)||at<=0||age>SHARED_SESSION_MUTEX_TTL_MS||age<-5000){storageRemove(localStorage,key);continue;}
-      blocked=true;break;
+      // 더 먼저 게시된 요청에만 양보한다. 타이머 정밀도 축소로 timestamp가 정확히 같을 때는
+      // mutex key(owner UUID)를 tie-breaker로 사용해 두 탭이 서로 동시에 양보하며 둘 다 실패하는 livelock을 막는다.
+      // 내 요청 뒤에 생긴 요청은 내 키를 보고 스스로 양보하므로 현재 작업을 방해하지 않는다.
+      if(at<now || (at===now && key<myKey)){blocked=true;break;}
     }
   }catch(e){blocked=true;}
   if(blocked||storageGet(localStorage,myKey)!==stamp){clearSharedSessionMutexRequest(myKey);return false;}
