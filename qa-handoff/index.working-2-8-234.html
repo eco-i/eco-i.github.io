@@ -1868,7 +1868,7 @@ function storageRemove(storage,key){ try{ storage.removeItem(key); }catch(e){} }
 // closed and existing retry paths handle contention.
 const SHARED_SESSION_MUTEX_PREFIX='staffAttendance_sharedSessionMutex_v2:';
 const SHARED_SESSION_MUTEX_TTL_MS=4000;
-const SHARED_SESSION_MUTEX_OWNER=(()=>{try{return crypto.randomUUID()}catch(e){return `${Date.now()}-${Math.random().toString(36).slice(2)`}})();
+const SHARED_SESSION_MUTEX_OWNER=(()=>{try{return crypto.randomUUID()}catch(e){return `${Date.now()}-${Math.random().toString(36).slice(2)}`}})();
 const SHARED_SESSION_MUTEX_CHOOSING=SHARED_SESSION_MUTEX_PREFIX+'choosing:';
 const SHARED_SESSION_MUTEX_TICKET=SHARED_SESSION_MUTEX_PREFIX+'ticket:';
 let sharedSessionMutexDepth=0;
