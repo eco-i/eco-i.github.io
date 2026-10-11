@@ -419,6 +419,42 @@ check('No console access to live Supabase needed',()=>true);
   console.log('QA235_FOUR_TAB',JSON.stringify({lock_requests:fourTabPass,critical_overlaps:criticalOverlaps,critical_events:criticalEvents}));
   await fourTabContext.close();
 
+  // Storage write/delete faults must not corrupt the prior shared token or
+  // its administrator marker. These are local Chromium Storage API faults.
+  const failureContext=await browser.newContext({viewport:{width:430,height:900}});
+  const failurePage=await failureContext.newPage();
+  await failurePage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await failurePage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const storageFailures=await failurePage.evaluate(async()=>{
+    const saved=await withBrowserSharedSessionLock(()=>storeLoginSession('qa235-existing',true));
+    const admin=await withBrowserSharedSessionLock(()=>storeAdminUnlock('qa235-existing',true));
+    const originalSet=Storage.prototype.setItem, originalRemove=Storage.prototype.removeItem;
+    let failedStore,failedDelete;
+    try{
+      Storage.prototype.setItem=function(key,value){
+        if(this===localStorage&&key===PC_REMEMBER_KEY)throw new DOMException('quota denied','QuotaExceededError');
+        return originalSet.call(this,key,value);
+      };
+      failedStore=await withBrowserSharedSessionLock(()=>storeLoginSession('qa235-replacement',true));
+    }finally{Storage.prototype.setItem=originalSet;}
+    const afterStore={token:storageGet(localStorage,SESSION_KEY),remember:storageGet(localStorage,PC_REMEMBER_KEY),admin:storageGet(localStorage,ADMIN_UNLOCK_KEY)};
+    try{
+      Storage.prototype.removeItem=function(key){
+        if(this===localStorage&&key===SESSION_KEY)throw new DOMException('remove denied','SecurityError');
+        return originalRemove.call(this,key);
+      };
+      failedDelete=await withBrowserSharedSessionLock(()=>clearSharedSessionIfToken('qa235-existing'));
+    }finally{Storage.prototype.removeItem=originalRemove;}
+    const afterDelete={token:storageGet(localStorage,SESSION_KEY),remember:storageGet(localStorage,PC_REMEMBER_KEY),admin:storageGet(localStorage,ADMIN_UNLOCK_KEY)};
+    await withBrowserSharedSessionLock(()=>clearStoredLoginSession('qa235-existing'));
+    return {saved,admin,failedStore,failedDelete,afterStore,afterDelete};
+  });
+  check('Failed shared remember-write restores prior token',()=>storageFailures.saved===true&&storageFailures.admin===true&&storageFailures.failedStore===false&&storageFailures.afterStore.token==='qa235-existing'&&storageFailures.afterStore.remember==='1');
+  check('Failed shared write retains previous admin marker',()=>storageFailures.afterStore.admin==='qa235-existing');
+  check('Failed shared token deletion preserves prior session metadata',()=>storageFailures.failedDelete===false&&storageFailures.afterDelete.token==='qa235-existing'&&storageFailures.afterDelete.admin==='qa235-existing');
+  console.log('QA235_STORAGE_FAULTS',JSON.stringify(storageFailures));
+  await failureContext.close();
+
   const imageChecks=await page.evaluate(async()=>{
     const c=document.createElement('canvas');c.width=320;c.height=320;
     const cx=c.getContext('2d');for(let i=0;i<320;i++){cx.fillStyle='rgb('+i+',88,155)';cx.fillRect(i,0,1,320)}
