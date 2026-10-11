@@ -1,0 +1,31 @@
+name: QA 2-8-237 bounded source patch
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-237-patch.yml"
+      - "qa-handoff/QA_237_PATCH.cjs"
+permissions:
+  contents: write
+jobs:
+  patch-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+          persist-credentials: true
+      - name: Apply narrowly scoped source fix to QA branch only
+        run: node qa-handoff/QA_237_PATCH.cjs
+      - name: Check source diff and commit without touching main branch
+        run: |
+          git diff --check
+          git add index.html qa-handoff/index.working-2-8-237.html
+          if git diff --cached --quiet; then
+            echo "NO_PRODUCT_CHANGES"
+            exit 0
+          fi
+          git diff --cached --stat
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m "fix(qa-2-8-237): handle browser storage clear for shared sessions"
+          git push origin HEAD:qa-2-8
