@@ -3278,7 +3278,8 @@ function showLocalPreviewLoginAfterRestoreFailure(){
   // 이 경우에만 로컬 테스트용 세션을 정리하고 로그인 화면으로 복귀한다.
   // 실제 GitHub Pages의 https:// 세션 유지/재시도 정책에는 영향을 주지 않는다.
   clearSessionRestoreRetry();
-  void withBrowserSharedSessionLock(()=>clearStoredLoginSession(state.sessionToken));
+  const previewExpiredToken=state.sessionToken;
+  void withBrowserSharedSessionLock(()=>clearStoredLoginSession(previewExpiredToken));
   invalidateSessionBoundLoads();
   state.sessionToken='';
   state.me=null;
