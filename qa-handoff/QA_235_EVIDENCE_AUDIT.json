@@ -1,0 +1,67 @@
+{
+  "project": "근무모아",
+  "block": "2-8-235",
+  "status": "COMPLETE",
+  "qa_round": 2,
+  "depth": 8,
+  "start_observed_kst": "2026-10-11T19:13:02+09:00",
+  "finished_kst": "2026-10-11T19:33:05+09:00",
+  "elapsed_verified_seconds": 1203,
+  "official_previous": "2-8-234",
+  "official_next": "2-8-236",
+  "new_product_defects": 1,
+  "official_cumulative_defects": 506,
+  "baseline_sha256": "a46a2d8d11f1eaecab8b42e461804bad70650c4da462324e370dd307a112cd63",
+  "baseline_bytes": 1157156,
+  "final_sha256": "f67887f5427da8331eaa134fbaeec73493815ac52e4c1cbcbbcaec1e42dbc50e",
+  "final_bytes": 1158706,
+  "CI": {
+    "final_runs": [
+      {
+        "id": 38132253855,
+        "result": "success",
+        "passed": 92,
+        "failed": 0
+      },
+      {
+        "id": 38132323640,
+        "result": "success",
+        "passed": 92,
+        "failed": 0
+      }
+    ],
+    "defect_reproduction_runs": [
+      38131443139,
+      38132041574
+    ]
+  },
+  "scenarios": {
+    "four_group_2026_2027": 2920,
+    "annual_leave_fuzz_sets": 500,
+    "two_tab_lock_sections": 150,
+    "two_tab_overlap": 0,
+    "four_tab_lock_sections": 400,
+    "four_tab_overlap": 0,
+    "desktop_no_web_locks_temp_login": true,
+    "desktop_no_web_locks_admin_and_logout": true,
+    "desktop_no_web_locks_auto_handoff": true,
+    "desktop_no_web_locks_admin_proof_auto_handoff": true,
+    "denied_web_lock_shared_write_fails_closed": true,
+    "denied_web_lock_desktop_session_operational": true,
+    "android_user_agent_emulation": true,
+    "real_image_canvas_png_to_jpeg": true,
+    "storage_quota_failure_rollback": true,
+    "storage_delete_failure_rollback": true,
+    "mocked_backend_identity_restore_true": true
+  },
+  "not_tested": [
+    "production Supabase RPC/RLS",
+    "physical Android native camera/file chooser",
+    "real authenticated multiuser shared sessions",
+    "physical iOS Safari",
+    "BFCache",
+    "production backup/restore"
+  ],
+  "code_change_scope": "qa-2-8 branch only",
+  "version": "ver20260927-0944"
+}
