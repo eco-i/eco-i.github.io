@@ -121,17 +121,52 @@ check('No console access to live Supabase needed',()=>true);
     await Promise.all([page.evaluate(()=>releaseSharedSessionMutex()),other.evaluate(()=>releaseSharedSessionMutex())]);
   }
   console.log('QA234_MUTEX_DIAGNOSTIC',JSON.stringify({attempts:150,collisions,outcomes,samples}));
-  check('Two-tab cooperative mutex 150 attempts',()=>collisions===0);
+  if(collisions)console.error('QA234_CONFIRMED_MUTEX_DEFECT',JSON.stringify({collisions,attempts:150}));
+  const webLockAvailable=await page.evaluate(()=>!!navigator.locks?.request);
+  check('Web Locks supported on test Chromium',()=>webLockAvailable);
+  await page.evaluate(()=>localStorage.setItem('__qa234_web_mutex_active__','0'));
+  await page.evaluate(()=>localStorage.setItem('__qa234_web_mutex_overlap__','0'));
+  async function webLockTest(tab){
+    return tab.evaluate(async()=>{
+      return navigator.locks.request('qa234-web-lock-alternative',{mode:'exclusive'},async()=>{
+        const active=Number(localStorage.getItem('__qa234_web_mutex_active__')||'0');
+        if(active)localStorage.setItem('__qa234_web_mutex_overlap__',String(Number(localStorage.getItem('__qa234_web_mutex_overlap__')||0)+1));
+        localStorage.setItem('__qa234_web_mutex_active__','1');
+        await new Promise(r=>setTimeout(r,2));
+        localStorage.setItem('__qa234_web_mutex_active__','0');
+        return true;
+      });
+    });
+  }
+  for(let j=0;j<35;j++)await Promise.all([webLockTest(page),webLockTest(other)]);
+  const webLockOverlap=await page.evaluate(()=>Number(localStorage.getItem('__qa234_web_mutex_overlap__')||0));
+  check('Web Locks 70 real two-tab critical sections no overlap',()=>webLockOverlap===0);
+  console.log('QA234_WEBLOCK_COMPARISON',JSON.stringify({cooperative_mutex_collisions:collisions,web_lock_overlap:webLockOverlap}));
   console.log('QA234_EXTRA',JSON.stringify({roster_cases:2920,multitab_mutex_attempts:150,collisions,real_two_tab_storage:true,backend_auth_multitab:false}));
   await other.close();
 
+
+  const imageChecks=await page.evaluate(async()=>{
+    const c=document.createElement('canvas');c.width=320;c.height=320;
+    const cx=c.getContext('2d');for(let i=0;i<320;i++){cx.fillStyle='rgb('+i+',88,155)';cx.fillRect(i,0,1,320)}
+    const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=new File([blob],'지문😀사진.png',{type:'image/png'});
+    const converted=await compressFingerprintImage(file);
+    let invalidRejected=false;
+    try{await compressFingerprintImage(new File(['not an image'],'fake.txt',{type:'text/plain'}))}catch(e){invalidRejected=true}
+    return {compressed:converted.mime==='image/jpeg'&&converted.bytes>100&&converted.bytes<=110*1024&&converted.name.includes('😀')&&converted.name.endsWith('.jpg'),signature:fingerprintPhotoBase64SignatureValid('image/jpeg',converted.base64),invalidRejected,bytes:converted.bytes};
+  });
+  check('Real image canvas PNG-to-JPEG compressed',()=>imageChecks.compressed);
+  check('Real compressed JPEG signature verified',()=>imageChecks.signature);
+  check('Non-image file rejected',()=>imageChecks.invalidRejected);
+  console.log('QA234_IMAGE',JSON.stringify(imageChecks));
   const widths=[320,360,390,430,768,1024,1440];
   for(const width of widths){
     await page.setViewportSize({width,height:900});await page.waitForTimeout(70);
     const dim=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,view:document.documentElement.clientWidth}));
     check('Default mobile/PC screen no horizontal overflow '+width,()=>dim.scroll<=dim.view+2);
   }
-  console.log('QA234_SUMMARY',JSON.stringify({passed:pass.length,failed:0,checks:pass,viewport_widths:widths,real_chromium:true,live_supabase:false,native_android:false,real_multitab:false,bfcache:false}));
+  console.log('QA234_SUMMARY',JSON.stringify({passed:pass.length,failed:collisions>0?1:0,checks:pass,viewport_widths:widths,real_chromium:true,live_supabase:false,native_android:false,real_storage_two_tabs:true,backend_auth_multitab:false,bfcache:false}));
+  if(collisions>0)process.exitCode=1;
  } catch(e){console.error('QA234_FAIL',e.stack||String(e)); console.log('QA234_PARTIAL',JSON.stringify({passed:pass.length,checks:pass})); process.exitCode=1;}
  finally{if(browser)await browser.close();if(server)await new Promise(resolve=>server.close(resolve));}
 })();
