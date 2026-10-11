@@ -12,6 +12,7 @@ function check(name,fn){const result=fn(); assert(result!==false, name+' returne
 check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('1157310 byte baseline',()=>Buffer.byteLength(baseline)===1157310);
 check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
+check('QA234 candidate official SHA256 pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='a46a2d8d11f1eaecab8b42e461804bad70650c4da462324e370dd307a112cd63');
 check('Web Locks critical sections applied',()=>html!==baseline&&html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
 console.log('QA234_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());

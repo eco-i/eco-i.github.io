@@ -1860,16 +1860,28 @@ function storageRemove(storage,key){ try{ storage.removeItem(key); }catch(e){} }
 // 같은 기기의 여러 탭이 shared localStorage 세션을 동시에 변경할 때 get→set/remove 사이 TOCTOU로
 // 더 최신 로그인 토큰을 덮거나 지우지 않도록, 현재 버전의 공유 세션 변경을 짧은 협력 mutex로 직렬화한다.
 // 각 탭은 자기 요청키를 따로 사용하므로 read-modify-write 한 키를 서로 덮지 않는다.
+// QA 2-8-234: real parallel browser tabs showed 84/150 simultaneous
+// acquisitions with the old localStorage pseudo-mutex. Web Locks must own
+// each short shared-session read-modify-write critical section.
 const SHARED_SESSION_MUTEX_PREFIX='staffAttendance_sharedSessionMutex_v1:';
 const SHARED_SESSION_MUTEX_TTL_MS=4000;
-const SHARED_SESSION_MUTEX_OWNER=(()=>{try{return crypto.randomUUID()}catch(e){return `${Date.now()}-${Math.random().toString(36).slice(2)}`}})();
+const SHARED_SESSION_BROWSER_LOCK='staffAttendance_sharedSessionBrowserLock_v3';
 let sharedSessionMutexDepth=0;
+let sharedBrowserMutexHeld=0;
 let deferredAdminUnlockRestoreToken='';
-function sharedSessionMutexKey(){return SHARED_SESSION_MUTEX_PREFIX+SHARED_SESSION_MUTEX_OWNER;}
+async function withBrowserSharedSessionLock(fn){
+  if(typeof navigator==='undefined'||typeof navigator.locks?.request!=='function')return null;
+  try{
+    return await navigator.locks.request(SHARED_SESSION_BROWSER_LOCK,{mode:'exclusive'},()=>{
+      // The in-tab permission to enter the synchronous RMW section is scoped
+      // only to this callback's synchronous execution, never across await.
+      sharedBrowserMutexHeld++;
+      try{return fn();}
+      finally{sharedBrowserMutexHeld--;}
+    });
+  }catch(_){return null;}
+}
 function sharedSessionMutexNow(){
-  // Date.now()는 기기 시각 자동보정/수동변경에 따라 앞뒤로 점프할 수 있어 lease 판정에 쓰면
-  // 활성 lock을 stale로 오인할 수 있다. Performance 시간원은 문서 생존 동안 단조 증가하고
-  // timeOrigin을 더한 epoch 형태라 같은 브라우저의 탭끼리 비교할 수 있다.
   try{
     const origin=Number(performance?.timeOrigin),now=Number(performance?.now?.());
     const value=origin+now;
@@ -1877,31 +1889,12 @@ function sharedSessionMutexNow(){
   }catch(e){}
   return Date.now();
 }
-function clearSharedSessionMutexRequest(key=sharedSessionMutexKey()){storageSet(localStorage,key,'0');storageRemove(localStorage,key);}
 function acquireSharedSessionMutex(){
-  if(sharedSessionMutexDepth>0){sharedSessionMutexDepth++;return true;}
-  const myKey=sharedSessionMutexKey(),now=sharedSessionMutexNow(),stamp=String(now);
-  if(!storageSet(localStorage,myKey,stamp))return false;
-  let blocked=false;
-  try{
-    for(let i=localStorage.length-1;i>=0;i--){
-      const key=localStorage.key(i);
-      if(!key||!key.startsWith(SHARED_SESSION_MUTEX_PREFIX)||key===myKey)continue;
-      const at=Number(storageGet(localStorage,key)||0),age=now-at;
-      if(!Number.isFinite(at)||at<=0||age>SHARED_SESSION_MUTEX_TTL_MS||age<-5000){storageRemove(localStorage,key);continue;}
-      // 더 먼저 게시된 요청에만 양보한다. 타이머 정밀도 축소로 timestamp가 정확히 같을 때는
-      // mutex key(owner UUID)를 tie-breaker로 사용해 두 탭이 서로 동시에 양보하며 둘 다 실패하는 livelock을 막는다.
-      // 내 요청 뒤에 생긴 요청은 내 키를 보고 스스로 양보하므로 현재 작업을 방해하지 않는다.
-      if(at<now || (at===now && key<myKey)){blocked=true;break;}
-    }
-  }catch(e){blocked=true;}
-  if(blocked||storageGet(localStorage,myKey)!==stamp){clearSharedSessionMutexRequest(myKey);return false;}
-  sharedSessionMutexDepth=1;return true;
+  if(sharedBrowserMutexHeld<=0)return false;
+  sharedSessionMutexDepth++;return true;
 }
 function releaseSharedSessionMutex(){
-  if(sharedSessionMutexDepth<=0)return;
-  sharedSessionMutexDepth--;
-  if(sharedSessionMutexDepth===0)clearSharedSessionMutexRequest();
+  if(sharedSessionMutexDepth>0)sharedSessionMutexDepth--;
 }
 function withSharedSessionMutex(fn){
   if(!acquireSharedSessionMutex())return {locked:false,value:false};
@@ -1938,8 +1931,8 @@ function clearSharedAdminUnlockIfToken(token,{requireSessionMismatch=false}={}){
 function scheduleSharedAdminUnlockCleanup(token,{requireSessionMismatch=false}={}){
   token=String(token||'');if(!token)return;
   const started=sharedSessionMutexNow(),deadlineMs=SHARED_SESSION_MUTEX_TTL_MS+500;
-  const retry=()=>{
-    if(clearSharedAdminUnlockIfToken(token,{requireSessionMismatch}))return;
+  const retry=async()=>{
+    if(await withBrowserSharedSessionLock(()=>clearSharedAdminUnlockIfToken(token,{requireSessionMismatch})))return;
     const elapsed=sharedSessionMutexNow()-started;
     if(!Number.isFinite(elapsed)||elapsed>=deadlineMs)return;
     setTimeout(retry,80);
@@ -1949,11 +1942,11 @@ function scheduleSharedAdminUnlockCleanup(token,{requireSessionMismatch=false}={
 function scheduleSharedSessionCleanup(token){
   token=String(token||'');if(!token)return;
   const started=sharedSessionMutexNow(),deadlineMs=SHARED_SESSION_MUTEX_TTL_MS+500;
-  const retry=()=>{
+  const retry=async()=>{
     // 같은 token으로 새 로그인이 이미 성립해 logout tombstone이 해제됐다면 옛 지연정리가 새 세션을 지우면 안 된다.
     // tombstone 재확인과 exact-token 삭제는 clearSharedSessionIfToken 내부의 같은 mutex 구간에서 원자적으로 수행한다.
     if(!updateHandoffTokenWasLoggedOut(token))return;
-    if(clearSharedSessionIfToken(token,{requireLogoutTombstone:true}))return;
+    if(await withBrowserSharedSessionLock(()=>clearSharedSessionIfToken(token,{requireLogoutTombstone:true})))return;
     const elapsed=sharedSessionMutexNow()-started;
     if(!Number.isFinite(elapsed)||elapsed>=deadlineMs)return;
     setTimeout(retry,80);
@@ -2034,7 +2027,7 @@ async function storeAdminUnlockForFreshLogin(token,persistent,attempt){
   const deadlineMs=SHARED_SESSION_MUTEX_TTL_MS+500;
   while(true){
     if(attempt!==loginAttemptSeq||String(state.sessionToken||'')!==token)return false;
-    const result=storeAdminUnlock(token,persistent);
+    const result=await withBrowserSharedSessionLock(()=>attempt===loginAttemptSeq&&String(state.sessionToken||'')===token?storeAdminUnlock(token,persistent):false);
     if(result!==null)return result===true;
     let elapsed;
     try{elapsed=performance.now()-started;}catch(e){elapsed=Date.now()-started;}
@@ -2131,7 +2124,7 @@ async function storeLoginSessionForFreshLogin(token,persistent,attempt){
   const deadlineMs=SHARED_SESSION_MUTEX_TTL_MS+500;
   while(true){
     if(attempt!==loginAttemptSeq||String(state.sessionToken||'')!==token)return false;
-    const result=storeLoginSession(token,persistent,true);
+    const result=await withBrowserSharedSessionLock(()=>attempt===loginAttemptSeq&&String(state.sessionToken||'')===token?storeLoginSession(token,persistent,true):false);
     if(result!==null)return result===true;
     let elapsed;try{elapsed=performance.now()-started;}catch(e){elapsed=Date.now()-started;}
     if(!Number.isFinite(elapsed)||elapsed>=deadlineMs)return false;
@@ -2153,7 +2146,7 @@ function revokeAdminUnlockForToken(token){
   token=String(token||'');if(!token)return;
   if(String(deferredAdminDraftUnlockProofToken||'')===token)clearDeferredAdminDraftUnlockProof();
   const persistent=MOBILE_SESSION_DEVICE?true:sessionIsPersistent(token);
-  clearAdminUnlockForSession(token,persistent);
+  void withBrowserSharedSessionLock(()=>clearAdminUnlockForSession(token,persistent));
   // shared mutex를 잠깐 얻지 못했더라도 권한 박탈 전의 관리자 2차 인증 표식이 같은 token에 남지 않게
   // token 조건부 cleanup을 예약한다. 새 로그인은 새 token을 쓰므로 뒤늦은 cleanup이 새 관리자 세션을 지우지 않는다.
   if(storageGet(localStorage,ADMIN_UNLOCK_KEY)===token)scheduleSharedAdminUnlockCleanup(token);
@@ -2239,8 +2232,8 @@ function migrateLegacySessionForDevice(){
   }
   return true;
 }
-migrateLegacySessionForDevice();
 
+// Migration now runs in boot's exclusive browser lock before session restore.
 const state = {
   sessionToken: storedSessionToken(),
   me:null, accountStatusBackendReady:null, accountStatusPersonnelAuthoritative:null, employees:[], attendance:[], attendanceAnnualLeaveBackendReady:null, holidayWorks:[], holidayWorkBackendReady:null, holidayWorkEligibilityReady:null, overtimeEntries:[], overtimeBackendReady:null, overtimeConfirmations:[], overtimeConfirmBackendReady:null, fingerprintRecords:[], fingerprintBackendReady:null, memos:[], memoBackendReady:null, memoDdays:[], memoDdayBackendReady:null, companyEvents:[], companyEventBackendReady:null, annualLeaveSettings:null, annualLeaveEntries:[], annualLeaveBackendReady:null, annualLeaveYear:null, annualLeaveFormDirty:false, longServiceProfile:null, longServiceExclusions:[], longServiceEntries:[], longServiceBackendReady:null, longServiceFormDirty:false, view:'mine', selectedDate:null, absenceReflect:(()=>{try{return localStorage.getItem(ABSENCE_REFLECT_KEY)!=='0';}catch(e){return true;}})(), memoDisplay:(()=>{try{return localStorage.getItem(MEMO_DISPLAY_KEY)!=='0';}catch(e){return true;}})(),
@@ -3287,7 +3280,8 @@ function showLocalPreviewLoginAfterRestoreFailure(){
   // 이 경우에만 로컬 테스트용 세션을 정리하고 로그인 화면으로 복귀한다.
   // 실제 GitHub Pages의 https:// 세션 유지/재시도 정책에는 영향을 주지 않는다.
   clearSessionRestoreRetry();
-  clearStoredLoginSession(state.sessionToken);
+  const previewExpiredToken=state.sessionToken;
+  void withBrowserSharedSessionLock(()=>clearStoredLoginSession(previewExpiredToken));
   invalidateSessionBoundLoads();
   state.sessionToken='';
   state.me=null;
@@ -5109,10 +5103,10 @@ async function login(){
       const localAdminStored=!emp.is_admin || (localSessionStored&&await storeAdminUnlockForFreshLogin(localLoginToken,persistSession,attempt));
       if(attempt!==loginAttemptSeq||state.sessionToken!==localLoginToken)return;
       if(!localSessionStored||!localAdminStored){
-        clearStoredLoginSession(localLoginToken);if(state.sessionToken===localLoginToken)state.sessionToken='';
+        await withBrowserSharedSessionLock(()=>clearStoredLoginSession(localLoginToken));if(state.sessionToken===localLoginToken)state.sessionToken='';
         throw new Error('SESSION_STORAGE_WRITE_FAILED');
       }
-      if(!emp.is_admin) clearAdminUnlockForSession(state.sessionToken,persistSession);
+      if(!emp.is_admin) await withBrowserSharedSessionLock(()=>clearAdminUnlockForSession(state.sessionToken,persistSession));
       clearLoginSecretInputs();
       await enterApp({employee_id:emp.id,display_name:emp.display_name,category:emp.category,is_admin:emp.is_admin});
     }else{
@@ -5131,11 +5125,11 @@ async function login(){
       if(attempt!==loginAttemptSeq||state.sessionToken!==loginToken)return;
       if(!sessionStored||!adminStored){
         const failedToken=loginToken;
-        clearStoredLoginSession(failedToken);if(state.sessionToken===failedToken)state.sessionToken='';
+        await withBrowserSharedSessionLock(()=>clearStoredLoginSession(failedToken));if(state.sessionToken===failedToken)state.sessionToken='';
         try{await rpc('logout_employee',{p_token:failedToken},{timeoutMs:SESSION_CHECK_TIMEOUT_MS,keepalive:true});}catch(_){}
         throw new Error('SESSION_STORAGE_WRITE_FAILED');
       }
-      if(!loginRow.is_admin) clearAdminUnlockForSession(state.sessionToken,persistSession);
+      if(!loginRow.is_admin) await withBrowserSharedSessionLock(()=>clearAdminUnlockForSession(state.sessionToken,persistSession));
       // 인증이 끝난 비밀번호/관리자 2차 비밀번호를 숨겨진 로그인 DOM에 남겨두지 않는다.
       // 이후 초기 PIN 확인이나 앱 데이터 로딩이 지연·실패해 재연결 화면으로 가더라도 민감값은 즉시 폐기한다.
       clearLoginSecretInputs();
@@ -5195,7 +5189,7 @@ async function restoreSession(isRetry=false){
       const m=/^local:(\d+)$/.exec(restoreToken);if(!m)throw new Error('local_expired');
       const emp=localEmployees().find(e=>e.id===Number(m[1])&&employeeCanLoginLocal(e,todayKey()));if(!emp)throw new Error('local_expired');
       if(!tokenStillCurrent())return;
-      if(!ensureAdminUnlockForRestore(emp.is_admin,restoreToken))throw new Error('admin_locked');
+      if(!await withBrowserSharedSessionLock(()=>ensureAdminUnlockForRestore(emp.is_admin,restoreToken)))throw new Error('admin_locked');
       await enterApp({employee_id:emp.id,display_name:emp.display_name,category:emp.category,is_admin:emp.is_admin});
     }else{
       const mustChangeInitial=await initialPinStatus(restoreToken);
@@ -5212,7 +5206,7 @@ async function restoreSession(isRetry=false){
       if(!tokenStillCurrent())return;
       if(Array.isArray(data)&&data.length===0)throw new Error('SESSION_INVALID_CONFIRMED');
       const me=strictEmployeeIdentityRpcRow(data);
-      if(!ensureAdminUnlockForRestore(me.is_admin,restoreToken))throw new Error('admin_locked');
+      if(!await withBrowserSharedSessionLock(()=>ensureAdminUnlockForRestore(me.is_admin,restoreToken)))throw new Error('admin_locked');
       if(mustChangeInitial) enterInitialPinGate(me); else await enterApp(me);
     }
     if(!tokenStillCurrent())return;
@@ -6718,7 +6712,7 @@ async function logout(callServer=true){
   const realtimeStopPromise=stopRealtime();
   if(state.sessionToken!==logoutToken)return;
   invalidateSessionBoundLoads();++monthNavigationSeq;resetSessionUiContext();showLoading(false);
-  clearStoredLoginSession(logoutToken);state.sessionToken='';state.me=null;state.initialPinRequired=false;state.accountStatusBackendReady=null;state.accountStatusPersonnelAuthoritative=null;state.employees=[];state.holidayWorkEligibilityReady=null;state.attendance=[];attendanceMonthContextKey='';state.attendanceAnnualLeaveBackendReady=null;state.holidayWorks=[];state.holidayWorkBackendReady=null;state.overtimeEntries=[];state.overtimeBackendReady=null;state.overtimeConfirmations=[];state.overtimeConfirmBackendReady=null;state.fingerprintRecords=[];state.fingerprintBackendReady=null;state.memos=[];state.memoBackendReady=null;state.memoDdays=[];state.memoDdayBackendReady=null;memoDdayPendingDates.clear();state.companyEvents=[];state.companyEventBackendReady=null;state.annualLeaveSettings=null;state.annualLeaveEntries=[];state.annualLeaveBackendReady=null;state.annualLeaveYear=null;state.annualLeaveFormDirty=false;state.longServiceProfile=null;state.longServiceExclusions=[];state.longServiceEntries=[];state.longServiceBackendReady=null;state.longServiceFormDirty=false;state.personnelAssignments=[];state.personnelAccountEvents=[];state.personnelSnapshots=[];state.personnelBackendReady=null;state.personnelSnapshotBackendReady=null;state.view='mine';
+  state.sessionToken='';await withBrowserSharedSessionLock(()=>clearStoredLoginSession(logoutToken));state.me=null;state.initialPinRequired=false;state.accountStatusBackendReady=null;state.accountStatusPersonnelAuthoritative=null;state.employees=[];state.holidayWorkEligibilityReady=null;state.attendance=[];attendanceMonthContextKey='';state.attendanceAnnualLeaveBackendReady=null;state.holidayWorks=[];state.holidayWorkBackendReady=null;state.overtimeEntries=[];state.overtimeBackendReady=null;state.overtimeConfirmations=[];state.overtimeConfirmBackendReady=null;state.fingerprintRecords=[];state.fingerprintBackendReady=null;state.memos=[];state.memoBackendReady=null;state.memoDdays=[];state.memoDdayBackendReady=null;memoDdayPendingDates.clear();state.companyEvents=[];state.companyEventBackendReady=null;state.annualLeaveSettings=null;state.annualLeaveEntries=[];state.annualLeaveBackendReady=null;state.annualLeaveYear=null;state.annualLeaveFormDirty=false;state.longServiceProfile=null;state.longServiceExclusions=[];state.longServiceEntries=[];state.longServiceBackendReady=null;state.longServiceFormDirty=false;state.personnelAssignments=[];state.personnelAccountEvents=[];state.personnelSnapshots=[];state.personnelBackendReady=null;state.personnelSnapshotBackendReady=null;state.view='mine';
   overtimeListRows=[];overtimeListBackendReady=null;overtimeListContextKey='';overtimeListTargetEmployeeId=null;
   holidayWorkListRows=[];holidayWorkListBackendReady=null;holidayWorkListContextKey='';holidayWorkPastExpanded=false;holidayWorkListEditReturnMode=null;
   memoListRows=[];memoListBackendReady=null;memoSelectedDates.clear();memoDeleteMode=false;
@@ -11518,7 +11512,13 @@ function wire(){
 }
 
 
-restoreUpdateSessionHandoff(); cleanupVersionQuery(); restoreTheme(); restoreTextSizeLevel(); setupLoginPersistenceUI(); syncVersionFooter(); wire(); wireDataManagement(); toggleAdminPinField(); startVersionWatcher(); restoreSession();
+(async()=>{
+  await withBrowserSharedSessionLock(()=>migrateLegacySessionForDevice());
+  state.sessionToken=storedSessionToken();
+  await withBrowserSharedSessionLock(()=>restoreUpdateSessionHandoff());
+  cleanupVersionQuery();restoreTheme();restoreTextSizeLevel();setupLoginPersistenceUI();syncVersionFooter();wire();wireDataManagement();toggleAdminPinField();startVersionWatcher();
+  await restoreSession();
+})();
 </script>
 </body>
 </html>
