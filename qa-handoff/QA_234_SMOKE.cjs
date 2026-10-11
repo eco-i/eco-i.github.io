@@ -224,6 +224,23 @@ check('No console access to live Supabase needed',()=>true);
   });
   check('Canceled admin unlock blocked while Web Lock queued',()=>canceledAdmin.outcome===false&&canceledAdmin.stored!=='qa234-admin-old');
   await isolatedContext.close();
+  const mobileContext=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/125.0.0.0 Mobile Safari/537.36'});
+  const mobile=await mobileContext.newPage();
+  await mobile.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await mobile.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const mobileResult=await mobile.evaluate(async()=>{
+    const detected=MOBILE_SESSION_DEVICE;
+    const persistent=loginShouldPersist();
+    const token='qa234-mobile-virtual';
+    const stored=await withBrowserSharedSessionLock(()=>storeLoginSession(token,true));
+    const shared=storageGet(localStorage,SESSION_KEY)===token;
+    await withBrowserSharedSessionLock(()=>clearStoredLoginSession(token));
+    return {detected,persistent,stored,shared,cleared:!storageGet(localStorage,SESSION_KEY)};
+  });
+  check('Mobile browser emulation persistent shared login',()=>mobileResult.detected&&mobileResult.persistent&&mobileResult.stored&&mobileResult.shared);
+  check('Mobile browser emulation logout cleanup',()=>mobileResult.cleared);
+  await mobileContext.close();
+  console.log('QA234_MOBILE_EMULATION',JSON.stringify(mobileResult));
   console.log('QA234_CANCELLED_ASYNC',JSON.stringify({login:canceled,admin:canceledAdmin}));
 
   const imageChecks=await page.evaluate(async()=>{
