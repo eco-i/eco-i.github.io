@@ -99,16 +99,18 @@ check('No console access to live Supabase needed',()=>true);
   await other.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded',timeout:30000});
   await other.evaluate(()=>{window.qa234Seen=false;window.addEventListener('storage',e=>{if(e.key==='__qa234_signal__'&&e.newValue==='ping')window.qa234Seen=true;})});
   await page.evaluate(()=>localStorage.setItem('__qa234_signal__','ping'));await page.waitForTimeout(130);
-  check('Two actual same-origin tabs see storage event',await other.evaluate(()=>window.qa234Seen));
+  const storageEventReceived=await other.evaluate(()=>window.qa234Seen);
+  check('Two actual same-origin tabs see storage event',()=>storageEventReceived);
   await page.evaluate(()=>sessionStorage.setItem('__qa234_private__','secret'));
-  check('Two actual tabs isolate sessionStorage',await other.evaluate(()=>sessionStorage.getItem('__qa234_private__')===null));
+  const tabStorageIsolated=await other.evaluate(()=>sessionStorage.getItem('__qa234_private__')===null);
+  check('Two actual tabs isolate sessionStorage',()=>tabStorageIsolated);
   let collisions=0;
   for(let k=0;k<50;k++){
     const [a,b]=await Promise.all([page.evaluate(()=>acquireSharedSessionMutex()),other.evaluate(()=>acquireSharedSessionMutex())]);
     if(a&&b)collisions++;
     await Promise.all([page.evaluate(()=>releaseSharedSessionMutex()),other.evaluate(()=>releaseSharedSessionMutex())]);
   }
-  check('Two-tab cooperative mutex 50 attempts',collisions===0);
+  check('Two-tab cooperative mutex 50 attempts',()=>collisions===0);
   console.log('QA234_EXTRA',JSON.stringify({roster_cases:2920,multitab_mutex_attempts:50,collisions,real_two_tab_storage:true,backend_auth_multitab:false}));
   await other.close();
 
