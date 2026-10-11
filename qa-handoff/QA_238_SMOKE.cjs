@@ -13,14 +13,14 @@ function check(name,fn){const result=fn(); assert(result!==false, name+' returne
 check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('1161672 byte baseline',()=>Buffer.byteLength(baseline)===1161672);
 check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
-check('236 official completed SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='f5d75a76d182629d1b8fa97002a726249f8860c729db4b47fdfa74d9707cc30f');
+check('237 officially completed SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='f5d75a76d182629d1b8fa97002a726249f8860c729db4b47fdfa74d9707cc30f');
 check('Web Locks critical sections applied',()=>html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
-check('Official 237 start baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
-check('237 start baseline remained immutable while candidate fixed',()=>html.includes('if(e.key===null)')&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
+check('Official 238 start baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
+check('238 inherited 237 session security corrections retained',()=>html.includes('if(e.key===null)')&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
 check('Previous session-safety correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 check('238 mobile tab-only carveout eliminated',()=>html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return false;")&&html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return {current,mode:'tab'};")&&html.includes("if(!MOBILE_SESSION_DEVICE && current && tabToken===current){ sharedSessionChangePending="));
 check('238 no stale legacy mobile fallback after shared logout',()=>html.includes("rawLocal ? localToken : (forbidden ? '' : temporaryToken)"));
-check('236 baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='f5d75a76d182629d1b8fa97002a726249f8860c729db4b47fdfa74d9707cc30f');
+check('238 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='f5d75a76d182629d1b8fa97002a726249f8860c729db4b47fdfa74d9707cc30f');
 check('238 complete stale-token suppression candidate pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='1292955d4ae7fd90c3bcf8e6ccc6d5ea9595bd9d34215e27aa06baa98dd98360');
 console.log('QA238_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
