@@ -6286,7 +6286,7 @@ function strictFingerprintPhotoRpcRow(result){
   if(result.length===0)return null;
   if(result.length!==1||!result[0]||typeof result[0]!=='object'||Array.isArray(result[0]))throw new Error('FINGERPRINT_PHOTO_RESPONSE_INVALID');
   const row=result[0],mime=typeof row.mime_type==='string'?row.mime_type.trim().toLowerCase():'',filename=typeof row.filename==='string'?row.filename.trim():'';
-  if(!['image/jpeg','image/png','image/webp'].includes(mime)||!filename||filename.length>120||typeof row.data_base64!=='string'||!row.data_base64.trim())throw new Error('FINGERPRINT_PHOTO_RESPONSE_INVALID');
+  if(!['image/jpeg','image/png','image/webp'].includes(mime)||!filename||Array.from(filename).length>120||typeof row.data_base64!=='string'||!row.data_base64.trim())throw new Error('FINGERPRINT_PHOTO_RESPONSE_INVALID');
   try{strictRpcTimestamp(row.uploaded_at);}catch(_){throw new Error('FINGERPRINT_PHOTO_RESPONSE_INVALID');}
   return {...row,mime_type:mime,filename};
 }
