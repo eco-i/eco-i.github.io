@@ -11087,6 +11087,18 @@ function reconcileSharedSessionIfNeeded(){
 }
 function handleSharedSessionStorageChange(e){
   if(e.storageArea!==localStorage)return;
+  // A mobile logout may be unable to atomically remove its shared token on
+  // browsers without Web Locks. The exact-token suppression marker is then the
+  // authoritative cross-tab revocation signal: close sibling sensitive UI
+  // immediately even when SESSION_KEY itself did not change.
+  if(e.key===SHARED_SESSION_LOGOUT_SUPPRESSION_KEY){
+    const current=String(state.sessionToken||'');
+    if(current&&current===String(e.newValue||'')&&storageGet(sessionStorage,SESSION_KEY)!==current){
+      clearDeferredAdminDraftUnlockProof();
+      void logout(false);
+    }
+    return;
+  }
   // 공유 관리자 2차 인증 표식이 다른 탭에서 권한 박탈/보안 잠금으로 폐기되면,
   // session token 자체가 그대로여도 이 탭의 관리자 UI·민감 렌더를 즉시 잠근다.
   if(e.key===ADMIN_UNLOCK_KEY){
