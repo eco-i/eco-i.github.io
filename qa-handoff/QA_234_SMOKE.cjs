@@ -12,7 +12,7 @@ function check(name,fn){const result=fn(); assert(result!==false, name+' returne
 check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('1157310 byte baseline',()=>Buffer.byteLength(baseline)===1157310);
 check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
-check('Two-phase v2 mutex applied',()=>html!==baseline&&html.includes('staffAttendance_sharedSessionMutex_v2:'));
+check('Web Locks critical sections applied',()=>html!==baseline&&html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
 console.log('QA234_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
@@ -109,42 +109,49 @@ check('No console access to live Supabase needed',()=>true);
   await page.evaluate(()=>sessionStorage.setItem('__qa234_private__','secret'));
   const tabStorageIsolated=await other.evaluate(()=>sessionStorage.getItem('__qa234_private__')===null);
   check('Two actual tabs isolate sessionStorage',()=>tabStorageIsolated);
-  let collisions=0;const samples=[],outcomes={both:0,left:0,right:0,none:0};
-  for(let k=0;k<150;k++){
-    const [a,b]=await Promise.all([page.evaluate(()=>acquireSharedSessionMutex()),other.evaluate(()=>acquireSharedSessionMutex())]);
-    const category=a&&b?'both':a?'left':b?'right':'none';outcomes[category]++;
-    if(a&&b){collisions++;
-      if(samples.length<5){
-        const diag=await Promise.all([page.evaluate(()=>({owner:SHARED_SESSION_MUTEX_OWNER,depth:sharedSessionMutexDepth,now:sharedSessionMutexNow(),locks:Object.entries(localStorage).filter(e=>e[0].startsWith(SHARED_SESSION_MUTEX_PREFIX))})),other.evaluate(()=>({owner:SHARED_SESSION_MUTEX_OWNER,depth:sharedSessionMutexDepth,now:sharedSessionMutexNow(),locks:Object.entries(localStorage).filter(e=>e[0].startsWith(SHARED_SESSION_MUTEX_PREFIX))}))]);
-        samples.push({iteration:k,diag});
-      }
-    }
-    await Promise.all([page.evaluate(()=>releaseSharedSessionMutex()),other.evaluate(()=>releaseSharedSessionMutex())]);
-  }
-  console.log('QA234_MUTEX_DIAGNOSTIC',JSON.stringify({attempts:150,collisions,outcomes,samples}));
-  if(collisions)console.error('QA234_CONFIRMED_MUTEX_DEFECT',JSON.stringify({collisions,attempts:150}));
-  const webLockAvailable=await page.evaluate(()=>!!navigator.locks?.request);
-  check('Web Locks supported on test Chromium',()=>webLockAvailable);
-  await page.evaluate(()=>localStorage.setItem('__qa234_web_mutex_active__','0'));
-  await page.evaluate(()=>localStorage.setItem('__qa234_web_mutex_overlap__','0'));
-  async function webLockTest(tab){
-    return tab.evaluate(async()=>{
-      return navigator.locks.request('qa234-web-lock-alternative',{mode:'exclusive'},async()=>{
-        const active=Number(localStorage.getItem('__qa234_web_mutex_active__')||'0');
-        if(active)localStorage.setItem('__qa234_web_mutex_overlap__',String(Number(localStorage.getItem('__qa234_web_mutex_overlap__')||0)+1));
-        localStorage.setItem('__qa234_web_mutex_active__','1');
-        await new Promise(r=>setTimeout(r,2));
-        localStorage.setItem('__qa234_web_mutex_active__','0');
+  const events=[];let active=0,overlaps=0;
+  await context.exposeBinding('__qa234RecordCritical',(_src,event)=>{
+    if(event==='enter'){active++;if(active>1)overlaps++;}
+    else if(event==='exit'){active--;}
+    events.push(event);
+  });
+  const unprotected=await page.evaluate(()=>acquireSharedSessionMutex());
+  check('Mutex refuses direct acquisition without browser lock',()=>unprotected===false);
+  const lockWork=tab=>tab.evaluate(async()=>{
+    return withBrowserSharedSessionLock(async()=>{
+      const entered=acquireSharedSessionMutex();
+      if(!entered)return false;
+      try{
+        await window.__qa234RecordCritical('enter');
+        await new Promise(resolve=>setTimeout(resolve,2));
+        await window.__qa234RecordCritical('exit');
         return true;
-      });
+      }finally{releaseSharedSessionMutex();}
     });
+  });
+  let successes=0;
+  for(let k=0;k<75;k++){
+    const vals=await Promise.all([lockWork(page),lockWork(other)]);
+    if(vals.every(Boolean))successes+=2;
   }
-  for(let j=0;j<35;j++)await Promise.all([webLockTest(page),webLockTest(other)]);
-  const webLockOverlap=await page.evaluate(()=>Number(localStorage.getItem('__qa234_web_mutex_overlap__')||0));
-  console.log('QA234_WEBLOCK_DIAGNOSTIC',JSON.stringify({webLockOverlap,webLockAvailable,origin:await page.evaluate(()=>location.origin),peerOrigin:await other.evaluate(()=>location.origin)}));
-  check('Web Locks 70 real two-tab critical sections no overlap',()=>webLockOverlap===0);
-  console.log('QA234_WEBLOCK_COMPARISON',JSON.stringify({cooperative_mutex_collisions:collisions,web_lock_overlap:webLockOverlap}));
-  console.log('QA234_EXTRA',JSON.stringify({roster_cases:2920,multitab_mutex_attempts:150,collisions,real_two_tab_storage:true,backend_auth_multitab:false}));
+  check('Actual two-tab Web Locks 150 protected entries succeed',()=>successes===150);
+  check('Actual two-tab critical sections never overlap',()=>overlaps===0&&active===0&&events.length===300);
+  const tokenA='qa234-exclusive-A',tokenB='qa234-exclusive-B';
+  const firstSaved=await page.evaluate(async token=>withBrowserSharedSessionLock(()=>storeLoginSession(token,true)),tokenA);
+  const secondSaved=await other.evaluate(async token=>withBrowserSharedSessionLock(()=>storeLoginSession(token,true)),tokenB);
+  check('Shared login storage serial writes succeed',()=>firstSaved===true&&secondSaved===true);
+  const tokenBeforeCleanup=await other.evaluate(()=>storageGet(localStorage,SESSION_KEY));
+  check('Latest shared token wins',()=>tokenBeforeCleanup===tokenB);
+  const oldCleanup=await page.evaluate(async token=>withBrowserSharedSessionLock(()=>clearSharedSessionIfToken(token)),tokenA);
+  const protectedNext=await other.evaluate(()=>storageGet(localStorage,SESSION_KEY)=== 'qa234-exclusive-B');
+  check('Late previous logout cannot erase new login',()=>oldCleanup===true&&protectedNext);
+  const adminSet=await other.evaluate(async token=>withBrowserSharedSessionLock(()=>storeAdminUnlock(token,true)),tokenB);
+  const staleAdminCleanup=await page.evaluate(async token=>withBrowserSharedSessionLock(()=>clearSharedAdminUnlockIfToken(token)),tokenA);
+  const adminPreserved=await other.evaluate(()=>storageGet(localStorage,ADMIN_UNLOCK_KEY)==='qa234-exclusive-B');
+  check('Admin unlock new token preserved against old cleanup',()=>adminSet===true&&staleAdminCleanup===true&&adminPreserved);
+  const removed=await other.evaluate(async token=>withBrowserSharedSessionLock(()=>clearSharedSessionIfToken(token)),tokenB);
+  check('Latest shared token can be removed explicitly',()=>removed===true&&await other.evaluate(()=>!storageGet(localStorage,SESSION_KEY)));
+  console.log('QA234_MUTEX_REAL',JSON.stringify({lock_critical_sections:successes,overlaps,late_logout_protected:true,admin_unlock_protected:true}));
   await other.close();
 
 
@@ -167,8 +174,7 @@ check('No console access to live Supabase needed',()=>true);
     const dim=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,view:document.documentElement.clientWidth}));
     check('Default mobile/PC screen no horizontal overflow '+width,()=>dim.scroll<=dim.view+2);
   }
-  console.log('QA234_SUMMARY',JSON.stringify({passed:pass.length,failed:collisions>0?1:0,checks:pass,viewport_widths:widths,real_chromium:true,live_supabase:false,native_android:false,real_storage_two_tabs:true,backend_auth_multitab:false,bfcache:false}));
-  if(collisions>0)process.exitCode=1;
+  console.log('QA234_SUMMARY',JSON.stringify({passed:pass.length,failed:0,checks:pass,viewport_widths:widths,real_chromium:true,live_supabase:false,native_android:false,real_storage_two_tabs:true,backend_auth_multitab:false,bfcache:false}));
  } catch(e){console.error('QA234_FAIL',e.stack||String(e)); console.log('QA234_PARTIAL',JSON.stringify({passed:pass.length,checks:pass})); process.exitCode=1;}
  finally{if(browser)await browser.close();if(server)await new Promise(resolve=>server.close(resolve));}
 })();
