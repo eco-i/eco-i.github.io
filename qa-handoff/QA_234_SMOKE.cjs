@@ -117,6 +117,15 @@ check('No console access to live Supabase needed',()=>true);
   });
   const unprotected=await page.evaluate(()=>acquireSharedSessionMutex());
   check('Mutex refuses direct acquisition without browser lock',()=>unprotected===false);
+  const asyncPermission=await page.evaluate(()=>withBrowserSharedSessionLock(async()=>{
+    const synchronous=acquireSharedSessionMutex();
+    if(synchronous)releaseSharedSessionMutex();
+    await Promise.resolve();
+    const afterAwait=acquireSharedSessionMutex();
+    if(afterAwait)releaseSharedSessionMutex();
+    return {synchronous,afterAwait};
+  }));
+  check('Web Lock sync permission never leaks through awaited callbacks',()=>asyncPermission.synchronous===true&&asyncPermission.afterAwait===false);
   const lockWork=tab=>tab.evaluate(async()=>{
     return withBrowserSharedSessionLock(async()=>{
       const entered=acquireSharedSessionMutex();
