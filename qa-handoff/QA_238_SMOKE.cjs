@@ -984,13 +984,17 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa238-live
       const afterSharedTokenDeletion=storedSessionToken();
       localStorage.setItem(SESSION_KEY,'qa238-fresh-shared-C');
       const freshCandidate=storedSessionToken();
-      return {mobile:MOBILE_SESSION_DEVICE,staleFallback,afterSharedTokenDeletion,freshCandidate,shared:localStorage.getItem(SESSION_KEY)};
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+      const genuineLegacyOnly=storedSessionToken();
+      return {mobile:MOBILE_SESSION_DEVICE,staleFallback,afterSharedTokenDeletion,freshCandidate,genuineLegacyOnly};
     }finally{Object.defineProperty(navigator,'locks',{configurable:true,value:locks});}
   });
   console.log('QA238_SUPPRESSED_LOCAL_LEGACY_FALLBACK',JSON.stringify(fallback));
   check('Mobile suppressed newer shared logout cannot resurrect old tab-only legacy token',()=>fallback.mobile&&!fallback.staleFallback);
   check('Mobile completed deletion with retained logout marker also cannot restore stale legacy token',()=>!fallback.afterSharedTokenDeletion);
   check('Mobile distinct newer shared login remains selectable',()=>fallback.freshCandidate==='qa238-fresh-shared-C');
+  check('Mobile genuine legacy-only token without a shared logout remains recoverable',()=>fallback.genuineLegacyOnly==='qa238-stale-legacy-A');
   await fallbackCtx.close();
 
   // Desktop sessionStorage login remains independent of another tab's
@@ -1009,6 +1013,9 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa238-live
       sessionStorage.setItem(SESSION_KEY,token);
       localStorage.setItem(SESSION_KEY,'qa238-another-pc-shared');
       const result={mobile:MOBILE_SESSION_DEVICE,mode:fingerprintBlockingPromptSessionSnapshot().mode,sharedMismatch:sharedPersistentSessionMismatch(),sensitiveMismatch:fingerprintCurrentSharedSessionMismatch()};
+      // Shared B was logged out, but independent PC tab A must survive.
+      localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa238-another-pc-shared');
+      result.pcStoredAfterSharedLogout=storedSessionToken();
       let accepted=true;
       try{
         guardMutationRpcSession('save_my_fingerprint_photo',{p_token:token});
@@ -1021,6 +1028,7 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa238-live
   console.log('QA238_DESKTOP_TAB_ISOLATION_GUARDS',JSON.stringify(independent));
   check('PC tab-exclusive account remains independent of shared token',()=>!independent.mobile&&independent.mode==='tab'&&!independent.sharedMismatch&&!independent.sensitiveMismatch);
   check('PC tab-exclusive account mutation/read guards remain usable',()=>independent.accepted);
+  check('PC tab-only token remains available after unrelated shared logout',()=>independent.pcStoredAfterSharedLogout==='qa238-pc-tab-isolated');
   await pcGuardCtx.close();
 
   // Browser navigation with possible BFCache restoration: password inputs
