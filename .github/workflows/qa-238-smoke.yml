@@ -1,0 +1,25 @@
+name: QA 2-8-238 deep real Chromium
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-238-smoke.yml"
+      - "qa-handoff/QA_238_SMOKE.cjs"
+      - "qa-handoff/index.working-2-8-238.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa-238 --no-audit --no-fund playwright-core@1.55.1
+      - name: Run real Chromium 8-layer regression
+        env:
+          NODE_PATH: /tmp/qa-238/node_modules
+        run: node qa-handoff/QA_238_SMOKE.cjs
