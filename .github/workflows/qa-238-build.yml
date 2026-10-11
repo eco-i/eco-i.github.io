@@ -1,0 +1,25 @@
+name: QA 2-8-238 build isolated deep suite
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-238-build.yml"
+      - "qa-handoff/QA_238_BUILD.cjs"
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+      - name: Build 238 starting candidate and actual browser tests
+        run: node qa-handoff/QA_238_BUILD.cjs
+      - name: Verify and commit QA files only
+        run: |
+          git diff --check
+          git add qa-handoff/index.working-2-8-238.html qa-handoff/QA_238_SMOKE.cjs
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'qa(2-8-238): initialize deep regression suite on 237 verified baseline'
+          git push origin HEAD:qa-2-8
