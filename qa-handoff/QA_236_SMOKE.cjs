@@ -647,6 +647,32 @@ check('No console access to live Supabase needed',()=>true);
   await remoteCtx.close();
 
 
+  // Shared login must be revoked in the OTHER tab as well if a mobile tab
+  // logs out without Web Locks: only the token-specific suppression key
+  // changes, not the still-stored shared SESSION_KEY.
+  const crossCtx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const oldTab=await crossCtx.newPage(),otherTab=await crossCtx.newPage();
+  for(const tab of [oldTab,otherTab]){await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});}
+  await oldTab.evaluate(()=>{localStorage.setItem(SESSION_KEY,'qa236-mobile-both-tabs')});
+  for(const tab of [oldTab,otherTab])await tab.evaluate(()=>{
+    state.sessionToken='qa236-mobile-both-tabs';state.me={employee_id:1,is_admin:true,display_name:'Shared admin'};
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('loginView').classList.add('hidden');
+  });
+  await oldTab.evaluate(async()=>{
+    const nativeLocks=navigator.locks;
+    try{
+      Object.defineProperty(navigator,'locks',{configurable:true,value:null});
+      await logout(false);
+    }finally{Object.defineProperty(navigator,'locks',{configurable:true,value:nativeLocks})}
+  });
+  await otherTab.waitForTimeout(300);
+  const otherAfter=await otherTab.evaluate(()=>({actor:state.me?.employee_id||null,token:state.sessionToken,appVisible:!document.getElementById('appView').classList.contains('hidden')}));
+  console.log('QA236_MOBILE_CROSS_TAB_LOGOUT',JSON.stringify(otherAfter));
+  check('Suppressed mobile session logs out sibling tab without requiring shared token delete',()=>!otherAfter.actor&&!otherAfter.appVisible);
+  await crossCtx.close();
+
+
   const imageChecks=await page.evaluate(async()=>{
     const c=document.createElement('canvas');c.width=320;c.height=320;
     const cx=c.getContext('2d');for(let i=0;i<320;i++){cx.fillStyle='rgb('+i+',88,155)';cx.fillRect(i,0,1,320)}
