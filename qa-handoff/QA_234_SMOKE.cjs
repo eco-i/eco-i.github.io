@@ -140,6 +140,7 @@ check('No console access to live Supabase needed',()=>true);
   }
   for(let j=0;j<35;j++)await Promise.all([webLockTest(page),webLockTest(other)]);
   const webLockOverlap=await page.evaluate(()=>Number(localStorage.getItem('__qa234_web_mutex_overlap__')||0));
+  console.log('QA234_WEBLOCK_DIAGNOSTIC',JSON.stringify({webLockOverlap,webLockAvailable,origin:await page.evaluate(()=>location.origin),peerOrigin:await other.evaluate(()=>location.origin)}));
   check('Web Locks 70 real two-tab critical sections no overlap',()=>webLockOverlap===0);
   console.log('QA234_WEBLOCK_COMPARISON',JSON.stringify({cooperative_mutex_collisions:collisions,web_lock_overlap:webLockOverlap}));
   console.log('QA234_EXTRA',JSON.stringify({roster_cases:2920,multitab_mutex_attempts:150,collisions,real_two_tab_storage:true,backend_auth_multitab:false}));
