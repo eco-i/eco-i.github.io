@@ -1,0 +1,11 @@
+★★★ 2-8-234 공식 완료 → 다음 2-8-235 시작 ★★★
+KST 2026-10-11T19:05:37+09:00
+브랜치: qa-2-8 (운영 main 불변)
+마지막 완료: 2-8-234 / 다음: 2-8-235
+누적 제품 결함: 505종 (234 신규 수정 1종)
+완료본·235 시작본 SHA256: a46a2d8d11f1eaecab8b42e461804bad70650c4da462324e370dd307a112cd63
+파일: qa-handoff/index.before-2-8-235.html
+APP_VERSION: ver20260927-0944, SQL 변경/운영 배포 없음
+234 보고: qa-handoff/QA_2-8-234_REPORT.md
+234 Chromium 자동회귀: https://github.com/eco-i/eco-i.github.io/actions/runs/38130668271
+High·깊이8·최소20분·실환경 미검증 구분 유지. ZIP 불필요.

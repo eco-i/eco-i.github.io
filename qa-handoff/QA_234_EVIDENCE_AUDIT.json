@@ -1,0 +1,60 @@
+{
+  "block": "2-8-234",
+  "scope": "Actual headless Chromium with local HTTP origin and two real tabs; isolated mocked data, not production DB",
+  "started_kst": "2026-10-11T18:17:06+09:00",
+  "finished_kst": "2026-10-11T19:05:37+09:00",
+  "elapsed_seconds": 2911,
+  "official_before": "2-8-233",
+  "official_after": "2-8-234",
+  "new_product_defects": 1,
+  "official_cumulative_defects": 505,
+  "source_sha256": "a46a2d8d11f1eaecab8b42e461804bad70650c4da462324e370dd307a112cd63",
+  "source_bytes": 1157156,
+  "baseline_sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0",
+  "baseline_bytes": 1157310,
+  "CI": {
+    "run_id": 38130668271,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38130668271",
+    "conclusion": "success",
+    "passed_top_level_checks": 69,
+    "failed_top_level_checks": 0
+  },
+  "scenarios": {
+    "independent_2026_2027_four_group_roster": 2920,
+    "annual_leave_random_interval_sets": 500,
+    "two_tab_web_lock_critical_sections": 150,
+    "two_tab_overlaps": 0,
+    "real_chromium_viewport_widths": [
+      320,
+      360,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ],
+    "mobile_chrome_user_agent_emulation": true,
+    "login_cancel_during_queued_web_lock": true,
+    "admin_unlock_cancel_during_queued_lock": true,
+    "previous_logout_preserved_new_login": true,
+    "fingerprint_canvas_png_to_jpeg": true
+  },
+  "before_fix": {
+    "old_mutex_both_entered": 84,
+    "attempts": 150
+  },
+  "limits": {
+    "production_supabase": false,
+    "real_android": false,
+    "native_bfcache": false,
+    "real_backend_auth_multitab": false,
+    "real_data_restore": false
+  },
+  "harness_errors_excluded": [
+    "Playwright implicit owned context",
+    "test check callback misuse",
+    "navigation during session handoff",
+    "localStorage marker comparison test variability"
+  ],
+  "notes": "Browser Web Locks unsupported contexts intentionally fail closed for shared writes; old tabs running legacy code may not participate in Web Locks. This is a QA-branch-only fix."
+}

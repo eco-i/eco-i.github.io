@@ -1,0 +1,39 @@
+{
+  "block": "2-8-234",
+  "round": 2,
+  "depth": 8,
+  "status": "FIXED_1_LOCAL_CHROMIUM_REGRESSION_PASS",
+  "start_kst": "2026-10-11T18:17:06+09:00",
+  "finish_kst": "2026-10-11T19:05:37+09:00",
+  "elapsed_seconds": 2911,
+  "mode": "High",
+  "previous_defects": 504,
+  "new_defects": 1,
+  "official_defects": 505,
+  "app_version": "ver20260927-0944",
+  "sql_modified": false,
+  "production_deployed": false,
+  "files": {
+    "qa-handoff/index.before-2-8-234.html": {
+      "bytes": 1157310,
+      "sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0"
+    },
+    "qa-handoff/index.working-2-8-234.html": {
+      "bytes": 1157156,
+      "sha256": "a46a2d8d11f1eaecab8b42e461804bad70650c4da462324e370dd307a112cd63"
+    },
+    "qa-handoff/index.before-2-8-235.html": {
+      "bytes": 1157156,
+      "sha256": "a46a2d8d11f1eaecab8b42e461804bad70650c4da462324e370dd307a112cd63"
+    },
+    "index.html (qa-2-8 only)": {
+      "bytes": 1157156,
+      "sha256": "a46a2d8d11f1eaecab8b42e461804bad70650c4da462324e370dd307a112cd63"
+    }
+  },
+  "evidence": {
+    "ci_run_id": 38130668271,
+    "passed": 69,
+    "failed": 0
+  }
+}
