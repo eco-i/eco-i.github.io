@@ -1,0 +1,26 @@
+name: QA 2-8-237 finalize official state
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-237-finalize.yml"
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+          persist-credentials: true
+      - name: Validate baseline and publish official 237 -> 238 handoff
+        run: node qa-handoff/QA_237_FINALIZE.cjs
+      - name: Verify staged files and commit to QA branch only
+        run: |
+          git diff --check
+          git add qa-handoff/CURRENT_STATE.json qa-handoff/START_HERE_NEW_CHAT.md qa-handoff/START_2-8-238_AFTER_237.txt qa-handoff/QA_2-8-237_REPORT.md qa-handoff/QA_237_EVIDENCE_AUDIT.json qa-handoff/QA_2-8-237_SHA_MANIFEST.json qa-handoff/index.before-2-8-238.html
+          git diff --cached --stat
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m "qa(2-8-237): finalize 510 defects and prepare 2-8-238 verified baseline"
+          git push origin HEAD:qa-2-8
