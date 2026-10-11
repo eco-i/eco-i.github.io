@@ -416,6 +416,31 @@ check('No console access to live Supabase needed',()=>true);
   console.log('QA235_LOCKS_REJECTED',JSON.stringify(restricted));
   await restrictedContext.close();
 
+  // A tab-only short update handoff must recover after a page reload even
+  // without Web Locks, as it does not require a shared session mutation.
+  const handoffContext=await browser.newContext({viewport:{width:390,height:844}});
+  await handoffContext.addInitScript(()=>{
+    Object.defineProperty(navigator,'locks',{configurable:true,value:null});
+    sessionStorage.removeItem('staffAttendance_session_v1');
+    sessionStorage.setItem('staffAttendance_updateSessionHandoff_v1',JSON.stringify({
+      version:'ver20260927-0944',token:'qa235-temporary-handoff',persistent:false,
+      adminUnlocked:false,at:Date.now()
+    }));
+  });
+  const handoffPage=await handoffContext.newPage();
+  await handoffPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await handoffPage.route('https://*.supabase.co/**',r=>r.abort());
+  await handoffPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  await handoffPage.waitForTimeout(150);
+  const tabHandoff=await handoffPage.evaluate(()=>({
+    stored:sessionStorage.getItem('staffAttendance_session_v1'),
+    stateToken:state.sessionToken,
+    source:sessionStorage.getItem('staffAttendance_updateSessionHandoff_v1')
+  }));
+  console.log('QA235_NOLOCK_HANDOFF',JSON.stringify(tabHandoff));
+  check('PC tab-only update handoff must recover without Web Locks',()=>tabHandoff.stored==='qa235-temporary-handoff');
+  await handoffContext.close();
+
   // Four simultaneous REAL Chromium same-origin tabs, separate JS heaps.
   const fourTabContext=await browser.newContext({viewport:{width:430,height:900}});
   let criticalActive=0,criticalOverlaps=0,criticalEvents=0;
