@@ -1,0 +1,287 @@
+{
+  "block": "2-8-232",
+  "scope": "actual local Chromium, JS and Python offline tests; no live Supabase or native Android",
+  "checks": [
+    {
+      "name": "Core DOM and JS",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Shift and overhauls",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Long-service anniversary edge",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Core contract samples",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Core harness discrepancy excluded",
+      "passed": true,
+      "detail": "Core harness loop did not change browser viewport; tested separately with real viewport resizing"
+    },
+    {
+      "name": "Data backup and mutation contract",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Random roster, anniversary and timestamps",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "roster_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "leave_interval_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "personnel_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "responsive_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "rpc_matrix_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "attendance_interval_fuzz_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "text_size_full_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "xss_extended_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "test_232_new_contracts.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "personnel_rpc_edges_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "fingerprint_picker_ui_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "fingerprint_picker_cancel_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "fingerprint_picker_logout_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "fingerprint_picker_date_switch_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "fingerprint_picker_double_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "fingerprint_picker_delete_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "relogin_cycle_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "data_restore_picker_results.json",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "HTML byte-for-byte unchanged",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Official SHA256 unchanged",
+      "passed": true,
+      "detail": null
+    }
+  ],
+  "passed": 27,
+  "failed": 0,
+  "html_sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0",
+  "html_bytes": 1157310,
+  "evidence_files": [
+    {
+      "filename": "attendance_interval_fuzz_results.json",
+      "bytes": 67,
+      "sha256": "f839869bc035d576e404cee05683f6fbe1da5af1bd8ad96f6f0c9efd91812052"
+    },
+    {
+      "filename": "core_results.json",
+      "bytes": 2208,
+      "sha256": "c347f8b705d42e0e09cbcb49f1e1845a87864af8dd73be214719c1733b3c9d34"
+    },
+    {
+      "filename": "data_contract_results.json",
+      "bytes": 2319,
+      "sha256": "dbe06ecb0b502bbae6a249c135a6f1bc8d20ca4bf5c32fc7ac7286564e9676b9"
+    },
+    {
+      "filename": "data_restore_picker_results.json",
+      "bytes": 348,
+      "sha256": "a7d4303217a0a80ecee4014ddbdf7c2c0441ce368507fed7c258647d57e57c66"
+    },
+    {
+      "filename": "datepicker_results.json",
+      "bytes": 188,
+      "sha256": "84951bb0e341dbda73563964896eca997916341da12fe684c9cfb1cf68cc0540"
+    },
+    {
+      "filename": "fingerprint_picker_cancel_results.json",
+      "bytes": 880,
+      "sha256": "8ec4c20af75765153b74997518f80b442ac6241300360ae603d9cc796e4187e6"
+    },
+    {
+      "filename": "fingerprint_picker_date_switch_results.json",
+      "bytes": 439,
+      "sha256": "d828fd05f40052b0d032ea4e9d39a7b381c4952815867025d572be67cec85eb6"
+    },
+    {
+      "filename": "fingerprint_picker_delete_results.json",
+      "bytes": 524,
+      "sha256": "5cdc19bf723191b2f77eba51be6b07c5347facb893b914e81a15e40fd7153497"
+    },
+    {
+      "filename": "fingerprint_picker_double_results.json",
+      "bytes": 856,
+      "sha256": "956c12fb4df256e5afb51ec81e7e07fbf0e3ae42a3a8b263d889f495d6cbc671"
+    },
+    {
+      "filename": "fingerprint_picker_logout_results.json",
+      "bytes": 479,
+      "sha256": "725802c11a73afaf5a0e892b14281fa3cd522555a4f4d8027b5d37788ec07a95"
+    },
+    {
+      "filename": "fingerprint_picker_ui_results.json",
+      "bytes": 780,
+      "sha256": "79e16e2c4917d87e6bd079111a008b8466cc319fe041ee86a7a13503eae41115"
+    },
+    {
+      "filename": "image_results.json",
+      "bytes": 737,
+      "sha256": "33beeb462680349f6b3e9936c36ca38e68be4d162b0ed84b331a58205a4517f7"
+    },
+    {
+      "filename": "leave_interval_results.json",
+      "bytes": 74,
+      "sha256": "442b6b21beef102efd60ec7a60483c9d11273773b848a12c37cd0efcaf13c6e7"
+    },
+    {
+      "filename": "modal_results.json",
+      "bytes": 71,
+      "sha256": "ba7ee6883119d16d679b0c2b723680a4bc3714e7251af9b4f3833191409af113"
+    },
+    {
+      "filename": "permission_results.json",
+      "bytes": 1018,
+      "sha256": "0a14281447952514274abf96921d8413dda4710beac1626969a4a31450315406"
+    },
+    {
+      "filename": "personnel_results.json",
+      "bytes": 159,
+      "sha256": "350e8654058adcd6f206d4a0057a2b98928bd2a24aa26bfbc76e24c75bd91eea"
+    },
+    {
+      "filename": "personnel_rpc_edges_results.json",
+      "bytes": 1972,
+      "sha256": "641cfc0cbe7ce7783fa12030169a2127bdce85a8e1c44b66b7c438da822c66a4"
+    },
+    {
+      "filename": "property_results.json",
+      "bytes": 1638,
+      "sha256": "14755a5fb98ba88016602daeb7ea506dc3b805c64624089886241d388f7c1052"
+    },
+    {
+      "filename": "relogin_cycle_results.json",
+      "bytes": 48,
+      "sha256": "bb05a4bd4f4f1310772f9d11dbfb8b760d7389763a3ace33ce90901827a20ab6"
+    },
+    {
+      "filename": "responsive_results.json",
+      "bytes": 83,
+      "sha256": "fd5e5dac633743f5b36f34e73032e0467a6d27fd244657416bf2814c38853da3"
+    },
+    {
+      "filename": "roster_results.json",
+      "bytes": 314,
+      "sha256": "c403c9076a457f5a9a04eda12b2f283fc552471a4a502f63250d469efac576b8"
+    },
+    {
+      "filename": "rpc_matrix_results.json",
+      "bytes": 677,
+      "sha256": "385a2010e2d9ee4c0fe03181f80fb7b740a9196f1dcb50c906590e13acb82cfc"
+    },
+    {
+      "filename": "rpc_results.json",
+      "bytes": 2289,
+      "sha256": "d0e599bb833688a14e2a3006ae482438ea4e51e28db0ed868bb01f515fa12f29"
+    },
+    {
+      "filename": "text_size_full_results.json",
+      "bytes": 103,
+      "sha256": "2144da4816c25a3155097ebabe6754ce59942e65f69a98aa932891ab56740400"
+    },
+    {
+      "filename": "toolbar_results.json",
+      "bytes": 71,
+      "sha256": "09c3c6f095e11d48c9fde871f7b83260c4d74308e57904936f4b3528979e6fea"
+    },
+    {
+      "filename": "xss_extended_results.json",
+      "bytes": 59,
+      "sha256": "1f5ca724f00e680b862f9e31a14f53ab39e9e401a6c0dffe64290a5b06a57b5b"
+    },
+    {
+      "filename": "year_boundary_results.json",
+      "bytes": 1483,
+      "sha256": "1ac2c7d88740fc94d68e7f96953e64b548e2515d23cb2c302a046821b63b71c5"
+    },
+    {
+      "filename": "test_232_new_contracts.json",
+      "bytes": 2643,
+      "sha256": "e14e1c08caf037ade5b12efcf38c9ae41b04b487e708496ae8732d6702073c1f"
+    }
+  ]
+}

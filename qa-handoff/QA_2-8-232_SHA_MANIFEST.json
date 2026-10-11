@@ -1,0 +1,45 @@
+{
+  "project": "근무모아",
+  "block": "2-8-232",
+  "depth": 8,
+  "mode": "High",
+  "status": "CLEAN_LOCAL_CHROMIUM_MOCK",
+  "started_kst": "2026-10-11T14:34:06+09:00",
+  "finished_kst": "2026-10-11T14:54:35+09:00",
+  "elapsed_seconds": 1229.0,
+  "previous_block": "2-8-231",
+  "next_block": "2-8-233",
+  "previous_cumulative_defects": 504,
+  "new_product_defects": 0,
+  "official_cumulative_defects": 504,
+  "app_version": "ver20260927-0944",
+  "sql_modified": false,
+  "deployed": false,
+  "notes": "No live Supabase/Android/natively shared same-origin tabs/BFCache tested",
+  "files": {
+    "index.before-2-8-232.html": {
+      "bytes": 1157310,
+      "sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0"
+    },
+    "index.working-2-8-232.html": {
+      "bytes": 1157310,
+      "sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0"
+    },
+    "index.before-2-8-233.html": {
+      "bytes": 1157310,
+      "sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0"
+    },
+    "QA_2-8-232_REPORT.md": {
+      "bytes": 5157,
+      "sha256": "c78afe4a21b352a51d97b975b7ddfdaa75f48f9209e2d3bb090b810032c8a9d7"
+    },
+    "QA_232_EVIDENCE_AUDIT.json": {
+      "bytes": 7818,
+      "sha256": "c72c8e97a2af1b4fc28b8cc9faa1205337708eb376eea0c26c037f3c4215b75e"
+    },
+    "START_2-8-233_AFTER_232.txt": {
+      "bytes": 926,
+      "sha256": "527560dda7dbe647849bc07204dc598ffabf16643c3b86aafa9a123d0d2d8697"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+★★★근무모아 2차·깊이 8단계 종합검수 2-8-233 시작 안내★★★
+이전 공식 검수 블록: 2-8-232 (High, 로컬·Chromium 모의검수 범위 CLEAN, 신규 제품 결함 0종)
+공식 누적 제품 결함: 504종
+다음 시작 블록: 2-8-233
+기준: GitHub eco-i/eco-i.github.io qa-2-8 브랜치 qa-handoff/index.before-2-8-233.html
+기준/232 완료 SHA-256: a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0
+APP_VERSION: ver20260927-0944 그대로. SQL 변경·운영 배포 없음.
+High·깊이 8단계·매 블록 최소 실제 20분 검수, 제품 결함 발견시 즉시 수정·회귀, 종료 기준은 충분한 범위/회귀 안정성.
+테스트 한계: 운영 Supabase/RLS, 실제 Android 카메라·파일 선택기, 실제 동출처 두 탭, 네이티브 BFCache 미검증.
+KST 진행·최종 답변 시각 반드시 표기. GitHub 연결 사용, ZIP 요청/제안 금지.
