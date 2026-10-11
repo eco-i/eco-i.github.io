@@ -15,7 +15,7 @@ check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
 check('235 original official SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='f67887f5427da8331eaa134fbaeec73493815ac52e4c1cbcbbcaec1e42dbc50e');
 check('Web Locks critical sections applied',()=>html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
 check('Official 235 baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
-check('236 starting source unchanged',()=>html===baseline);
+check('236 official baseline retained and product bug fixed',()=>html!==baseline&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'));
 check('235 correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 check('236 baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='f67887f5427da8331eaa134fbaeec73493815ac52e4c1cbcbbcaec1e42dbc50e');
 console.log('QA236_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
