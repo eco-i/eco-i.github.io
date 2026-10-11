@@ -313,20 +313,31 @@ check('No console access to live Supabase needed',()=>true);
   });
   check('No Web Locks: shared session mutations fail closed',()=>legacyUnavailable.res===null&&legacyUnavailable.unsafeDirect===null&&legacyUnavailable.preserved);
   console.log('QA235_UNSUPPORTED',JSON.stringify(legacyUnavailable));
-  const desktopNoLock=await page.evaluate(async()=>{
-    const original=navigator.locks,oldToken=state.sessionToken;
+  const isolatedNoLockContext=await browser.newContext({viewport:{width:393,height:852}});
+  const isolatedNoLockPage=await isolatedNoLockContext.newPage();
+  await isolatedNoLockPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await isolatedNoLockPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const desktopNoLock=await isolatedNoLockPage.evaluate(async()=>{
+    const existingLock=navigator.locks;
+    const oldNow=performance.now;
+    const originalSession=state.sessionToken;
+    let clockCount=0;
     try{
       Object.defineProperty(navigator,'locks',{configurable:true,value:null});
+      Object.defineProperty(performance,'now',{configurable:true,value:()=>clockCount++===0?0:100000});
       const token='qa235-desktop-tabonly',attempt=++loginAttemptSeq;
       state.sessionToken=token;
-      const stored=await storeLoginSessionForFreshLogin(token,false,attempt);
-      return {stored,tabToken:storageGet(sessionStorage,SESSION_KEY),sharedToken:storageGet(localStorage,SESSION_KEY)};
-    }finally{
+      const direct=storeLoginSession(token,false);
       sessionStorage.removeItem(SESSION_KEY);
-      state.sessionToken=oldToken;
-      Object.defineProperty(navigator,'locks',{configurable:true,value:original});
+      const stored=await storeLoginSessionForFreshLogin(token,false,attempt);
+      return {stored,direct,tabToken:storageGet(sessionStorage,SESSION_KEY)};
+    }finally{
+      state.sessionToken=originalSession;
+      Object.defineProperty(navigator,'locks',{configurable:true,value:existingLock});
+      Object.defineProperty(performance,'now',{configurable:true,value:oldNow});
     }
   });
+  await isolatedNoLockContext.close();
   console.log('QA235_PC_NOLOCK_TEMP_LOGIN',JSON.stringify(desktopNoLock));
   check('Desktop temporary login must not depend on Web Locks',()=>desktopNoLock.stored===true&&desktopNoLock.tabToken==='qa235-desktop-tabonly');
 
