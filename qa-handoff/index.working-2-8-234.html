@@ -1872,9 +1872,11 @@ let deferredAdminUnlockRestoreToken='';
 async function withBrowserSharedSessionLock(fn){
   if(typeof navigator==='undefined'||typeof navigator.locks?.request!=='function')return null;
   try{
-    return await navigator.locks.request(SHARED_SESSION_BROWSER_LOCK,{mode:'exclusive'},async()=>{
+    return await navigator.locks.request(SHARED_SESSION_BROWSER_LOCK,{mode:'exclusive'},()=>{
+      // The in-tab permission to enter the synchronous RMW section is scoped
+      // only to this callback's synchronous execution, never across await.
       sharedBrowserMutexHeld++;
-      try{return await fn();}
+      try{return fn();}
       finally{sharedBrowserMutexHeld--;}
     });
   }catch(_){return null;}
