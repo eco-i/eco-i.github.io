@@ -354,6 +354,38 @@ check('No console access to live Supabase needed',()=>true);
 
 
 
+  // Four simultaneous REAL Chromium same-origin tabs, separate JS heaps.
+  const fourTabContext=await browser.newContext({viewport:{width:430,height:900}});
+  let criticalActive=0,criticalOverlaps=0,criticalEvents=0;
+  await fourTabContext.exposeBinding('__qa235LockCheck',(_source,kind)=>{
+    if(kind==='enter'){criticalActive++;if(criticalActive>1)criticalOverlaps++;}
+    if(kind==='exit')criticalActive--;
+    criticalEvents++;
+  });
+  const fourTabs=[];
+  for(let i=0;i<4;i++){
+    const tab=await fourTabContext.newPage();
+    await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+    fourTabs.push(tab);
+  }
+  let fourTabPass=0;
+  for(let round=0;round<100;round++){
+    const result=await Promise.all(fourTabs.map(tab=>tab.evaluate(async()=>{
+      return withBrowserSharedSessionLock(async()=>{
+        await window.__qa235LockCheck('enter');
+        await new Promise(r=>setTimeout(r,1));
+        await window.__qa235LockCheck('exit');
+        return true;
+      });
+    })));
+    if(result.every(x=>x===true))fourTabPass+=4;
+  }
+  check('Four real browser tabs complete 400 lock requests',()=>fourTabPass===400);
+  check('Four real browser tabs show zero concurrent critical entries',()=>criticalOverlaps===0&&criticalActive===0&&criticalEvents===800);
+  console.log('QA235_FOUR_TAB',JSON.stringify({lock_requests:fourTabPass,critical_overlaps:criticalOverlaps,critical_events:criticalEvents}));
+  await fourTabContext.close();
+
   const imageChecks=await page.evaluate(async()=>{
     const c=document.createElement('canvas');c.width=320;c.height=320;
     const cx=c.getContext('2d');for(let i=0;i<320;i++){cx.fillStyle='rgb('+i+',88,155)';cx.fillRect(i,0,1,320)}
