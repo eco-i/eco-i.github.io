@@ -6,6 +6,7 @@ const file='qa-handoff/index.working-2-8-234.html';
 const html=fs.readFileSync(file,'utf8');
 const expected='a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0';
 // QA 234 stabilized mutex stress regression v2
+// QA 234 2-phase mutex candidate stress test
 const pass=[];
 function check(name,fn){const result=fn(); assert(result!==false, name+' returned false');pass.push(name);}
 check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
