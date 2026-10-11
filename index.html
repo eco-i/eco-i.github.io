@@ -11105,7 +11105,7 @@ function handleSharedSessionStorageChange(e){
   // immediately even when SESSION_KEY itself did not change.
   if(e.key===SHARED_SESSION_LOGOUT_SUPPRESSION_KEY){
     const current=String(state.sessionToken||'');
-    if(current&&current===String(e.newValue||'')&&storageGet(sessionStorage,SESSION_KEY)!==current){
+    if(current&&current===String(e.newValue||'')&&(MOBILE_SESSION_DEVICE||storageGet(sessionStorage,SESSION_KEY)!==current)){
       clearDeferredAdminDraftUnlockProof();
       void logout(false);
     }
