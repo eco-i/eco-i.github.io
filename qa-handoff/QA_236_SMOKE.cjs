@@ -586,11 +586,30 @@ check('No console access to live Supabase needed',()=>true);
       window.__qa236_mobilePending=logout(false);
       const immediate={token:state.sessionToken,admin:!!state.me,appVisible:!document.getElementById('appView').classList.contains('hidden')};
       await window.__qa236_mobilePending;
-      return {immediate,storageToken:localStorage.getItem(SESSION_KEY),restoredToken:storedSessionToken(),tombstone:updateHandoffTokenWasLoggedOut(token)};
+      return {immediate,storageToken:localStorage.getItem(SESSION_KEY),restoredToken:storedSessionToken(),suppressed:storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token};
     }finally{Object.defineProperty(navigator,'locks',{configurable:true,value:realLocks});}
   });
   console.log('QA236_NOLOCK_MOBILE_LOGOUT',JSON.stringify(mobileLogout));
-  check('Mobile Web Locks unsupported: logout tombstone blocks same token reload',()=>!mobileLogout.restoredToken&&mobileLogout.tombstone);
+  check('Mobile Web Locks unsupported: logout blocks same token restoration',()=>!mobileLogout.restoredToken&&mobileLogout.suppressed&&mobileLogout.storageToken==='qa236-mobile-without-weblocks');
+  await noLockMobileCtx.addInitScript(()=>Object.defineProperty(navigator,'locks',{configurable:true,value:null}));
+  await noLockMobile.reload({waitUntil:'domcontentloaded'});
+  const afterReload=await noLockMobile.evaluate(()=>({
+    restored:state.sessionToken,
+    storage:storageGet(localStorage,SESSION_KEY),
+    blocked:storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)
+  }));
+  check('Mobile Web Locks unsupported: browser reload cannot resurrect logged-out account',()=>!afterReload.restored&&afterReload.blocked===afterReload.storage);
+  console.log('QA236_NOLOCK_RELOAD',JSON.stringify(afterReload));
+  const sameTokenRelogin=await noLockMobile.evaluate(async()=>{
+    delete navigator.locks;
+    const token='qa236-mobile-without-weblocks';
+    const persisted=await withBrowserSharedSessionLock(()=>storeLoginSession(token,true,true));
+    const restored=storedSessionToken();
+    const blocked=storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+    await withBrowserSharedSessionLock(()=>clearStoredLoginSession(token));
+    return {persisted,restored,blocked};
+  });
+  check('A new successful login can clear suppression for its matching token',()=>sameTokenRelogin.persisted===true&&sameTokenRelogin.restored==='qa236-mobile-without-weblocks'&&!sameTokenRelogin.blocked);
   await noLockMobileCtx.close();
 
 
