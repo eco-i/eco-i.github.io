@@ -258,6 +258,7 @@ check('No console access to live Supabase needed',()=>true);
 
 
   // Block 235: independent security/legacy tests (no remote Supabase mutation).
+  // QA235 final independent repeat: keep identical product baseline and assertions.
   // Two same-origin independent tabs: Web Locks must be mutual exclusion even
   // when the callback's storage reads occur while a rival login is queued.
   const freshContext=await browser.newContext({viewport:{width:375,height:810}});
