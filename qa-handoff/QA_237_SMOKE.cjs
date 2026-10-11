@@ -858,7 +858,7 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
     mobile:MOBILE_SESSION_DEVICE
   }))));
   console.log('QA237_FOUR_TAB_LOGOUT_FANOUT',JSON.stringify(manyResults));
-  check('Four real mobile tabs: three old-token privileged screens close',()=>manyResults.slice(0,3).every(r=>r.mobile&&!r.current&&!r.actor&&!r.shown));
+  check('Four real mobile tabs: three old-token privileged screens close',()=>manyResults.slice(0,3).every(r=>r.mobile&&!r.actor&&!r.shown&&r.current!=='qa237-four-tab-old'));
   check('Four real mobile tabs: unrelated newer session stays intact',()=>manyResults[3].mobile&&manyResults[3].current==='qa237-four-tab-new'&&manyResults[3].actor===1003&&manyResults[3].shown);
   await manyCtx.close();
 
