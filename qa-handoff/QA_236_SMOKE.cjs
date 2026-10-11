@@ -516,6 +516,7 @@ check('No console access to live Supabase needed',()=>true);
   console.log('QA236_STORAGE_FAULTS',JSON.stringify(storageFailures));
   await failureContext.close();
 
+  // 236 final independent repeat of complete regression on unchanged HTML.
   // 236: Logout must hide confidential UI immediately even if another tab
   // holds the shared Web Lock during logout.
   const delayedContext=await browser.newContext({viewport:{width:390,height:844}});
