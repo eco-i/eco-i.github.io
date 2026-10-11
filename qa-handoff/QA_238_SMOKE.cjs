@@ -932,6 +932,66 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa238-live
     ()=>!switched.oldUiVisible||switched.sensitiveMismatch);
   await legacySwitchCtx.close();
 
+  // 238: Synchronous pre-dispatch guards must reject a mobile legacy
+  // duplicate token even when no storage event was delivered yet.
+  const guardMobileCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const guardMobilePage=await guardMobileCtx.newPage();
+  await guardMobilePage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await guardMobilePage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const guarded=await guardMobilePage.evaluate(()=>{
+    const savedConfigured=window.configured;
+    window.configured=()=>true;
+    try{
+      const token='qa238-guard-legacy-A';
+      state.sessionToken=token;
+      state.me={employee_id:238,is_admin:true};
+      sessionStorage.setItem(SESSION_KEY,token);
+      localStorage.setItem(SESSION_KEY,'qa238-guard-fresh-B');
+      const result={mobile:MOBILE_SESSION_DEVICE,mode:fingerprintBlockingPromptSessionSnapshot().mode,sharedMismatch:sharedPersistentSessionMismatch(),sensitiveMismatch:fingerprintCurrentSharedSessionMismatch()};
+      function blocked(fn){try{fn();return false}catch(e){return e?.sharedSessionChanged===true;}}
+      result.mutation=blocked(()=>guardMutationRpcSession('save_my_fingerprint_photo',{p_token:token}));
+      result.backup=blocked(()=>guardSensitiveDataRpcSession('export_my_data_v1',{p_token:token}));
+      result.read=blocked(()=>guardOrdinaryAuthenticatedReadRpcSession('list_my_fingerprint_records',{p_token:token}));
+      return result;
+    }finally{window.configured=savedConfigured;}
+  });
+  console.log('QA238_MOBILE_LEGACY_RPC_GUARDS',JSON.stringify(guarded));
+  check('Mobile legacy duplicate resolves as shared mismatch',()=>guarded.mobile&&guarded.mode==='mismatch'&&guarded.sharedMismatch&&guarded.sensitiveMismatch);
+  check('Mobile stale fingerprint mutation rejected before RPC dispatch',()=>guarded.mutation);
+  check('Mobile stale backup/export sensitive read rejected before RPC dispatch',()=>guarded.backup);
+  check('Mobile stale ordinary authenticated read rejected before RPC dispatch',()=>guarded.read);
+  await guardMobileCtx.close();
+
+  // Desktop sessionStorage login remains independent of another tab's
+  // shared localStorage login; no false logout or RPC rejection.
+  const pcGuardCtx=await browser.newContext({viewport:{width:1366,height:900}});
+  const pcGuard=await pcGuardCtx.newPage();
+  await pcGuard.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await pcGuard.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const independent=await pcGuard.evaluate(()=>{
+    const savedConfigured=window.configured;
+    window.configured=()=>true;
+    try{
+      const token='qa238-pc-tab-isolated';
+      state.sessionToken=token;
+      state.me={employee_id:239,is_admin:false};
+      sessionStorage.setItem(SESSION_KEY,token);
+      localStorage.setItem(SESSION_KEY,'qa238-another-pc-shared');
+      const result={mobile:MOBILE_SESSION_DEVICE,mode:fingerprintBlockingPromptSessionSnapshot().mode,sharedMismatch:sharedPersistentSessionMismatch(),sensitiveMismatch:fingerprintCurrentSharedSessionMismatch()};
+      let accepted=true;
+      try{
+        guardMutationRpcSession('save_my_fingerprint_photo',{p_token:token});
+        guardSensitiveDataRpcSession('export_my_data_v1',{p_token:token});
+        guardOrdinaryAuthenticatedReadRpcSession('list_my_fingerprint_records',{p_token:token});
+      }catch(_){accepted=false;}
+      return {...result,accepted};
+    }finally{window.configured=savedConfigured;}
+  });
+  console.log('QA238_DESKTOP_TAB_ISOLATION_GUARDS',JSON.stringify(independent));
+  check('PC tab-exclusive account remains independent of shared token',()=>!independent.mobile&&independent.mode==='tab'&&!independent.sharedMismatch&&!independent.sensitiveMismatch);
+  check('PC tab-exclusive account mutation/read guards remain usable',()=>independent.accepted);
+  await pcGuardCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
