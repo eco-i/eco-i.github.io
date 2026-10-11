@@ -1,0 +1,88 @@
+{
+  "block": "2-8-229",
+  "status": "CLEAN_LOCAL_CHROMIUM_MOCK",
+  "qa_depth": 8,
+  "start_kst": "2026-10-11T12:15:44+09:00",
+  "end_kst": "2026-10-11T12:35:46+09:00",
+  "duration_seconds": 1202,
+  "prev_block": "2-8-228",
+  "next_block": "2-8-230",
+  "new_product_defects": 1,
+  "official_cumulative_defects": 503,
+  "app_version": "ver20260927-0944",
+  "sql_modified": false,
+  "production_deployed": false,
+  "files": {
+    "index.before-2-8-229.html": {
+      "bytes": 1156890,
+      "sha256": "a2d4bd02193eb5c8efa653bc7d91b1f7c9e265991a47eacd65c010063c8bd33e"
+    },
+    "index.working-2-8-229.html": {
+      "bytes": 1156895,
+      "sha256": "23d7e96c18944a654b8a22b672c6996aa043a19c68767e499a0bf7f643930dac"
+    },
+    "index.before-2-8-230.html": {
+      "bytes": 1156895,
+      "sha256": "23d7e96c18944a654b8a22b672c6996aa043a19c68767e499a0bf7f643930dac"
+    }
+  },
+  "regression_evidence_files": [
+    {
+      "name": "suite_results_fixed.json",
+      "sha256": "d155e2283d45aabbf22b9466f9655ad9fdf6cef0cc74ca2636648facd3a5758b"
+    },
+    {
+      "name": "photo_results_fixed.json",
+      "sha256": "8d160ed5672c0d77e77c5b3ac8f7c85365f0e91f0bff7c4471c6e4474b29a41f"
+    },
+    {
+      "name": "session_results_fixed.json",
+      "sha256": "c9ec921e5078c2232bef27e49a63902a8f1864b8239a20fb89efa8fa71b89e07"
+    },
+    {
+      "name": "modal_results_fixed.json",
+      "sha256": "198d24219fd5a071dd8df32424d0f818a695cf05d1b00f416a70e764f43cca5d"
+    },
+    {
+      "name": "keyboard_results_fixed.json",
+      "sha256": "5a14331f8028832199643f27931a8a8c30b68984b8c02fa3a7c79c0c63cc25f8"
+    },
+    {
+      "name": "rpc_results_fixed.json",
+      "sha256": "94e144876de10fe4e6b99c7bebc237405dd8b2bcac786ddaad859c5d9fa05b54"
+    },
+    {
+      "name": "rpc_race_results_fixed.json",
+      "sha256": "f7c51270d2dbd85277242c2e23394ca7d39a5ba0e9a9f6168d4a6f64d7eb9886"
+    },
+    {
+      "name": "picker_results_fixed.json",
+      "sha256": "49076349d77cabbe11824b77e6fe900ae92e584712a7b85d8bb3f183e71a7a0c"
+    },
+    {
+      "name": "personnel_timeline_results_fixed.json",
+      "sha256": "fb42f5faf33a0e2fa1928897eed4b3a112a5f493e114a4a19ce147425c761838"
+    },
+    {
+      "name": "personnel_account_results_fixed.json",
+      "sha256": "bed12bcf1a6629790cd4ec996ccb5dbf49f19e9557bc6c07f2149f15434cb039"
+    },
+    {
+      "name": "holiday_regression_results.json",
+      "sha256": "978535adf5dd51950b787d6b6b6dbb86a631b882921c8543da1dee307ec380c1"
+    },
+    {
+      "name": "holiday_integration_results.json",
+      "sha256": "129c05bd564a8d55437e26cc202d4d74974c273fe295fc047bc10629fcf1b3a9"
+    },
+    {
+      "name": "holiday_security_results.json",
+      "sha256": "55718c005cce29ed78e7de6a49d7dc5f02c4a82bff32590db27934f41bc87f89"
+    }
+  ],
+  "limits": [
+    "No live Supabase or RLS and actual DB writes",
+    "No real Android camera/native file picker",
+    "No real same-origin multi-tab, native BFCache"
+  ]
+}

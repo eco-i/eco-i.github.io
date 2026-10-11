@@ -1,0 +1,11 @@
+--- index.before-2-8-229.html
++++ index.working-2-8-229.html
+@@ -4183,7 +4183,7 @@
+     catch(_){throw new Error('휴근 응답 형식이 올바르지 않습니다.');}
+     const workDate=typeof raw.work_date==='string'?raw.work_date:'';let start,end;
+     try{start=strictRpcTimeValue(raw.start_time);end=strictRpcTimeValue(raw.end_time);}catch(_){throw new Error('휴근 응답 형식이 올바르지 않습니다.');}
+-    if(id!==row.id||rawEmployeeId!==row.employee_id||!lsParseISO(workDate)||workDate!==row.work_date||!holidayNetMinutes(start,end)||net!==row.net_minutes)throw new Error('휴근 응답 형식이 올바르지 않습니다.');
++    if(id!==row.id||rawEmployeeId!==row.employee_id||!lsParseISO(workDate)||workDate!==row.work_date||holidayNetMinutes(start,end)!==net||net!==row.net_minutes)throw new Error('휴근 응답 형식이 올바르지 않습니다.');
+     if(!Object.prototype.hasOwnProperty.call(raw,'updated_at'))throw new Error('휴근 응답 형식이 올바르지 않습니다.');
+     try{strictRpcTimestamp(raw.updated_at,{nullable:true});}catch(_){throw new Error('휴근 응답 형식이 올바르지 않습니다.');}
+     if(employeeId!=null&&row.employee_id!==Number(employeeId))throw new Error('휴근 응답 범위가 올바르지 않습니다.');

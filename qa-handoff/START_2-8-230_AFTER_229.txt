@@ -1,0 +1,9 @@
+★★★근무모아 High·2차 8단계 종합검수 공식 연속 인계★★★
+마지막 유효 완료 2-8-229. 다음 유효 시작 2-8-230.
+2-8-229 신규 결함 1종: 휴근 start/end에서 계산한 net_minutes와 서버 반환 net_minutes 불일치 수용 문제; strictHolidayWorkRpcRows() 한 줄 수정 후 전체 회귀검사 PASS.
+공식 누적 제품 결함 503종.
+공식 완료/230 시작 SHA-256: 23d7e96c18944a654b8a22b672c6996aa043a19c68767e499a0bf7f643930dac
+GitHub qa-2-8, qa-handoff/index.before-2-8-230.html 사용, 운영 main 미변경.
+APP_VERSION ver20260927-0944 유지, SQL 변경 없음, 운영 배포 없음.
+반드시 High·깊이 8단계·20분 실제 검수, 즉시 기술결함 수정 및 회귀, KST 진행·최종 시각 표기, ZIP 요청·제안 금지.
+운영 Supabase 실DB·실제 Android·실제 다중탭·네이티브 BFCache는 미검증.
