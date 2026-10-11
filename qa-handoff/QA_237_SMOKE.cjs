@@ -703,12 +703,13 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
     document.getElementById('appView').classList.remove('hidden');
     document.getElementById('loginView').classList.add('hidden');
     window.__qa237_clearEvent=false;
-    window.addEventListener('storage',e=>{if(e.key===null)window.__qa237_clearEvent=true;});
+    sessionStorage.removeItem('__qa237_clear_event_received__');
+    window.addEventListener('storage',e=>{if(e.key===null){window.__qa237_clearEvent=true;sessionStorage.setItem('__qa237_clear_event_received__','1');}});
   });
   await clearPeer.evaluate(()=>localStorage.clear());
   await clearVictim.waitForTimeout(350);
   const siteClear=await clearVictim.evaluate(()=>({
-    clearEvent:!!window.__qa237_clearEvent,
+    clearEvent:!!window.__qa237_clearEvent||sessionStorage.getItem('__qa237_clear_event_received__')==='1',
     sharedToken:localStorage.getItem(SESSION_KEY),
     oldAdminVisible:!!state.me?.is_admin&&!document.getElementById('appView').classList.contains('hidden'),
     currentToken:state.sessionToken
