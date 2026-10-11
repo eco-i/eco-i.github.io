@@ -2025,7 +2025,7 @@ async function storeAdminUnlockForFreshLogin(token,persistent,attempt){
   const deadlineMs=SHARED_SESSION_MUTEX_TTL_MS+500;
   while(true){
     if(attempt!==loginAttemptSeq||String(state.sessionToken||'')!==token)return false;
-    const result=await withBrowserSharedSessionLock(()=>storeAdminUnlock(token,persistent));
+    const result=await withBrowserSharedSessionLock(()=>attempt===loginAttemptSeq&&String(state.sessionToken||'')===token?storeAdminUnlock(token,persistent):false);
     if(result!==null)return result===true;
     let elapsed;
     try{elapsed=performance.now()-started;}catch(e){elapsed=Date.now()-started;}
@@ -2122,7 +2122,7 @@ async function storeLoginSessionForFreshLogin(token,persistent,attempt){
   const deadlineMs=SHARED_SESSION_MUTEX_TTL_MS+500;
   while(true){
     if(attempt!==loginAttemptSeq||String(state.sessionToken||'')!==token)return false;
-    const result=await withBrowserSharedSessionLock(()=>storeLoginSession(token,persistent,true));
+    const result=await withBrowserSharedSessionLock(()=>attempt===loginAttemptSeq&&String(state.sessionToken||'')===token?storeLoginSession(token,persistent,true):false);
     if(result!==null)return result===true;
     let elapsed;try{elapsed=performance.now()-started;}catch(e){elapsed=Date.now()-started;}
     if(!Number.isFinite(elapsed)||elapsed>=deadlineMs)return false;
