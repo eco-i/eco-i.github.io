@@ -11534,7 +11534,19 @@ function wire(){
 (async()=>{
   await withBrowserSharedSessionLock(()=>migrateLegacySessionForDevice());
   state.sessionToken=storedSessionToken();
-  await withBrowserSharedSessionLock(()=>restoreUpdateSessionHandoff());
+  const protectedHandoff=await withBrowserSharedSessionLock(()=>{restoreUpdateSessionHandoff();return true;});
+  // PC temporary handoff is tab-scoped. If Web Locks is unavailable/denied,
+  // restore only a verified tab-scoped non-persistent handoff, never the legacy
+  // shared localStorage handoff that could overwrite a newer shared login.
+  if(protectedHandoff!==true&&!MOBILE_SESSION_DEVICE){
+    const scopedRaw=storageGet(sessionStorage,UPDATE_SESSION_HANDOFF_KEY);
+    if(scopedRaw){
+      try{
+        const scopedInfo=JSON.parse(scopedRaw);
+        if(scopedInfo&&scopedInfo.persistent===false)restoreUpdateSessionHandoff();
+      }catch(e){}
+    }
+  }
   cleanupVersionQuery();restoreTheme();restoreTextSizeLevel();setupLoginPersistenceUI();syncVersionFooter();wire();wireDataManagement();toggleAdminPinField();startVersionWatcher();
   await restoreSession();
 })();
