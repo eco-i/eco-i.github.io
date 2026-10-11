@@ -15,10 +15,10 @@ check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
 check('236 official completed SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a');
 check('Web Locks critical sections applied',()=>html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
 check('Official 237 start baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
-check('237 start file unchanged',()=>html===baseline&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
+check('237 start baseline remained immutable while candidate fixed',()=>html!==baseline&&html.includes('if(e.key===null)')&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
 check('Previous session-safety correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 check('236 baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a');
-check('237 unchanged product candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a');
+check('237 repaired candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='45b87f80b32f34770c840c75c53663471265890954807bef541fa25516d4e384');
 console.log('QA237_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
@@ -716,6 +716,28 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
   console.log('QA237_CROSS_TAB_CLEAR',JSON.stringify(siteClear));
   check('Actual storage clear generates key-null event',()=>siteClear.clearEvent);
   check('Cross-tab site-data clear revokes stale shared-admin UI',()=>!siteClear.oldAdminVisible);
+  // Desktop independent sessionStorage login must be preserved when a
+  // different tab clears the shared localStorage namespace.
+  await clearVictim.evaluate(()=>{
+    sessionStorage.setItem(SESSION_KEY,'qa237-pc-isolated');
+    state.sessionToken='qa237-pc-isolated';
+    state.me={employee_id:238,is_admin:true,display_name:'QA isolated admin'};
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('loginView').classList.add('hidden');
+  });
+  await clearPeer.evaluate(()=>{
+    localStorage.setItem(SESSION_KEY,'qa237-unrelated-shared');
+    localStorage.clear();
+  });
+  await clearVictim.waitForTimeout(300);
+  const isolatedAfterClear=await clearVictim.evaluate(()=>({
+    tabToken:sessionStorage.getItem(SESSION_KEY),
+    token:state.sessionToken,actor:state.me?.employee_id,
+    appVisible:!document.getElementById('appView').classList.contains('hidden')
+  }));
+  console.log('QA237_PC_SITE_CLEAR_ISOLATED',JSON.stringify(isolatedAfterClear));
+  check('Cross-tab site-data clear preserves independent desktop temporary session',
+    ()=>isolatedAfterClear.tabToken==='qa237-pc-isolated'&&isolatedAfterClear.token==='qa237-pc-isolated'&&isolatedAfterClear.actor===238&&isolatedAfterClear.appVisible);
   await clearCtx.close();
 
   // Browser navigation with possible BFCache restoration: password inputs
