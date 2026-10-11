@@ -6030,7 +6030,7 @@ function fingerprintBlockingPromptSessionSnapshot(options={}){
   const tabToken=storageGet(sessionStorage,SESSION_KEY),sharedToken=storageGet(localStorage,SESSION_KEY);
   // PC 기본 로그인은 탭 전용이므로 다른 탭의 localStorage 로그인 변경과 분리합니다.
   // 모바일/PC 로그인 유지는 localStorage 공유 세션이므로 blocking confirm 전후의 실제 저장소 값을 직접 비교합니다.
-  if(tabToken===current)return {current,mode:'tab'};
+  if(!MOBILE_SESSION_DEVICE&&tabToken===current)return {current,mode:'tab'};
   if(sharedToken===current)return {current,mode:'shared'};
   // 다른 탭 로그인 변경을 이미 감지했고 사용자가 '현재 입력을 먼저 저장/취소'하도록 전환을 명시적으로 미룬 경우,
   // 현재 편집 내용을 저장하기 위한 확인창은 기존 세션으로 한 번 마무리할 수 있게 한다.
@@ -6049,7 +6049,7 @@ function fingerprintCurrentSharedSessionMismatch(){
   if(!configured()||!current)return false;
   const tabToken=storageGet(sessionStorage,SESSION_KEY);
   // PC 기본 sessionStorage 세션은 탭별 독립이므로 다른 탭의 공유 로그인과 분리합니다.
-  if(tabToken===current)return false;
+  if(!MOBILE_SESSION_DEVICE&&tabToken===current)return false;
   // 모바일/PC 로그인 유지 세션은 storage 이벤트 처리 여부와 무관하게 실제 localStorage를 동기 확인합니다.
   return storageGet(localStorage,SESSION_KEY)!==current;
 }
@@ -11028,7 +11028,7 @@ function sharedPersistentSessionMismatch(){
   const current=String(state.sessionToken||'');
   const tabToken=storageGet(sessionStorage,SESSION_KEY);
   // PC의 기본 세션(sessionStorage)은 탭별 독립 로그인을 허용하므로 다른 탭의 localStorage 변화와 분리한다.
-  if(current && tabToken===current){ sharedSessionChangePending=false; sharedSessionUnsavedDeferred=false; sharedSessionDeferredTargetToken=''; clearDeferredAdminDraftUnlockProof(); return false; }
+  if(!MOBILE_SESSION_DEVICE && current && tabToken===current){ sharedSessionChangePending=false; sharedSessionUnsavedDeferred=false; sharedSessionDeferredTargetToken=''; clearDeferredAdminDraftUnlockProof(); return false; }
   const shared=storageGet(localStorage,SESSION_KEY);
   if(deferredAdminDraftUnlockProofToken&&deferredAdminDraftUnlockProofSharedTarget!==null&&String(deferredAdminDraftUnlockProofSharedTarget)!==String(shared||''))clearDeferredAdminDraftUnlockProof();
   // 모바일/PWA 백그라운드 복귀에서는 브라우저가 storage 이벤트를 늦게 전달하거나 생략하는 경우가 있다.
