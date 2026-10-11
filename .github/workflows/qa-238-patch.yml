@@ -1,0 +1,29 @@
+name: QA 2-8-238 security fix (QA branch)
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-238-patch.yml"
+      - "qa-handoff/QA_238_PATCH.cjs"
+permissions:
+  contents: write
+jobs:
+  scoped-fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+      - name: Apply three scope-safe ownership guard fixes
+        run: node qa-handoff/QA_238_PATCH.cjs
+      - name: Verify diff and commit QA-only candidate
+        run: |
+          git diff --check
+          git add index.html qa-handoff/index.working-2-8-238.html
+          git diff --cached --stat
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'fix(2-8-238): avoid legacy mobile tab tokens bypassing shared session guards'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
