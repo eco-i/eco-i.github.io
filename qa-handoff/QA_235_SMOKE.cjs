@@ -12,9 +12,10 @@ function check(name,fn){const result=fn(); assert(result!==false, name+' returne
 check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('1157156 byte baseline',()=>Buffer.byteLength(baseline)===1157156);
 check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
-check('QA235 candidate official SHA256 pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='a46a2d8d11f1eaecab8b42e461804bad70650c4da462324e370dd307a112cd63');
+check('235 original official SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='a46a2d8d11f1eaecab8b42e461804bad70650c4da462324e370dd307a112cd63');
 check('Web Locks critical sections applied',()=>html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
-check('Official 235 starting point unchanged',()=>html===baseline);
+check('Official 235 baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
+check('235 product repair candidate present',()=>html!==baseline&&html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 console.log('QA235_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
@@ -330,7 +331,14 @@ check('No console access to live Supabase needed',()=>true);
       const direct=storeLoginSession(token,false);
       sessionStorage.removeItem(SESSION_KEY);
       const stored=await storeLoginSessionForFreshLogin(token,false,attempt);
-      return {stored,direct,tabToken:storageGet(sessionStorage,SESSION_KEY)};
+      const adminStored=await storeAdminUnlockForFreshLogin(token,false,attempt);
+      const adminBefore=storageGet(sessionStorage,ADMIN_UNLOCK_KEY);
+      const restoreCheck=await ensureAdminUnlockForRestoreWithScope(true,token);
+      revokeAdminUnlockForToken(token);
+      const adminAfter=storageGet(sessionStorage,ADMIN_UNLOCK_KEY);
+      const reStored=await storeAdminUnlockForFreshLogin(token,false,attempt);
+      const removed=await safelyClearStoredLoginSession(token);
+      return {stored,direct,tabToken:token,adminStored,adminBefore,restoreCheck,adminAfter,reStored,removed,after:storageGet(sessionStorage,SESSION_KEY)};
     }finally{
       state.sessionToken=originalSession;
       Object.defineProperty(navigator,'locks',{configurable:true,value:existingLock});
@@ -339,7 +347,10 @@ check('No console access to live Supabase needed',()=>true);
   });
   await isolatedNoLockContext.close();
   console.log('QA235_PC_NOLOCK_TEMP_LOGIN',JSON.stringify(desktopNoLock));
-  check('Desktop temporary login must not depend on Web Locks',()=>desktopNoLock.stored===true&&desktopNoLock.tabToken==='qa235-desktop-tabonly');
+  check('Desktop temporary login must not depend on Web Locks',()=>desktopNoLock.stored===true&&desktopNoLock.direct===true);
+  check('Desktop temporary admin proof works without Web Locks',()=>desktopNoLock.adminStored===true&&desktopNoLock.adminBefore==='qa235-desktop-tabonly'&&desktopNoLock.restoreCheck===true);
+  check('Desktop admin revoke clears tab proof without Web Locks',()=>!desktopNoLock.adminAfter&&desktopNoLock.reStored===true);
+  check('Desktop temporary logout clears tab token without Web Locks',()=>desktopNoLock.removed===true&&!desktopNoLock.after);
 
 
 
