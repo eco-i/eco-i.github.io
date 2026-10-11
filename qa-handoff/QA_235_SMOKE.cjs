@@ -424,7 +424,7 @@ check('No console access to live Supabase needed',()=>true);
     sessionStorage.removeItem('staffAttendance_session_v1');
     sessionStorage.setItem('staffAttendance_updateSessionHandoff_v1',JSON.stringify({
       version:'ver20260927-0944',token:'qa235-temporary-handoff',persistent:false,
-      adminUnlocked:false,at:Date.now()
+      adminUnlocked:true,at:Date.now()
     }));
   });
   const handoffPage=await handoffContext.newPage();
@@ -434,11 +434,13 @@ check('No console access to live Supabase needed',()=>true);
   await handoffPage.waitForTimeout(150);
   const tabHandoff=await handoffPage.evaluate(()=>({
     stored:sessionStorage.getItem('staffAttendance_session_v1'),
+    adminProof:sessionStorage.getItem('staffAttendance_admin2_ok_v1'),
     stateToken:state.sessionToken,
     source:sessionStorage.getItem('staffAttendance_updateSessionHandoff_v1')
   }));
   console.log('QA235_NOLOCK_HANDOFF',JSON.stringify(tabHandoff));
   check('PC tab-only update handoff must recover without Web Locks',()=>tabHandoff.stored==='qa235-temporary-handoff');
+  check('PC tab-only admin proof handoff must recover without Web Locks',()=>tabHandoff.adminProof==='qa235-temporary-handoff');
   await handoffContext.close();
 
   // Four simultaneous REAL Chromium same-origin tabs, separate JS heaps.
