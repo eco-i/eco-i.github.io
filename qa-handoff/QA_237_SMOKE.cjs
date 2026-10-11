@@ -18,7 +18,7 @@ check('Official 237 start baseline immutable',()=>crypto.createHash('sha256').up
 check('237 start baseline remained immutable while candidate fixed',()=>html!==baseline&&html.includes('if(e.key===null)')&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
 check('Previous session-safety correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 check('236 baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a');
-check('237 repaired candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='45b87f80b32f34770c840c75c53663471265890954807bef541fa25516d4e384');
+check('237 two-defect repaired candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='f5d75a76d182629d1b8fa97002a726249f8860c729db4b47fdfa74d9707cc30f');
 console.log('QA237_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
@@ -775,6 +775,35 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
   check('Mobile legacy suppression test uses real delivered cross-tab event',()=>legacyAfter.markerReceived&&legacyAfter.isMobile);
   check('Mobile legacy sessionStorage cannot bypass shared logout revocation',()=>!legacyAfter.actor&&!legacyAfter.visible);
   await legacyMobileCtx.close();
+
+  // Suppression marker must not terminate a separate PC-only session:
+  // its sessionStorage login is owned by this tab, not localStorage.
+  const isolatedMarkerCtx=await browser.newContext({viewport:{width:390,height:844}});
+  const pcIsolated=await isolatedMarkerCtx.newPage(),pcMarkerSender=await isolatedMarkerCtx.newPage();
+  for(const tab of [pcIsolated,pcMarkerSender]){
+    await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  }
+  await pcIsolated.evaluate(()=>{
+    sessionStorage.setItem(SESSION_KEY,'qa237-desktop-temporary-marker');
+    state.sessionToken='qa237-desktop-temporary-marker';
+    state.me={employee_id:239,is_admin:false};
+    document.getElementById('appView').classList.remove('hidden');
+    document.getElementById('loginView').classList.add('hidden');
+    window.__qa237_markerSeen=false;
+    window.addEventListener('storage',e=>{if(e.key===SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)window.__qa237_markerSeen=true;});
+  });
+  await pcMarkerSender.evaluate(()=>localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa237-desktop-temporary-marker'));
+  await pcIsolated.waitForTimeout(250);
+  const pcMarker=await pcIsolated.evaluate(()=>({
+    eventSeen:!!window.__qa237_markerSeen,token:state.sessionToken,
+    tabToken:sessionStorage.getItem(SESSION_KEY),actor:state.me?.employee_id,
+    visible:!document.getElementById('appView').classList.contains('hidden')
+  }));
+  console.log('QA237_PC_TAB_MARKER',JSON.stringify(pcMarker));
+  check('Shared logout marker leaves PC tab-exclusive token unaffected',
+    ()=>pcMarker.eventSeen&&pcMarker.token==='qa237-desktop-temporary-marker'&&pcMarker.tabToken===pcMarker.token&&pcMarker.actor===239&&pcMarker.visible);
+  await isolatedMarkerCtx.close();
 
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
