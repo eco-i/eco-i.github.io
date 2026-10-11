@@ -1,0 +1,40 @@
+{
+  "project": "근무모아",
+  "block": "2-8-227",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "status": "CLEAN_LOCAL_CHROMIUM_MOCK",
+  "start_kst": "2026-10-11T10:54:48+09:00",
+  "end_kst": "2026-10-11T11:16:48+09:00",
+  "elapsed_seconds": 1320.95,
+  "previous_block": "2-8-226",
+  "next_block": "2-8-228",
+  "new_product_defects": 0,
+  "cumulative_product_defects": 501,
+  "app_version": "ver20260927-0944",
+  "sql_modified": false,
+  "production_deployed": false,
+  "source_sha256": "d51ca04439ff800f4438a3d83f4af9addf8e99e8443dc37a26aa167497a0ba53",
+  "completed_sha256": "d51ca04439ff800f4438a3d83f4af9addf8e99e8443dc37a26aa167497a0ba53",
+  "next_baseline_sha256": "d51ca04439ff800f4438a3d83f4af9addf8e99e8443dc37a26aa167497a0ba53",
+  "files": {
+    "index.before-2-8-227.html": {
+      "sha256": "d51ca04439ff800f4438a3d83f4af9addf8e99e8443dc37a26aa167497a0ba53",
+      "bytes": 1155908
+    },
+    "index.working-2-8-227.html": {
+      "sha256": "d51ca04439ff800f4438a3d83f4af9addf8e99e8443dc37a26aa167497a0ba53",
+      "bytes": 1155908
+    },
+    "index.before-2-8-228.html": {
+      "sha256": "d51ca04439ff800f4438a3d83f4af9addf8e99e8443dc37a26aa167497a0ba53",
+      "bytes": 1155908
+    }
+  },
+  "execution_limits": [
+    "Supabase live",
+    "Android native",
+    "two-tab same-origin",
+    "native BFCache"
+  ]
+}

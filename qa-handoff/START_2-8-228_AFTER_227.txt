@@ -1,0 +1,7 @@
+★★★근무모아 2차 8단계 종합검수 새 블록 인계★★★
+이전 유효 완료: 2-8-227, 다음 2-8-228.
+누적 제품 결함 501종 (227 신규 0종).
+GitHub qa-2-8/qa-handoff/index.before-2-8-228.html
+SHA-256 d51ca04439ff800f4438a3d83f4af9addf8e99e8443dc37a26aa167497a0ba53
+APP_VERSION ver20260927-0944, SQL 변경 없음, 운영 배포 안 함.
+High·깊이 8·블록당 최소 20분·오류 즉시 수정/회귀·KST 시각 표시·GitHub 기준·ZIP 요청 금지·운영 main 수정 금지.
