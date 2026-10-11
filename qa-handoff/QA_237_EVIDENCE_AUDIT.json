@@ -1,0 +1,69 @@
+{
+  "block": "2-8-237",
+  "status": "COMPLETE",
+  "round": 2,
+  "depth": 8,
+  "mode": "High",
+  "started_kst": "2026-10-11T22:22:27+09:00",
+  "completed_kst": "2026-10-11T22:46:22+09:00",
+  "activity_window_seconds": 1435,
+  "previous_completed": "2-8-236",
+  "next_block": "2-8-238",
+  "new_product_defects": 2,
+  "official_total_defects": 510,
+  "baseline_sha256": "5cd92191f2fd61e31b5c1effcf36a92847051e6d7dcf7b6c9fe32153a8b9e32a",
+  "baseline_bytes": 1161068,
+  "final_sha256": "f5d75a76d182629d1b8fa97002a726249f8860c729db4b47fdfa74d9707cc30f",
+  "final_bytes": 1161672,
+  "failure_reproductions": [
+    {
+      "run": 38143116564,
+      "kind": "product",
+      "cause": "whole localStorage clear missed by shared session listener"
+    },
+    {
+      "run": 38143572051,
+      "kind": "product",
+      "cause": "mobile legacy tab token suppresses exact-token revocation"
+    }
+  ],
+  "final_runs": [
+    {
+      "id": 38144386221,
+      "conclusion": "success",
+      "passed": 116,
+      "failed": 0
+    },
+    {
+      "id": 38144472284,
+      "conclusion": "success",
+      "passed": 116,
+      "failed": 0
+    }
+  ],
+  "scope": {
+    "group_shift_cases": 2920,
+    "annual_fuzz_sets": 500,
+    "two_tabs_lock_entries": 150,
+    "four_tabs_lock_entries": 400,
+    "localStorage_fault_injections": true,
+    "real_storage_clear_event": true,
+    "mobile_legacy_marker_cross_tab": true,
+    "mobile_site_clear": true,
+    "old_3_new_1_tab_fanout": true,
+    "desktop_tab_independence": true,
+    "real_android": false,
+    "real_supabase_rls": false,
+    "real_backend_sessions": false,
+    "bfcache_persisted": "not confirmed"
+  },
+  "test_harness_nondefects": [
+    "ERR_ABORTED race during own browser reload",
+    "key-null witness lost across legitimate navigation",
+    "synthetic four-tab token fixture did not match persisted token",
+    "safe old-token view closed with newer token restoration incorrectly classified"
+  ],
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false
+}
