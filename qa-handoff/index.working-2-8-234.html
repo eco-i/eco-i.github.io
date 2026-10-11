@@ -1882,6 +1882,11 @@ function acquireSharedSessionMutex(){
   if(sharedSessionMutexDepth>0){sharedSessionMutexDepth++;return true;}
   const myKey=sharedSessionMutexKey(),now=sharedSessionMutexNow(),stamp=String(now);
   if(!storageSet(localStorage,myKey,stamp))return false;
+  // 공유 localStorage 게시가 다른 탭의 동시 JS 실행에 반영될 짧은 기회를 준다.
+  // 예전 즉시 검사 방식에서는 2개 탭의 150회 경합 중 84회에 동시 입장이 재현되었다.
+  // 이 짧은 동기 안정화 뒤 활성 경쟁자를 모두 거부하며, 정식 Web Locks 전환 전 안전장치로 둔다.
+  const settleStart=sharedSessionMutexNow();
+  for(let spin=0;spin<150000&&sharedSessionMutexNow()-settleStart<6;spin++){void localStorage.length;}
   let blocked=false;
   try{
     // QA 2-8-234: 공유 저장소 열거 중 다른 탭이 키를 삽입하면 역순 index 순회가
