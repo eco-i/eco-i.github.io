@@ -152,6 +152,32 @@ check('No console access to live Supabase needed',()=>true);
   const removed=await other.evaluate(async token=>withBrowserSharedSessionLock(()=>clearSharedSessionIfToken(token)),tokenB);
   const tokenErased=await other.evaluate(()=>!storageGet(localStorage,SESSION_KEY));
   check('Latest shared token can be removed explicitly',()=>removed===true&&tokenErased);
+  // Application helper regression: both shared logins must be serialized even
+  // when their async RPC would have completed in different browser tabs.
+  const asyncFirst=await page.evaluate(()=>{
+    loginAttemptSeq+=1;state.sessionToken='qa234-fresh-A';
+    return storeLoginSessionForFreshLogin('qa234-fresh-A',true,loginAttemptSeq);
+  });
+  const asyncSecond=await other.evaluate(()=>{
+    loginAttemptSeq+=1;state.sessionToken='qa234-fresh-B';
+    return storeLoginSessionForFreshLogin('qa234-fresh-B',true,loginAttemptSeq);
+  });
+  check('Async fresh-login store wrappers succeed',()=>asyncFirst===true&&asyncSecond===true);
+  const asyncCleanup=await page.evaluate(()=>withBrowserSharedSessionLock(()=>clearSharedSessionIfToken('qa234-fresh-A')));
+  const asyncRetained=await other.evaluate(()=>storageGet(localStorage,SESSION_KEY));
+  check('Late old async login cleanup preserves newest',()=>asyncCleanup===true&&asyncRetained==='qa234-fresh-B');
+  const freshAdmin=await other.evaluate(()=>storeAdminUnlockForFreshLogin('qa234-fresh-B',true,loginAttemptSeq));
+  const obsoleteAdmin=await page.evaluate(()=>storeAdminUnlockForFreshLogin('qa234-fresh-A',true,loginAttemptSeq));
+  const adminNow=await other.evaluate(()=>storageGet(localStorage,ADMIN_UNLOCK_KEY));
+  check('Async admin unlock enforces latest token',()=>freshAdmin===true&&obsoleteAdmin===false&&adminNow==='qa234-fresh-B');
+  const logoutOld=await page.evaluate(()=>withBrowserSharedSessionLock(()=>clearStoredLoginSession('qa234-fresh-A')));
+  const newestAfterLogout=await other.evaluate(()=>storageGet(localStorage,SESSION_KEY));
+  check('Async stale logout preserves current token',()=>newestAfterLogout==='qa234-fresh-B');
+  await other.evaluate(()=>withBrowserSharedSessionLock(()=>clearStoredLoginSession('qa234-fresh-B')));
+  const finalToken=await other.evaluate(()=>storageGet(localStorage,SESSION_KEY));
+  check('Current logout clears matching shared token',()=>!finalToken);
+  console.log('QA234_LOGIN_WRAPPERS',JSON.stringify({fresh_logins:2,fresh_admin:true,stale_logout_preserved:true}));
+
   console.log('QA234_MUTEX_REAL',JSON.stringify({lock_critical_sections:successes,overlaps,late_logout_protected:true,admin_unlock_protected:true}));
   await other.close();
 
