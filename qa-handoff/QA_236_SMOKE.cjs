@@ -32,6 +32,7 @@ check('No console access to live Supabase needed',()=>true);
  try {
   server=http.createServer((req,res)=>{
    if(req.url==='/'||req.url.startsWith('/index')){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(html);}
+   else if(req.url.startsWith('/away')){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end('<!doctype html><title>Other page</title>');}
    else {res.writeHead(404);res.end();}
   });
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
