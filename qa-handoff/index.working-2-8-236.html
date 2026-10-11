@@ -6754,10 +6754,15 @@ async function logout(callServer=true){
   closeAll();clearSessionRenderedState();$('appView').classList.add('hidden');$('reconnectView').classList.add('hidden');$('loginView').classList.remove('hidden');$('adminTools').classList.add('hidden');setAdminToolsExpanded(false);if(callServer)$('loginName').value='';$('loginPin').value='';$('loginAdminPin').value='';loginAdminPinPromptName='';toggleAdminPinField();if($('pcRememberLogin'))$('pcRememberLogin').checked=false;
   // 서버 로그아웃 응답이 늦어도 사용자는 즉시 로컬에서 로그아웃된다. 서버 세션 정리는 캡처해 둔 이전 토큰으로 후속 처리한다.
   // 자동업데이트/다른 탭 세션 전환이 로그아웃 직후 페이지를 이동시켜도 서버 세션 폐기 요청이 중간에 끊기지 않게 한다.
-  // Local role/UI revocation above must finish synchronously even if Web Locks is contended.
-  // Shared storage cleanup uses the captured old token and can finish afterward.
+  // Local role/UI revocation above has already completed synchronously.
+  // Dispatch the captured token's server logout without waiting for a
+  // contested browser-wide storage lock; it must not remain server-valid
+  // just because a different tab is delaying localStorage cleanup.
+  const serverLogoutPromise=callServer&&logoutToken&&configured()
+    ? rpc('logout_employee',{p_token:logoutToken},{timeoutMs:SESSION_CHECK_TIMEOUT_MS,keepalive:true}).catch(()=>null)
+    : null;
   try{await sharedLogoutCleanup;}catch(_){}
-  if(callServer&&logoutToken&&configured()){try{await rpc('logout_employee',{p_token:logoutToken},{timeoutMs:SESSION_CHECK_TIMEOUT_MS,keepalive:true});}catch{}}
+  if(serverLogoutPromise)try{await serverLogoutPromise;}catch(_){}
   try{await realtimeStopPromise;}catch(_){}
 }
 
