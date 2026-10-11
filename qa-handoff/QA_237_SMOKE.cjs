@@ -197,8 +197,19 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
   console.log('QA237_MUTEX_REAL',JSON.stringify({lock_critical_sections:successes,overlaps,late_logout_protected:true,admin_unlock_protected:true}));
   await other.close();
   // Real storage-event session reconciliation may navigate the old tab.
-  // Start the unrelated image/viewport suite in a clean document after auth races.
-  await page.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded',timeout:30000});
+  // Its own security-triggered reload can abort our parallel navigation.
+  // Retry that test-harness navigation without treating ERR_ABORTED as product failure.
+  let cleanNavigation=false;
+  for(let attempt=0;attempt<3&&!cleanNavigation;attempt++){
+    try{
+      await page.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded',timeout:30000});
+      cleanNavigation=true;
+    }catch(err){
+      if(!String(err).includes('ERR_ABORTED')||attempt===2)throw err;
+      await page.waitForTimeout(150);
+    }
+  }
+  check('Harness clean navigation completed after session-reload race',()=>cleanNavigation);
   await page.waitForTimeout(200);
 
   // Queued Web Lock must recheck the live login attempt INSIDE the granted callback.
