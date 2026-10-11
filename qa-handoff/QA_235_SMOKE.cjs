@@ -354,6 +354,39 @@ check('No console access to live Supabase needed',()=>true);
 
 
 
+  // Browser cold-resume: mock only the remote identity RPC, execute the app's
+  // actual restoreSession() and scope guard with Web Locks deliberately absent.
+  const restoreContext=await browser.newContext({viewport:{width:390,height:844}});
+  const restorePage=await restoreContext.newPage();
+  await restorePage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await restorePage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const restoreTests=await restorePage.evaluate(async()=>{
+    const prevLocks=navigator.locks,prevRpc=window.rpcPreferPersonnel,prevInitial=window.initialPinStatus,prevEnter=window.enterApp;
+    const token='qa235-restore-without-web-lock';
+    const hits=[];
+    try{
+      Object.defineProperty(navigator,'locks',{configurable:true,value:null});
+      sessionStorage.setItem(SESSION_KEY,token);state.sessionToken=token;
+      window.initialPinStatus=async()=>false;
+      window.rpcPreferPersonnel=async()=>[{employee_id:2345,display_name:'QA 복구',is_admin:false,category:'B조',group_code:'B'}];
+      window.enterApp=async(me)=>{hits.push({kind:'employee',me});};
+      await restoreSession();
+      sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);
+      window.rpcPreferPersonnel=async()=>[{employee_id:2345,display_name:'QA 관리자 복구',is_admin:true,category:'B조',group_code:'B'}];
+      await restoreSession();
+      return {employeeRestored:hits.some(x=>x.kind==='employee'&&x.me.is_admin===false),adminRestored:hits.some(x=>x.kind==='employee'&&x.me.is_admin===true),hits:hits.length};
+    }finally{
+      window.rpcPreferPersonnel=prevRpc;window.initialPinStatus=prevInitial;window.enterApp=prevEnter;
+      Object.defineProperty(navigator,'locks',{configurable:true,value:prevLocks});
+      sessionStorage.removeItem(SESSION_KEY);sessionStorage.removeItem(ADMIN_UNLOCK_KEY);
+      state.sessionToken='';
+    }
+  });
+  check('PC temporary non-admin restore succeeds without Web Locks',()=>restoreTests.employeeRestored===true);
+  check('PC temporary admin proof restore succeeds without Web Locks',()=>restoreTests.adminRestored===true);
+  console.log('QA235_PC_COLD_RESTORE',JSON.stringify(restoreTests));
+  await restoreContext.close();
+
   // Four simultaneous REAL Chromium same-origin tabs, separate JS heaps.
   const fourTabContext=await browser.newContext({viewport:{width:430,height:900}});
   let criticalActive=0,criticalOverlaps=0,criticalEvents=0;
