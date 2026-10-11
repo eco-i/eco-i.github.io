@@ -11087,6 +11087,18 @@ function reconcileSharedSessionIfNeeded(){
 }
 function handleSharedSessionStorageChange(e){
   if(e.storageArea!==localStorage)return;
+  // A different tab's localStorage.clear() emits key===null without a
+  // separate SESSION_KEY removal event. Revoke the stale shared role/UI.
+  // A desktop tab-only login is isolated from shared localStorage changes.
+  if(e.key===null){
+    const current=String(state.sessionToken||'');
+    const isolatedPcSession=!MOBILE_SESSION_DEVICE&&current&&storageGet(sessionStorage,SESSION_KEY)===current;
+    if(current&&!isolatedPcSession&&storageGet(localStorage,SESSION_KEY)!==current){
+      clearDeferredAdminDraftUnlockProof();
+      void logout(false);
+    }
+    return;
+  }
   // A mobile logout may be unable to atomically remove its shared token on
   // browsers without Web Locks. The exact-token suppression marker is then the
   // authoritative cross-tab revocation signal: close sibling sensitive UI
