@@ -997,6 +997,42 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa238-live
   check('Mobile genuine legacy-only token without a shared logout remains recoverable',()=>fallback.genuineLegacyOnly==='qa238-stale-legacy-A');
   await fallbackCtx.close();
 
+  // 238: Exhaustive local/token/tombstone priority combinations. The
+  // mobile oracle must never resurrect a tab token after any shared-logout
+  // marker without a newer valid shared login; PC prioritizes tab isolation.
+  const matrixCases=[];
+  for(const local of ['', 'qa238-matrix-A','qa238-matrix-B'])
+    for(const tab of ['', 'qa238-matrix-A','qa238-matrix-B'])
+      for(const marker of ['', 'qa238-matrix-A','qa238-matrix-B','qa238-matrix-Z'])
+        matrixCases.push({local,tab,marker});
+  for(const mobile of [true,false]){
+    const mCtx=await browser.newContext({
+      viewport:{width:mobile?360:1366,height:mobile?780:900},
+      ...(mobile?{isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'}:{})
+    });
+    const mPage=await mCtx.newPage();
+    await mPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await mPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+    const mData=await mPage.evaluate(cases=>{
+      const bad=[];
+      for(const tc of cases){
+        if(tc.local)localStorage.setItem(SESSION_KEY,tc.local);else localStorage.removeItem(SESSION_KEY);
+        if(tc.tab)sessionStorage.setItem(SESSION_KEY,tc.tab);else sessionStorage.removeItem(SESSION_KEY);
+        if(tc.marker)localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,tc.marker);else localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+        const actual=storedSessionToken();
+        const shared=tc.local&&tc.local!==tc.marker?tc.local:'';
+        const temporary=tc.tab&&tc.tab!==tc.marker?tc.tab:'';
+        const expected=MOBILE_SESSION_DEVICE?(tc.local?shared:(tc.marker?'':temporary)):(temporary||shared);
+        if(actual!==expected)bad.push({...tc,expected,actual});
+      }
+      return {mobile:MOBILE_SESSION_DEVICE,bad,checked:cases.length};
+    },matrixCases);
+    console.log('QA238_TOKEN_PRIORITY_MATRIX',JSON.stringify(mData));
+    check((mobile?'Mobile':'PC')+' session priority 36 independent cases',
+      ()=>mData.mobile===mobile&&mData.checked===36&&mData.bad.length===0);
+    await mCtx.close();
+  }
+
   // Desktop sessionStorage login remains independent of another tab's
   // shared localStorage login; no false logout or RPC rejection.
   const pcGuardCtx=await browser.newContext({viewport:{width:1366,height:900}});
