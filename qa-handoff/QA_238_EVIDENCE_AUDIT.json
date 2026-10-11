@@ -1,0 +1,85 @@
+{
+  "block": "2-8-238",
+  "status": "COMPLETE",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "model_mode": "High",
+  "prior_completed_block": "2-8-237",
+  "next_block": "2-8-239",
+  "defects_before": 510,
+  "new_product_defects": 2,
+  "cumulative_product_defects": 512,
+  "baseline_sha256": "f5d75a76d182629d1b8fa97002a726249f8860c729db4b47fdfa74d9707cc30f",
+  "baseline_bytes": 1161672,
+  "final_sha256": "1292955d4ae7fd90c3bcf8e6ccc6d5ea9595bd9d34215e27aa06baa98dd98360",
+  "final_bytes": 1161777,
+  "first_ci_kst": "2026-10-12T07:14:30+09:00",
+  "end_kst": "2026-10-12T07:35:18+09:00",
+  "product_reproductions": [
+    {
+      "run_id": 38179703990,
+      "defect": "mobile legacy sessionStorage masks shared token B and mutation/read guards"
+    },
+    {
+      "run_id": 38180041278,
+      "defect": "suppressed newer shared token B still in localStorage incorrectly falls back to legacy A"
+    },
+    {
+      "run_id": 38180141002,
+      "defect": "same second defect persists after shared B successfully removed"
+    }
+  ],
+  "product_fixes": [
+    "Restrict 3 tab-only ownership guards to PC",
+    "Mobile storedSessionToken must not fallback to tab token after a newer shared token logout marker"
+  ],
+  "final_regressions": [
+    {
+      "run_id": 38180607739,
+      "passed": 141,
+      "failed": 0,
+      "sha256": "1292955d4ae7fd90c3bcf8e6ccc6d5ea9595bd9d34215e27aa06baa98dd98360"
+    },
+    {
+      "run_id": 38180691498,
+      "passed": 141,
+      "failed": 0,
+      "sha256": "1292955d4ae7fd90c3bcf8e6ccc6d5ea9595bd9d34215e27aa06baa98dd98360"
+    }
+  ],
+  "tested": {
+    "chromium_real": true,
+    "two_tab_lock_entries": 150,
+    "four_tab_lock_entries": 400,
+    "independent_shift_cases": 2920,
+    "leave_fuzz_sets": 500,
+    "authenticated_calendar_dom": true,
+    "authenticated_calendar_viewport_widths": [320,360,390,430,768,1024,1440],
+    "token_priority_cases": 72,
+    "mobile_rpc_mutation_guard": true,
+    "mobile_sensitive_export_guard": true,
+    "mobile_ordinary_read_guard": true,
+    "desktop_isolated_tab_guard": true,
+    "jpeg_compression": true,
+    "viewport_widths": [
+      320,
+      360,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ],
+    "actual_android_native_picker": false,
+    "live_supabase": false,
+    "real_authenticated_multiuser_backend": false,
+    "ios_safari": false,
+    "confirmed_bfcache_persisted": false
+  },
+  "nonproduct_failures": [
+    "GitHub Actions initial push ref-lock race in test fixture build"
+  ],
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false
+}
