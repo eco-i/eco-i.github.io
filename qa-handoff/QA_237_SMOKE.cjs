@@ -825,7 +825,8 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa237-live
     await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
     await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
   }
-  await manyTabs[0].evaluate(()=>localStorage.setItem(SESSION_KEY,'qa237-four-tab-old'));
+  // The fourth tab must own the genuinely persisted newer shared token.
+  await manyTabs[0].evaluate(()=>localStorage.setItem(SESSION_KEY,'qa237-four-tab-new'));
   for(let i=0;i<4;i++){
     await manyTabs[i].evaluate(({i})=>{
       const token=i===3?'qa237-four-tab-new':'qa237-four-tab-old';
