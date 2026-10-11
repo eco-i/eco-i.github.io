@@ -9299,8 +9299,13 @@ function personnelChoiceForState(row){
   if(row.employment_status==='leave')return 'LEAVE'; if(row.employment_status==='transferred')return 'TRANSFER'; if(row.employment_status==='retired')return 'RETIRED'; if(row.employment_status==='unassigned'||row.employment_status==='legacy_inactive')return 'UNASSIGNED';
   return ['LEADER','DAY_OFFICE','DAY_FIELD','A','B','C','D'].includes(row.placement_code)?row.placement_code:'UNASSIGNED';
 }
+// 인사 정렬순서 0은 서버 계약에서 허용되는 유효한 우선순위다. falsy 기본값으로 999를 적용하면 안 된다.
+function personnelSortOrderOr(value,fallback=999){
+  if(value===null||value===undefined||value==='')return fallback;
+  const n=Number(value); return Number.isSafeInteger(n)&&n>=0?n:fallback;
+}
 function normalizePersonnelAssignment(r){
-  return {...r,action_id:Number(r.action_id),employee_id:Number(r.employee_id),sort_order:Number(r.sort_order)||999,effective_date:String(r.effective_date||'').slice(0,10),batch_status:String(r.batch_status||'active'),batch_kind:String(r.batch_kind||'regular'),account_status:String(r.account_status||'active'),employment_status:String(r.employment_status||'working'),placement_code:String(r.placement_code||'NONE'),is_new_employee:r.is_new_employee===true||r.is_new_employee==='true'};
+  return {...r,action_id:Number(r.action_id),employee_id:Number(r.employee_id),sort_order:personnelSortOrderOr(r.sort_order),effective_date:String(r.effective_date||'').slice(0,10),batch_status:String(r.batch_status||'active'),batch_kind:String(r.batch_kind||'regular'),account_status:String(r.account_status||'active'),employment_status:String(r.employment_status||'working'),placement_code:String(r.placement_code||'NONE'),is_new_employee:r.is_new_employee===true||r.is_new_employee==='true'};
 }
 function personnelRowsForEmployee(employeeId,{includeInactive=true}={}){
   return state.personnelAssignments.filter(r=>Number(r.employee_id)===Number(employeeId) && (includeInactive||r.batch_status==='active'));
@@ -9317,7 +9322,7 @@ function personnelAssignmentOn(emp,key,excludeBatchId=null){
   }
   if(!employeeActiveOn(emp,key))return null;
   const code=emp.group_code==='A'||emp.group_code==='B'||emp.group_code==='C'||emp.group_code==='D'?emp.group_code:(emp.category==='팀장'?'LEADER':emp.category==='일근(사무)'?'DAY_OFFICE':emp.category==='일근(현장)'?'DAY_FIELD':'NONE');
-  return {employee_id:Number(emp.id),effective_date:emp.active_from||'2026-01-01',placement_code:code,employment_status:code==='NONE'?'unassigned':'working',account_status:employeeReadOnlyLocal(emp,key)?'readonly':'active',sort_order:Number(emp.sort_order)||999,batch_status:'active',batch_kind:'legacy'};
+  return {employee_id:Number(emp.id),effective_date:emp.active_from||'2026-01-01',placement_code:code,employment_status:code==='NONE'?'unassigned':'working',account_status:employeeReadOnlyLocal(emp,key)?'readonly':'active',sort_order:personnelSortOrderOr(emp.sort_order),batch_status:'active',batch_kind:'legacy'};
 }
 function personnelFutureAssignment(emp,key=todayKey()){
   return personnelRowsForEmployee(emp?.id,{includeInactive:false}).filter(r=>r.effective_date>key).sort((a,b)=>a.effective_date.localeCompare(b.effective_date)||Number(a.action_id)-Number(b.action_id))[0]||null;
@@ -9447,8 +9452,8 @@ function seedLocalPersonnelIfNeeded(){
     for(const e of employees){
       const bid=`baseline-start-${e.id}`,eff=e.active_from||'2026-01-01'; batches.push({id:bid,effective_date:eff,batch_kind:'baseline',batch_status:'active',status:'active',batch_note:'기존 직원 기준 배치',note:'기존 직원 기준 배치',created_at:`${eff}T00:00:00.000Z`});
       const code=e.group_code&&'ABCD'.includes(e.group_code)?e.group_code:(e.category==='팀장'?'LEADER':e.category==='일근(사무)'?'DAY_OFFICE':e.category==='일근(현장)'?'DAY_FIELD':'NONE');
-      actions.push({action_id:aid++,batch_id:bid,effective_date:eff,batch_kind:'baseline',batch_status:'active',batch_note:'기존 직원 기준 배치',employee_id:Number(e.id),display_name:e.display_name,placement_code:code,employment_status:code==='NONE'?'unassigned':'working',account_status:'active',sort_order:Number(e.sort_order)||999,entry_type:'legacy',is_new_employee:false,batch_created_at:`${eff}T00:00:00.000Z`});
-      if(e.active_to){const end=addDaysKey(e.active_to,1),eb=`baseline-end-${e.id}`;batches.push({id:eb,effective_date:end,batch_kind:'baseline',status:'active',note:'기존 발령/제외 종료 기준',created_at:`${end}T00:00:00.000Z`});actions.push({action_id:aid++,batch_id:eb,effective_date:end,batch_kind:'baseline',batch_status:'active',batch_note:'기존 발령/제외 종료 기준',employee_id:Number(e.id),display_name:e.display_name,placement_code:'NONE',employment_status:'legacy_inactive',account_status:employeeHistoryLoginAllowed(e)?'readonly':'disabled',sort_order:Number(e.sort_order)||999,entry_type:'legacy',is_new_employee:false,batch_created_at:`${end}T00:00:00.000Z`});}
+      actions.push({action_id:aid++,batch_id:bid,effective_date:eff,batch_kind:'baseline',batch_status:'active',batch_note:'기존 직원 기준 배치',employee_id:Number(e.id),display_name:e.display_name,placement_code:code,employment_status:code==='NONE'?'unassigned':'working',account_status:'active',sort_order:personnelSortOrderOr(e.sort_order),entry_type:'legacy',is_new_employee:false,batch_created_at:`${eff}T00:00:00.000Z`});
+      if(e.active_to){const end=addDaysKey(e.active_to,1),eb=`baseline-end-${e.id}`;batches.push({id:eb,effective_date:end,batch_kind:'baseline',status:'active',note:'기존 발령/제외 종료 기준',created_at:`${end}T00:00:00.000Z`});actions.push({action_id:aid++,batch_id:eb,effective_date:end,batch_kind:'baseline',batch_status:'active',batch_note:'기존 발령/제외 종료 기준',employee_id:Number(e.id),display_name:e.display_name,placement_code:'NONE',employment_status:'legacy_inactive',account_status:employeeHistoryLoginAllowed(e)?'readonly':'disabled',sort_order:personnelSortOrderOr(e.sort_order),entry_type:'legacy',is_new_employee:false,batch_created_at:`${end}T00:00:00.000Z`});}
     }
   }else{
     // 과거 인사 복구지점으로 되돌렸을 때 그 이후 새로 생성된 직원 ID 자체는 삭제하지 않습니다.
@@ -9460,7 +9465,7 @@ function seedLocalPersonnelIfNeeded(){
       while(batches.some(b=>String(b.id)===bid))bid=`${base}-${n++}`;
       const created=`${eff}T00:00:00.000Z`;
       batches.push({id:bid,effective_date:eff,batch_kind:'baseline',batch_status:'active',status:'active',batch_note:'인사복원 ID 보존 안전기준',note:'인사복원 ID 보존 안전기준',created_at:created});
-      actions.push({action_id:aid++,batch_id:bid,effective_date:eff,batch_kind:'baseline',batch_status:'active',batch_note:'인사복원 ID 보존 안전기준',employee_id:Number(e.id),display_name:e.display_name,placement_code:'NONE',employment_status:'unassigned',account_status:'disabled',sort_order:Number(e.sort_order)||999,entry_type:'restore_orphan',is_new_employee:false,batch_created_at:created});
+      actions.push({action_id:aid++,batch_id:bid,effective_date:eff,batch_kind:'baseline',batch_status:'active',batch_note:'인사복원 ID 보존 안전기준',employee_id:Number(e.id),display_name:e.display_name,placement_code:'NONE',employment_status:'unassigned',account_status:'disabled',sort_order:personnelSortOrderOr(e.sort_order),entry_type:'restore_orphan',is_new_employee:false,batch_created_at:created});
     }
   }
   saveLocalPersonnelBatches(batches);saveLocalPersonnelActions(actions);
@@ -9961,7 +9966,7 @@ function personnelPayloadItems(){
   const eff=$('personnelEffectiveDate').value||todayKey(),maxByTarget={};for(const e of state.employees){const a=personnelAssignmentOn(e,eff,personnelEditor.replaceBatchId);if(a&&a.employment_status==='working'){maxByTarget[a.placement_code]=Math.max(maxByTarget[a.placement_code]||0,Number(a.sort_order)||0);}}
   return personnelEditor.items.map(it=>{
     const target=PERSONNEL_TARGET_STATE[it.target_code]||PERSONNEL_TARGET_STATE.UNASSIGNED;let sort=999;
-    if(it.kind==='existing'){const emp=state.employees.find(e=>Number(e.id)===Number(it.employee_id)),prev=emp?personnelAssignmentOn(emp,eff,personnelEditor.replaceBatchId):null;if(prev?.placement_code===target.placement_code)sort=Number(prev.sort_order)||employeeSortOrderOn(emp,eff);else if(target.employment_status==='working')sort=(maxByTarget[target.placement_code]=Math.max(maxByTarget[target.placement_code]||0,300)+1);else sort=Number(prev?.sort_order)||Number(emp?.sort_order)||999;return {is_new_employee:false,employee_id:Number(it.employee_id),target_code:it.target_code,account_status:it.account_status,sort_order:sort};}
+    if(it.kind==='existing'){const emp=state.employees.find(e=>Number(e.id)===Number(it.employee_id)),prev=emp?personnelAssignmentOn(emp,eff,personnelEditor.replaceBatchId):null;if(prev?.placement_code===target.placement_code)sort=personnelSortOrderOr(prev.sort_order,employeeSortOrderOn(emp,eff));else if(target.employment_status==='working')sort=(maxByTarget[target.placement_code]=Math.max(maxByTarget[target.placement_code]||0,300)+1);else sort=personnelSortOrderOr(prev?.sort_order,personnelSortOrderOr(emp?.sort_order));return {is_new_employee:false,employee_id:Number(it.employee_id),target_code:it.target_code,account_status:it.account_status,sort_order:sort};}
     if(target.employment_status==='working')sort=(maxByTarget[target.placement_code]=Math.max(maxByTarget[target.placement_code]||0,300)+1);
     return {is_new_employee:true,name:it.name.trim(),entry_type:it.entry_type,company_hire_date:it.company_hire_date||eff,target_code:it.target_code,account_status:it.account_status,pin:it.pin||'0000',login_name:suggestedLoginName(it.name.trim()),sort_order:sort};
   });

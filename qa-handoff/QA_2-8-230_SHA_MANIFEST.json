@@ -1,0 +1,42 @@
+{
+  "block": "2-8-230",
+  "status": "CLEAN_LOCAL_CHROMIUM_MOCK",
+  "depth": 8,
+  "start_kst": "2026-10-11T12:42:07+09:00",
+  "end_kst": "2026-10-11T13:02:40.217767+09:00",
+  "duration_seconds": 1233.22,
+  "previous_block": "2-8-229",
+  "next_block": "2-8-231",
+  "new_product_defects": 1,
+  "official_cumulative_defects": 504,
+  "app_version": "ver20260927-0944",
+  "sql_modified": false,
+  "production_deployed": false,
+  "files": {
+    "index.before-2-8-230.html": {
+      "bytes": 1156895,
+      "sha256": "23d7e96c18944a654b8a22b672c6996aa043a19c68767e499a0bf7f643930dac"
+    },
+    "index.working-2-8-230.html": {
+      "bytes": 1157310,
+      "sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0"
+    },
+    "index.before-2-8-231.html": {
+      "bytes": 1157310,
+      "sha256": "a9a60aee1b863ec6cbb02d1d166268668199b129720e97cb26c0e1ebeca8d8e0"
+    },
+    "QA_230_PRODUCT_FIXES.diff": {
+      "bytes": 9720,
+      "sha256": "6a2c5a8c442102b3cae2902e16746ee02eab72f1a509a64bbdb7f62440843ad2"
+    }
+  },
+  "evidence_audit_file": "QA_230_EVIDENCE_AUDIT.json",
+  "evidence_audit_sha256": "ef1a48661ad4305850802ee65024c27be10d1720320c60a42bc3fce2cf4337c6",
+  "product_defect": "Valid employee sort_order=0 unexpectedly changed to 999 across personnel display and persistence",
+  "limits": [
+    "no live Supabase/RLS/transactions",
+    "no Android native photo picker",
+    "no actual same-origin multi-tab browser",
+    "no native BFCache test"
+  ]
+}

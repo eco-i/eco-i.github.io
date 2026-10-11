@@ -1,0 +1,30 @@
+{
+  "successful_evidence_files": [
+    "suite_results.json",
+    "personnel_zero_extended_results.json",
+    "personnel_remote_loader_results.json",
+    "personnel_local_save_results.json",
+    "holiday_regression_results.json",
+    "holiday_integration_results.json",
+    "modal_matrix_results.json",
+    "form_modal_real_results.json",
+    "personnel_timeline_results.json",
+    "personnel_account_results.json",
+    "rpc_race_results.json"
+  ],
+  "failed_evidence_files": [],
+  "all_pass": true,
+  "file_hashes": {
+    "suite_results.json": "fb96f5601a5f1e8803278de2f13192eb1059198268ba9f9c2e42fbc263bd4564",
+    "personnel_zero_extended_results.json": "cba8ef7dda46e10723797db42191f8d64ccb2830651731f878a90874d2db2866",
+    "personnel_remote_loader_results.json": "3896a6a47979822ba5f35edb0f9fa5c4508e97a877ef614c47466e8c07318b6b",
+    "personnel_local_save_results.json": "4a8339adf38cf04fced26e44557cf7ead4fc2f55c7b924ab4293206db6b6138a",
+    "holiday_regression_results.json": "978535adf5dd51950b787d6b6b6dbb86a631b882921c8543da1dee307ec380c1",
+    "holiday_integration_results.json": "129c05bd564a8d55437e26cc202d4d74974c273fe295fc047bc10629fcf1b3a9",
+    "modal_matrix_results.json": "3c95b4a0373fb55d6ba46697ba6fcd61681a72ad250768eae08ffd61976bc2d4",
+    "form_modal_real_results.json": "780bf1e22edcd828f3ac7cc80f3d0179c57f9e983e28beccee2a6e9fde3f862c",
+    "personnel_timeline_results.json": "fb42f5faf33a0e2fa1928897eed4b3a112a5f493e114a4a19ce147425c761838",
+    "personnel_account_results.json": "bed12bcf1a6629790cd4ec996ccb5dbf49f19e9557bc6c07f2149f15434cb039",
+    "rpc_race_results.json": "f7c51270d2dbd85277242c2e23394ca7d39a5ba0e9a9f6168d4a6f64d7eb9886"
+  }
+}
