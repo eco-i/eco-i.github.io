@@ -1,0 +1,29 @@
+name: QA 2-8-239 token-tombstone security fix
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-239-tombstone-patch.yml"
+      - "qa-handoff/QA_239_TOMBSTONE_PATCH.cjs"
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+      - name: Apply exact-token revocation guard to boot and legacy migration
+        run: node qa-handoff/QA_239_TOMBSTONE_PATCH.cjs
+      - name: Verify and commit QA-only product candidate
+        run: |
+          git diff --check
+          git add index.html qa-handoff/index.working-2-8-239.html
+          git diff --cached --stat
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'fix(2-8-239): honor token-specific logout tombstones during session boot and legacy migration'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
