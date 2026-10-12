@@ -1,0 +1,25 @@
+name: QA 2-8-245 comprehensive Chromium depth eight
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-245-full.yml"
+      - "qa-handoff/QA_245_FULL.cjs"
+      - "qa-handoff/index.working-2-8-245.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa245full --no-audit --no-fund playwright-core@1.55.1
+      - name: Revalidate all eight layers with real Chrome and immutable 244 baseline
+        env:
+          NODE_PATH: /tmp/qa245full/node_modules
+        run: node qa-handoff/QA_245_FULL.cjs
