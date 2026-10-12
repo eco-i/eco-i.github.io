@@ -4,6 +4,7 @@ const {chromium}=require('playwright-core');
 const base=fs.readFileSync('qa-handoff/index.before-2-8-245.html');
 if(crypto.createHash('sha256').update(base).digest('hex')!=='9bfce02ca8be15ae1a59eebec2d3b05d1563784719ebec6308b7537e8fb9d9ab')throw Error('Immutable source SHA mismatch');
 const html=fs.readFileSync('qa-handoff/index.working-2-8-245.html','utf8');
+console.log('QA245_CANDIDATE',crypto.createHash('sha256').update(html).digest('hex'),Buffer.byteLength(html));
 (async()=>{let srv,browser;const results=[];
 try{
 srv=http.createServer((q,r)=>{r.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});r.end(html)});await new Promise(resolve=>srv.listen(0,'127.0.0.1',resolve));
