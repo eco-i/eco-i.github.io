@@ -577,14 +577,18 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
   const replacedState=await reentry.evaluate(()=>{
     state.sessionToken='qa239-prev-session';state.me={employee_id:1,is_admin:true,display_name:'previous'};
     window.__qa239_oldSignout=logout(false);
+    // A real PC fresh tab-only login writes its token before exposing
+    // the new account. An old delayed cleanup must not delete this token.
+    sessionStorage.setItem(SESSION_KEY,'qa239-next-session');
     state.sessionToken='qa239-next-session';state.me={employee_id:2,is_admin:false,display_name:'new'};
-    return {token:state.sessionToken,actor:state.me.employee_id};
+    return {token:state.sessionToken,actor:state.me.employee_id,stored:sessionStorage.getItem(SESSION_KEY)};
   });
   await blocker.evaluate(()=>window.__qa239_releaseReentry());
   await reentry.evaluate(()=>window.__qa239_oldSignout);
-  const afterDelayedLogout=await reentry.evaluate(()=>({token:state.sessionToken,actor:state.me?.employee_id}));
+  const afterDelayedLogout=await reentry.evaluate(()=>({token:state.sessionToken,actor:state.me?.employee_id,stored:sessionStorage.getItem(SESSION_KEY)}));
   check('Delayed old logout cannot clear new authenticated state',
     ()=>replacedState.token==='qa239-next-session'&&afterDelayedLogout.token==='qa239-next-session'&&afterDelayedLogout.actor===2);
+  check('Queued old logout cannot delete a fresh PC tab-only session token',()=>replacedState.stored==='qa239-next-session'&&afterDelayedLogout.stored==='qa239-next-session');
   console.log('QA239_REENTRY',JSON.stringify({replacedState,afterDelayedLogout}));
   await reentryContext.close();
 
