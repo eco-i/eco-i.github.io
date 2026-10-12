@@ -4,6 +4,7 @@ const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chro
 const original=fs.readFileSync('qa-handoff/index.before-2-8-242.html','utf8');
 const corrected=fs.readFileSync('qa-handoff/index.working-2-8-242.html','utf8');
 const expected='1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5';
+console.log('QA242_FINAL_CANDIDATE_SHA256',crypto.createHash('sha256').update(corrected).digest('hex'),'bytes',Buffer.byteLength(corrected));
 if(crypto.createHash('sha256').update(original).digest('hex')!==expected)throw Error('241 baseline hash changed');
 (async()=>{
  let browser;
@@ -50,7 +51,7 @@ if(crypto.createHash('sha256').update(original).digest('hex')!==expected)throw E
   }
  }catch(e){console.log('QA242_REAL_DIALOG_ERROR',String(e.stack||e));process.exitCode=1;}
  finally{if(browser)await browser.close();}
- const ok=result.length===2&&result.every(x=>x.dialogSeen&&x.markerSet&&x.diag.attemptedRpcCount===0&&!x.handlerError);
+ const ok=result.length===2&&result.every(x=>x.dialogSeen&&x.markerSet&&x.diag.attemptedRpcCount===(x.label==='red-original'?1:0)&&!x.handlerError);
  console.log('QA242_REAL_DIALOG_SUMMARY',JSON.stringify({ok,completed:result.length,results:result}));
  if(!ok)process.exitCode=1;
 })();
