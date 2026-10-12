@@ -1457,6 +1457,44 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa240-live
   check('Real three old mobile admin surfaces close after remote exact-token logout',()=>fanResults.every(r=>!r.adminVisible&&!r.token));
   await fanCtx.close();
 
+  // Compatibility with older deployed tabs: an aggregate-format tombstone
+  // must close an existing shared admin surface, not merely reject next boot.
+  const legacyEventCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const legacyVictim=await legacyEventCtx.newPage(),legacySender=await legacyEventCtx.newPage();
+  for(const tab of [legacyVictim,legacySender]){
+    await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  }
+  await Promise.all([legacyVictim,legacySender].map(tab=>tab.waitForTimeout(400)));
+  await legacyVictim.evaluate(()=>{
+    const token='qa240-legacy-aggregate-admin-A';
+    localStorage.setItem(SESSION_KEY,token);
+    state.sessionToken=token;
+    state.me={employee_id:240,is_admin:true};
+    document.getElementById('loginView').classList.add('hidden');
+    document.getElementById('appView').classList.remove('hidden');
+    window.addEventListener('storage',e=>{
+      if(e.key==='staffAttendance_updateSessionLogout_v1'){
+        sessionStorage.setItem('__qa240_legacy_aggregate_seen','1');
+      }
+    });
+  });
+  await legacySender.evaluate(()=>{
+    localStorage.setItem('staffAttendance_updateSessionLogout_v1',JSON.stringify({
+      entries:[{token:'qa240-legacy-aggregate-admin-A',at:Date.now()}]
+    }));
+  });
+  await legacyVictim.waitForTimeout(350);
+  const legacyLiveRevocation=await legacyVictim.evaluate(()=>({
+    received:sessionStorage.getItem('__qa240_legacy_aggregate_seen')==='1',
+    oldAdminVisible:!!state.me?.is_admin&&!document.getElementById('appView').classList.contains('hidden'),
+    oldToken:state.sessionToken
+  }));
+  console.log('QA240_REAL_LEGACY_AGGREGATE_LOGOUT_EVENT',JSON.stringify(legacyLiveRevocation));
+  check('Actual legacy aggregate logout storage event reaches existing mobile tab',()=>legacyLiveRevocation.received);
+  check('Actual legacy aggregate logout revokes stale mobile administrator UI',()=>!legacyLiveRevocation.oldAdminVisible&&!legacyLiveRevocation.oldToken);
+  await legacyEventCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
