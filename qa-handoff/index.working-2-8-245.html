@@ -3036,9 +3036,10 @@ function guardMandatoryInitialPinGateRpc(name){
   throw err;
 }
 const ADMIN_PRIVILEGED_SENSITIVE_RPCS=new Set(['export_admin_data_v1','preview_admin_reset_data_v2','preview_current_personnel_pin_reset_v1','list_data_safety_backups_v1','preview_safety_backup_restore_v2']);
+const ADMIN_PRIVILEGED_READ_RPCS=new Set(['list_recent_audit_page','list_personnel_snapshots','list_employee_pin_status','get_capacity_usage','get_personnel_change_impacts']);
 function guardAdminPrivilegeRpcSession(name,options={}){
   const rpcName=String(name||'');
-  if(!rpcName.startsWith('admin_')&&!ADMIN_PRIVILEGED_SENSITIVE_RPCS.has(rpcName))return;
+  if(!rpcName.startsWith('admin_')&&!ADMIN_PRIVILEGED_SENSITIVE_RPCS.has(rpcName)&&!ADMIN_PRIVILEGED_READ_RPCS.has(rpcName))return;
   // A privileged workflow must re-check the unlocked administrator session
   // after asynchronous waits. An approved dirty draft may finish only through
   // its previously restricted deferred-save RPC path.
@@ -3121,6 +3122,7 @@ function ordinaryReadSharedSessionOwnershipCurrent(current=state.sessionToken){
 function guardOrdinaryAuthenticatedReadRpcSession(name,payload={}){
   if(!ordinaryAuthenticatedReadRpc(name,payload))return;
   guardMandatoryInitialPinGateRpc(name);
+  guardAdminPrivilegeRpcSession(name);
   const current=String(state.sessionToken||''),payloadToken=String(payload?.p_token||'');
   // 일반 조회도 storage 이벤트가 오기 전에 shared localStorage가 먼저 바뀔 수 있다.
   // 응답을 버리는 것만으로는 이전 계정 토큰의 조회 자체가 이미 전송되므로, 요청 직전 동기 비교로 차단한다.
