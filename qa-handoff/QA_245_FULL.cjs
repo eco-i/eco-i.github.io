@@ -33,7 +33,9 @@ check('242 blocking dialog must re-read token tombstone',()=>html.includes('if(s
 check('242 candidate differs from immutable 241 baseline',()=>crypto.createHash('sha256').update(html).digest('hex')!==expected);
 check('243 source includes inherited 242 pre-RPC task fence',()=>html.includes('await new Promise(resolve=>setTimeout(resolve,0));'));
 check('244 candidate contains admin privilege RPC guard',()=>html.includes('function guardAdminPrivilegeRpcSession(name,options={})')&&html.includes('PIN_GATE_IDENTITY_READ_RPCS'));
-check('245 revised candidate differs from immutable 244 baseline',()=>crypto.createHash('sha256').update(html).digest('hex')!==expected);
+check('245 final immutable candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='2c673e4ac3d1a034394ce7d66180bfafe86090ab2aefbea1210d7da5191d3621');
+check('245 final immutable candidate bytes pinned',()=>Buffer.byteLength(html)===1169081);
+check('245 current baseline distinct from candidate',()=>crypto.createHash('sha256').update(html).digest('hex')!==expected);
 check('245 revised candidate includes targeted admin read authorization',()=>html.includes('ADMIN_PRIVILEGED_READ_RPCS')&&html.includes('guardAdminPrivilegeRpcSession(name);'));
 check('244 response ownership privilege recheck present',()=>html.includes('guardAdminPrivilegeRpcSession(name,options);')&&html.includes('if(err?.adminPermissionRevoked)throw err;'));
 check('243 protected RPC fences same-token security epoch after task boundary',()=>html.includes('if(responseOwnerEpoch!==sessionContextEpoch){')&&html.includes('await new Promise(resolve=>setTimeout(resolve,0));')&&html.includes('guardSensitiveDataRpcSession(name,payload);'));
