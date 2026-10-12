@@ -1332,6 +1332,68 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa240-live
 
 
 
+  // 240: A different user's tombstone A must not revoke a valid independent
+  // PC tab B. Test includes the actual storage event received from another tab.
+  const isolatedPcCtx=await browser.newContext({viewport:{width:1366,height:900}});
+  const pcValid=await isolatedPcCtx.newPage(),pcOther=await isolatedPcCtx.newPage();
+  for(const tab of [pcValid,pcOther]){
+    await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  }
+  await Promise.all([pcValid,pcOther].map(tab=>tab.waitForTimeout(400)));
+  await pcValid.evaluate(()=>{
+    sessionStorage.setItem(SESSION_KEY,'qa240-pc-valid-B');
+    sessionStorage.setItem(ADMIN_UNLOCK_KEY,'qa240-pc-valid-B');
+    state.sessionToken='qa240-pc-valid-B';
+    state.me={employee_id:241,is_admin:true};
+    document.getElementById('loginView').classList.add('hidden');
+    document.getElementById('appView').classList.remove('hidden');
+    window.__qa240OtherTokenTombstoneEvent=false;
+    window.addEventListener('storage',e=>{
+      if(String(e.key||'').startsWith('staffAttendance_updateSessionLogoutToken_v1:')){
+        window.__qa240OtherTokenTombstoneEvent=true;
+        sessionStorage.setItem('__qa240OtherTokenTombstoneEvent','1');
+      }
+    });
+  });
+  await pcOther.evaluate(()=>markUpdateHandoffLoggedOut('qa240-unrelated-revoked-A'));
+  await pcValid.waitForTimeout(300);
+  const unaffectedPc=await pcValid.evaluate(()=>({
+    eventReceived:window.__qa240OtherTokenTombstoneEvent===true||sessionStorage.getItem('__qa240OtherTokenTombstoneEvent')==='1',
+    mobile:MOBILE_SESSION_DEVICE,
+    shared:localStorage.getItem(SESSION_KEY),
+    tab:sessionStorage.getItem(SESSION_KEY),
+    token:state.sessionToken,
+    adminVisible:!!state.me?.is_admin&&!document.getElementById('appView').classList.contains('hidden'),
+    adminUnlock:adminUnlockMatches('qa240-pc-valid-B'),
+    actorCurrent:sessionContextCurrent(241,'qa240-pc-valid-B')
+  }));
+  console.log('QA240_PC_UNRELATED_REVOCATION',JSON.stringify(unaffectedPc));
+  check('Unrelated exact-token revocation leaves independent PC tab-B login intact',
+    ()=>unaffectedPc.eventReceived&&!unaffectedPc.mobile&&unaffectedPc.tab==='qa240-pc-valid-B'&&unaffectedPc.token==='qa240-pc-valid-B');
+  check('Unrelated token-A revocation preserves independent PC B administrator unlock',
+    ()=>unaffectedPc.adminVisible&&unaffectedPc.adminUnlock&&unaffectedPc.actorCurrent);
+  await isolatedPcCtx.close();
+
+  // Revoked token A must not be rescued by an unlocked old admin marker.
+  const revokedAdminCtx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const revokedAdminPage=await revokedAdminCtx.newPage();
+  await revokedAdminPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await revokedAdminPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const revokedAdmin=await revokedAdminPage.evaluate(()=>{
+    const token='qa240-revoked-admin-A';
+    localStorage.setItem(SESSION_KEY,token);
+    localStorage.setItem(ADMIN_UNLOCK_KEY,token);
+    state.sessionToken=token;
+    state.me={employee_id:240,is_admin:true};
+    markUpdateHandoffLoggedOut(token);
+    return {revoked:storedSessionTombstoned(token),unlocked:adminUnlockMatches(token),
+      contextStillValid:sessionContextCurrent(240,token)};
+  });
+  console.log('QA240_ADMIN_TOMBSTONE_REVOKE',JSON.stringify(revokedAdmin));
+  check('Revoked admin token cannot reuse old second-factor unlock',()=>revokedAdmin.revoked&&!revokedAdmin.unlocked&&!revokedAdmin.contextStillValid);
+  await revokedAdminCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
