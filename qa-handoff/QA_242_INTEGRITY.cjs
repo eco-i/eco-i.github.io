@@ -18,8 +18,8 @@ assert.strictEqual(current.last_completed_block,'2-8-241','242 not yet officiall
 assert.strictEqual(current.next_block,'2-8-242');
 assert.strictEqual(current.cumulative_defects,517);
 assert(a.includes('ver20260927-0944'));
-const scripts=[...a.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)].map(x=>x[1]).filter(x=>x.trim());
+const scripts=[...a.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(x=>x.trim());
 assert(scripts.length>=2);for(const code of scripts)new vm.Script(code);
-const staticIds=[...a.slice(0,a.indexOf('<script async src=')).matchAll(/\\bid="([^"]+)"/g)].map(x=>x[1]);
+const staticIds=[...a.slice(0,a.indexOf('<script async src=')).matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]);
 assert.strictEqual(staticIds.length,new Set(staticIds).size,'no duplicate DOM IDs');
 console.log('QA242_INTEGRITY_PASS',JSON.stringify({...record,inline_scripts:scripts.length,unique_static_dom_ids:staticIds.length,source_delta_only_one_anchor:true}));
