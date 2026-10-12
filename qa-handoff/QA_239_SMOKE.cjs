@@ -18,11 +18,13 @@ check('Web Locks critical sections applied',()=>html.includes('withBrowserShared
 check('Official 238 start baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('238 inherited 237 session security corrections retained',()=>html.includes('if(e.key===null)')&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
 check('239 mobile migration hard boundary explicitly coded',()=>html.includes('loggedOutShared&&(!localToken||localToken===loggedOutShared)'));
+check('239 per-token logout tombstone enforced at early boot',()=>html.includes('function storedSessionTombstoned(token)')&&html.includes('!storedSessionTombstoned(rawLocal)')&&html.includes('!storedSessionTombstoned(rawTab)'));
+check('239 tombstoned mobile legacy token discarded during migration',()=>html.includes('if(token&&storedSessionTombstoned(token))'));
 check('Previous session-safety correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 check('238 mobile tab-only carveout eliminated',()=>html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return false;")&&html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return {current,mode:'tab'};")&&html.includes("if(!MOBILE_SESSION_DEVICE && current && tabToken===current){ sharedSessionChangePending="));
 check('238 no stale legacy mobile fallback after shared logout',()=>html.includes("rawLocal ? localToken : (forbidden ? '' : temporaryToken)"));
 check('238 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='1292955d4ae7fd90c3bcf8e6ccc6d5ea9595bd9d34215e27aa06baa98dd98360');
-check('239 verified scoped mobile migration candidate pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='aea27919250b1f80acbcc2ee800b35a2d21f26bc45940fc694e472c71d3c0d22');
+check('239 mobile migration and per-token tombstone candidate pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='0133b3a889fcb7ecb9f571a187e3fe1d367e44cf608a3cf00acba231e0773b25');
 console.log('QA239_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
