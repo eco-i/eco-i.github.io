@@ -1251,6 +1251,7 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
   await calPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
   await calPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
   const renderedCalendar=await calPage.evaluate(()=>{
+    sessionStorage.setItem(SESSION_KEY,'qa239-ui-fixture');
     state.sessionToken='qa239-ui-fixture';
     state.me={employee_id:238,is_admin:false,display_name:'QA Worker',group_code:'B'};
     state.employees=[{id:238,employee_id:238,display_name:'QA Worker',group_code:'B',active_from:'2026-01-01',employment_status:'working'}];
