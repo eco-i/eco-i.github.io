@@ -1,0 +1,25 @@
+name: QA 2-8-246 real two-tab native restore-read revocation
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-246-two-tab.yml"
+      - "qa-handoff/QA_246_REAL_CROSS_TAB.cjs"
+      - "qa-handoff/index.working-2-8-246.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa246twotab --no-audit --no-fund playwright-core@1.55.1
+      - name: Real native confirm with other Chrome tab revoking admin restore-read permission
+        env:
+          NODE_PATH: /tmp/qa246twotab/node_modules
+        run: node qa-handoff/QA_246_REAL_CROSS_TAB.cjs
