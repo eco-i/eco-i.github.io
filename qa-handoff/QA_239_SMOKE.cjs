@@ -1082,12 +1082,8 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
     sessionStorage.setItem(SESSION_KEY,'qa239-stale-A');
     sessionStorage.setItem(ADMIN_UNLOCK_KEY,'qa239-stale-A');
     const initial=storedSessionToken();
-    let ran=false,attempts=0;
-    for(let i=0;i<40;i++){
-      attempts++;
-      if(migrateLegacySessionForDevice()){ran=true;break;}
-      await new Promise(resolve=>setTimeout(resolve,100));
-    }
+    const ran=await withBrowserSharedSessionLock(()=>migrateLegacySessionForDevice());
+    const attempts=1;
     const after=storedSessionToken(),shared=localStorage.getItem(SESSION_KEY),
       currentAdmin=localStorage.getItem(ADMIN_UNLOCK_KEY);
     return {mobile:MOBILE_SESSION_DEVICE,initial,ran,attempts,after,shared,currentAdmin,
