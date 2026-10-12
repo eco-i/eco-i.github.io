@@ -13,10 +13,10 @@ function check(name,fn){const result=fn(); assert(result!==false, name+' returne
 check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('1164059 byte baseline',()=>Buffer.byteLength(baseline)===1164059);
 check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
-check('237 officially completed SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5');
+check('239 officially completed SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5');
 check('Web Locks critical sections applied',()=>html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
-check('Official 238 start baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
-check('238 inherited 237 session security corrections retained',()=>html.includes('if(e.key===null)')&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
+check('Official 240 start baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
+check('240 inherited previous cross-tab security corrections retained',()=>html.includes('if(e.key===null)')&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
 check('239 mobile migration hard boundary explicitly coded',()=>html.includes('loggedOutShared&&(!localToken||localToken===loggedOutShared)'));
 check('239 per-token logout tombstone enforced at early boot',()=>html.includes('function storedSessionTombstoned(token)')&&html.includes('!storedSessionTombstoned(rawLocal)')&&html.includes('!storedSessionTombstoned(rawTab)'));
 check('239 tombstoned mobile legacy token discarded during migration',()=>html.includes('if(token&&storedSessionTombstoned(token))'));
@@ -27,7 +27,7 @@ check('240 current token tombstone fenced even if shared storage stays the same'
 check('Previous session-safety correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 check('238 mobile tab-only carveout eliminated',()=>html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return false;")&&html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return {current,mode:'tab'};")&&html.includes("if(!MOBILE_SESSION_DEVICE && current && tabToken===current){ sharedSessionChangePending="));
 check('238 no stale legacy mobile fallback after shared logout',()=>html.includes("rawLocal ? localToken : (forbidden ? '' : temporaryToken)"));
-check('238 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5');
+check('240 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5');
 check('240 exact-token revocation candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34');
 console.log('QA240_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
