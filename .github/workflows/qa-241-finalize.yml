@@ -1,0 +1,27 @@
+name: QA 2-8-241 official finalize and 242 baseline
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-241-finalize.yml"
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+      - name: Gate 20-plus-minute verified QA and write SHA-bound official 241 handoff
+        run: node qa-handoff/QA_241_FINALIZE.cjs
+      - name: Verify and commit official 241 state and immutable 242 baseline on QA only
+        run: |
+          git diff --check
+          git add qa-handoff/CURRENT_STATE.json qa-handoff/START_HERE_NEW_CHAT.md qa-handoff/START_2-8-242_AFTER_241.txt qa-handoff/QA_2-8-241_REPORT.md qa-handoff/QA_241_EVIDENCE_AUDIT.json qa-handoff/QA_2-8-241_SHA_MANIFEST.json qa-handoff/index.before-2-8-242.html
+          git diff --cached --stat
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'qa(2-8-241): finish 1 product defect, 517 cumulative, immutable 242 baseline'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
