@@ -1,0 +1,28 @@
+name: QA 2-8-240 officially finalize and prepare 241
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-240-finalize.yml"
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+          persist-credentials: true
+      - name: Validate 20-plus minutes actual QA, immutable SHA and official state
+        run: node qa-handoff/QA_240_FINALIZE.cjs
+      - name: Commit final 240 evidence and next 241 baseline to QA branch only
+        run: |
+          git diff --check
+          git add qa-handoff/CURRENT_STATE.json qa-handoff/START_HERE_NEW_CHAT.md qa-handoff/START_2-8-241_AFTER_240.txt qa-handoff/QA_2-8-240_REPORT.md qa-handoff/QA_240_EVIDENCE_AUDIT.json qa-handoff/QA_2-8-240_SHA_MANIFEST.json qa-handoff/index.before-2-8-241.html
+          git diff --cached --stat
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'qa(2-8-240): finalize 1 defect, 516 cumulative, 180-pass green and 241 baseline'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
