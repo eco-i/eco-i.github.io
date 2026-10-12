@@ -1,0 +1,28 @@
+name: QA 2-8-240 finalization preflight (read only)
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-240-finalize-preflight.yml"
+      - "qa-handoff/QA_240_FINALIZE.cjs"
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check finalizer syntax and official immutable baseline
+        run: |
+          node --check qa-handoff/QA_240_FINALIZE.cjs
+          node - <<'NODE'
+          const fs=require('fs'),crypto=require('crypto');
+          const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+          const s=JSON.parse(fs.readFileSync('qa-handoff/CURRENT_STATE.json','utf8'));
+          if(s.last_completed_block!=='2-8-239'||s.next_block!=='2-8-240'||s.cumulative_defects!==515)throw Error('Official state changed before 240 handoff');
+          if(sha('qa-handoff/index.before-2-8-240.html')!=='afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5')throw Error('Original changed');
+          const candidate='53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34';
+          if(sha('index.html')!==candidate||sha('qa-handoff/index.working-2-8-240.html')!==candidate)throw Error('Not reviewed candidate');
+          console.log('QA240_FINALIZATION_PREFLIGHT_OK',JSON.stringify({last_completed:s.last_completed_block,next:s.next_block,official_defects:s.cumulative_defects,candidate_sha256:candidate,bytes:fs.statSync('index.html').size}));
+          NODE
