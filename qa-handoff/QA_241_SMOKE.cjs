@@ -1656,6 +1656,41 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa241-live
     ()=>fanoutSuppression.every(x=>!x.visible&&!x.token));
   await suppressionFanoutCtx.close();
 
+  // 241: Reload a mobile document without Web Locks after a failed atomic
+  // shared logout; suppression A must remain an authoritative boot fence.
+  const noLockCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  await noLockCtx.addInitScript(()=>{
+    try{Object.defineProperty(navigator,'locks',{configurable:true,value:null});}catch(_){}
+  });
+  const noLockPage=await noLockCtx.newPage();
+  await noLockPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await noLockPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  await noLockPage.evaluate(()=>{
+    localStorage.setItem(SESSION_KEY,'qa241-weblocks-absent-A');
+    localStorage.setItem(ADMIN_UNLOCK_KEY,'qa241-weblocks-absent-A');
+    sessionStorage.setItem(SESSION_KEY,'qa241-weblocks-absent-A');
+    localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa241-weblocks-absent-A');
+  });
+  await noLockPage.reload({waitUntil:'domcontentloaded'});
+  await noLockPage.waitForTimeout(300);
+  const noLockResult=await noLockPage.evaluate(()=>({
+    mobile:MOBILE_SESSION_DEVICE,
+    locksUnavailable:!navigator.locks?.request,
+    stored:storedSessionToken(),
+    state:state.sessionToken,
+    shared:localStorage.getItem(SESSION_KEY),
+    suppressed:localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY),
+    adminUnlock:adminUnlockMatches('qa241-weblocks-absent-A'),
+    appVisible:!document.getElementById('appView').classList.contains('hidden')
+  }));
+  console.log('QA241_NO_WEB_LOCKS_RELOAD',JSON.stringify(noLockResult));
+  check('241 real mobile reload with no Web Locks cannot restore exact suppressed A',
+    ()=>noLockResult.mobile&&noLockResult.locksUnavailable&&!noLockResult.stored&&!noLockResult.state&&
+       noLockResult.shared==='qa241-weblocks-absent-A'&&noLockResult.suppressed===noLockResult.shared);
+  check('241 no-Web-Locks mobile reload never reveals suppressed privileged UI',
+    ()=>!noLockResult.adminUnlock&&!noLockResult.appVisible);
+  await noLockCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
