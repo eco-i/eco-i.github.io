@@ -1460,13 +1460,13 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa240-live
   // Compatibility with older deployed tabs: an aggregate-format tombstone
   // must close an existing shared admin surface, not merely reject next boot.
   const legacyEventCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
-  const legacyVictim=await legacyEventCtx.newPage(),legacySender=await legacyEventCtx.newPage();
-  for(const tab of [legacyVictim,legacySender]){
+  const qa240AggregateVictim=await legacyEventCtx.newPage(),qa240AggregateSender=await legacyEventCtx.newPage();
+  for(const tab of [qa240AggregateVictim,qa240AggregateSender]){
     await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
     await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
   }
-  await Promise.all([legacyVictim,legacySender].map(tab=>tab.waitForTimeout(400)));
-  await legacyVictim.evaluate(()=>{
+  await Promise.all([qa240AggregateVictim,qa240AggregateSender].map(tab=>tab.waitForTimeout(400)));
+  await qa240AggregateVictim.evaluate(()=>{
     const token='qa240-legacy-aggregate-admin-A';
     localStorage.setItem(SESSION_KEY,token);
     state.sessionToken=token;
@@ -1479,13 +1479,13 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa240-live
       }
     });
   });
-  await legacySender.evaluate(()=>{
+  await qa240AggregateSender.evaluate(()=>{
     localStorage.setItem('staffAttendance_updateSessionLogout_v1',JSON.stringify({
       entries:[{token:'qa240-legacy-aggregate-admin-A',at:Date.now()}]
     }));
   });
-  await legacyVictim.waitForTimeout(350);
-  const legacyLiveRevocation=await legacyVictim.evaluate(()=>({
+  await qa240AggregateVictim.waitForTimeout(350);
+  const legacyLiveRevocation=await qa240AggregateVictim.evaluate(()=>({
     received:sessionStorage.getItem('__qa240_legacy_aggregate_seen')==='1',
     oldAdminVisible:!!state.me?.is_admin&&!document.getElementById('appView').classList.contains('hidden'),
     oldToken:state.sessionToken
