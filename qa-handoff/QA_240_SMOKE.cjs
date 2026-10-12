@@ -5,7 +5,7 @@ const baseline=fs.readFileSync('qa-handoff/index.before-2-8-240.html','utf8');
 const file='qa-handoff/index.working-2-8-240.html';
 const html=fs.readFileSync(file,'utf8');
 const expected='afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5';
-// QA 240 first real Chromium red probe: cross-tab exact token logout tombstone without shared marker
+// QA 240 independent repeat, frozen SHA: complete 178-case Chromium logout tombstone and calendar regression
 // QA 240 stabilized mutex stress regression v2
 // QA 240 verified Web Lock real two-tab test, syntax correction
 const pass=[];
