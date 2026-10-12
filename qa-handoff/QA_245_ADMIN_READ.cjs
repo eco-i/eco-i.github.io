@@ -40,12 +40,31 @@ if(baseline!=='9bfce02ca8be15ae1a59eebec2d3b05d1563784719ebec6308b7537e8fb9d9ab'
       if(label==='desktop')sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);else localStorage.setItem(ADMIN_UNLOCK_KEY,token);
       const restoredAdminReady=activeAdminMode();
       const allowed=[];for(const name of forbidden)allowed.push(await probe(name));
+      let pcIsolation=null;
+      if(label==='desktop'){
+        // Tab-only PC A is independent of a different shared B login.
+        sessionStorage.setItem(SESSION_KEY,token);sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);
+        localStorage.setItem(SESSION_KEY,'qa245-independent-shared-B');
+        localStorage.setItem(ADMIN_UNLOCK_KEY,'qa245-independent-shared-B');
+        const sharedChanged=await probe('list_recent_audit_page');
+        localStorage.removeItem(ADMIN_UNLOCK_KEY);
+        const unrelatedSharedAdminRemoved=await probe('list_recent_audit_page');
+        sessionStorage.removeItem(ADMIN_UNLOCK_KEY);
+        const ownTabUnlockRemoved=await probe('list_recent_audit_page');
+        pcIsolation={sharedChanged,unrelatedSharedAdminRemoved,ownTabUnlockRemoved};
+      }
       window.fetch=oldFetch;window.configured=oldConfig;
-      return {before,mine,allowed,requests,restoredAdminReady};
+      return {before,mine,allowed,requests,restoredAdminReady,pcIsolation};
    },label);
    for(const x of actual.before){const pass=x.sent===0;all.push(pass);console.log('QA245_'+(pass?'PASS':'FAIL'),label+' revoked '+x.name,JSON.stringify(x))}
    const personal=actual.mine.sent===1;all.push(personal);console.log('QA245_'+(personal?'PASS':'FAIL'),label+' personal read remains usable',JSON.stringify(actual.mine));
    for(const x of actual.allowed){const pass=actual.restoredAdminReady&&x.sent===1;all.push(pass);console.log('QA245_'+(pass?'PASS':'FAIL'),label+' unlocked '+x.name,JSON.stringify(x))}
+   if(actual.pcIsolation){
+      for(const [name,want] of [['sharedChanged',1],['unrelatedSharedAdminRemoved',1],['ownTabUnlockRemoved',0]]){
+        const row=actual.pcIsolation[name],pass=row.sent===want;all.push(pass);
+        console.log('QA245_'+(pass?'PASS':'FAIL'),'desktop independent PC tab session '+name,JSON.stringify(row));
+      }
+   }
    const errors=pageErrors.length===0;all.push(errors);console.log('QA245_'+(errors?'PASS':'FAIL'),label+' browser exceptions',JSON.stringify(pageErrors));
    await context.close();
   }
