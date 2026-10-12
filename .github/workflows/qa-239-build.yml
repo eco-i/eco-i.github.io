@@ -1,0 +1,27 @@
+name: QA 2-8-239 build isolated baseline
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-239-build.yml"
+      - "qa-handoff/QA_239_BUILD.cjs"
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+      - name: Prepare official 239 immutable baseline and real Chrome suite
+        run: node qa-handoff/QA_239_BUILD.cjs
+      - name: Verify QA-only changes and push safely
+        run: |
+          git diff --check
+          git add qa-handoff/index.working-2-8-239.html qa-handoff/QA_239_SMOKE.cjs
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'qa(2-8-239): initialize Chromium regression and stale session migration probe'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
