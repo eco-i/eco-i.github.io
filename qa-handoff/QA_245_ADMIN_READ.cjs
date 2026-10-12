@@ -32,7 +32,7 @@ if(baseline!=='9bfce02ca8be15ae1a59eebec2d3b05d1563784719ebec6308b7537e8fb9d9ab'
         try{await rpc(name,{p_token:token})}catch(e){error=String(e?.message||e)}
         return {name,sent:requests.length-before,error};
       };
-      const forbidden=['list_recent_audit_page','list_personnel_snapshots','list_employee_pin_status'];
+      const forbidden=['list_recent_audit_page','list_personnel_snapshots','list_employee_pin_status','get_capacity_usage','get_personnel_change_impacts'];
       const before=[];for(const name of forbidden)before.push(await probe(name));
       const mine=await probe('list_my_memos');
       if(label==='desktop')sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);else localStorage.setItem(ADMIN_UNLOCK_KEY,token);
