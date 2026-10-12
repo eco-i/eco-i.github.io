@@ -1,0 +1,127 @@
+{
+  "block": "2-8-246",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "prior_completed": "2-8-245",
+  "next_block": "2-8-247",
+  "official_cumulative_before": 527,
+  "new_product_defects": 1,
+  "official_cumulative_after": 528,
+  "first_qa_activity_kst": "2026-10-13T08:31:00+09:00",
+  "completed_kst": "2026-10-13T08:54:28.661+09:00",
+  "confirmed_20_minutes": true,
+  "baseline_sha256": "be95422d3b79f9cc2348196a07b46e44d5269a353fc73dec98cdc065381029da",
+  "baseline_bytes": 1169443,
+  "final_sha256": "8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d",
+  "final_bytes": 1169644,
+  "defect": {
+    "category": "single missing administrator-only ordinary RPC classification with two caller feature groups",
+    "affected_rpc": [
+      "get_personnel_restore_revision_v1",
+      "get_company_event_capacity",
+      "get_holiday_work_eligibility_capacity",
+      "get_annual_leave_capacity",
+      "get_overtime_storage_capacity",
+      "get_memo_dday_storage_capacity"
+    ],
+    "red_ci": [
+      38322894855,
+      38323230263
+    ],
+    "red_sent_each_browser": {
+      "revision": 1,
+      "supplemental_capacity": 5
+    },
+    "green_ci": [
+      38323036969,
+      38323322734
+    ],
+    "reason_one_product_defect": "All 6 names missing from same central ADMIN_PRIVILEGED_READ_RPCS classification; exact 1 source-diff hunk."
+  },
+  "focused_green": {
+    "restore": {
+      "id": 38323036969,
+      "passed": 19,
+      "failed": 0
+    },
+    "supplemental_capacity": {
+      "id": 38323322734,
+      "passed": 27,
+      "failed": 0
+    },
+    "response": {
+      "id": 38323389313,
+      "passed": 18,
+      "failed": 0
+    },
+    "cross_tab": [
+      {
+        "id": 38323157946,
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "id": 38323513571,
+        "passed": 2,
+        "failed": 0
+      }
+    ],
+    "sensitive_ui_purge": [
+      {
+        "id": 38324406058,
+        "passed": 18,
+        "failed": 0
+      },
+      {
+        "id": 38324315744,
+        "passed": 18,
+        "failed": 0
+      }
+    ]
+  },
+  "regressions": [
+    {
+      "id": 38323566153,
+      "passed": 209,
+      "failed": 0,
+      "sha256": "8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d"
+    },
+    {
+      "id": 38323876681,
+      "passed": 209,
+      "failed": 0,
+      "sha256": "8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d"
+    },
+    {
+      "id": 38323995971,
+      "passed": 209,
+      "failed": 0,
+      "sha256": "8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d"
+    }
+  ],
+  "integrity": {
+    "id": [
+      38323467567,
+      38323909769
+    ],
+    "passed": true,
+    "source_hunks": 1,
+    "inline_scripts": 2,
+    "unique_dom_ids": 457
+  },
+  "harness_corrections": "Original standalone UI purge on two fully booted pages and unobserved second-tab storage write gave invalid preconditions; passive blank same-origin tab + waitForFunction key visibility fixes; final mobile/desktop 18/0 green.",
+  "limits": [
+    "No production Supabase/RLS",
+    "No live backend authenticated multiuser",
+    "No physical Android camera/file picker",
+    "No iOS Safari",
+    "No persisted BFCache confirmed",
+    "No production backup/restore"
+  ],
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_modified": false,
+  "deployed": false
+}

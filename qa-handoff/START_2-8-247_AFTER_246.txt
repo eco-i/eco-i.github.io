@@ -1,0 +1,7 @@
+★★★근무모아 2차·8단계 종합검수 새 채팅 연결 인계★★★
+공식 2-8-246 완료, 다음 2-8-247, 누적 제품 결함 528종.
+GitHub eco-i/eco-i.github.io 브랜치 qa-2-8, 시작본 qa-handoff/index.before-2-8-247.html, SHA-256 8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d, 1169644바이트.
+246 신규 결함은 1종(인사 복구 revision RPC+용량 관련 보조 RPC 5종의 누락된 관리자 분류, 중앙 권한 목록 단일 수정).
+Chrome 전체 209 PASS/0 FAIL 3회, 권한 조회 19/0+27/0, 응답 18/0, 실제 두 탭 UI 민감정보 purge 18/0, 무결성 2회 PASS.
+APP_VERSION ver20260927-0944 유지, SQL/main/실배포 변경 없음. 자세한 증거 CURRENT_STATE.json 및 QA_2-8-246_REPORT.md 참고.
+High·깊이8·블록 실제 최소20분·20분 내 중간보고·오류 즉시 수정/회귀, 번호 연속, GitHub 직접 사용, ZIP 불필요.
