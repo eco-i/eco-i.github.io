@@ -1,0 +1,85 @@
+{
+  "block": "2-8-241",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "prior_completed": "2-8-240",
+  "next_block": "2-8-242",
+  "official_defects_before": 516,
+  "new_product_defects": 1,
+  "cumulative_defects": 517,
+  "baseline_sha256": "53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34",
+  "baseline_bytes": 1164815,
+  "final_sha256": "1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5",
+  "final_bytes": 1165130,
+  "first_qa_activity_kst": "2026-10-12T19:25:29+09:00",
+  "completed_kst": "2026-10-12T19:46:24+09:00",
+  "red_product_ci": 38236470791,
+  "red_witness": {
+    "old_token_persisted_in_localStorage": true,
+    "logout_suppressed": true,
+    "storedSessionToken_empty": true,
+    "adminUnlock_true": true,
+    "sharedMismatch_false": true,
+    "fingerprintMismatch_false": true,
+    "mutation_preflight_not_blocked": true,
+    "sensitive_export_not_blocked": true,
+    "ordinary_read_not_blocked": true
+  },
+  "scoped_fix": "Single shared logout marker equality comparison added at top of storedSessionTombstoned()",
+  "candidate_source_patch_count": 1,
+  "independent_source_comparison_exact": true,
+  "final_regressions": [
+    {
+      "id": 38237417756,
+      "passed": 194,
+      "failed": 0,
+      "sha256": "1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5"
+    },
+    {
+      "id": 38237595145,
+      "passed": 194,
+      "failed": 0,
+      "sha256": "1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5"
+    }
+  ],
+  "tested": {
+    "real_headless_chromium": true,
+    "mobile_real_storage_events": true,
+    "mobile_four_tab_suppression_fanout": true,
+    "no_web_locks_reload": true,
+    "pc_unrelated_tab_preserved": true,
+    "pc_same_token_revoked": true,
+    "new_mobile_shared_login_preserved": true,
+    "independent_shift_cases": 2920,
+    "leave_fuzz_sets": 500,
+    "token_matrix_cases": 72,
+    "real_image_png_to_jpeg": true,
+    "authenticated_calendar_days": 31,
+    "viewport_widths": [
+      320,
+      360,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ]
+  },
+  "non_product_failures": [
+    "Synthetic fresh-login C browser fixture racing with unauthenticated boot momentarily reset state; fixture moved actor assignment after awaited Web Locks operations"
+  ],
+  "limitations": [
+    "No production Supabase RLS",
+    "No real authenticated backend multiuser",
+    "No physical Android native camera/file picker",
+    "No iOS Safari",
+    "No confirmed BFCache persisted",
+    "No real backup restore"
+  ],
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "production_main_modified": false,
+  "deployed": false
+}
