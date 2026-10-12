@@ -3036,7 +3036,7 @@ function guardMandatoryInitialPinGateRpc(name){
   throw err;
 }
 const ADMIN_PRIVILEGED_SENSITIVE_RPCS=new Set(['export_admin_data_v1','preview_admin_reset_data_v2','preview_current_personnel_pin_reset_v1','list_data_safety_backups_v1','preview_safety_backup_restore_v2']);
-const ADMIN_PRIVILEGED_READ_RPCS=new Set(['list_recent_audit_page','list_personnel_snapshots','list_employee_pin_status','get_capacity_usage','get_personnel_change_impacts']);
+const ADMIN_PRIVILEGED_READ_RPCS=new Set(['list_recent_audit_page','list_personnel_snapshots','list_employee_pin_status','get_capacity_usage','get_personnel_change_impacts','get_personnel_restore_revision_v1']);
 function guardAdminPrivilegeRpcSession(name,options={}){
   const rpcName=String(name||'');
   if(!rpcName.startsWith('admin_')&&!ADMIN_PRIVILEGED_SENSITIVE_RPCS.has(rpcName)&&!ADMIN_PRIVILEGED_READ_RPCS.has(rpcName))return;
