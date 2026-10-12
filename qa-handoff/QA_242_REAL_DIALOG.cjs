@@ -40,7 +40,7 @@ if(crypto.createHash('sha256').update(original).digest('hex')!==expected)throw E
     await second.waitForTimeout(800);
     let markerSet=false,dialogSeen=false,handlerError='';
     first.once('dialog',async dialog=>{dialogSeen=true;try{markerSet=await second.evaluate(t=>{localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,t);return localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===t},token);}catch(e){handlerError=String(e)}finally{await dialog.accept().catch(()=>{});}});
-    const diag=await Promise.race([first.evaluate(()=>{const before=fingerprintBlockingPromptSessionSnapshot();const accepted=confirmMutationWithSessionGuard('Two-tab live Chrome confirm');return {accepted,beforeMode:before.mode,marker:localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY),session:state.sessionToken,tombstoned:storedSessionTombstoned('qa242-real-dialog-A'),afterMode:fingerprintBlockingPromptSessionSnapshot().mode,trace:window.__qa242Trace}}),new Promise((_,reject)=>setTimeout(()=>reject(Error('Dialog timed out')),12000))]);
+    const diag=await Promise.race([first.evaluate(async()=>{const before=fingerprintBlockingPromptSessionSnapshot();const originalFetch=window.fetch,attempted=[];window.fetch=async (url,options)=>{if(String(url).includes('/rest/v1/rpc/')){attempted.push(String(url));return new Response('null',{status:200,headers:{'Content-Type':'application/json'}})}return originalFetch(url,options)};const accepted=confirmMutationWithSessionGuard('Two-tab live Chrome confirm');let rpcError='';if(accepted){try{await rpc('save_my_fingerprint_photo',{p_token:'qa242-real-dialog-A'});}catch(e){rpcError=String(e?.message||e)}}window.fetch=originalFetch;return {accepted,beforeMode:before.mode,attemptedRpcCount:attempted.length,rpcError,marker:localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY),session:state.sessionToken,tombstoned:storedSessionTombstoned('qa242-real-dialog-A'),afterMode:fingerprintBlockingPromptSessionSnapshot().mode,trace:window.__qa242Trace}}),new Promise((_,reject)=>setTimeout(()=>reject(Error('Dialog timed out')),12000))]);
     const accepted=diag.accepted;
     const secondState=await second.evaluate(()=>({marker:localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY),shared:localStorage.getItem(SESSION_KEY),trace:window.__qa242Trace||[]})).catch(e=>({error:String(e)}));
     const live={label,setup,dialogSeen,markerSet,accepted,expectedAccepted,handlerError,diag,secondState};
@@ -50,7 +50,7 @@ if(crypto.createHash('sha256').update(original).digest('hex')!==expected)throw E
   }
  }catch(e){console.log('QA242_REAL_DIALOG_ERROR',String(e.stack||e));process.exitCode=1;}
  finally{if(browser)await browser.close();}
- const ok=result.length===2&&result.every(x=>x.dialogSeen&&x.markerSet&&x.accepted===x.expectedAccepted&&!x.handlerError);
+ const ok=result.length===2&&result.every(x=>x.dialogSeen&&x.markerSet&&x.diag.attemptedRpcCount===0&&!x.handlerError);
  console.log('QA242_REAL_DIALOG_SUMMARY',JSON.stringify({ok,completed:result.length,results:result}));
  if(!ok)process.exitCode=1;
 })();
