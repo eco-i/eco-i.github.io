@@ -1,0 +1,19 @@
+'use strict';
+const fs=require('fs'),crypto=require('crypto');
+const expected='afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5';
+const sha=x=>crypto.createHash('sha256').update(x).digest('hex');
+if(sha(fs.readFileSync('qa-handoff/index.before-2-8-240.html'))!==expected)throw Error('Official starting baseline changed');
+const pairs=[["function adminUnlockMatches(token){\n  return !!token && (storageGet(localStorage,ADMIN_UNLOCK_KEY)===token || storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token);","function adminUnlockMatches(token){\n  return !!token && !storedSessionTombstoned(token) && (storageGet(localStorage,ADMIN_UNLOCK_KEY)===token || storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token);"],["  if(!configured()||!current)return {current,mode:'none'};\n  const tabToken=storageGet(sessionStorage,SESSION_KEY),sharedToken=storageGet(localStorage,SESSION_KEY);","  if(!configured()||!current)return {current,mode:'none'};\n  if(storedSessionTombstoned(current))return {current,mode:'mismatch'};\n  const tabToken=storageGet(sessionStorage,SESSION_KEY),sharedToken=storageGet(localStorage,SESSION_KEY);"],["  if(!configured()||!current)return false;\n  const tabToken=storageGet(sessionStorage,SESSION_KEY);","  if(!configured()||!current)return false;\n  if(storedSessionTombstoned(current))return true;\n  const tabToken=storageGet(sessionStorage,SESSION_KEY);"],["function sharedPersistentSessionMismatch(){\n  const current=String(state.sessionToken||'');\n  const tabToken=storageGet(sessionStorage,SESSION_KEY);","function sharedPersistentSessionMismatch(){\n  const current=String(state.sessionToken||'');\n  if(current&&storedSessionTombstoned(current))return true;\n  const tabToken=storageGet(sessionStorage,SESSION_KEY);"],["function handleSharedSessionStorageChange(e){\n  if(e.storageArea!==localStorage)return;","function handleSharedSessionStorageChange(e){\n  if(e.storageArea!==localStorage)return;\n  // Explicit per-token and legacy aggregate logout signals revoke an already\n  // open tab even when shared localStorage SESSION_KEY itself never changes.\n  if((typeof e.key==='string'&&e.key.startsWith('staffAttendance_updateSessionLogoutToken_v1:'))\n      ||e.key==='staffAttendance_updateSessionLogout_v1'){\n    const current=String(state.sessionToken||'');\n    if(current&&storedSessionTombstoned(current)){\n      clearDeferredAdminDraftUnlockProof();\n      void logout(false);\n    }\n    return;\n  }"],["function sessionContextCurrent(actor,token,{allowInitialPin=false,epoch=null}={}){ return (epoch===null||Number(epoch)===sessionContextEpoch)&&!!state.me&&Number(state.me.employee_id)===Number(actor)&&state.sessionToken===token&&(allowInitialPin||!state.initialPinRequired); }","function sessionContextCurrent(actor,token,{allowInitialPin=false,epoch=null}={}){ return (epoch===null||Number(epoch)===sessionContextEpoch)&&!!state.me&&Number(state.me.employee_id)===Number(actor)&&state.sessionToken===token&&!storedSessionTombstoned(token)&&(allowInitialPin||!state.initialPinRequired); }"]];
+const paths=['index.html','qa-handoff/index.working-2-8-240.html'];
+for(const path of paths){
+ let html=fs.readFileSync(path,'utf8'),changes=0;
+ for(const [before,after] of pairs){
+  if(html.includes(after)){if(html.includes(before))throw Error('Mixed-source patch state '+path);continue;}
+  if(html.split(before).length!==2)throw Error('Nonunique source patch '+path+' '+before.slice(0,60));
+  html=html.replace(before,after);changes++;
+ }
+ if(!html.includes("ver20260927-0944"))throw Error('App version changed');
+ fs.writeFileSync(path,html);
+ console.log('QA240_PATCHED',JSON.stringify({path,changes,sha256:sha(html),bytes:Buffer.byteLength(html)}));
+}
+if(!fs.readFileSync(paths[0]).equals(fs.readFileSync(paths[1])))throw Error('Root/working divergence');
