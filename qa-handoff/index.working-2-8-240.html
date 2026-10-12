@@ -1991,7 +1991,7 @@ function sessionIsPersistent(token=storedSessionToken()){
   return MOBILE_SESSION_DEVICE || storageGet(localStorage,PC_REMEMBER_KEY)==='1';
 }
 function adminUnlockMatches(token){
-  return !!token && (storageGet(localStorage,ADMIN_UNLOCK_KEY)===token || storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token);
+  return !!token && !storedSessionTombstoned(token) && (storageGet(localStorage,ADMIN_UNLOCK_KEY)===token || storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token);
 }
 function clearAdminUnlock(){
   storageRemove(localStorage,ADMIN_UNLOCK_KEY);
@@ -2508,7 +2508,7 @@ function invalidateSessionBoundLoads(){
   detailRecordBaseline={key:null,holiday:null,overtime:null,memo:null}; annualLeaveSourceSnapshot=null; longServiceSourceSnapshot=null;
   loginAttemptSeq++; loginPending=false; if($('loginBtn'))$('loginBtn').disabled=false; state.refreshing=false; refreshPendingOwner=0; auditLoading=false; auditCatchupDeferred=false; deferredAdminUnlockRestoreToken=''; clearDeferredAdminDraftUnlockProof(); setDataManagementBusy(false); pendingMyDataRestore=null; pendingAdminDataRestore=null; memoListBackendReady=null; holidayWorkListBackendReady=null; state.accountStatusBackendReady=null; state.accountStatusPersonnelAuthoritative=null; state.attendanceAnnualLeaveBackendReady=null; state.holidayWorkEligibilityReady=null; state.personnelBackendReady=null; state.personnelSnapshotBackendReady=null;
 }
-function sessionContextCurrent(actor,token,{allowInitialPin=false,epoch=null}={}){ return (epoch===null||Number(epoch)===sessionContextEpoch)&&!!state.me&&Number(state.me.employee_id)===Number(actor)&&state.sessionToken===token&&(allowInitialPin||!state.initialPinRequired); }
+function sessionContextCurrent(actor,token,{allowInitialPin=false,epoch=null}={}){ return (epoch===null||Number(epoch)===sessionContextEpoch)&&!!state.me&&Number(state.me.employee_id)===Number(actor)&&state.sessionToken===token&&!storedSessionTombstoned(token)&&(allowInitialPin||!state.initialPinRequired); }
 function sharedSessionTokenCurrent(token){
   if(String(state.sessionToken||'')!==String(token||''))return false;
   // PC 탭 전용 sessionStorage 로그인은 다른 탭의 shared localStorage와 독립이다.
@@ -6067,6 +6067,7 @@ function fingerprintPickerStillCurrent(ctx){
 function fingerprintBlockingPromptSessionSnapshot(options={}){
   const current=String(state.sessionToken||'');
   if(!configured()||!current)return {current,mode:'none'};
+  if(storedSessionTombstoned(current))return {current,mode:'mismatch'};
   const tabToken=storageGet(sessionStorage,SESSION_KEY),sharedToken=storageGet(localStorage,SESSION_KEY);
   // PC 기본 로그인은 탭 전용이므로 다른 탭의 localStorage 로그인 변경과 분리합니다.
   // 모바일/PC 로그인 유지는 localStorage 공유 세션이므로 blocking confirm 전후의 실제 저장소 값을 직접 비교합니다.
@@ -6087,6 +6088,7 @@ function fingerprintScheduleSharedSessionReconcile(){
 function fingerprintCurrentSharedSessionMismatch(){
   const current=String(state.sessionToken||'');
   if(!configured()||!current)return false;
+  if(storedSessionTombstoned(current))return true;
   const tabToken=storageGet(sessionStorage,SESSION_KEY);
   // PC 기본 sessionStorage 세션은 탭별 독립이므로 다른 탭의 공유 로그인과 분리합니다.
   if(!MOBILE_SESSION_DEVICE&&tabToken===current)return false;
@@ -11066,6 +11068,7 @@ async function changeOwnPin(){
 
 function sharedPersistentSessionMismatch(){
   const current=String(state.sessionToken||'');
+  if(current&&storedSessionTombstoned(current))return true;
   const tabToken=storageGet(sessionStorage,SESSION_KEY);
   // PC의 기본 세션(sessionStorage)은 탭별 독립 로그인을 허용하므로 다른 탭의 localStorage 변화와 분리한다.
   if(!MOBILE_SESSION_DEVICE && current && tabToken===current){ sharedSessionChangePending=false; sharedSessionUnsavedDeferred=false; sharedSessionDeferredTargetToken=''; clearDeferredAdminDraftUnlockProof(); return false; }
@@ -11127,6 +11130,17 @@ function reconcileSharedSessionIfNeeded(){
 }
 function handleSharedSessionStorageChange(e){
   if(e.storageArea!==localStorage)return;
+  // Explicit per-token and legacy aggregate logout signals revoke an already
+  // open tab even when shared localStorage SESSION_KEY itself never changes.
+  if((typeof e.key==='string'&&e.key.startsWith('staffAttendance_updateSessionLogoutToken_v1:'))
+      ||e.key==='staffAttendance_updateSessionLogout_v1'){
+    const current=String(state.sessionToken||'');
+    if(current&&storedSessionTombstoned(current)){
+      clearDeferredAdminDraftUnlockProof();
+      void logout(false);
+    }
+    return;
+  }
   // A different tab's localStorage.clear() emits key===null without a
   // separate SESSION_KEY removal event. Revoke the stale shared role/UI.
   // A desktop tab-only login is isolated from shared localStorage changes.
