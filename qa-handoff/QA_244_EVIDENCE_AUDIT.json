@@ -1,0 +1,110 @@
+{
+  "block": "2-8-244",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_round": 2,
+  "depth": 8,
+  "prior_completed": "2-8-243",
+  "next_block": "2-8-245",
+  "official_defects_before": 522,
+  "new_product_defects": 3,
+  "cumulative_defects": 525,
+  "first_qa_activity_kst": "2026-10-12T23:34:17+09:00",
+  "completed_kst": "2026-10-12T23:56:10+09:00",
+  "confirmed_20_min_actual_qa": true,
+  "baseline_sha256": "fce60b1d8932c5f4d4b232d1c1cd319a13bf2b4f265aec05f0424e3b7d64e8b4",
+  "baseline_bytes": 1167315,
+  "final_sha256": "9bfce02ca8be15ae1a59eebec2d3b05d1563784719ebec6308b7537e8fb9d9ab",
+  "final_bytes": 1168824,
+  "defects": [
+    {
+      "kind": "product",
+      "name": "Ordinary business read RPC not blocked by mandatory initial PIN gate",
+      "red_ci": 38264305073,
+      "green_ci": 38264680384,
+      "red_mobile_sent": 1,
+      "red_pc_sent": 1,
+      "green_sent": 0,
+      "legitimate_pin_status_read_maintained": true
+    },
+    {
+      "kind": "product",
+      "name": "Administrator privilege RPC sent after local admin unlock revocation",
+      "red_ci": 38264305073,
+      "green_ci": 38264680384,
+      "red_mobile_sent": 1,
+      "red_pc_sent": 1,
+      "green_sent": 0,
+      "valid_admin_still_allowed": true
+    },
+    {
+      "kind": "product",
+      "name": "Late privileged RPC response returned after admin unlock lost in flight",
+      "red_ci": 38265124479,
+      "green_ci": 38265400195,
+      "red_mobile_returned": true,
+      "red_pc_returned": true,
+      "green_revoked_returned": false,
+      "valid_admin_response_maintained": true
+    }
+  ],
+  "scoped_chromium": {
+    "authority_ci": 38265400457,
+    "authority_passed": 12,
+    "authority_failed": 0,
+    "admin_response_ci": 38265400195,
+    "admin_response_passed": 6,
+    "admin_response_failed": 0
+  },
+  "final_chromium": [
+    {
+      "id": 38266109470,
+      "passed": 203,
+      "failed": 0,
+      "sha256": "9bfce02ca8be15ae1a59eebec2d3b05d1563784719ebec6308b7537e8fb9d9ab"
+    },
+    {
+      "id": 38266345029,
+      "passed": 203,
+      "failed": 0,
+      "sha256": "9bfce02ca8be15ae1a59eebec2d3b05d1563784719ebec6308b7537e8fb9d9ab"
+    }
+  ],
+  "integrity": {
+    "id": 38266038263,
+    "passed": true,
+    "source_hunks": 8,
+    "approved_old_lines_removed": 6,
+    "inline_scripts": 2,
+    "unique_dom_ids": 457
+  },
+  "tested": {
+    "headless_chromium": true,
+    "mobile_emulation": true,
+    "real_two_tab_browser_regression": true,
+    "web_locks": true,
+    "shift_cases": 2920,
+    "leave_fuzz": 500,
+    "viewports": [
+      320,
+      360,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ]
+  },
+  "limits": [
+    "No production Supabase/RLS",
+    "No authenticated backend multiuser",
+    "No native Android physical camera/file chooser",
+    "No iOS Safari",
+    "No confirmed persisted BFCache",
+    "No production backup/restore"
+  ],
+  "version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_modified": false,
+  "deployed": false
+}

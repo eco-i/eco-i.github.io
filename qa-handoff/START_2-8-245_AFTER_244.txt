@@ -1,0 +1,7 @@
+★★★근무모아 다음 2-8-245 시작 인계★★★
+마지막 공식 완료 2-8-244, 다음 2-8-245, 누적 제품 결함 525종.
+qa-2-8 기준본 qa-handoff/index.before-2-8-245.html SHA-256 9bfce02ca8be15ae1a59eebec2d3b05d1563784719ebec6308b7537e8fb9d9ab, 1168824 bytes.
+244에서 제품 결함 3종 발견/수정: PIN 변경 게이트 일반 read RPC 차단, admin unlock 폐기 후 권한 RPC 전송 차단, admin 응답 도착 전 권한 폐기 시 늦은 민감 결과 차단.
+2차·깊이8, High, 실제 최소20분 및 20분 이내 중간보고 필수, 신규 버전/SQL/main/실배포 금지.
+Chromium 최종 SHA 고정 203 PASS/0 FAIL 2회, 집중 12+6 PASS, SHA/diff 무결성 통과.
+근거 CURRENT_STATE.json / START_HERE_NEW_CHAT.md / QA_2-8-244_REPORT.md 등 GitHub qa-handoff 직접 참고. ZIP 불필요.
