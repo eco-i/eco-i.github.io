@@ -3199,6 +3199,10 @@ async function rpc(name, payload={}, options={}){
   let timeoutId=null;
   if(controller) timeoutId=setTimeout(()=>controller.abort(),timeoutMs);
   try{
+    // Cross-renderer storage writes can become visible after the async-task
+    // preflight but before fetch begins. Re-read administrator authority at
+    // the last possible synchronous boundary, immediately before network send.
+    if(mutationRpc||sensitiveRpc||ADMIN_PRIVILEGED_READ_RPCS.has(String(name||'')))guardAdminPrivilegeRpcSession(name,options);
     const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
       method:'POST',
       headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`,'Content-Type':'application/json'},
