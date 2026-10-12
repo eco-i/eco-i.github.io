@@ -588,8 +588,8 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
   const afterDelayedLogout=await reentry.evaluate(()=>({token:state.sessionToken,actor:state.me?.employee_id,stored:sessionStorage.getItem(SESSION_KEY)}));
   check('Delayed old logout cannot clear new authenticated state',
     ()=>replacedState.token==='qa239-next-session'&&afterDelayedLogout.token==='qa239-next-session'&&afterDelayedLogout.actor===2);
-  check('Queued old logout cannot delete a fresh PC tab-only session token',()=>replacedState.stored==='qa239-next-session'&&afterDelayedLogout.stored==='qa239-next-session');
   console.log('QA239_REENTRY',JSON.stringify({replacedState,afterDelayedLogout}));
+  check('Queued old logout cannot delete a fresh PC tab-only session token',()=>replacedState.stored==='qa239-next-session'&&afterDelayedLogout.stored==='qa239-next-session');
   await reentryContext.close();
 
   // 236: On mobile browsers without Web Locks, logout must not resurrect a
