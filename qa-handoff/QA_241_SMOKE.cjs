@@ -1613,6 +1613,49 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa241-live
        !newShared.mismatch&&!newShared.sensitive&&newShared.snapshot==='shared'&&newShared.asyncOwner);
   await cleanMobileCtx.close();
 
+  // 241: Four actual mobile tabs, with storage event delivery and no
+  // backend fixture dependency, must collectively revoke a suppressed A.
+  const suppressionFanoutCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const suppressionFanoutTabs=await Promise.all(Array.from({length:4},()=>suppressionFanoutCtx.newPage()));
+  for(const tab of suppressionFanoutTabs){
+    await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  }
+  await Promise.all(suppressionFanoutTabs.map(tab=>tab.waitForTimeout(350)));
+  await suppressionFanoutTabs[0].evaluate(()=>localStorage.setItem(SESSION_KEY,'qa241-four-tabs-old-A'));
+  for(let i=0;i<3;i++){
+    await suppressionFanoutTabs[i].evaluate(({i})=>{
+      state.sessionToken='qa241-four-tabs-old-A';
+      state.me={employee_id:241+i,is_admin:true};
+      document.getElementById('appView').classList.remove('hidden');
+      document.getElementById('loginView').classList.add('hidden');
+      window.addEventListener('storage',event=>{
+        if(event.key===SHARED_SESSION_LOGOUT_SUPPRESSION_KEY){
+          sessionStorage.setItem('__qa241_suppression_event','yes');
+        }
+      });
+    },{i});
+  }
+  const beforeSuppressionFanout=await Promise.all(suppressionFanoutTabs.slice(0,3).map(tab=>tab.evaluate(()=>({
+    token:state.sessionToken,visible:!!state.me?.is_admin&&!document.getElementById('appView').classList.contains('hidden')
+  }))));
+  await suppressionFanoutTabs[3].evaluate(()=>localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa241-four-tabs-old-A'));
+  await suppressionFanoutTabs[0].waitForTimeout(450);
+  const fanoutSuppression=await Promise.all(suppressionFanoutTabs.slice(0,3).map(tab=>tab.evaluate(()=>({
+    received:sessionStorage.getItem('__qa241_suppression_event')==='yes',
+    token:state.sessionToken,
+    visible:!!state.me?.is_admin&&!document.getElementById('appView').classList.contains('hidden'),
+    suppressed:storedSessionTombstoned('qa241-four-tabs-old-A')
+  }))));
+  console.log('QA241_REAL_FOUR_TAB_SUPPRESSION_FANOUT',JSON.stringify({before:beforeSuppressionFanout,after:fanoutSuppression}));
+  check('241 four-tab suppression fixture exposes all three initial old admin views',
+    ()=>beforeSuppressionFanout.every(x=>x.token==='qa241-four-tabs-old-A'&&x.visible));
+  check('241 three actual mobile recipients receive shared logout marker storage event',
+    ()=>fanoutSuppression.every(x=>x.received&&x.suppressed));
+  check('241 shared suppression event synchronously revokes all old administrator views',
+    ()=>fanoutSuppression.every(x=>!x.visible&&!x.token));
+  await suppressionFanoutCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
