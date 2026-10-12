@@ -3026,18 +3026,30 @@ function syncVersionFooter(){
 const SESSION_SENSITIVE_DATA_RPCS=new Set([
   'export_my_data_v1','export_admin_data_v1','preview_data_restore_v2','list_data_safety_backups_v1','preview_safety_backup_restore_v2','preview_admin_reset_data_v2','preview_current_personnel_pin_reset_v1'
 ]);
+const PIN_GATE_IDENTITY_READ_RPCS=new Set(['initial_pin_status_v1','is_initial_pin','get_initial_pin_me_v1','get_me','get_me_personnel_v1']);
 function guardMandatoryInitialPinGateRpc(name){
-  // Once the server requires a PIN reset, protected writes and sensitive
-  // exports must stop even when the old authenticated token remains valid.
-  // Only the actual own-PIN change RPC may proceed through this gate.
-  if(!state.initialPinRequired||String(name||'')==='change_own_pin_v2')return;
+  // While a forced PIN reset is open, only identity/PIN status reads and the
+  // actual own-PIN change may use the old authenticated session.
+  if(!state.initialPinRequired||String(name||'')==='change_own_pin_v2'||PIN_GATE_IDENTITY_READ_RPCS.has(String(name||'')))return;
   const err=new Error('INITIAL_PIN_CHANGE_REQUIRED');
   err.initialPinRequired=true;err.rpcName=String(name||'');
   throw err;
 }
+const ADMIN_PRIVILEGED_SENSITIVE_RPCS=new Set(['export_admin_data_v1','preview_admin_reset_data_v2','preview_current_personnel_pin_reset_v1','list_data_safety_backups_v1','preview_safety_backup_restore_v2']);
+function guardAdminPrivilegeRpcSession(name,options={}){
+  const rpcName=String(name||'');
+  if(!rpcName.startsWith('admin_')&&!ADMIN_PRIVILEGED_SENSITIVE_RPCS.has(rpcName))return;
+  // A privileged workflow must re-check the unlocked administrator session
+  // after asynchronous waits. An approved dirty draft may finish only through
+  // its previously restricted deferred-save RPC path.
+  if(activeAdminMode())return;
+  if(options?.allowDeferredSession===true&&mutationRpcAllowsDeferredSession(rpcName,options)&&deferredAdminDraftUnlockCurrent(state.sessionToken))return;
+  const err=new Error('ADMIN_PERMISSION_REVOKED');err.rpcName=rpcName;err.adminPermissionRevoked=true;throw err;
+}
 function guardSensitiveDataRpcSession(name,payload={}){
   if(!SESSION_SENSITIVE_DATA_RPCS.has(String(name||'')))return;
   guardMandatoryInitialPinGateRpc(name);
+  guardAdminPrivilegeRpcSession(name);
   const current=String(state.sessionToken||''),payloadToken=String(payload?.p_token||'');
   // 백업/복원 preview처럼 민감한 payload를 주고받는 읽기 RPC도 shared storage 이벤트 처리보다
   // 실제 localStorage 값이 먼저 바뀔 수 있다. RPC 직전 동기 비교로 이전 계정 세션 사용을 막는다.
@@ -3062,6 +3074,7 @@ const SESSION_GUARDED_MUTATION_RPCS=new Set([
 function guardMutationRpcSession(name,payload={},options={}){
   if(!SESSION_GUARDED_MUTATION_RPCS.has(String(name||'')))return;
   guardMandatoryInitialPinGateRpc(name);
+  guardAdminPrivilegeRpcSession(name,options);
   // The account can become read-only while an older RPC is awaiting its
   // browser task. Never send a fresh protected write under a revoked role.
   // A user may still change their own PIN to regain access.
@@ -3107,6 +3120,7 @@ function ordinaryReadSharedSessionOwnershipCurrent(current=state.sessionToken){
 }
 function guardOrdinaryAuthenticatedReadRpcSession(name,payload={}){
   if(!ordinaryAuthenticatedReadRpc(name,payload))return;
+  guardMandatoryInitialPinGateRpc(name);
   const current=String(state.sessionToken||''),payloadToken=String(payload?.p_token||'');
   // 일반 조회도 storage 이벤트가 오기 전에 shared localStorage가 먼저 바뀔 수 있다.
   // 응답을 버리는 것만으로는 이전 계정 토큰의 조회 자체가 이미 전송되므로, 요청 직전 동기 비교로 차단한다.
