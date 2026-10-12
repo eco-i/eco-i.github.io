@@ -1,0 +1,27 @@
+name: QA 2-8-241 build baseline and Chromium suite
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-241-build.yml"
+      - "qa-handoff/QA_241_BUILD.cjs"
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+      - name: Assemble baseline and actual Chromium suite
+        run: node qa-handoff/QA_241_BUILD.cjs
+      - name: Commit QA-only files safely
+        run: |
+          git diff --check
+          git add qa-handoff/index.working-2-8-241.html qa-handoff/QA_241_SMOKE.cjs
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'qa(2-8-241): initialize immutable baseline and full browser regression'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
