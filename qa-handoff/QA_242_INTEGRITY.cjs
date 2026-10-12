@@ -10,10 +10,13 @@ const current=JSON.parse(fs.readFileSync('qa-handoff/CURRENT_STATE.json','utf8')
 const record={baseline_sha256:sha(before),candidate_sha256:sha(after),baseline_bytes:before.length,candidate_bytes:after.length,official_prior_block:current.last_completed_block,official_next_block:current.next_block};
 assert.strictEqual(record.baseline_sha256,'1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5');
 assert.strictEqual(record.baseline_bytes,1165130);
-assert.strictEqual(record.candidate_sha256,'1470edc999ddb92559b47c07dd91949a150cbcc936829f608c6a4572f78829d6');
-assert.strictEqual(record.candidate_bytes,1165399);
+assert.strictEqual(record.candidate_sha256,'c685f8a453b556f6c52ac317b00de432471278aefb0fd2b0f686f7ffbb987082');
+assert.strictEqual(record.candidate_bytes,1165913);
 assert.strictEqual(b.split(source).length,2,'only one matching original code block');
-assert.strictEqual(a,b.replace(source,target),'ONLY the agreed fix differs');
+const rpcAnchor="  // 개별 호출이 별도 timeout을 지정하지 않아도 모바일 네트워크 half-open/정체 때문에";
+const rpcInsertion="  // Native confirm/prompt may resume before another renderer's StorageEvent is delivered.\\n  // Yield one browser task before any authenticated RPC and repeat every ownership fence;\\n  // never send an old-token request merely because synchronous localStorage was stale.\\n  if(responseGuardedRpc){\\n    await new Promise(resolve=>setTimeout(resolve,0));\\n    guardSensitiveDataRpcSession(name,payload);\\n    guardMutationRpcSession(name,payload,options);\\n    guardOrdinaryAuthenticatedReadRpcSession(name,payload);\\n  }\\n";
+assert.strictEqual(b.split(rpcAnchor).length,2,'only one matching original RPC anchor');
+assert.strictEqual(a,b.replace(source,target).replace(rpcAnchor,rpcInsertion+rpcAnchor),'ONLY two vetted security fixes differ');
 assert.strictEqual(current.last_completed_block,'2-8-241','242 not yet officially completed');
 assert.strictEqual(current.next_block,'2-8-242');
 assert.strictEqual(current.cumulative_defects,517);
@@ -22,4 +25,4 @@ const scripts=[...a.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(
 assert(scripts.length>=2);for(const code of scripts)new vm.Script(code);
 const staticIds=[...a.slice(0,a.indexOf('<script async src=')).matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]);
 assert.strictEqual(staticIds.length,new Set(staticIds).size,'no duplicate DOM IDs');
-console.log('QA242_INTEGRITY_PASS',JSON.stringify({...record,inline_scripts:scripts.length,unique_static_dom_ids:staticIds.length,source_delta_only_one_anchor:true}));
+console.log('QA242_INTEGRITY_PASS',JSON.stringify({...record,inline_scripts:scripts.length,unique_static_dom_ids:staticIds.length,source_delta_only_two_anchors:true}));
