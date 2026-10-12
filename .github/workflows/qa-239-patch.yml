@@ -1,0 +1,29 @@
+name: QA 2-8-239 scoped mobile session migration fix
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-239-patch.yml"
+      - "qa-handoff/QA_239_PATCH.cjs"
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+      - name: Apply exact scoped old-mobile-token migration guard
+        run: node qa-handoff/QA_239_PATCH.cjs
+      - name: Validate and commit candidate on QA branch only
+        run: |
+          git diff --check
+          git add index.html qa-handoff/index.working-2-8-239.html
+          git diff --cached --stat
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'fix(2-8-239): refuse old mobile session promotion after newer logout'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
