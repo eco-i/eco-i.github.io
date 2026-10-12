@@ -1,3 +1,4 @@
+# QA245 final clean-branch source/SHA recheck before 245 official handoff
 name: QA 2-8-245 immutable source integrity
 on:
   push:
