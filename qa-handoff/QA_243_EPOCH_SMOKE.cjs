@@ -48,10 +48,18 @@ const results=[];
       let pinError='';
       try{await rpc('change_own_pin_v2',{p_token:token,p_old_pin:'0000',p_new_pin:'1357'})}catch(e){pinError=String(e.message||e)}
       const afterPinSent=captured.length;
+      // A concurrent authoritative account lock may arrive while another
+      // protected RPC is parked at the QA242 browser-task boundary.
+      setInitialPinGateUI(false);
+      state.me.is_read_only=false;state.me.is_disabled=false;
+      setTimeout(()=>{state.me.is_read_only=true;state.me.personnel_account_status='readonly'},0);
+      let readOnlyWriteError='';
+      try{await rpc('save_my_memo_v2',{p_token:token,p_memo_date:'2026-10-12',p_memo:'read only must not send'})}catch(e){readOnlyWriteError=String(e.message||e)}
+      const afterReadOnlySent=captured.length;
       window.configured=originalConfigured;window.fetch=originalFetch;
-      return {mode,epochBefore,epochAfter,gateOk,gateError,gateRequired,duringGateSent,afterGateRestrictedSent,afterPinSent,rpcError,pinError,gatedWriteError,gatedExportError,captured:captured.map(x=>x.url.slice(-60))};
+      return {mode,epochBefore,epochAfter,gateOk,gateError,gateRequired,duringGateSent,afterGateRestrictedSent,afterPinSent,afterReadOnlySent,rpcError,pinError,gatedWriteError,gatedExportError,readOnlyWriteError,captured:captured.map(x=>x.url.slice(-60))};
    },mode);
-   const ok=observed.gateOk===true&&observed.gateRequired&&observed.epochAfter>observed.epochBefore&&observed.duringGateSent===0&&observed.afterGateRestrictedSent===0&&observed.afterPinSent===1&&!observed.gateError;
+   const ok=observed.gateOk===true&&observed.gateRequired&&observed.epochAfter>observed.epochBefore&&observed.duringGateSent===0&&observed.afterGateRestrictedSent===0&&observed.afterPinSent===1&&observed.afterReadOnlySent===1&&!observed.gateError;
    results.push({ok,...observed,pageErrors:errors});
    console.log('QA243_EPOCH_GATE_'+(ok?'PASS':'FAIL'),JSON.stringify({ok,...observed,pageErrors:errors}));
    await ctx.close();
