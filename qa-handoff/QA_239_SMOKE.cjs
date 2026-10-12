@@ -1202,6 +1202,34 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
   check('Legacy aggregate logout tombstone also blocks mobile restoration',()=>oldFormat.mobile&&!oldFormat.before&&oldFormat.ran&&!oldFormat.after&&!oldFormat.shared);
   await aggregateCtx.close();
 
+  // 239: In older mobile WebViews without navigator.locks, boot migration
+  // is deliberately skipped; even so early token selection must reject
+  // an explicitly logged-out legacy token, including after real reload.
+  const noLocksCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  await noLocksCtx.addInitScript(()=>{try{Object.defineProperty(navigator,'locks',{configurable:true,value:null});}catch(_){}});
+  const noLocksPage=await noLocksCtx.newPage();
+  await noLocksPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await noLocksPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  await noLocksPage.evaluate(()=>{
+    const token='qa239-no-weblocks-revoked-A';
+    sessionStorage.setItem(SESSION_KEY,token);
+    sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+    markUpdateHandoffLoggedOut(token);
+  });
+  await noLocksPage.reload({waitUntil:'domcontentloaded'});
+  await noLocksPage.waitForTimeout(200);
+  const noLocksBoot=await noLocksPage.evaluate(()=>({
+    locksUnavailable:!navigator.locks?.request,mobile:MOBILE_SESSION_DEVICE,
+    selected:storedSessionToken(),state:state.sessionToken,
+    appVisible:!document.getElementById('appView').classList.contains('hidden'),
+    admin:state.me?.is_admin||false
+  }));
+  console.log('QA239_NO_WEBLOCKS_TOMBSTONE_BOOT',JSON.stringify(noLocksBoot));
+  check('Mobile Web Locks unavailable still denies tombstoned session restore',()=>noLocksBoot.locksUnavailable&&noLocksBoot.mobile&&!noLocksBoot.selected&&!noLocksBoot.state&&!noLocksBoot.admin&&!noLocksBoot.appVisible);
+  await noLocksCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
