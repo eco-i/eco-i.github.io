@@ -1,0 +1,95 @@
+{
+  "block": "2-8-239",
+  "status": "COMPLETE",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "mode": "High",
+  "previous": "2-8-238",
+  "next": "2-8-240",
+  "previous_official_defects": 512,
+  "new_product_defects": 3,
+  "cumulative_product_defects": 515,
+  "baseline_sha256": "1292955d4ae7fd90c3bcf8e6ccc6d5ea9595bd9d34215e27aa06baa98dd98360",
+  "baseline_bytes": 1161777,
+  "final_sha256": "afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5",
+  "final_bytes": 1164059,
+  "first_qa_run_kst": "2026-10-12T11:19:15+09:00",
+  "completed_kst": "2026-10-12T11:45:01+09:00",
+  "red_runs": [
+    {
+      "id": 38195496271,
+      "kind": "product",
+      "finding": "Shared logout marker B ignored by legacy mobile tab A promotion after exclusive Web Lock"
+    },
+    {
+      "id": 38195737908,
+      "kind": "product",
+      "finding": "Exact token A tombstone ignored by boot selection and mobile legacy migration"
+    },
+    {
+      "id": 38196547217,
+      "kind": "product",
+      "finding": "Queued cleanup of old PC logout removed a freshly stored independent PC tab token and admin unlock"
+    }
+  ],
+  "nonproduct_failures": [
+    {
+      "id": 38195422429,
+      "reason": "Unheld browser Web Lock made migration probe a no-op"
+    },
+    {
+      "id": 38196032854,
+      "reason": "Desktop calendar fixture lacked sessionStorage token, causing expected self-reload and aborted evaluation"
+    },
+    {
+      "id": 38196849347,
+      "reason": "Reentry fixture initially omitted persisted PC tab token, masking real delayed old-logout cleanup issue"
+    }
+  ],
+  "final_green_runs": [
+    {
+      "id": 38196759672,
+      "passed": 163,
+      "failed": 0,
+      "sha256": "afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5"
+    },
+    {
+      "id": 38196849347,
+      "passed": 163,
+      "failed": 0,
+      "sha256": "afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5"
+    }
+  ],
+  "coverage": {
+    "real_chromium": true,
+    "mobile_legacy_migration": true,
+    "token_specific_tombstones": true,
+    "legacy_aggregate_tombstones": true,
+    "android_user_agent_emulation": true,
+    "web_locks_present_and_absent": true,
+    "clock_skew_future_tombstone": true,
+    "two_tab_and_four_tab_web_locks": true,
+    "shift_cases": 2920,
+    "annual_fuzz_sets": 500,
+    "token_priority_matrix": 72,
+    "authenticated_calendar_october_days": 31,
+    "authenticated_calendar_widths": [
+      320,
+      360,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ],
+    "png_to_jpeg": true,
+    "physical_android_native_camera": false,
+    "live_supabase_rls": false,
+    "real_backend_authenticated_multiuser": false,
+    "ios_safari": false,
+    "confirmed_bfcache_persisted": false
+  },
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false
+}
