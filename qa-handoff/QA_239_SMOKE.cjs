@@ -1132,6 +1132,28 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
   check('Actual mobile legacy-only admin unlock safely migrates',()=>migrationPositives.genuine.admin==='qa239-real-legacy-A');
   check('Actual newer mobile shared login C remains intact over stale legacy A',()=>migrationPositives.newer.ran&&migrationPositives.newer.token==='qa239-newer-shared-C'&&migrationPositives.newer.shared==='qa239-newer-shared-C'&&!migrationPositives.newer.tab&&migrationPositives.newer.admin!=='qa239-stale-A');
   check('Suppressed mobile shared B never promotes unrelated legacy A',()=>migrationPositives.suppressed.ran&&!migrationPositives.suppressed.token&&migrationPositives.suppressed.admin!=='qa239-stale-A'&&!migrationPositives.suppressed.tab);
+  // Token-specific logout tombstones are a second revocation source. Even
+  // if a shared suppression marker was cleared, a stale mobile tab token
+  // cannot be migrated into a fresh shared login behind that tombstone.
+  const tombstoneMigration=await migrationPage.evaluate(async()=>{
+    const token='qa239-logged-out-tombstone-A';
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(ADMIN_UNLOCK_KEY);
+    localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+    sessionStorage.setItem(SESSION_KEY,token);
+    sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);
+    markUpdateHandoffLoggedOut(token);
+    const revocation=updateHandoffTokenWasLoggedOut(token);
+    const before=storedSessionToken();
+    const ran=await withBrowserSharedSessionLock(()=>migrateLegacySessionForDevice());
+    return {revocation,before,ran,after:storedSessionToken(),shared:localStorage.getItem(SESSION_KEY),
+      admin:localStorage.getItem(ADMIN_UNLOCK_KEY)};
+  });
+  console.log('QA239_TOMBSTONED_LEGACY_MIGRATION',JSON.stringify(tombstoneMigration));
+  check('Revoked mobile legacy token must not be re-promoted from tombstone',
+    ()=>tombstoneMigration.revocation&&tombstoneMigration.ran&&!tombstoneMigration.after&&!tombstoneMigration.shared);
+  check('Revoked mobile admin unlock remains suppressed by token-specific tombstone',
+    ()=>tombstoneMigration.admin!=='qa239-logged-out-tombstone-A');
   await migrationCtx.close();
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
