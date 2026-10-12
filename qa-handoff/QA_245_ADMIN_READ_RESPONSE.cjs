@@ -29,13 +29,17 @@ const html=fs.readFileSync('qa-handoff/index.working-2-8-245.html','utf8'),out=[
         };
         const response=rpc(name,{p_token:token}).then(value=>({returned:true,value}),e=>({returned:false,error:String(e?.message||e)}));
         await Promise.race([started,new Promise((_,reject)=>setTimeout(()=>reject(Error('fetch never started')),5000))]);
-        if(revoked){localStorage.removeItem(ADMIN_UNLOCK_KEY);sessionStorage.removeItem(ADMIN_UNLOCK_KEY)}
+        if(revoked==='unlock'){localStorage.removeItem(ADMIN_UNLOCK_KEY);sessionStorage.removeItem(ADMIN_UNLOCK_KEY)}
+        if(revoked==='readonly')state.me.is_read_only=true;
+        if(revoked==='demoted')state.me.is_admin=false;
         release();
         const resolved=await response;
-        if(revoked){if(mode==='desktop')sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);else localStorage.setItem(ADMIN_UNLOCK_KEY,token)}
+        if(revoked==='unlock'){if(mode==='desktop')sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);else localStorage.setItem(ADMIN_UNLOCK_KEY,token)}
+        if(revoked==='readonly')state.me.is_read_only=false;
+        if(revoked==='demoted')state.me.is_admin=true;
         return {name,revoked,...resolved};
       }
-      const cases=[await test('list_recent_audit_page',true),await test('list_personnel_snapshots',true),await test('get_capacity_usage',true),await test('list_recent_audit_page',false),await test('list_my_memos',false)];
+      const cases=[await test('list_recent_audit_page','unlock'),await test('list_personnel_snapshots','unlock'),await test('get_capacity_usage','unlock'),await test('list_employee_pin_status','readonly'),await test('get_personnel_change_impacts','readonly'),await test('list_recent_audit_page','demoted'),await test('list_personnel_snapshots','demoted'),await test('list_recent_audit_page',false),await test('get_capacity_usage',false),await test('list_my_memos',false)];
       window.fetch=oldFetch;window.configured=oldConfigured;
       return {mode,cases};
     },mode);
