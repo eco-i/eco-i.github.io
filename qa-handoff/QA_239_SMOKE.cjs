@@ -1230,6 +1230,31 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
   check('Mobile Web Locks unavailable still denies tombstoned session restore',()=>noLocksBoot.locksUnavailable&&noLocksBoot.mobile&&!noLocksBoot.selected&&!noLocksBoot.state&&!noLocksBoot.admin&&!noLocksBoot.appVisible);
   await noLocksCtx.close();
 
+  // 239: Tombstones are token-specific. A clock moving backward must not
+  // resurrect revoked A; unrelated live C and PC tab-only sessions remain.
+  const skewCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const skewPage=await skewCtx.newPage();
+  await skewPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await skewPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const skew=await skewPage.evaluate(()=>{
+    const revoked='qa239-skew-revoked-A',unrelated='qa239-new-session-C';
+    localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.setItem('staffAttendance_updateSessionLogoutToken_v1:'+encodeURIComponent(revoked),String(Date.now()+3600000));
+    sessionStorage.setItem(SESSION_KEY,revoked);
+    const futureRevoked=storedSessionToken();
+    sessionStorage.setItem(SESSION_KEY,unrelated);
+    const unrelatedAllowed=storedSessionToken();
+    localStorage.setItem(SESSION_KEY,unrelated);
+    const sharedNewer=storedSessionToken();
+    return {mobile:MOBILE_SESSION_DEVICE,futureRevoked,unrelatedAllowed,sharedNewer};
+  });
+  console.log('QA239_TOMBSTONE_CLOCK_SKEW',JSON.stringify(skew));
+  check('Future-dated logout tombstone remains revoking mobile legacy A',()=>skew.mobile&&!skew.futureRevoked);
+  check('Unrelated mobile legacy C remains eligible despite A tombstone',()=>skew.unrelatedAllowed==='qa239-new-session-C');
+  check('Unrelated newer shared C stays authenticated despite A tombstone',()=>skew.sharedNewer==='qa239-new-session-C');
+  await skewCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
