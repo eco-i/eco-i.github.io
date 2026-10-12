@@ -1,0 +1,22 @@
+name: QA 2-8-242 immutable source and one-hunk patch integrity
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-242-integrity.yml"
+      - "qa-handoff/QA_242_INTEGRITY.cjs"
+      - "qa-handoff/index.working-2-8-242.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Full source byte-for-byte independent patch proof
+        run: node qa-handoff/QA_242_INTEGRITY.cjs
