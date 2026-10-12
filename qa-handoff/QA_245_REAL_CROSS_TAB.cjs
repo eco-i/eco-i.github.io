@@ -21,7 +21,7 @@ for(const mode of ['mobile','desktop']){
  first.once('dialog',async dialog=>{dialogSeen=true;try{removed=await second.evaluate(()=>{localStorage.removeItem(ADMIN_UNLOCK_KEY);return localStorage.getItem(ADMIN_UNLOCK_KEY)===null});}catch(e){handlerError=String(e)}finally{await dialog.accept().catch(()=>{})}});
  const result=await Promise.race([first.evaluate(async()=>{
   const oldFetch=window.fetch;const calls=[];
-  window.fetch=async(url,opts)=>{if(String(url).includes('/rest/v1/rpc/')){calls.push(String(url).split('/').pop());return new Response('null',{status:200,headers:{'Content-Type':'application/json'}})}return oldFetch(url,opts)};
+  window.fetch=async(url,opts)=>{if(String(url).includes('/rest/v1/rpc/')){calls.push({name:String(url).split('/').pop(),unlockAtFetch:adminUnlockMatches(state.sessionToken),localUnlock:localStorage.getItem(ADMIN_UNLOCK_KEY),tabUnlock:sessionStorage.getItem(ADMIN_UNLOCK_KEY)});return new Response('null',{status:200,headers:{'Content-Type':'application/json'}})}return oldFetch(url,opts)};
   const confirmation=confirmMutationWithSessionGuard('QA245 native Chrome administrator confirmation');
   let error='';try{if(confirmation)await rpc('list_recent_audit_page',{p_token:state.sessionToken})}catch(e){error=String(e.message||e)}
   window.fetch=oldFetch;
