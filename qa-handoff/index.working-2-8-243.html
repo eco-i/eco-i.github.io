@@ -3062,6 +3062,13 @@ const SESSION_GUARDED_MUTATION_RPCS=new Set([
 function guardMutationRpcSession(name,payload={},options={}){
   if(!SESSION_GUARDED_MUTATION_RPCS.has(String(name||'')))return;
   guardMandatoryInitialPinGateRpc(name);
+  // The account can become read-only while an older RPC is awaiting its
+  // browser task. Never send a fresh protected write under a revoked role.
+  // A user may still change their own PIN to regain access.
+  if(String(name||'')!=='change_own_pin_v2'&&accountReadOnly()){
+    const err=new Error('ACCOUNT_READ_ONLY');
+    err.rpcMutation=true;err.rpcName=String(name||'');throw err;
+  }
   const current=String(state.sessionToken||''),payloadToken=String(payload?.p_token||'');
   // 호출부가 비동기 최신원본 조회나 호환 경로를 기다리는 동안 세션이 바뀐 경우,
   // 저장소와 현재 state가 이미 새 세션으로 맞춰졌더라도 캡처된 예전 p_token으로 변경 RPC를 보내면 안 된다.
