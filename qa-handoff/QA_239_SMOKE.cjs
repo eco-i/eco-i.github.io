@@ -581,16 +581,18 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
     // A real PC fresh tab-only login writes its token before exposing
     // the new account. An old delayed cleanup must not delete this token.
     sessionStorage.setItem(SESSION_KEY,'qa239-next-session');
-    state.sessionToken='qa239-next-session';state.me={employee_id:2,is_admin:false,display_name:'new'};
-    return {token:state.sessionToken,actor:state.me.employee_id,stored:sessionStorage.getItem(SESSION_KEY)};
+    sessionStorage.setItem(ADMIN_UNLOCK_KEY,'qa239-next-session');
+    state.sessionToken='qa239-next-session';state.me={employee_id:2,is_admin:true,display_name:'new'};
+    return {token:state.sessionToken,actor:state.me.employee_id,stored:sessionStorage.getItem(SESSION_KEY),admin:sessionStorage.getItem(ADMIN_UNLOCK_KEY)};
   });
   await blocker.evaluate(()=>window.__qa239_releaseReentry());
   await reentry.evaluate(()=>window.__qa239_oldSignout);
-  const afterDelayedLogout=await reentry.evaluate(()=>({token:state.sessionToken,actor:state.me?.employee_id,stored:sessionStorage.getItem(SESSION_KEY)}));
+  const afterDelayedLogout=await reentry.evaluate(()=>({token:state.sessionToken,actor:state.me?.employee_id,stored:sessionStorage.getItem(SESSION_KEY),admin:sessionStorage.getItem(ADMIN_UNLOCK_KEY)}));
   check('Delayed old logout cannot clear new authenticated state',
     ()=>replacedState.token==='qa239-next-session'&&afterDelayedLogout.token==='qa239-next-session'&&afterDelayedLogout.actor===2);
   console.log('QA239_REENTRY',JSON.stringify({replacedState,afterDelayedLogout}));
   check('Queued old logout cannot delete a fresh PC tab-only session token',()=>replacedState.stored==='qa239-next-session'&&afterDelayedLogout.stored==='qa239-next-session');
+  check('Queued old logout cannot remove fresh PC tab-only administrator unlock',()=>replacedState.admin==='qa239-next-session'&&afterDelayedLogout.admin==='qa239-next-session');
   await reentryContext.close();
 
   // 236: On mobile browsers without Web Locks, logout must not resurrect a
