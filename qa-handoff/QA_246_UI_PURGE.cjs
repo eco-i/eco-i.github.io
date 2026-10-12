@@ -23,14 +23,14 @@ const html=fs.readFileSync('qa-handoff/index.working-2-8-246.html','utf8');
     for(const id of ['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList']){const el=document.getElementById(id);if(el)el.textContent=secret;}
     return {admin:activeAdminMode(),panels:['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList'].map(id=>!!document.getElementById(id))};
   },{token,secret});
-  await b.evaluate(()=>localStorage.removeItem(ADMIN_UNLOCK_KEY));
+  const removal=await b.evaluate(()=>{const prev=localStorage.getItem(ADMIN_UNLOCK_KEY);localStorage.removeItem(ADMIN_UNLOCK_KEY);return {prev,after:localStorage.getItem(ADMIN_UNLOCK_KEY),storedSession:localStorage.getItem(SESSION_KEY)};});
   await a.waitForTimeout(500);
   const result=await a.evaluate(secret=>{
     const names=['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList'];const remaining=names.filter(id=>document.getElementById(id)?.textContent.includes(secret));
-    return {adminActive:activeAdminMode(),remaining,oldPinStatus:state.pinStatus?.[246],adminToolsHidden:document.getElementById('adminTools')?.classList.contains('hidden'),sessionTokenStillThere:!!state.sessionToken};
+    return {adminActive:activeAdminMode(),remaining,oldPinStatus:state.pinStatus?.[246],localUnlock:localStorage.getItem(ADMIN_UNLOCK_KEY),tabUnlock:sessionStorage.getItem(ADMIN_UNLOCK_KEY),localSession:localStorage.getItem(SESSION_KEY),tabSession:sessionStorage.getItem(SESSION_KEY),adminToolsHidden:document.getElementById('adminTools')?.classList.contains('hidden'),sessionTokenStillThere:!!state.sessionToken};
   },secret);
   const checks={startedAdmin:initial.admin,privilegedPanelsFound:initial.panels.every(Boolean),adminRevoked:!result.adminActive,domSecretPurged:result.remaining.length===0,pinCachePurged:result.oldPinStatus===undefined,adminToolsHidden:result.adminToolsHidden===true,sessionPreserved:result.sessionTokenStillThere,jsNoError:errors.length===0};
-  for(const [name,pass] of Object.entries(checks)){out.push(pass);console.log('QA246_UI_PURGE_'+(pass?'PASS':'FAIL'),label,name,JSON.stringify({initial,result,errors}));}
+  for(const [name,pass] of Object.entries(checks)){out.push(pass);console.log('QA246_UI_PURGE_'+(pass?'PASS':'FAIL'),label,name,JSON.stringify({initial,removal,result,errors}));}
   await ctx.close();
  }
 }catch(e){console.error('QA246_UI_PURGE_HARNESS_ERROR',String(e.stack||e));process.exitCode=1}
