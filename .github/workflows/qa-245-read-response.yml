@@ -1,0 +1,25 @@
+name: QA 2-8-245 Chrome mid-flight administrator read revocation
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-245-read-response.yml"
+      - "qa-handoff/QA_245_ADMIN_READ_RESPONSE.cjs"
+      - "qa-handoff/index.working-2-8-245.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa245rresp --no-audit --no-fund playwright-core@1.55.1
+      - name: Actual Chrome administrator read permissions across async response
+        env:
+          NODE_PATH: /tmp/qa245rresp/node_modules
+        run: node qa-handoff/QA_245_ADMIN_READ_RESPONSE.cjs
