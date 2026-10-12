@@ -1956,14 +1956,32 @@ function scheduleSharedSessionCleanup(token){
   };
   setTimeout(retry,80);
 }
+function storedSessionTombstoned(token){
+  token=String(token||'');if(!token)return false;
+  // This helper also runs during initial state bootstrap, before late
+  // update-handoff constants initialize; read the token-specific key directly.
+  const now=Date.now(),fresh=value=>{
+    const at=Number(value),age=now-at;
+    return Number.isFinite(at)&&at>0&&Number.isFinite(age)&&(age<0||age<=60000);
+  };
+  const tokenKey='staffAttendance_updateSessionLogoutToken_v1:'+encodeURIComponent(token);
+  if(fresh(storageGet(localStorage,tokenKey)))return true;
+  try{
+    const raw=storageGet(localStorage,'staffAttendance_updateSessionLogout_v1');
+    if(!raw)return false;
+    const value=JSON.parse(raw);
+    const entries=Array.isArray(value?.entries)?value.entries:(value?.token?[value]:[]);
+    return entries.some(item=>String(item?.token||'')===token&&fresh(item?.at));
+  }catch(_){return false;}
+}
 function storedSessionToken(){
   const forbidden=storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
   const rawLocal=storageGet(localStorage,SESSION_KEY),rawTab=storageGet(sessionStorage,SESSION_KEY);
   // Logout is never undone by a later boot just because the atomic shared
   // delete could not execute in a Web Locks-unsupported browser. A newer token
   // is not affected because the block applies only to the exact old token.
-  const localToken=rawLocal&&rawLocal!==forbidden?rawLocal:'';
-  const temporaryToken=rawTab&&rawTab!==forbidden?rawTab:'';
+  const localToken=rawLocal&&rawLocal!==forbidden&&!storedSessionTombstoned(rawLocal)?rawLocal:'';
+  const temporaryToken=rawTab&&rawTab!==forbidden&&!storedSessionTombstoned(rawTab)?rawTab:'';
   return MOBILE_SESSION_DEVICE ? (rawLocal ? localToken : (forbidden ? '' : temporaryToken)) : (temporaryToken||localToken);
 }
 function sessionIsPersistent(token=storedSessionToken()){
@@ -2220,6 +2238,16 @@ function migrateLegacySessionForDevice(){
         return true;
       }
       const token=localToken||temporaryToken;
+      // A legacy token with an explicit per-token logout tombstone is never
+      // a valid candidate for migration, regardless of the shared marker.
+      if(token&&storedSessionTombstoned(token)){
+        if(localToken===token)storageRemove(localStorage,SESSION_KEY);
+        if(localAdmin===token)storageRemove(localStorage,ADMIN_UNLOCK_KEY);
+        if(temporaryToken===token)storageRemove(sessionStorage,SESSION_KEY);
+        if(temporaryAdmin===token)storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
+        storageRemove(localStorage,PC_REMEMBER_KEY);
+        return true;
+      }
       if(token){
         if(localToken!==token)storageSet(localStorage,SESSION_KEY,token);
         const tokenMigrated=storageGet(localStorage,SESSION_KEY)===token;
