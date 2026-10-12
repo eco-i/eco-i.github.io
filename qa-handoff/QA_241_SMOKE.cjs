@@ -1691,6 +1691,61 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa241-live
     ()=>!noLockResult.adminUnlock&&!noLockResult.appVisible);
   await noLockCtx.close();
 
+  // 241: PC persistent shared A must be revoked by the same marker fence;
+  // a same-token old PC sessionStorage A is not a separate authenticated user.
+  const revokedPcCtx=await browser.newContext({viewport:{width:1280,height:860}});
+  const revokedPcPage=await revokedPcCtx.newPage();
+  await revokedPcPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await revokedPcPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  await revokedPcPage.waitForTimeout(200);
+  const revokedPc=await revokedPcPage.evaluate(()=>{
+    const previousConfigured=window.configured;window.configured=()=>true;
+    const token='qa241-revoked-pc-shared-A';
+    try{
+      localStorage.setItem(SESSION_KEY,token);
+      localStorage.setItem(PC_REMEMBER_KEY,'1');
+      localStorage.setItem(ADMIN_UNLOCK_KEY,token);
+      sessionStorage.removeItem(SESSION_KEY);
+      state.sessionToken=token;
+      state.me={employee_id:241,is_admin:true};
+      localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,token);
+      const persistent={
+        mobile:MOBILE_SESSION_DEVICE,tokenStored:storedSessionToken(),
+        admin:adminUnlockMatches(token),
+        mismatch:sharedPersistentSessionMismatch(),
+        sensitive:fingerprintCurrentSharedSessionMismatch(),
+        snapshot:fingerprintBlockingPromptSessionSnapshot().mode,
+        sessionContext:sessionContextCurrent(241,token)
+      };
+      const tab='qa241-pc-old-tab-A';
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(PC_REMEMBER_KEY);
+      sessionStorage.setItem(SESSION_KEY,tab);
+      sessionStorage.setItem(ADMIN_UNLOCK_KEY,tab);
+      state.sessionToken=tab;
+      localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,tab);
+      const isolatedSameToken={
+        tokenStored:storedSessionToken(),admin:adminUnlockMatches(tab),
+        mismatch:sharedPersistentSessionMismatch(),
+        sensitive:fingerprintCurrentSharedSessionMismatch(),
+        snapshot:fingerprintBlockingPromptSessionSnapshot().mode,
+        sessionContext:sessionContextCurrent(241,tab)
+      };
+      return {persistent,isolatedSameToken};
+    }finally{window.configured=previousConfigured;}
+  });
+  console.log('QA241_PC_SUPPRESSED_SHARED_AND_SAME_TOKEN_TAB',JSON.stringify(revokedPc));
+  check('241 old persistent PC shared A is blocked by exact logout marker',
+    ()=>!revokedPc.persistent.mobile&&!revokedPc.persistent.tokenStored&&
+       !revokedPc.persistent.admin&&revokedPc.persistent.mismatch&&
+       revokedPc.persistent.sensitive&&revokedPc.persistent.snapshot==='mismatch'&&
+       !revokedPc.persistent.sessionContext);
+  check('241 same-token old PC tab A is revoked even though tab-only login ordinarily isolates',
+    ()=>!revokedPc.isolatedSameToken.tokenStored&&!revokedPc.isolatedSameToken.admin&&
+       revokedPc.isolatedSameToken.mismatch&&revokedPc.isolatedSameToken.sensitive&&
+       revokedPc.isolatedSameToken.snapshot==='mismatch'&&!revokedPc.isolatedSameToken.sessionContext);
+  await revokedPcCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
