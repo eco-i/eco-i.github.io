@@ -24,7 +24,7 @@ const html=fs.readFileSync('qa-handoff/index.working-2-8-246.html','utf8');
     return {admin:activeAdminMode(),panels:['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList'].map(id=>!!document.getElementById(id))};
   },{token,secret});
   let nativeDialogSeen=false,nativeError='';
-  a.once('dialog',async dialog=>{nativeDialogSeen=true;try{await b.evaluate(()=>localStorage.removeItem(ADMIN_UNLOCK_KEY));}catch(e){nativeError=String(e)}finally{await dialog.accept().catch(()=>{})}});
+  a.once('dialog',async dialog=>{nativeDialogSeen=true;try{await b.evaluate(key=>localStorage.removeItem(key),'staffAttendance_admin2_ok_v1');}catch(e){nativeError=String(e)}finally{await dialog.accept().catch(()=>{})}});
   await a.evaluate(()=>confirm('QA246 native Chrome sensitive-cache revocation'));
 
   await a.waitForTimeout(500);
