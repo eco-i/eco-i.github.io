@@ -32,9 +32,10 @@ check('240 immutable official baseline SHA pinned',()=>crypto.createHash('sha256
 check('242 blocking dialog must re-read token tombstone',()=>html.includes('if(storedSessionTombstoned(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}'));
 check('242 candidate differs from immutable 241 baseline',()=>crypto.createHash('sha256').update(html).digest('hex')!==expected);
 check('243 source includes inherited 242 pre-RPC task fence',()=>html.includes('await new Promise(resolve=>setTimeout(resolve,0));'));
-check('243 final candidate SHA-256 pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='26dfabe995980d7984ef5c3ef9d4169973c7f6f2fc3018131046c56ee4b7c7ea');
-check('243 final candidate bytes pinned',()=>Buffer.byteLength(html)===1166366);
+check('243 final candidate SHA-256 pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='09fc064af8a08efe0f8d518bdf6f3f6d23c491c45bfa19626708871730428f5a');
+check('243 final candidate bytes pinned',()=>Buffer.byteLength(html)===1166925);
 check('243 protected RPC fences same-token security epoch after task boundary',()=>html.includes('if(responseOwnerEpoch!==sessionContextEpoch){')&&html.includes('await new Promise(resolve=>setTimeout(resolve,0));')&&html.includes('guardSensitiveDataRpcSession(name,payload);'));
+check('243 mandatory PIN gate protected RPC rejection and own reset exemption present',()=>html.includes('function guardMandatoryInitialPinGateRpc(name)')&&html.includes("String(name||'')==='change_own_pin_v2'")&&html.includes('guardMandatoryInitialPinGateRpc(name);'));
 console.log('QA243_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
