@@ -17,11 +17,12 @@ check('237 officially completed SHA256 pinned',()=>crypto.createHash('sha256').u
 check('Web Locks critical sections applied',()=>html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
 check('Official 238 start baseline immutable',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('238 inherited 237 session security corrections retained',()=>html.includes('if(e.key===null)')&&html.includes('sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken)'))
+check('239 mobile migration hard boundary explicitly coded',()=>html.includes('loggedOutShared&&(!localToken||localToken===loggedOutShared)'));
 check('Previous session-safety correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 check('238 mobile tab-only carveout eliminated',()=>html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return false;")&&html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return {current,mode:'tab'};")&&html.includes("if(!MOBILE_SESSION_DEVICE && current && tabToken===current){ sharedSessionChangePending="));
 check('238 no stale legacy mobile fallback after shared logout',()=>html.includes("rawLocal ? localToken : (forbidden ? '' : temporaryToken)"));
 check('238 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='1292955d4ae7fd90c3bcf8e6ccc6d5ea9595bd9d34215e27aa06baa98dd98360');
-check('239 initial candidate pinned before fixes',()=>crypto.createHash('sha256').update(html).digest('hex')==='1292955d4ae7fd90c3bcf8e6ccc6d5ea9595bd9d34215e27aa06baa98dd98360');
+check('239 verified scoped mobile migration candidate pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='aea27919250b1f80acbcc2ee800b35a2d21f26bc45940fc694e472c71d3c0d22');
 console.log('QA239_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
@@ -1095,6 +1096,42 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
     ()=>migration.mobile&&!migration.initial&&!migration.after&&!migration.shared);
   check('Mobile stale legacy admin unlock not promoted after newer logout',
     ()=>migration.currentAdmin!=='qa239-stale-A');
+  // 239: Preserve genuinely isolated old mobile legacy sessions only when
+  // no newer shared-logout boundary exists; never clobber newer shared C.
+  const migrationPositives=await migrationPage.evaluate(async()=>{
+    const reset=()=>{
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(ADMIN_UNLOCK_KEY);
+      localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(ADMIN_UNLOCK_KEY);
+    };
+    reset();
+    sessionStorage.setItem(SESSION_KEY,'qa239-real-legacy-A');
+    sessionStorage.setItem(ADMIN_UNLOCK_KEY,'qa239-real-legacy-A');
+    const migratedLegacy=await withBrowserSharedSessionLock(()=>migrateLegacySessionForDevice());
+    const genuine={ran:migratedLegacy,token:storedSessionToken(),shared:localStorage.getItem(SESSION_KEY),tab:sessionStorage.getItem(SESSION_KEY),admin:localStorage.getItem(ADMIN_UNLOCK_KEY)};
+    reset();
+    localStorage.setItem(SESSION_KEY,'qa239-newer-shared-C');
+    localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa239-prior-shared-B');
+    sessionStorage.setItem(SESSION_KEY,'qa239-stale-A');
+    sessionStorage.setItem(ADMIN_UNLOCK_KEY,'qa239-stale-A');
+    const migratedNewer=await withBrowserSharedSessionLock(()=>migrateLegacySessionForDevice());
+    const newer={ran:migratedNewer,token:storedSessionToken(),shared:localStorage.getItem(SESSION_KEY),tab:sessionStorage.getItem(SESSION_KEY),admin:localStorage.getItem(ADMIN_UNLOCK_KEY)};
+    reset();
+    localStorage.setItem(SESSION_KEY,'qa239-logged-out-B');
+    localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa239-logged-out-B');
+    sessionStorage.setItem(SESSION_KEY,'qa239-stale-A');
+    sessionStorage.setItem(ADMIN_UNLOCK_KEY,'qa239-stale-A');
+    const migratedSuppressed=await withBrowserSharedSessionLock(()=>migrateLegacySessionForDevice());
+    const suppressed={ran:migratedSuppressed,token:storedSessionToken(),shared:localStorage.getItem(SESSION_KEY),tab:sessionStorage.getItem(SESSION_KEY),admin:localStorage.getItem(ADMIN_UNLOCK_KEY)};
+    return {genuine,newer,suppressed};
+  });
+  console.log('QA239_MOBILE_MIGRATION_POSITIVES',JSON.stringify(migrationPositives));
+  check('Actual mobile legacy-only login migrates when no newer logout marker exists',()=>migrationPositives.genuine.ran&&migrationPositives.genuine.token==='qa239-real-legacy-A'&&migrationPositives.genuine.shared==='qa239-real-legacy-A'&&!migrationPositives.genuine.tab);
+  check('Actual mobile legacy-only admin unlock safely migrates',()=>migrationPositives.genuine.admin==='qa239-real-legacy-A');
+  check('Actual newer mobile shared login C remains intact over stale legacy A',()=>migrationPositives.newer.ran&&migrationPositives.newer.token==='qa239-newer-shared-C'&&migrationPositives.newer.shared==='qa239-newer-shared-C'&&!migrationPositives.newer.tab&&migrationPositives.newer.admin!=='qa239-stale-A');
+  check('Suppressed mobile shared B never promotes unrelated legacy A',()=>migrationPositives.suppressed.ran&&!migrationPositives.suppressed.token&&migrationPositives.suppressed.admin!=='qa239-stale-A'&&!migrationPositives.suppressed.tab);
   await migrationCtx.close();
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
