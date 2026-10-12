@@ -1,3 +1,4 @@
+# QA244 second independent full Chromium run with pinned 244 SHA
 name: QA 2-8-244 comprehensive Chromium depth eight
 on:
   push:
