@@ -1,0 +1,106 @@
+{
+  "block": "2-8-243",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "prior_completed": "2-8-242",
+  "next_block": "2-8-244",
+  "official_defects_before": 519,
+  "new_product_defects": 3,
+  "cumulative_defects": 522,
+  "baseline_sha256": "c685f8a453b556f6c52ac317b00de432471278aefb0fd2b0f686f7ffbb987082",
+  "baseline_bytes": 1165913,
+  "final_sha256": "fce60b1d8932c5f4d4b232d1c1cd319a13bf2b4f265aec05f0424e3b7d64e8b4",
+  "final_bytes": 1167315,
+  "first_qa_activity_kst": "2026-10-12T22:51:00+09:00",
+  "completed_kst": "2026-10-12T23:11:47+09:00",
+  "confirmed_min_20_minutes": true,
+  "defects": [
+    {
+      "kind": "product",
+      "name": "Same-token security context epoch not fenced at deferred RPC send",
+      "red_chromium_ci": 38259260719,
+      "red_sent_each_device": 1,
+      "green_sent_each_device": 0,
+      "patch": "Check captured responseOwnerEpoch equals sessionContextEpoch immediately after browser task yield"
+    },
+    {
+      "kind": "product",
+      "name": "Mandatory initial PIN gate not enforced in common mutation or sensitive read guards",
+      "red_chromium_ci": 38259767471,
+      "red_save_each_device": 1,
+      "red_sensitive_export_each_device": 1,
+      "green_save": 0,
+      "green_sensitive_export": 0,
+      "patch": "Common guardMandatoryInitialPinGateRpc in mutation and sensitive RPC fences, exempt own PIN change"
+    },
+    {
+      "kind": "product",
+      "name": "Authoritative read-only account switch does not fence deferred protected write",
+      "red_chromium_ci": 38260485665,
+      "red_save_each_device": 1,
+      "green_save_each_device": 0,
+      "patch": "Check accountReadOnly() in common mutation preflight, exempt own PIN change"
+    }
+  ],
+  "scoped_green": {
+    "id": 38260657929,
+    "mobile_pass": true,
+    "pc_pass": true,
+    "passed": 2,
+    "failed": 0
+  },
+  "final_regressions": [
+    {
+      "id": 38260776545,
+      "passed": 201,
+      "failed": 0,
+      "sha256": "fce60b1d8932c5f4d4b232d1c1cd319a13bf2b4f265aec05f0424e3b7d64e8b4"
+    },
+    {
+      "id": 38260978433,
+      "passed": 201,
+      "failed": 0,
+      "sha256": "fce60b1d8932c5f4d4b232d1c1cd319a13bf2b4f265aec05f0424e3b7d64e8b4"
+    }
+  ],
+  "integrity": {
+    "id": 38260859071,
+    "passed": true,
+    "exact_source_anchors": 3,
+    "inline_scripts": 2,
+    "unique_dom_ids": 457,
+    "verified_baseline_sha256": "c685f8a453b556f6c52ac317b00de432471278aefb0fd2b0f686f7ffbb987082",
+    "verified_final_sha256": "fce60b1d8932c5f4d4b232d1c1cd319a13bf2b4f265aec05f0424e3b7d64e8b4"
+  },
+  "tested": {
+    "real_headless_chromium": true,
+    "mobile_emulation": true,
+    "actual_web_locks_cross_tabs": true,
+    "independent_shift_cases": 2920,
+    "leave_fuzz_sets": 500,
+    "authenticated_calendar_days": 31,
+    "viewport_widths": [
+      320,
+      360,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ]
+  },
+  "limitations": [
+    "No production Supabase/RLS",
+    "No real authenticated backend multiuser",
+    "No physical Android native camera/file picker",
+    "No iOS Safari",
+    "No confirmed BFCache persisted",
+    "No real backup restore"
+  ],
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "production_main_modified": false,
+  "deployed": false
+}

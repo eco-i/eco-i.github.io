@@ -1,0 +1,8 @@
+★★★근무모아 2차·깊이8·244 시작 인계★★★
+공식 최종 완료 2-8-243, 다음 2-8-244, 누적 제품 결함 522종.
+GitHub eco-i/eco-i.github.io 검수 qa-2-8, 운영 main 변경 없음.
+기준본 qa-handoff/index.before-2-8-244.html, SHA-256 fce60b1d8932c5f4d4b232d1c1cd319a13bf2b4f265aec05f0424e3b7d64e8b4, 1167315 bytes.
+242에서 추가한 RPC timer 비동기 경계를 점검하여 243에서 ① 세션 epoch 변경 후 stale RPC 전송, ② 강제 PIN 게이트의 보호 RPC 미차단, ③ 최신 read-only 변경 후 쓰기 RPC 전송을 각각 RED 재현 및 수정.
+전체 Chrome 최종 201 PASS/0 FAIL 2회, 정확한 세 소스 위치 대조 PASS.
+자세한 GitHub 근거 qa-handoff/CURRENT_STATE.json, START_HERE_NEW_CHAT.md, QA_2-8-243_REPORT.md, QA_243_EVIDENCE_AUDIT.json.
+High / 깊이8 / 실제20분 / 20분 이내 진행보고 / 임의 버전·SQL·main·배포 금지 / GitHub 직접 사용, ZIP 불필요.
