@@ -1157,6 +1157,51 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
   check('Revoked mobile admin unlock remains suppressed by token-specific tombstone',
     ()=>tombstoneMigration.admin!=='qa239-logged-out-tombstone-A');
   await migrationCtx.close();
+  // 239: Real mobile document reload must not repopulate app/state from a
+  // token-specific logout marker, even when no shared logout marker exists.
+  const bootCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const bootPage=await bootCtx.newPage();
+  await bootPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await bootPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  await bootPage.evaluate(()=>{
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+    sessionStorage.setItem(SESSION_KEY,'qa239-reload-revoked-A');
+    sessionStorage.setItem(ADMIN_UNLOCK_KEY,'qa239-reload-revoked-A');
+    markUpdateHandoffLoggedOut('qa239-reload-revoked-A');
+  });
+  await bootPage.reload({waitUntil:'domcontentloaded'});
+  await bootPage.waitForTimeout(250);
+  const bootRevoked=await bootPage.evaluate(()=>({
+    restored:storedSessionToken(),state:state.sessionToken,
+    shared:localStorage.getItem(SESSION_KEY),temp:sessionStorage.getItem(SESSION_KEY),
+    oldAdminVisible:!!state.me?.is_admin&&!document.getElementById('appView').classList.contains('hidden')
+  }));
+  console.log('QA239_REVOKED_BOOT_RELOAD',JSON.stringify(bootRevoked));
+  check('Real mobile reload does not restore tombstoned legacy account token',()=>!bootRevoked.restored&&!bootRevoked.state&&!bootRevoked.shared&&!bootRevoked.temp);
+  check('Real mobile reload does not render tombstoned admin UI',()=>!bootRevoked.oldAdminVisible);
+  await bootCtx.close();
+
+  // Prior aggregate-format logout markers must remain effective throughout
+  // migration to token-specific storage (legacy browser upgrade safety).
+  const aggregateCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const aggregatePage=await aggregateCtx.newPage();
+  await aggregatePage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await aggregatePage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const oldFormat=await aggregatePage.evaluate(async()=>{
+    const token='qa239-aggregate-revoked-A';
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+    localStorage.setItem('staffAttendance_updateSessionLogout_v1',JSON.stringify({entries:[{token,at:Date.now()}]}));
+    sessionStorage.setItem(SESSION_KEY,token);
+    const before=storedSessionToken();
+    const ran=await withBrowserSharedSessionLock(()=>migrateLegacySessionForDevice());
+    return {mobile:MOBILE_SESSION_DEVICE,before,ran,after:storedSessionToken(),shared:localStorage.getItem(SESSION_KEY)};
+  });
+  console.log('QA239_LEGACY_AGGREGATE_REVOCATION',JSON.stringify(oldFormat));
+  check('Legacy aggregate logout tombstone also blocks mobile restoration',()=>oldFormat.mobile&&!oldFormat.before&&oldFormat.ran&&!oldFormat.after&&!oldFormat.shared);
+  await aggregateCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
