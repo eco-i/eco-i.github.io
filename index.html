@@ -2099,7 +2099,9 @@ function clearStoredLoginSession(token=''){
     if(!clearSharedSessionIfToken(current))scheduleSharedSessionCleanup(current);
     matched=true;
   }
-  if(matched)return;
+  // A delayed cleanup with a known *old* token must never delete a
+  // newer independent PC tab login just because the old token is gone.
+  if(matched||current)return;
   // 토큰을 식별할 수 없는 복구 실패 상황에서는 현재 탭의 임시 상태만 정리한다.
   storageRemove(sessionStorage,SESSION_KEY);storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
 }
