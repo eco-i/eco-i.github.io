@@ -1,0 +1,29 @@
+name: QA 2-8-239 preserve newer PC tab login
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-239-pc-cleanup-patch.yml"
+      - "qa-handoff/QA_239_PC_CLEANUP_PATCH.cjs"
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+      - name: Preserve new PC login token during stale logout cleanup
+        run: node qa-handoff/QA_239_PC_CLEANUP_PATCH.cjs
+      - name: Commit QA candidate only
+        run: |
+          git diff --check
+          git add index.html qa-handoff/index.working-2-8-239.html
+          git diff --cached --stat
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'fix(2-8-239): never clear fresh PC tab session during old logout cleanup'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
