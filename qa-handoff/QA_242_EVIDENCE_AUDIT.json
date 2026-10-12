@@ -1,0 +1,98 @@
+{
+  "block": "2-8-242",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "prior_completed": "2-8-241",
+  "next_block": "2-8-243",
+  "official_defects_before": 517,
+  "new_product_defects": 2,
+  "cumulative_defects": 519,
+  "baseline_sha256": "1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5",
+  "baseline_bytes": 1165130,
+  "final_sha256": "c685f8a453b556f6c52ac317b00de432471278aefb0fd2b0f686f7ffbb987082",
+  "final_bytes": 1165913,
+  "first_qa_activity_kst": "2026-10-12T19:57:00+09:00",
+  "completed_kst": "2026-10-12T20:20:25+09:00",
+  "confirmed_over_20_minutes": true,
+  "defects": [
+    {
+      "kind": "product",
+      "name": "Revoked token after synchronous native dialog snapshot not detected",
+      "red_ci": 38239978347,
+      "red_fail_checks": 6,
+      "patch": "fingerprintBlockingPromptSessionChanged: exact-token tombstone check before tab/shared snapshot acceptance"
+    },
+    {
+      "kind": "product",
+      "name": "Cross-renderer localStorage latency allows an old-token RPC send immediately after native dialog",
+      "real_chrome_red_green_ci": 38241625619,
+      "red_rpcs_sent": 1,
+      "green_rpcs_sent": 0,
+      "patch": "rpc(): yield one browser task and re-run three preflight ownership guards immediately before fetch"
+    }
+  ],
+  "scoped_final": {
+    "id": 38241846303,
+    "passed": 18,
+    "failed": 0
+  },
+  "final_regressions": [
+    {
+      "id": 38241742880,
+      "passed": 198,
+      "failed": 0,
+      "sha256": "c685f8a453b556f6c52ac317b00de432471278aefb0fd2b0f686f7ffbb987082"
+    },
+    {
+      "id": 38241882963,
+      "passed": 198,
+      "failed": 0,
+      "sha256": "c685f8a453b556f6c52ac317b00de432471278aefb0fd2b0f686f7ffbb987082"
+    }
+  ],
+  "integrity": {
+    "id": 38241809337,
+    "passed": true,
+    "independent_source_comparison_exact": true,
+    "changed_source_locations": 2,
+    "inline_scripts": 2,
+    "unique_dom_ids": 457
+  },
+  "real_multitab_dialog": {
+    "id": 38241625619,
+    "baseline_rpcs_sent": 1,
+    "final_rpcs_sent": 0
+  },
+  "tested": {
+    "real_headless_chromium": true,
+    "real_chrome_native_dialog": true,
+    "real_storage_two_tabs": true,
+    "web_locks_mutex": true,
+    "independent_shift_cases": 2920,
+    "leave_fuzz_sets": 500,
+    "viewport_widths": [
+      320,
+      360,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ],
+    "authenticated_calendar_days": 31
+  },
+  "limitations": [
+    "No production Supabase/RLS",
+    "No real authenticated backend multiuser",
+    "No physical Android native camera/file picker",
+    "No iOS Safari",
+    "No confirmed BFCache persisted",
+    "No real backup restore"
+  ],
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "production_main_modified": false,
+  "deployed": false
+}
