@@ -14,7 +14,7 @@ assert.strictEqual(record.candidate_sha256,'c685f8a453b556f6c52ac317b00de4324712
 assert.strictEqual(record.candidate_bytes,1165913);
 assert.strictEqual(b.split(source).length,2,'only one matching original code block');
 const rpcAnchor="  // 개별 호출이 별도 timeout을 지정하지 않아도 모바일 네트워크 half-open/정체 때문에";
-const rpcInsertion="  // Native confirm/prompt may resume before another renderer's StorageEvent is delivered.\\n  // Yield one browser task before any authenticated RPC and repeat every ownership fence;\\n  // never send an old-token request merely because synchronous localStorage was stale.\\n  if(responseGuardedRpc){\\n    await new Promise(resolve=>setTimeout(resolve,0));\\n    guardSensitiveDataRpcSession(name,payload);\\n    guardMutationRpcSession(name,payload,options);\\n    guardOrdinaryAuthenticatedReadRpcSession(name,payload);\\n  }\\n";
+const rpcInsertion="  // Native confirm/prompt may resume before another renderer's StorageEvent is delivered.\n  // Yield one browser task before any authenticated RPC and repeat every ownership fence;\n  // never send an old-token request merely because synchronous localStorage was stale.\n  if(responseGuardedRpc){\n    await new Promise(resolve=>setTimeout(resolve,0));\n    guardSensitiveDataRpcSession(name,payload);\n    guardMutationRpcSession(name,payload,options);\n    guardOrdinaryAuthenticatedReadRpcSession(name,payload);\n  }\n";
 assert.strictEqual(b.split(rpcAnchor).length,2,'only one matching original RPC anchor');
 assert.strictEqual(a,b.replace(source,target).replace(rpcAnchor,rpcInsertion+rpcAnchor),'ONLY two vetted security fixes differ');
 assert.strictEqual(current.last_completed_block,'2-8-241','242 not yet officially completed');
