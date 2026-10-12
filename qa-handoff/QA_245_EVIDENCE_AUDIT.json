@@ -1,0 +1,102 @@
+{
+  "block": "2-8-245",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "prior_completed": "2-8-244",
+  "next_block": "2-8-246",
+  "official_defects_before": 525,
+  "new_product_defects": 2,
+  "cumulative_defects": 527,
+  "first_qa_activity_kst": "2026-10-13T06:49:00+09:00",
+  "completed_kst": "2026-10-13T07:11:05.128+09:00",
+  "confirmed_min_20_minutes": true,
+  "baseline_sha256": "9bfce02ca8be15ae1a59eebec2d3b05d1563784719ebec6308b7537e8fb9d9ab",
+  "baseline_bytes": 1168824,
+  "final_sha256": "be95422d3b79f9cc2348196a07b46e44d5269a353fc73dec98cdc065381029da",
+  "final_bytes": 1169443,
+  "defects": [
+    {
+      "kind": "product",
+      "name": "Administrator-only ordinary reads sent without secondary admin unlock",
+      "red_ci": 38313201462,
+      "green_ci": 38314535322,
+      "affected": [
+        "list_recent_audit_page",
+        "list_personnel_snapshots",
+        "list_employee_pin_status",
+        "get_capacity_usage",
+        "get_personnel_change_impacts"
+      ],
+      "mobile_desktop_proven": true
+    },
+    {
+      "kind": "product",
+      "name": "Cross-renderer administrator unlock revocation arrives between preflight guard and network fetch",
+      "red_ci": 38313908659,
+      "red_pc_sent": 1,
+      "red_mobile_sent": 0,
+      "red_at_fetch_unlock": false,
+      "green_ci": [
+        38314146810,
+        38314485271,
+        38314634523
+      ],
+      "green_each_passed": 2,
+      "green_each_failed": 0
+    }
+  ],
+  "focused": {
+    "admin_read_ci": 38314535322,
+    "admin_read_passed": 27,
+    "admin_read_failed": 0,
+    "in_flight_ci": 38313695541,
+    "in_flight_passed": 20,
+    "in_flight_failed": 0
+  },
+  "regressions": [
+    {
+      "id": 38314296878,
+      "passed": 206,
+      "failed": 0,
+      "sha256": "be95422d3b79f9cc2348196a07b46e44d5269a353fc73dec98cdc065381029da"
+    },
+    {
+      "id": 38314472526,
+      "passed": 206,
+      "failed": 0,
+      "sha256": "be95422d3b79f9cc2348196a07b46e44d5269a353fc73dec98cdc065381029da"
+    },
+    {
+      "id": 38314621962,
+      "passed": 206,
+      "failed": 0,
+      "sha256": "be95422d3b79f9cc2348196a07b46e44d5269a353fc73dec98cdc065381029da"
+    }
+  ],
+  "integrity": {
+    "ci": [
+      38314305584,
+      38314817827
+    ],
+    "passed": true,
+    "source_hunks": 4,
+    "added_lines": 7,
+    "replaced_lines": 1,
+    "inline_js": 2,
+    "unique_dom_ids": 457
+  },
+  "environment_limits": [
+    "No live production Supabase/RLS",
+    "No real authenticated backend multiuser",
+    "No physical Android camera/file picker",
+    "No iOS Safari",
+    "No confirmed persisted BFCache",
+    "No production backup or restore"
+  ],
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_modified": false,
+  "deployed": false
+}

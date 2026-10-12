@@ -1,0 +1,7 @@
+★★★근무모아 2차 종합검수 2-8-246 시작 인계★★★
+마지막 공식 완료 2-8-245, 다음 2-8-246, 공식 누적 제품 결함 527종.
+GitHub eco-i/eco-i.github.io qa-2-8 브랜치, 공식 기준 파일 qa-handoff/index.before-2-8-246.html (SHA-256 be95422d3b79f9cc2348196a07b46e44d5269a353fc73dec98cdc065381029da; 1169443 bytes).
+244→245 2개 제품 결함: 관리자-only 일반 read RPC 5종에 2차 unlock guard 누락, 실제 Chrome native confirm 두 탭에서 admin unlock 폐기와 preflight/fetch 사이 경쟁.
+최종 Chrome 206 PASS/0 FAIL 동일 후보에서 독립 3회, 27개 권한, 20개 응답, native Chrome 두 탭 3회 GREEN, 정확한 SHA/diff 검증.
+APP_VERSION ver20260927-0944 유지. SQL/main/실배포 미변경.
+High·깊이8·최소20분 실제 검수·20분 내 중간보고·오류 즉시 수정 회귀, GitHub 직접 사용, ZIP 불필요.
