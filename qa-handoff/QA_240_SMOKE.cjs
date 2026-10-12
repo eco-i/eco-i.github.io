@@ -1421,6 +1421,42 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa240-live
   check('Old mobile logout does not delete newer shared administrator unlock B',()=>newerSafe.unlock==='qa240-newer-token-B'&&!newerSafe.owner);
   await newerCtx.close();
 
+  // Real 4-tab fan-out: a peer's exact-token logout tombstone must revoke
+  // three mobile administrator surfaces without a SESSION_KEY event.
+  const fanCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const fanTabs=await Promise.all(Array.from({length:4},()=>fanCtx.newPage()));
+  for(const tab of fanTabs){
+    await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  }
+  await Promise.all(fanTabs.map(tab=>tab.waitForTimeout(350)));
+  await fanTabs[0].evaluate(()=>localStorage.setItem(SESSION_KEY,'qa240-fanout-old-admin-A'));
+  for(let i=0;i<3;i++){
+    await fanTabs[i].evaluate(({i})=>{
+      state.sessionToken='qa240-fanout-old-admin-A';
+      state.me={employee_id:240+i,is_admin:true};
+      document.getElementById('appView').classList.remove('hidden');
+      document.getElementById('loginView').classList.add('hidden');
+      window.addEventListener('storage',event=>{
+        if(String(event.key||'').startsWith('staffAttendance_updateSessionLogoutToken_v1:')){
+          sessionStorage.setItem('__qa240_fanout_event','yes');
+        }
+      });
+    },{i});
+  }
+  await fanTabs[3].evaluate(()=>markUpdateHandoffLoggedOut('qa240-fanout-old-admin-A'));
+  await fanTabs[0].waitForTimeout(450);
+  const fanResults=await Promise.all(fanTabs.slice(0,3).map(tab=>tab.evaluate(()=>({
+    eventReceived:sessionStorage.getItem('__qa240_fanout_event')==='yes',
+    adminVisible:!!state.me?.is_admin&&!document.getElementById('appView').classList.contains('hidden'),
+    token:state.sessionToken,
+    tombstoned:storedSessionTombstoned('qa240-fanout-old-admin-A')
+  }))));
+  console.log('QA240_REAL_4TAB_TOMBSTONE_FANOUT',JSON.stringify(fanResults));
+  check('Real three old mobile admin tabs receive same per-token logout event',()=>fanResults.every(r=>r.eventReceived&&r.tombstoned));
+  check('Real three old mobile admin surfaces close after remote exact-token logout',()=>fanResults.every(r=>!r.adminVisible&&!r.token));
+  await fanCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
