@@ -1,3 +1,4 @@
+# QA245 third independent final SHA regression for stable 8-layer acceptance
 # QA245 independent immutable SHA full Chromium repeat after both security fixes
 name: QA 2-8-245 comprehensive Chromium depth eight
 on:
