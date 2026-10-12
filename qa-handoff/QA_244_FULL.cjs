@@ -33,7 +33,9 @@ check('242 blocking dialog must re-read token tombstone',()=>html.includes('if(s
 check('242 candidate differs from immutable 241 baseline',()=>crypto.createHash('sha256').update(html).digest('hex')!==expected);
 check('243 source includes inherited 242 pre-RPC task fence',()=>html.includes('await new Promise(resolve=>setTimeout(resolve,0));'));
 check('244 candidate contains admin privilege RPC guard',()=>html.includes('function guardAdminPrivilegeRpcSession(name,options={})')&&html.includes('PIN_GATE_IDENTITY_READ_RPCS'));
-check('244 candidate >= immutable 243 bytes',()=>Buffer.byteLength(html)>=1167315);
+check('244 official final candidate SHA-256 pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='9bfce02ca8be15ae1a59eebec2d3b05d1563784719ebec6308b7537e8fb9d9ab');
+check('244 official final candidate byte count pinned',()=>Buffer.byteLength(html)===1168824);
+check('244 response ownership privilege recheck present',()=>html.includes('guardAdminPrivilegeRpcSession(name,options);')&&html.includes('if(err?.adminPermissionRevoked)throw err;'));
 check('243 protected RPC fences same-token security epoch after task boundary',()=>html.includes('if(responseOwnerEpoch!==sessionContextEpoch){')&&html.includes('await new Promise(resolve=>setTimeout(resolve,0));')&&html.includes('guardSensitiveDataRpcSession(name,payload);'));
 check('243 mandatory PIN gate protected RPC rejection and own reset exemption present',()=>html.includes('function guardMandatoryInitialPinGateRpc(name)')&&html.includes("String(name||'')==='change_own_pin_v2'")&&html.includes('guardMandatoryInitialPinGateRpc(name);'));
 check('243 existing read-only account becomes network write-fenced',()=>html.includes("if(String(name||'')!=='change_own_pin_v2'&&accountReadOnly())"));
