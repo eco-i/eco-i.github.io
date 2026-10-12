@@ -23,7 +23,7 @@ const html=fs.readFileSync('qa-handoff/index.working-2-8-246.html','utf8');
     for(const id of ['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList']){const el=document.getElementById(id);if(el)el.textContent=secret;}
     return {admin:activeAdminMode(),panels:['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList'].map(id=>!!document.getElementById(id))};
   },{token,secret});
-  const removal=await b.evaluate(()=>{const prev=localStorage.getItem(ADMIN_UNLOCK_KEY);localStorage.removeItem(ADMIN_UNLOCK_KEY);return {prev,after:localStorage.getItem(ADMIN_UNLOCK_KEY),storedSession:localStorage.getItem(SESSION_KEY)};});
+  const removal=await b.evaluate(({adminKey,sessionKey})=>{const prev=localStorage.getItem(adminKey);localStorage.removeItem(adminKey);return {prev,after:localStorage.getItem(adminKey),storedSession:localStorage.getItem(sessionKey)};},{adminKey:'staffAttendance_admin2_ok_v1',sessionKey:'staffAttendance_session_v1'});
   await a.waitForTimeout(500);
   const result=await a.evaluate(secret=>{
     const names=['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList'];const remaining=names.filter(id=>document.getElementById(id)?.textContent.includes(secret));
