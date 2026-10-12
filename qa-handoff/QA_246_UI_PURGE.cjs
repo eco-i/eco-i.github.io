@@ -23,6 +23,7 @@ const html=fs.readFileSync('qa-handoff/index.working-2-8-246.html','utf8');
     for(const id of ['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList']){const el=document.getElementById(id);if(el)el.textContent=secret;}
     return {admin:activeAdminMode(),panels:['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList'].map(id=>!!document.getElementById(id))};
   },{token,secret});
+  await b.waitForFunction(token=>localStorage.getItem('staffAttendance_admin2_ok_v1')===token,token,{timeout:5000});
   const removal=await b.evaluate(({adminKey,sessionKey})=>{const prev=localStorage.getItem(adminKey);localStorage.removeItem(adminKey);return {prev,after:localStorage.getItem(adminKey),storedSession:localStorage.getItem(sessionKey)};},{adminKey:'staffAttendance_admin2_ok_v1',sessionKey:'staffAttendance_session_v1'});
   await a.waitForTimeout(500);
   const result=await a.evaluate(secret=>{
