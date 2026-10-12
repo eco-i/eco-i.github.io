@@ -3133,6 +3133,15 @@ async function rpc(name, payload={}, options={}){
     if(sharedChanged)reconcileSharedSessionIfNeeded();
     const ownerErr=new Error('SHARED_SESSION_CHANGED');ownerErr.sharedSessionChanged=true;ownerErr.rpcMutation=mutationRpc;ownerErr.rpcName=String(name||'');throw ownerErr;
   };
+  // Native confirm/prompt may resume before another renderer's StorageEvent is delivered.
+  // Yield one browser task before any authenticated RPC and repeat every ownership fence;
+  // never send an old-token request merely because synchronous localStorage was stale.
+  if(responseGuardedRpc){
+    await new Promise(resolve=>setTimeout(resolve,0));
+    guardSensitiveDataRpcSession(name,payload);
+    guardMutationRpcSession(name,payload,options);
+    guardOrdinaryAuthenticatedReadRpcSession(name,payload);
+  }
   // 개별 호출이 별도 timeout을 지정하지 않아도 모바일 네트워크 half-open/정체 때문에
   // 조회·저장 pending이 영구적으로 남지 않게 공통 기본 한도를 둔다. 120초가 필요한
   // 복원/초기화 등은 기존처럼 호출부의 명시적 timeoutMs가 우선한다. timeoutMs:0도 명시하면 허용한다.
