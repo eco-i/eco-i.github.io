@@ -3,10 +3,14 @@
 // synchronous confirm/prompt is open. No Supabase access, no deployment.
 const fs=require('fs'),crypto=require('crypto'),http=require('http'),assert=require('assert');
 const {chromium}=require('playwright-core');
-const html=fs.readFileSync('qa-handoff/index.before-2-8-242.html','utf8');
-const baseHash=crypto.createHash('sha256').update(html).digest('hex');
+const baseline=fs.readFileSync('qa-handoff/index.before-2-8-242.html','utf8');
+const html=fs.readFileSync('qa-handoff/index.working-2-8-242.html','utf8');
+const baseHash=crypto.createHash('sha256').update(baseline).digest('hex');
+const candidateHash=crypto.createHash('sha256').update(html).digest('hex');
 const expected='1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5';
-if(baseHash!==expected||Buffer.byteLength(html)!==1165130||!html.includes('ver20260927-0944'))throw Error('QA242 official immutable baseline mismatch');
+if(baseHash!==expected||Buffer.byteLength(baseline)!==1165130||!html.includes('ver20260927-0944'))throw Error('QA242 official immutable baseline mismatch');
+if(!html.includes("if(storedSessionTombstoned(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}"))throw Error('Expected 242 scoped token revocation fix absent');
+console.log('QA242_CANDIDATE_SHA256',candidateHash,'bytes',Buffer.byteLength(html));
 const observed=[];
 function record(name,ok,detail){observed.push({name,pass:!!ok,detail:detail||null});console.log('QA242_'+(ok?'PASS':'FAIL'),name,detail||'');}
 (async()=>{
@@ -69,6 +73,6 @@ function record(name,ok,detail){observed.push({name,pass:!!ok,detail:detail||nul
  }catch(e){record('QA242 harness ran',false,String(e.stack||e));}
  finally{if(browser)await browser.close();if(server)await new Promise(r=>server.close(r));}
  const fails=observed.filter(x=>!x.pass);
- console.log('QA242_SUMMARY',JSON.stringify({baseline_sha256:baseHash,passed:observed.length-fails.length,failed:fails.length,failed_checks:fails.map(x=>x.name)}));
+ console.log('QA242_SUMMARY',JSON.stringify({baseline_sha256:baseHash,candidate_sha256:candidateHash,passed:observed.length-fails.length,failed:fails.length,failed_checks:fails.map(x=>x.name)}));
  if(fails.length)process.exitCode=1;
 })();
