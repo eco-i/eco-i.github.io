@@ -28,21 +28,24 @@ if(baseline!=='9bfce02ca8be15ae1a59eebec2d3b05d1563784719ebec6308b7537e8fb9d9ab'
       localStorage.setItem(SESSION_KEY,token);localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
       if(label==='desktop')sessionStorage.setItem(SESSION_KEY,token);
       localStorage.removeItem(ADMIN_UNLOCK_KEY);sessionStorage.removeItem(ADMIN_UNLOCK_KEY);
-      const probe=async name=>{const before=requests.length;let error='';
+      const probe=async name=>{const before=requests.filter(x=>x===name).length;let error='';
         try{await rpc(name,{p_token:token})}catch(e){error=String(e?.message||e)}
-        return {name,sent:requests.length-before,error};
+        return {name,sent:requests.filter(x=>x===name).length-before,error,adminReady:activeAdminMode(),tokenCurrent:state.sessionToken===token};
       };
       const forbidden=['list_recent_audit_page','list_personnel_snapshots','list_employee_pin_status','get_capacity_usage','get_personnel_change_impacts'];
       const before=[];for(const name of forbidden)before.push(await probe(name));
       const mine=await probe('list_my_memos');
+      state.sessionToken=token;state.me={employee_id:245,is_admin:true,display_name:'QA245',is_read_only:false,personnel_account_status:'active'};
+      state.initialPinRequired=false;state.accountStatusPersonnelAuthoritative=true;
       if(label==='desktop')sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);else localStorage.setItem(ADMIN_UNLOCK_KEY,token);
+      const restoredAdminReady=activeAdminMode();
       const allowed=[];for(const name of forbidden)allowed.push(await probe(name));
       window.fetch=oldFetch;window.configured=oldConfig;
-      return {before,mine,allowed,requests};
+      return {before,mine,allowed,requests,restoredAdminReady};
    },label);
    for(const x of actual.before){const pass=x.sent===0;all.push(pass);console.log('QA245_'+(pass?'PASS':'FAIL'),label+' revoked '+x.name,JSON.stringify(x))}
    const personal=actual.mine.sent===1;all.push(personal);console.log('QA245_'+(personal?'PASS':'FAIL'),label+' personal read remains usable',JSON.stringify(actual.mine));
-   for(const x of actual.allowed){const pass=x.sent===1;all.push(pass);console.log('QA245_'+(pass?'PASS':'FAIL'),label+' unlocked '+x.name,JSON.stringify(x))}
+   for(const x of actual.allowed){const pass=actual.restoredAdminReady&&x.sent===1;all.push(pass);console.log('QA245_'+(pass?'PASS':'FAIL'),label+' unlocked '+x.name,JSON.stringify(x))}
    const errors=pageErrors.length===0;all.push(errors);console.log('QA245_'+(errors?'PASS':'FAIL'),label+' browser exceptions',JSON.stringify(pageErrors));
    await context.close();
   }
