@@ -1,0 +1,25 @@
+name: QA 2-8-246 real two-tab supplemental capacity read permissions
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-246-capacity-two-tab.yml"
+      - "qa-handoff/QA_246_CAPACITY_CROSS_TAB.cjs"
+      - "qa-handoff/index.working-2-8-246.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa246captab --no-audit --no-fund playwright-core@1.55.1
+      - name: Real two-tab admin capacity read authority across native confirmation
+        env:
+          NODE_PATH: /tmp/qa246captab/node_modules
+        run: node qa-handoff/QA_246_CAPACITY_CROSS_TAB.cjs
