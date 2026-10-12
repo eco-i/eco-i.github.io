@@ -10,6 +10,8 @@ const candidateHash=crypto.createHash('sha256').update(html).digest('hex');
 const expected='1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5';
 if(baseHash!==expected||Buffer.byteLength(baseline)!==1165130||!html.includes('ver20260927-0944'))throw Error('QA242 official immutable baseline mismatch');
 if(!html.includes("if(storedSessionTombstoned(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}"))throw Error('Expected 242 scoped token revocation fix absent');
+if(candidateHash!=='c685f8a453b556f6c52ac317b00de432471278aefb0fd2b0f686f7ffbb987082'||Buffer.byteLength(html)!==1165913)throw Error('Expected 242 final candidate hash/bytes mismatch');
+if(!html.includes('await new Promise(resolve=>setTimeout(resolve,0));'))throw Error('242 pre-RPC task yield missing');
 console.log('QA242_CANDIDATE_SHA256',candidateHash,'bytes',Buffer.byteLength(html));
 const observed=[];
 function record(name,ok,detail){observed.push({name,pass:!!ok,detail:detail||null});console.log('QA242_'+(ok?'PASS':'FAIL'),name,detail||'');}
