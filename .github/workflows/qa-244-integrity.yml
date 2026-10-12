@@ -1,0 +1,22 @@
+name: QA 2-8-244 immutable source integrity and scoped diff
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-244-integrity.yml"
+      - "qa-handoff/QA_244_INTEGRITY.cjs"
+      - "qa-handoff/index.working-2-8-244.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  immutable:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Independent SHA256 bytes and exact diff audit
+        run: node qa-handoff/QA_244_INTEGRITY.cjs
