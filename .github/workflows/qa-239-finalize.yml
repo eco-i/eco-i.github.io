@@ -1,0 +1,30 @@
+name: QA 2-8-239 official finalization and 240 baseline
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-239-finalize.yml"
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+          persist-credentials: true
+      - name: Verify finalizer syntax
+        run: node --check qa-handoff/QA_239_FINALIZE.cjs
+      - name: Verify 20-minute QA gate and finalize hash-checked 239
+        run: node qa-handoff/QA_239_FINALIZE.cjs
+      - name: Verify and publish exact official 239-to-240 handoff to QA only
+        run: |
+          git diff --check
+          git add qa-handoff/CURRENT_STATE.json qa-handoff/START_HERE_NEW_CHAT.md qa-handoff/START_2-8-240_AFTER_239.txt qa-handoff/QA_2-8-239_REPORT.md qa-handoff/QA_239_EVIDENCE_AUDIT.json qa-handoff/QA_2-8-239_SHA_MANIFEST.json qa-handoff/index.before-2-8-240.html
+          git diff --cached --stat
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'qa(2-8-239): official 515 defects and immutable 240 starting baseline'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
