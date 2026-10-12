@@ -37,15 +37,21 @@ const results=[];
       try{await rpc('save_my_memo_v2',{p_token:token,p_memo_date:'2026-10-12',p_memo:'qa243 must not send'});}catch(e){rpcError=String(e.message||e);}
       const duringGateSent=captured.length;
       const epochAfter=sessionContextEpoch,gateRequired=state.initialPinRequired;
+      // A protected action started while the mandatory PIN gate is already
+      // visible must not be sent; the only necessary write is change_own_pin_v2.
+      let gatedWriteError='',gatedExportError='';
+      try{await rpc('save_my_memo_v2',{p_token:token,p_memo_date:'2026-10-12',p_memo:'blocked under gate'})}catch(e){gatedWriteError=String(e.message||e)}
+      try{await rpc('export_my_data_v1',{p_token:token})}catch(e){gatedExportError=String(e.message||e)}
+      const afterGateRestrictedSent=captured.length;
       // A brand-new PIN change after the gate is a legitimate authenticated request
       // and must not be rejected by the stale-request epoch guard.
       let pinError='';
       try{await rpc('change_own_pin_v2',{p_token:token,p_old_pin:'0000',p_new_pin:'1357'})}catch(e){pinError=String(e.message||e)}
       const afterPinSent=captured.length;
       window.configured=originalConfigured;window.fetch=originalFetch;
-      return {mode,epochBefore,epochAfter,gateOk,gateError,gateRequired,duringGateSent,afterPinSent,rpcError,pinError,captured:captured.map(x=>x.url.slice(-60))};
+      return {mode,epochBefore,epochAfter,gateOk,gateError,gateRequired,duringGateSent,afterGateRestrictedSent,afterPinSent,rpcError,pinError,gatedWriteError,gatedExportError,captured:captured.map(x=>x.url.slice(-60))};
    },mode);
-   const ok=observed.gateOk===true&&observed.gateRequired&&observed.epochAfter>observed.epochBefore&&observed.duringGateSent===0&&observed.afterPinSent===1&&!observed.gateError;
+   const ok=observed.gateOk===true&&observed.gateRequired&&observed.epochAfter>observed.epochBefore&&observed.duringGateSent===0&&observed.afterGateRestrictedSent===0&&observed.afterPinSent===1&&!observed.gateError;
    results.push({ok,...observed,pageErrors:errors});
    console.log('QA243_EPOCH_GATE_'+(ok?'PASS':'FAIL'),JSON.stringify({ok,...observed,pageErrors:errors}));
    await ctx.close();
