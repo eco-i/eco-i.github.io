@@ -35,6 +35,9 @@ check('243 source includes inherited 242 pre-RPC task fence',()=>html.includes('
 check('244 candidate contains admin privilege RPC guard',()=>html.includes('function guardAdminPrivilegeRpcSession(name,options={})')&&html.includes('PIN_GATE_IDENTITY_READ_RPCS'));
 check('246 official baseline SHA-256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('246 revised candidate admin restore revision protected',()=>html.includes("'get_personnel_restore_revision_v1'")&&html.includes('guardAdminPrivilegeRpcSession(name);'));
+check('246 final candidate SHA256 pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d');
+check('246 final candidate exact byte count pinned',()=>Buffer.byteLength(html)===1169644);
+check('246 dynamic admin capacity read RPCs fenced',()=>['get_company_event_capacity','get_holiday_work_eligibility_capacity','get_annual_leave_capacity','get_overtime_storage_capacity','get_memo_dday_storage_capacity'].every(n=>html.includes("'"+n+"'"))&&html.includes('guardAdminPrivilegeRpcSession(name);'));
 check('245 current baseline distinct from candidate',()=>crypto.createHash('sha256').update(html).digest('hex')!==expected);
 check('245 revised candidate includes targeted admin read authorization',()=>html.includes('ADMIN_PRIVILEGED_READ_RPCS')&&html.includes('guardAdminPrivilegeRpcSession(name);'));
 check('245 just-in-time administrator prefetch fence',()=>html.includes("if(mutationRpc||sensitiveRpc||ADMIN_PRIVILEGED_READ_RPCS.has(String(name||'')))guardAdminPrivilegeRpcSession(name,options);"));
