@@ -2209,6 +2209,16 @@ function migrateLegacySessionForDevice(){
     const run=withSharedSessionMutex(()=>{
       const localToken=storageGet(localStorage,SESSION_KEY),temporaryToken=storageGet(sessionStorage,SESSION_KEY);
       const localAdmin=storageGet(localStorage,ADMIN_UNLOCK_KEY),temporaryAdmin=storageGet(sessionStorage,ADMIN_UNLOCK_KEY);
+      // A completed newer shared logout is a trust boundary. Mobile
+      // sessionStorage is legacy-only: never re-promote its stale token (or
+      // stale admin unlock) after the newer shared login was logged out.
+      const loggedOutShared=storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+      if(loggedOutShared&&(!localToken||localToken===loggedOutShared)){
+        storageRemove(sessionStorage,SESSION_KEY);
+        storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
+        storageRemove(localStorage,PC_REMEMBER_KEY);
+        return true;
+      }
       const token=localToken||temporaryToken;
       if(token){
         if(localToken!==token)storageSet(localStorage,SESSION_KEY,token);
