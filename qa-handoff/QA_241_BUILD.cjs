@@ -14,7 +14,7 @@ let c=fs.readFileSync('qa-handoff/QA_240_SMOKE.cjs','utf8')
  .replaceAll('QA 240','QA 241')
  .replaceAll('afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5',expected)
  .replaceAll('1164059','1164815');
-const initialShaLine="check('240 stable candidate SHA pinned'";
+const initialShaLine="check('240 exact-token revocation candidate SHA pinned'";
 if(!c.includes(initialShaLine))throw Error('Original candidate SHA line missing');
 c=c.replaceAll('afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5',expected);
 const oldCandidate='53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34';
