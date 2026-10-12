@@ -1958,6 +1958,10 @@ function scheduleSharedSessionCleanup(token){
 }
 function storedSessionTombstoned(token){
   token=String(token||'');if(!token)return false;
+  // Mobile/remembered shared logout suppression remains authoritative even
+  // when another sleeping tab missed its storage event or Web Locks failed.
+  // A fresh successful login clears the exact-token suppression marker.
+  if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)return true;
   // This helper also runs during initial state bootstrap, before late
   // update-handoff constants initialize; read the token-specific key directly.
   const now=Date.now(),fresh=value=>{
