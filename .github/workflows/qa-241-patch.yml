@@ -1,0 +1,29 @@
+name: QA 2-8-241 fix shared logout suppression guard
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-241-patch.yml"
+      - "qa-handoff/QA_241_PATCH.cjs"
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+      - name: Apply verified one-location shared suppression guard fix
+        run: node qa-handoff/QA_241_PATCH.cjs
+      - name: Verify and commit QA-only product candidate
+        run: |
+          git diff --check
+          git add index.html qa-handoff/index.working-2-8-241.html
+          git diff --cached --stat
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'fix(2-8-241): revoke suppressed shared logout token in all live guards'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
