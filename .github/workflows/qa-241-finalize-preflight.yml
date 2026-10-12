@@ -1,0 +1,28 @@
+name: QA 2-8-241 preflight finalizer (read only)
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-241-finalize-preflight.yml"
+      - "qa-handoff/QA_241_FINALIZE.cjs"
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate finalizer script and official product SHA without writing state
+        run: |
+          node --check qa-handoff/QA_241_FINALIZE.cjs
+          node - <<'NODE'
+          const fs=require('fs'),crypto=require('crypto');
+          const sha=f=>crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
+          const current=JSON.parse(fs.readFileSync('qa-handoff/CURRENT_STATE.json','utf8'));
+          if(current.last_completed_block!=='2-8-240'||current.next_block!=='2-8-241'||current.cumulative_defects!==516)throw Error('Wrong previous official');
+          if(sha('qa-handoff/index.before-2-8-241.html')!=='53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34')throw Error('Original changed');
+          const target='1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5';
+          if(sha('index.html')!==target||sha('qa-handoff/index.working-2-8-241.html')!==target)throw Error('Candidate altered');
+          console.log('QA241_PREFLIGHT_OK',JSON.stringify({official:current.last_completed_block,next:current.next_block,sha256:target,bytes:fs.statSync('index.html').size}));
+          NODE
