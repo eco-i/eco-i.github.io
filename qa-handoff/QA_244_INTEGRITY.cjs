@@ -24,6 +24,9 @@ const lines=diff.stdout.split('\n');
 const hunks=lines.filter(l=>l.startsWith('@@'));
 const removed=lines.filter(l=>l.startsWith('-')&&!l.startsWith('---')).map(l=>l.slice(1));
 const approvedRemoved=[
+"  // Once the server requires a PIN reset, protected writes and sensitive",
+"  // exports must stop even when the old authenticated token remains valid.",
+"  // Only the actual own-PIN change RPC may proceed through this gate.",
 "  if(!state.initialPinRequired||String(name||'')==='change_own_pin_v2')return;",
 "    if(ownerStillCurrent&&!sharedChanged)return true;",
 "    if(responseGuardedRpc&&!err?.sharedSessionChanged)assertRpcResponseOwnerCurrent();"
