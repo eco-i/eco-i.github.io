@@ -1394,6 +1394,33 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa240-live
   check('Revoked admin token cannot reuse old second-factor unlock',()=>revokedAdmin.revoked&&!revokedAdmin.unlocked&&!revokedAdmin.contextStillValid);
   await revokedAdminCtx.close();
 
+  // 240: An old mobile A logout must never delete an independently newer
+  // shared B and its admin unlock, even if A is explicitly tombstoned first.
+  const newerCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const oldLogoutPage=await newerCtx.newPage();
+  await oldLogoutPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await oldLogoutPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  await oldLogoutPage.waitForTimeout(300);
+  await oldLogoutPage.evaluate(()=>{
+    state.sessionToken='qa240-older-token-A';
+    state.me={employee_id:240,is_admin:true};
+    localStorage.setItem(SESSION_KEY,'qa240-newer-token-B');
+    localStorage.setItem(ADMIN_UNLOCK_KEY,'qa240-newer-token-B');
+    markUpdateHandoffLoggedOut('qa240-older-token-A');
+    logout(false);
+  });
+  await oldLogoutPage.waitForTimeout(400);
+  const newerSafe=await oldLogoutPage.evaluate(()=>({
+    token:localStorage.getItem(SESSION_KEY),
+    unlock:localStorage.getItem(ADMIN_UNLOCK_KEY),
+    tombstone:storedSessionTombstoned('qa240-older-token-A'),
+    owner:state.sessionToken
+  }));
+  console.log('QA240_NEWER_SHARED_SURVIVES_OLD_LOGOUT',JSON.stringify(newerSafe));
+  check('Old mobile logout does not delete newer shared account B',()=>newerSafe.tombstone&&newerSafe.token==='qa240-newer-token-B');
+  check('Old mobile logout does not delete newer shared administrator unlock B',()=>newerSafe.unlock==='qa240-newer-token-B'&&!newerSafe.owner);
+  await newerCtx.close();
+
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
   const navCtx=await browser.newContext({viewport:{width:390,height:844}});
