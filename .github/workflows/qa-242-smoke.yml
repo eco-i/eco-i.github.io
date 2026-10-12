@@ -1,0 +1,25 @@
+name: QA 2-8-242 actual Chromium blocking-dialog revocation
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-242-smoke.yml"
+      - "qa-handoff/QA_242_SMOKE.cjs"
+      - "qa-handoff/index.before-2-8-242.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa-242 --no-audit --no-fund playwright-core@1.55.1
+      - name: Reproduce in-dialog marker race in real Chrome
+        env:
+          NODE_PATH: /tmp/qa-242/node_modules
+        run: node qa-handoff/QA_242_SMOKE.cjs
