@@ -1593,6 +1593,9 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa241-live
       state.sessionToken=fresh;state.me={employee_id:241,is_admin:true};
       const wrote=await withBrowserSharedSessionLock(()=>storeLoginSession(fresh,true,true));
       const unlocked=await withBrowserSharedSessionLock(()=>storeAdminUnlock(fresh,true));
+      // Avoid test-fixture races with the app's unauthenticated backend boot:
+      // these probes intentionally supply a synthetic actor after storage operations.
+      state.sessionToken=fresh;state.me={employee_id:241,is_admin:true};
       return {mobile:MOBILE_SESSION_DEVICE,wrote,unlocked,
         recovered:storedSessionToken(),current:localStorage.getItem(SESSION_KEY),
         marker:localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY),
