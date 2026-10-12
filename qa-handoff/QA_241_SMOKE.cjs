@@ -24,11 +24,12 @@ check('239 old PC token cleanup cannot remove newer tab-only token',()=>html.inc
 check('240 closed-session admin unlock requires live token',()=>html.includes('!storedSessionTombstoned(token) && (storageGet(localStorage,ADMIN_UNLOCK_KEY)'));
 check('240 runtime tombstone closes existing sensitive UI',()=>html.includes("e.key.startsWith('staffAttendance_updateSessionLogoutToken_v1:')"));
 check('240 current token tombstone fenced even if shared storage stays the same',()=>html.includes('if(current&&storedSessionTombstoned(current))return true;'));
+check('241 exact shared suppression also fenced inside all runtime ownership helpers',()=>html.includes('if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)return true;'));
 check('Previous session-safety correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 check('238 mobile tab-only carveout eliminated',()=>html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return false;")&&html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return {current,mode:'tab'};")&&html.includes("if(!MOBILE_SESSION_DEVICE && current && tabToken===current){ sharedSessionChangePending="));
 check('238 no stale legacy mobile fallback after shared logout',()=>html.includes("rawLocal ? localToken : (forbidden ? '' : temporaryToken)"));
 check('240 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34');
-check('240 exact-token revocation candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34');
+check('241 shared suppression live-guard candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5');
 console.log('QA241_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
@@ -1547,6 +1548,67 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa241-live
   check('241 suppressed shared token blocks mutation, export and ordinary read before RPC',
     ()=>suppressed.mutationDenied&&suppressed.backupDenied&&suppressed.readDenied);
   await suppressedContext.close();
+
+  // 241: Existing tab-only PC session B must stay authenticated when
+  // another unrelated shared token A was explicitly suppressed. A new shared
+  // login C must also supersede stale A without inheriting its lock.
+  const survivorPcCtx=await browser.newContext({viewport:{width:1366,height:900}});
+  const survivorPc=await survivorPcCtx.newPage();
+  await survivorPc.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await survivorPc.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const survivingPc=await survivorPc.evaluate(()=>{
+    const prev=window.configured;window.configured=()=>true;
+    try{
+      const localToken='qa241-old-shared-A',tab='qa241-independent-PC-B';
+      localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,localToken);
+      localStorage.setItem(SESSION_KEY,localToken);
+      sessionStorage.setItem(SESSION_KEY,tab);
+      sessionStorage.setItem(ADMIN_UNLOCK_KEY,tab);
+      state.sessionToken=tab;
+      state.me={employee_id:241,is_admin:true};
+      return {mobile:MOBILE_SESSION_DEVICE,
+        recovered:storedSessionToken(),admin:adminUnlockMatches(tab),
+        mismatch:sharedPersistentSessionMismatch(),
+        sensitive:fingerprintCurrentSharedSessionMismatch(),
+        snapshot:fingerprintBlockingPromptSessionSnapshot().mode,
+        asyncOwner:sessionContextCurrent(241,tab)};
+    }finally{window.configured=prev;}
+  });
+  console.log('QA241_UNRELATED_PC_TAB_SURVIVES',JSON.stringify(survivingPc));
+  check('241 unrelated independent PC tab B unaffected by suppressed shared A',
+    ()=>!survivingPc.mobile&&survivingPc.recovered==='qa241-independent-PC-B'&&survivingPc.admin&&
+       !survivingPc.mismatch&&!survivingPc.sensitive&&survivingPc.snapshot==='tab'&&survivingPc.asyncOwner);
+  await survivorPcCtx.close();
+
+  const cleanMobileCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const cleanMobile=await cleanMobileCtx.newPage();
+  await cleanMobile.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await cleanMobile.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  const newShared=await cleanMobile.evaluate(async()=>{
+    const prev=window.configured;window.configured=()=>true;
+    try{
+      const old='qa241-suppressed-old-A',fresh='qa241-new-shared-C';
+      localStorage.setItem(SESSION_KEY,old);
+      localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,old);
+      state.sessionToken=fresh;state.me={employee_id:241,is_admin:true};
+      const wrote=await withBrowserSharedSessionLock(()=>storeLoginSession(fresh,true,true));
+      const unlocked=await withBrowserSharedSessionLock(()=>storeAdminUnlock(fresh,true));
+      return {mobile:MOBILE_SESSION_DEVICE,wrote,unlocked,
+        recovered:storedSessionToken(),current:localStorage.getItem(SESSION_KEY),
+        marker:localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY),
+        admin:adminUnlockMatches(fresh),mismatch:sharedPersistentSessionMismatch(),
+        sensitive:fingerprintCurrentSharedSessionMismatch(),
+        snapshot:fingerprintBlockingPromptSessionSnapshot().mode,
+        asyncOwner:sessionContextCurrent(241,fresh)};
+    }finally{window.configured=prev;}
+  });
+  console.log('QA241_NEW_SHARED_LOGIN_SURVIVES_OLD_SUPPRESSION',JSON.stringify(newShared));
+  check('241 distinct successful mobile shared C stays live while old A marker exists',
+    ()=>newShared.mobile&&newShared.wrote&&newShared.unlocked&&
+       newShared.recovered==='qa241-new-shared-C'&&newShared.current===newShared.recovered&&
+       newShared.marker==='qa241-suppressed-old-A'&&newShared.admin&&
+       !newShared.mismatch&&!newShared.sensitive&&newShared.snapshot==='shared'&&newShared.asyncOwner);
+  await cleanMobileCtx.close();
 
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
