@@ -21,11 +21,14 @@ check('239 mobile migration hard boundary explicitly coded',()=>html.includes('l
 check('239 per-token logout tombstone enforced at early boot',()=>html.includes('function storedSessionTombstoned(token)')&&html.includes('!storedSessionTombstoned(rawLocal)')&&html.includes('!storedSessionTombstoned(rawTab)'));
 check('239 tombstoned mobile legacy token discarded during migration',()=>html.includes('if(token&&storedSessionTombstoned(token))'));
 check('239 old PC token cleanup cannot remove newer tab-only token',()=>html.includes('if(matched||current)return;'));
+check('240 closed-session admin unlock requires live token',()=>html.includes('!storedSessionTombstoned(token) && (storageGet(localStorage,ADMIN_UNLOCK_KEY)'));
+check('240 runtime tombstone closes existing sensitive UI',()=>html.includes("e.key.startsWith('staffAttendance_updateSessionLogoutToken_v1:')"));
+check('240 current token tombstone fenced even if shared storage stays the same',()=>html.includes('if(current&&storedSessionTombstoned(current))return true;'));
 check('Previous session-safety correction retained',()=>html.includes('safelyClearStoredLoginSession')&&html.includes('ensureAdminUnlockForRestoreWithScope'));
 check('238 mobile tab-only carveout eliminated',()=>html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return false;")&&html.includes("if(!MOBILE_SESSION_DEVICE&&tabToken===current)return {current,mode:'tab'};")&&html.includes("if(!MOBILE_SESSION_DEVICE && current && tabToken===current){ sharedSessionChangePending="));
 check('238 no stale legacy mobile fallback after shared logout',()=>html.includes("rawLocal ? localToken : (forbidden ? '' : temporaryToken)"));
 check('238 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5');
-check('239 three security-fix candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5');
+check('240 exact-token revocation candidate SHA pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34');
 console.log('QA240_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
