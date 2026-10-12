@@ -3161,7 +3161,13 @@ async function rpc(name, payload={}, options={}){
     const ownerStillCurrent=ownerTokenCurrent&&(ordinaryReadRpc||!!state.me);
     const deferredMutationResponseAllowed=mutationRpc&&mutationRpcAllowsDeferredSession(name,options)&&ordinaryReadSharedSessionOwnershipCurrent(responseOwnerToken);
     const sharedChanged=ownerStillCurrent&&(ordinaryReadRpc?!ordinaryReadSharedSessionOwnershipCurrent(responseOwnerToken):(deferredMutationResponseAllowed?false:sharedPersistentSessionMismatch()));
-    if(ownerStillCurrent&&!sharedChanged)return true;
+    if(ownerStillCurrent&&!sharedChanged){
+      // Authenticated response data also belongs to the currently unlocked
+      // administrator. Permission revoked mid-flight must not expose a late
+      // export/preview or allow its privileged completion into the UI.
+      guardAdminPrivilegeRpcSession(name,options);
+      return true;
+    }
     if(sharedChanged)reconcileSharedSessionIfNeeded();
     const ownerErr=new Error('SHARED_SESSION_CHANGED');ownerErr.sharedSessionChanged=true;ownerErr.rpcMutation=mutationRpc;ownerErr.rpcName=String(name||'');throw ownerErr;
   };
@@ -3226,7 +3232,8 @@ async function rpc(name, payload={}, options={}){
   }catch(err){
     // fetch 자체가 timeout/network error로 끝난 경우에는 정상/HTTP 응답 fence를 거치지 못한다.
     // 이때도 요청 도중 세션 소유권이 바뀌었다면 옛 요청의 오류 UI가 새 세션에 반영되지 않게 먼저 폐기한다.
-    if(responseGuardedRpc&&!err?.sharedSessionChanged)assertRpcResponseOwnerCurrent();
+    if(responseGuardedRpc&&!err?.sharedSessionChanged&&!err?.adminPermissionRevoked)assertRpcResponseOwnerCurrent();
+    if(err?.adminPermissionRevoked)throw err;
     if(err?.name==='AbortError'){
       const timeoutError=new Error('요청 시간이 초과되었습니다.');
       timeoutError.isNetworkError=true;
