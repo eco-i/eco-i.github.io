@@ -3138,6 +3138,14 @@ async function rpc(name, payload={}, options={}){
   // never send an old-token request merely because synchronous localStorage was stale.
   if(responseGuardedRpc){
     await new Promise(resolve=>setTimeout(resolve,0));
+    // The same login token can survive a security-context reset, including
+    // a forced initial-PIN gate. An old in-flight request must not cross the
+    // epoch boundary merely because its token and shared storage still match.
+    if(responseOwnerEpoch!==sessionContextEpoch){
+      const err=new Error('SHARED_SESSION_CHANGED');
+      err.sharedSessionChanged=true;err.rpcMutation=mutationRpc;err.rpcName=String(name||'');
+      throw err;
+    }
     guardSensitiveDataRpcSession(name,payload);
     guardMutationRpcSession(name,payload,options);
     guardOrdinaryAuthenticatedReadRpcSession(name,payload);
