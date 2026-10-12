@@ -20,6 +20,19 @@ if(crypto.createHash('sha256').update(original).digest('hex')!==expected)throw E
     await first.route('https://cdn.jsdelivr.net/**',r=>r.abort()); await second.route('https://cdn.jsdelivr.net/**',r=>r.abort());
     await Promise.all([first.goto(origin,{waitUntil:'domcontentloaded'}),second.goto(origin,{waitUntil:'domcontentloaded'})]);
     await first.waitForTimeout(450);
+    const instrument=()=>{window.__qa242Trace=[];
+      const rm=Storage.prototype.removeItem,set=Storage.prototype.setItem;
+      Storage.prototype.removeItem=function(key){
+        if(key==='staffAttendance_sharedLoggedOutToken_v1')window.__qa242Trace.push({op:'remove',at:Date.now(),stack:(new Error().stack||'').slice(0,500)});
+        return rm.call(this,key);
+      };
+      Storage.prototype.setItem=function(key,value){
+        if(key==='staffAttendance_sharedLoggedOutToken_v1')window.__qa242Trace.push({op:'set',value,at:Date.now(),stack:(new Error().stack||'').slice(0,500)});
+        return set.call(this,key,value);
+      };
+      window.addEventListener('storage',e=>{if(e.key==='staffAttendance_sharedLoggedOutToken_v1')window.__qa242Trace.push({op:'event',newValue:e.newValue,at:Date.now()});});
+    };
+    await Promise.all([first.evaluate(instrument),second.evaluate(instrument)]);
     const token='qa242-real-dialog-A';
     const setup=await first.evaluate(t=>{window.configured=()=>true;localStorage.setItem(SESSION_KEY,t);localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);state.sessionToken=t;state.me={employee_id:242,is_admin:true,display_name:'QA242 two-tab'};return fingerprintBlockingPromptSessionSnapshot().mode},token);
     if(setup!=='shared')throw Error('Unexpected initial shared mode: '+setup);
@@ -27,9 +40,10 @@ if(crypto.createHash('sha256').update(original).digest('hex')!==expected)throw E
     await second.waitForTimeout(800);
     let markerSet=false,dialogSeen=false,handlerError='';
     first.once('dialog',async dialog=>{dialogSeen=true;try{markerSet=await second.evaluate(t=>{localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,t);return localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===t},token);}catch(e){handlerError=String(e)}finally{await dialog.accept().catch(()=>{});}});
-    const diag=await Promise.race([first.evaluate(()=>{const before=fingerprintBlockingPromptSessionSnapshot();const accepted=confirmMutationWithSessionGuard('Two-tab live Chrome confirm');return {accepted,beforeMode:before.mode,marker:localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY),session:state.sessionToken,tombstoned:storedSessionTombstoned('qa242-real-dialog-A'),afterMode:fingerprintBlockingPromptSessionSnapshot().mode}}),new Promise((_,reject)=>setTimeout(()=>reject(Error('Dialog timed out')),12000))]);
+    const diag=await Promise.race([first.evaluate(()=>{const before=fingerprintBlockingPromptSessionSnapshot();const accepted=confirmMutationWithSessionGuard('Two-tab live Chrome confirm');return {accepted,beforeMode:before.mode,marker:localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY),session:state.sessionToken,tombstoned:storedSessionTombstoned('qa242-real-dialog-A'),afterMode:fingerprintBlockingPromptSessionSnapshot().mode,trace:window.__qa242Trace}}),new Promise((_,reject)=>setTimeout(()=>reject(Error('Dialog timed out')),12000))]);
     const accepted=diag.accepted;
-    const live={label,setup,dialogSeen,markerSet,accepted,expectedAccepted,handlerError,diag};
+    const secondState=await second.evaluate(()=>({marker:localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY),shared:localStorage.getItem(SESSION_KEY),trace:window.__qa242Trace||[]})).catch(e=>({error:String(e)}));
+    const live={label,setup,dialogSeen,markerSet,accepted,expectedAccepted,handlerError,diag,secondState};
     result.push(live);console.log('QA242_REAL_DIALOG',JSON.stringify(live));
     await ctx.close();
    }finally{if(server)await new Promise(r=>server.close(r));}
