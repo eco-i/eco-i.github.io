@@ -1075,21 +1075,26 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa239-live
   const migrationPage=await migrationCtx.newPage();
   await migrationPage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
   await migrationPage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
-  const migration=await migrationPage.evaluate(()=>{
-    const before=()=>{
-      localStorage.removeItem(SESSION_KEY);
-      localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa239-newer-B');
-      sessionStorage.setItem(SESSION_KEY,'qa239-stale-A');
-      sessionStorage.setItem(ADMIN_UNLOCK_KEY,'qa239-stale-A');
-    };
-    before();
-    const initial=storedSessionToken(),ran=migrateLegacySessionForDevice(),
-      after=storedSessionToken(),shared=localStorage.getItem(SESSION_KEY),
+  await migrationPage.waitForTimeout(350);
+  const migration=await migrationPage.evaluate(async()=>{
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,'qa239-newer-B');
+    sessionStorage.setItem(SESSION_KEY,'qa239-stale-A');
+    sessionStorage.setItem(ADMIN_UNLOCK_KEY,'qa239-stale-A');
+    const initial=storedSessionToken();
+    let ran=false,attempts=0;
+    for(let i=0;i<40;i++){
+      attempts++;
+      if(migrateLegacySessionForDevice()){ran=true;break;}
+      await new Promise(resolve=>setTimeout(resolve,100));
+    }
+    const after=storedSessionToken(),shared=localStorage.getItem(SESSION_KEY),
       currentAdmin=localStorage.getItem(ADMIN_UNLOCK_KEY);
-    return {mobile:MOBILE_SESSION_DEVICE,initial,ran,after,shared,currentAdmin,
+    return {mobile:MOBILE_SESSION_DEVICE,initial,ran,attempts,after,shared,currentAdmin,
       temporary:sessionStorage.getItem(SESSION_KEY)};
   });
   console.log('QA239_MOBILE_STALE_MIGRATION',JSON.stringify(migration));
+  check('239 legacy migration obtained actual mutex (not a skipped test)',()=>migration.ran);
   check('Mobile logged-out newer shared session cannot be resurrected by legacy migration',
     ()=>migration.mobile&&!migration.initial&&!migration.after&&!migration.shared);
   check('Mobile stale legacy admin unlock not promoted after newer logout',
