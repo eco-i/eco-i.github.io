@@ -1,0 +1,22 @@
+name: QA 2-8-246 exact immutable source integrity
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-246-integrity.yml"
+      - "qa-handoff/QA_246_INTEGRITY.cjs"
+      - "qa-handoff/index.working-2-8-246.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  immutable:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact patch delta, SHA bytes, scripts and DOM IDs
+        run: node qa-handoff/QA_246_INTEGRITY.cjs
