@@ -31,8 +31,9 @@ check('238 no stale legacy mobile fallback after shared logout',()=>html.include
 check('240 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='1e4f0272715743ac302b7f46cb13d052f869719194a45baaaed2c5a14c1873f5');
 check('242 blocking dialog must re-read token tombstone',()=>html.includes('if(storedSessionTombstoned(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}'));
 check('242 candidate differs from immutable 241 baseline',()=>crypto.createHash('sha256').update(html).digest('hex')!==expected);
-check('242 final candidate SHA-256 exactly pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='1470edc999ddb92559b47c07dd91949a150cbcc936829f608c6a4572f78829d6');
-check('242 final candidate bytes exactly pinned',()=>Buffer.byteLength(html)===1165399);
+check('242 final candidate SHA-256 exactly pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='c685f8a453b556f6c52ac317b00de432471278aefb0fd2b0f686f7ffbb987082');
+check('242 final candidate bytes exactly pinned',()=>Buffer.byteLength(html)===1165913);
+check('242 protected RPC defers one browser task and then rechecks ownership',()=>html.includes('if(responseGuardedRpc){\n    await new Promise(resolve=>setTimeout(resolve,0));\n    guardSensitiveDataRpcSession(name,payload);'))
 console.log('QA242_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
