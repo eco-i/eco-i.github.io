@@ -1,0 +1,27 @@
+name: QA 2-8-240 build baseline and test fixture
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-240-build.yml"
+      - "qa-handoff/QA_240_BUILD.cjs"
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+      - name: Construct 240 immutable SHA baseline and Chromium suite
+        run: node qa-handoff/QA_240_BUILD.cjs
+      - name: Commit QA-only staged files
+        run: |
+          git diff --check
+          git add qa-handoff/index.working-2-8-240.html qa-handoff/QA_240_SMOKE.cjs
+          git -c user.name='qa-verification-bot' -c user.email='qa-verification-bot@users.noreply.github.com' commit -m 'qa(2-8-240): start verified baseline and deep regression'
+          git fetch origin qa-2-8
+          git rebase origin/qa-2-8
+          git push origin HEAD:qa-2-8
