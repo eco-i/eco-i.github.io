@@ -23,10 +23,13 @@ if(crypto.createHash('sha256').update(original).digest('hex')!==expected)throw E
     const token='qa242-real-dialog-A';
     const setup=await first.evaluate(t=>{window.configured=()=>true;localStorage.setItem(SESSION_KEY,t);localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);state.sessionToken=t;state.me={employee_id:242,is_admin:true,display_name:'QA242 two-tab'};return fingerprintBlockingPromptSessionSnapshot().mode},token);
     if(setup!=='shared')throw Error('Unexpected initial shared mode: '+setup);
+    // Wait until second tab completes any login-storage-event boot/reload work.
+    await second.waitForTimeout(800);
     let markerSet=false,dialogSeen=false,handlerError='';
     first.once('dialog',async dialog=>{dialogSeen=true;try{markerSet=await second.evaluate(t=>{localStorage.setItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,t);return localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===t},token);}catch(e){handlerError=String(e)}finally{await dialog.accept().catch(()=>{});}});
-    const accepted=await Promise.race([first.evaluate(()=>confirmMutationWithSessionGuard('Two-tab live Chrome confirm')),new Promise((_,reject)=>setTimeout(()=>reject(Error('Dialog timed out')),12000))]);
-    const live={label,setup,dialogSeen,markerSet,accepted,expectedAccepted,handlerError};
+    const diag=await Promise.race([first.evaluate(()=>{const before=fingerprintBlockingPromptSessionSnapshot();const accepted=confirmMutationWithSessionGuard('Two-tab live Chrome confirm');return {accepted,beforeMode:before.mode,marker:localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY),session:state.sessionToken,tombstoned:storedSessionTombstoned('qa242-real-dialog-A'),afterMode:fingerprintBlockingPromptSessionSnapshot().mode}}),new Promise((_,reject)=>setTimeout(()=>reject(Error('Dialog timed out')),12000))]);
+    const accepted=diag.accepted;
+    const live={label,setup,dialogSeen,markerSet,accepted,expectedAccepted,handlerError,diag};
     result.push(live);console.log('QA242_REAL_DIALOG',JSON.stringify(live));
     await ctx.close();
    }finally{if(server)await new Promise(r=>server.close(r));}
