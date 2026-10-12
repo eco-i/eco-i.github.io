@@ -5,7 +5,7 @@ const baseline=fs.readFileSync('qa-handoff/index.before-2-8-241.html','utf8');
 const file='qa-handoff/index.working-2-8-241.html';
 const html=fs.readFileSync(file,'utf8');
 const expected='53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34';
-// QA 241 final independent repeat: 180-case exact and aggregate logout tombstone regression on frozen SHA
+// QA 241 independent candidate-stable repeat: 194-pass eight-layer browser suite
 // QA 241 stabilized mutex stress regression v2
 // QA 241 verified Web Lock real two-tab test, syntax correction
 const pass=[];
