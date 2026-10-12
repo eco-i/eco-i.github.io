@@ -4,7 +4,7 @@ const original=fs.readFileSync('qa-handoff/index.before-2-8-246.html');
 if(crypto.createHash('sha256').update(original).digest('hex')!=='be95422d3b79f9cc2348196a07b46e44d5269a353fc73dec98cdc065381029da')throw Error('Wrong official baseline');
 const html=fs.readFileSync('qa-handoff/index.working-2-8-246.html','utf8');
 (async()=>{let server,browser;const out=[];try{
- server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html)});
+ server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(req.url==='/blank'?'<!doctype html><title>QA246 passive shared-origin tab</title>':html)});
  await new Promise(ok=>server.listen(0,'127.0.0.1',ok));
  browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
  for(const mobile of [true,false]){
@@ -12,7 +12,7 @@ const html=fs.readFileSync('qa-handoff/index.working-2-8-246.html','utf8');
   const a=await ctx.newPage(),b=await ctx.newPage(),errors=[];a.on('pageerror',x=>errors.push(String(x)));
   await a.route('https://cdn.jsdelivr.net/**',route=>route.abort());await b.route('https://cdn.jsdelivr.net/**',route=>route.abort());
   const url='http://127.0.0.1:'+server.address().port+'/';
-  await Promise.all([a.goto(url,{waitUntil:'domcontentloaded'}),b.goto(url,{waitUntil:'domcontentloaded'})]);
+  await Promise.all([a.goto(url,{waitUntil:'domcontentloaded'}),b.goto(url+'blank',{waitUntil:'domcontentloaded'})]);
   await a.waitForTimeout(350);
   const token='qa246-ui-secret-'+label,secret='QA246-SECRET-ADMIN-'+label;
   const initial=await a.evaluate(({token,secret})=>{
@@ -29,7 +29,7 @@ const html=fs.readFileSync('qa-handoff/index.working-2-8-246.html','utf8');
     const names=['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList'];const remaining=names.filter(id=>document.getElementById(id)?.textContent.includes(secret));
     return {adminActive:activeAdminMode(),remaining,oldPinStatus:state.pinStatus?.[246],localUnlock:localStorage.getItem(ADMIN_UNLOCK_KEY),tabUnlock:sessionStorage.getItem(ADMIN_UNLOCK_KEY),localSession:localStorage.getItem(SESSION_KEY),tabSession:sessionStorage.getItem(SESSION_KEY),adminToolsHidden:document.getElementById('adminTools')?.classList.contains('hidden'),sessionTokenStillThere:!!state.sessionToken};
   },secret);
-  const checks={startedAdmin:initial.admin,privilegedPanelsFound:initial.panels.every(Boolean),adminRevoked:!result.adminActive,domSecretPurged:result.remaining.length===0,pinCachePurged:result.oldPinStatus===undefined,adminToolsHidden:result.adminToolsHidden===true,sessionPreserved:result.sessionTokenStillThere,jsNoError:errors.length===0};
+  const checks={validSecondTabRemoval:removal.prev===token,startedAdmin:initial.admin,privilegedPanelsFound:initial.panels.every(Boolean),adminRevoked:!result.adminActive,domSecretPurged:result.remaining.length===0,pinCachePurged:result.oldPinStatus===undefined,adminToolsHidden:result.adminToolsHidden===true,sessionPreserved:result.sessionTokenStillThere,jsNoError:errors.length===0};
   for(const [name,pass] of Object.entries(checks)){out.push(pass);console.log('QA246_UI_PURGE_'+(pass?'PASS':'FAIL'),label,name,JSON.stringify({initial,removal,result,errors}));}
   await ctx.close();
  }
