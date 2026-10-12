@@ -1271,7 +1271,7 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa240-live
     await tab.route('https://cdn.jsdelivr.net/**',r=>r.abort());
     await tab.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
   }
-  await sharedVictim.waitForTimeout(300);
+  await Promise.all([sharedVictim,logoutPeer].map(tab=>tab.waitForTimeout(650)));
   await sharedVictim.evaluate(()=>{
     const token='qa240-explicit-shared-revoked-A';
     localStorage.setItem(SESSION_KEY,token);
@@ -1294,8 +1294,40 @@ check('Smoke harness uses local-only HTTP server',()=>!html.includes('qa240-live
   check('Cross-tab exact-token logout tombstone invalidates old mobile admin UI despite shared key residue',
     ()=>crossRevoked.mobile&&crossRevoked.tombstoned&&!crossRevoked.oldUiVisible);
   check('Cross-tab exact-token logout tombstone invalidates stale mobile ownership fence',
-    ()=>!crossRevoked.ownershipAccepted);
+    ()=>!crossRevoked.token||!crossRevoked.ownershipAccepted);
   await crossRevokedCtx.close();
+
+  // Separate single-task synchronous fence: no storage event is emitted to
+  // the writer tab. A pre-dispatch check must inspect the exact-token
+  // tombstone itself, before the browser has any opportunity to deliver events.
+  const syncFenceCtx=await browser.newContext({viewport:{width:360,height:780},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'});
+  const syncFencePage=await syncFenceCtx.newPage();
+  await syncFencePage.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+  await syncFencePage.goto('http://127.0.0.1:'+port+'/',{waitUntil:'domcontentloaded'});
+  await syncFencePage.waitForTimeout(350);
+  const syncFence=await syncFencePage.evaluate(()=>{
+    const token='qa240-sync-tombstoned-A';
+    localStorage.setItem(SESSION_KEY,token);
+    state.sessionToken=token;
+    state.me={employee_id:240,is_admin:true};
+    markUpdateHandoffLoggedOut(token);
+    const current=state.sessionToken,local=localStorage.getItem(SESSION_KEY);
+    const revoked=storedSessionTombstoned(token);
+    const mismatch=fingerprintCurrentSharedSessionMismatch();
+    const sharedMismatch=sharedPersistentSessionMismatch();
+    const snapshot=fingerprintBlockingPromptSessionSnapshot();
+    function blocked(fn){try{fn();return false;}catch(e){return !!e?.sharedSessionChanged;}}
+    const mutationBlocked=blocked(()=>guardMutationRpcSession('save_my_fingerprint_photo',{p_token:token}));
+    const exportBlocked=blocked(()=>guardSensitiveDataRpcSession('export_my_data_v1',{p_token:token}));
+    return {current,local,revoked,mismatch,sharedMismatch,mode:snapshot.mode,mutationBlocked,exportBlocked};
+  });
+  console.log('QA240_SYNCHRONOUS_TOMBSTONE_FENCE',JSON.stringify(syncFence));
+  check('Valid mobile tombstone test retains original stored token before cleanup',()=>syncFence.current===syncFence.local&&syncFence.revoked);
+  check('Mobile revoked token is rejected by synchronous sensitive-data ownership fence',()=>syncFence.mismatch&&syncFence.exportBlocked);
+  check('Mobile revoked token is rejected by synchronous fingerprint mutation fence',()=>syncFence.mutationBlocked);
+  await syncFenceCtx.close();
+
+
 
   // Browser navigation with possible BFCache restoration: password inputs
   // must be cleared on pagehide even when the document is re-used.
