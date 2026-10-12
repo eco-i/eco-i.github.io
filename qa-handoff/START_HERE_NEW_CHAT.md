@@ -1,14 +1,12 @@
-# ★★★근무모아 공식 GitHub 검수 인계 — 239 완료
+# 근무모아 QA GitHub 공식 인수인계 — 2-8-240 완료
 
-- 공식 완료 **2-8-239**, 다음 **2-8-240**. 신규 제품 결함 3종, 누적 총 **515종**.
-- High/2차/깊이8 유지, 최소20분 실제 검수, 기술 결함 즉시 수정·회귀, ZIP 불필요. GitHub QA 브랜치 `qa-2-8`.
-- 공식 239 완료/240 시작 SHA-256 **afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5** (**1,164,059 bytes**). 239 불변 시작본 SHA **1292955d4ae7fd90c3bcf8e6ccc6d5ea9595bd9d34215e27aa06baa98dd98360** (1,161,777 bytes).
-- APP_VERSION `ver20260927-0944`; SQL·운영 `main`·실배포 변경 없음.
-- 수정 ① 모바일 과거 탭 토큰이 최신 공유 로그아웃 후 다시 공유 세션/관리자 권한으로 승격되는 문제 차단.
-- 수정 ② 정확한 토큰의 logout tombstone(이전 aggregate 포함)에도 초기 로그인 선택·레거시 이관 허용되는 문제 차단.
-- 수정 ③ 지연된 이전 PC 계정 로그아웃 cleanup이 새 계정의 탭 저장 토큰·관리자 인증 표식을 삭제하던 결함 수정.
-- 실제 Chromium 최종 전면검증 [38196759672](https://github.com/eco-i/eco-i.github.io/actions/runs/38196759672), [38196849347](https://github.com/eco-i/eco-i.github.io/actions/runs/38196849347) **각 163 PASS / 0 FAIL**(제품 SHA 동일).
-- 실행 범위와 실패/미검증/유효 제품 결함 근거는 `qa-handoff/QA_2-8-239_REPORT.md`와 `qa-handoff/QA_239_EVIDENCE_AUDIT.json`, SHA 기록 `qa-handoff/QA_2-8-239_SHA_MANIFEST.json`에서 확인.
-- 대상 QA 파일: `index.html`, `qa-handoff/index.working-2-8-239.html`, `qa-handoff/index.before-2-8-240.html` 3개 동일 완료본.
-- 실제 Supabase/RLS·물리 Android 카메라/내 파일·운영 인증멀티유저·iOS Safari·BFCache persisted=true는 이번 검수에서 실행하지 않음.
-- 종료 후 다음 블록은 **2-8-240**이며 운영 배포와 버전명은 사용자 별도 승인 없이 변경 금지.
+- 공식 마지막 완료 블록 **2-8-240**, 다음 **2-8-241**, 공식 누적 제품 결함 **516종** (이번 +1종).
+- QA 브랜치 `qa-2-8` 및 저장소 `eco-i/eco-i.github.io`. 운영 `main`/APP_VERSION `ver20260927-0944`/SQL/배포 변경 없음.
+- 240 시작 SHA-256 `afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5`, 1,164,059 bytes.
+- 240 완료 및 241 시작 SHA-256 `53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34`, 1,164,815 bytes, GitHub QA `index.html`/working/241 기준 동일.
+- 신규 제품 결함: token-specific logout tombstone이 실시간 열린 탭/관리자 unlock/지문 변경·민감 export RPC 사전 인증 경계에서 누락. 최신 로컬 로그아웃 이벤트가 도착하지 않거나 SESSION_KEY가 불변인 구간의 권한 우회. 제품 **6곳 최소 수정**.
+- 브라우저 red [38214017941](https://github.com/eco-i/eco-i.github.io/actions/runs/38214017941).
+- 실제 Chromium 고정 SHA 최종 **180 PASS / 0 FAIL 2회**: [38215309353](https://github.com/eco-i/eco-i.github.io/actions/runs/38215309353), [38215415673](https://github.com/eco-i/eco-i.github.io/actions/runs/38215415673).
+- 실제 모바일 3 관리자 탭의 토큰 폐기 fan-out, PC 독립 관리자 B, 구 A 로그아웃 후 신규 공유 B 보존, 전 8단계 기존 검증.
+- 문서 `qa-handoff/QA_2-8-240_REPORT.md` / `qa-handoff/QA_240_EVIDENCE_AUDIT.json` / `qa-handoff/QA_2-8-240_SHA_MANIFEST.json`.
+- 실 DB/Supabase·Android native picker·실 인증서버 멀티유저·iOS·BFCache persisted·실 백업 미검증. High·깊이8·최소20분 실제검수·20분 이내 중간보고·기술결함 즉시 수정/회귀·번호 연속. ZIP 불필요.

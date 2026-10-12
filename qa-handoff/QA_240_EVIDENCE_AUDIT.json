@@ -1,0 +1,83 @@
+{
+  "block": "2-8-240",
+  "status": "COMPLETE",
+  "round": 2,
+  "depth": 8,
+  "mode": "High",
+  "previous_completed": "2-8-239",
+  "next_block": "2-8-241",
+  "previous_cumulative_defects": 515,
+  "new_product_defects": 1,
+  "new_official_total": 516,
+  "start_sha256": "afba6b948c5d33ce62cfb5a70710852d6540e75576644ed1e3daf6809d26f5f5",
+  "start_bytes": 1164059,
+  "final_sha256": "53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34",
+  "final_bytes": 1164815,
+  "first_qa_action_kst": "2026-10-12T15:41:51+09:00",
+  "completed_kst": "2026-10-12T16:03:24+09:00",
+  "red_product_run": 38214017941,
+  "red_witness": {
+    "tombstoned": true,
+    "retained_token": true,
+    "shared_unchanged": true,
+    "shared_mismatch": false,
+    "fingerprint_mismatch": false,
+    "fingerprint_mutation_blocked": false,
+    "sensitive_export_blocked": false
+  },
+  "nonproduct_fixtures": [
+    "Initial peer tab auto-cleared session before witness; state was already empty and expected mismatch assertion was invalid",
+    "Workflow created before 240 fixture file existed; initial setup CI failure not a product defect"
+  ],
+  "fixed_source_edit_count": 6,
+  "scope_unchanged_html_except_six_patches": true,
+  "final_runs": [
+    {
+      "id": 38215309353,
+      "checks_passed": 180,
+      "checks_failed": 0,
+      "sha256": "53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34"
+    },
+    {
+      "id": 38215415673,
+      "checks_passed": 180,
+      "checks_failed": 0,
+      "sha256": "53ea6ea7a20b3fbd9d0c93aa0d7d6969d89e1179638211a0d8a8bcf786fc2c34"
+    }
+  ],
+  "coverage": {
+    "real_headless_chromium": true,
+    "independent_shift_cases": 2920,
+    "annual_fuzz_sets": 500,
+    "token_matrix": 72,
+    "real_four_tab_exact_token_logout": true,
+    "independent_pc_tab_login_preserved": true,
+    "pc_admin_unlock_preserved": true,
+    "mobile_newer_shared_token_survives_stale_logout": true,
+    "mobile_newer_shared_admin_unlock_survives": true,
+    "fingerprint_mutation_rpc_guard": true,
+    "sensitive_export_rpc_guard": true,
+    "admin_unlock_tombstone_guard": true,
+    "png_to_jpeg": true,
+    "authenticated_calendar_october_days": 31,
+    "viewport_widths": [
+      320,
+      360,
+      390,
+      430,
+      768,
+      1024,
+      1440
+    ],
+    "live_supabase_rls": false,
+    "physical_android_picker": false,
+    "authenticated_backend_multiuser": false,
+    "ios_safari": false,
+    "bfcache_persisted_confirmed": false,
+    "real_backup_restore": false
+  },
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "production_main_modified": false,
+  "deployed": false
+}
