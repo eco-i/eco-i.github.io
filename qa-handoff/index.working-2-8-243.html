@@ -3026,8 +3026,18 @@ function syncVersionFooter(){
 const SESSION_SENSITIVE_DATA_RPCS=new Set([
   'export_my_data_v1','export_admin_data_v1','preview_data_restore_v2','list_data_safety_backups_v1','preview_safety_backup_restore_v2','preview_admin_reset_data_v2','preview_current_personnel_pin_reset_v1'
 ]);
+function guardMandatoryInitialPinGateRpc(name){
+  // Once the server requires a PIN reset, protected writes and sensitive
+  // exports must stop even when the old authenticated token remains valid.
+  // Only the actual own-PIN change RPC may proceed through this gate.
+  if(!state.initialPinRequired||String(name||'')==='change_own_pin_v2')return;
+  const err=new Error('INITIAL_PIN_CHANGE_REQUIRED');
+  err.initialPinRequired=true;err.rpcName=String(name||'');
+  throw err;
+}
 function guardSensitiveDataRpcSession(name,payload={}){
   if(!SESSION_SENSITIVE_DATA_RPCS.has(String(name||'')))return;
+  guardMandatoryInitialPinGateRpc(name);
   const current=String(state.sessionToken||''),payloadToken=String(payload?.p_token||'');
   // 백업/복원 preview처럼 민감한 payload를 주고받는 읽기 RPC도 shared storage 이벤트 처리보다
   // 실제 localStorage 값이 먼저 바뀔 수 있다. RPC 직전 동기 비교로 이전 계정 세션 사용을 막는다.
@@ -3051,6 +3061,7 @@ const SESSION_GUARDED_MUTATION_RPCS=new Set([
 ]);
 function guardMutationRpcSession(name,payload={},options={}){
   if(!SESSION_GUARDED_MUTATION_RPCS.has(String(name||'')))return;
+  guardMandatoryInitialPinGateRpc(name);
   const current=String(state.sessionToken||''),payloadToken=String(payload?.p_token||'');
   // 호출부가 비동기 최신원본 조회나 호환 경로를 기다리는 동안 세션이 바뀐 경우,
   // 저장소와 현재 state가 이미 새 세션으로 맞춰졌더라도 캡처된 예전 p_token으로 변경 RPC를 보내면 안 된다.
