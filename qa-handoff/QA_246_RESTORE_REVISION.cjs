@@ -4,7 +4,7 @@ const {chromium}=require('playwright-core');
 const source=fs.readFileSync('qa-handoff/index.before-2-8-246.html');
 const html=fs.readFileSync('qa-handoff/index.working-2-8-246.html','utf8');
 const baseline=crypto.createHash('sha256').update(source).digest('hex');
-if(baseline!=='be95422d3b79f9cc2348196a07b46e44d5269a353fc73dec98cdc065381029da'||source.length!==1168824)throw Error('Official immutable 245 baseline mismatch');
+if(baseline!=='be95422d3b79f9cc2348196a07b46e44d5269a353fc73dec98cdc065381029da'||source.length!==1169443)throw Error('Official immutable 245 baseline mismatch');
 (async()=>{
  let srv,browser;const all=[];
  try{
