@@ -1,0 +1,24 @@
+name: QA 2-8-251 admin scope history quota RED
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-251-history-quota.yml"
+      - "qa-handoff/QA_251_HISTORY_QUOTA.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa251 --no-audit --no-fund playwright-core@1.55.1
+      - name: Two-tab remembered admin scope history persistence fault
+        env:
+          NODE_PATH: /tmp/qa251/node_modules
+        run: node qa-handoff/QA_251_HISTORY_QUOTA.cjs
