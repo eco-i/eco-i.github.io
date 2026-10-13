@@ -1,0 +1,25 @@
+name: QA 2-8-250 real cold boot baseline reproduction
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-250-real-red.yml"
+      - "qa-handoff/QA_250_REAL_BOOT.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  red-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa250realred --no-audit --no-fund playwright-core@1.55.1
+      - name: Verify old 249-complete baseline still restores admin after shared scope revoked
+        env:
+          NODE_PATH: /tmp/qa250realred/node_modules
+          QA250_SOURCE: qa-handoff/index.before-2-8-250.html
+        run: node qa-handoff/QA_250_REAL_BOOT.cjs
