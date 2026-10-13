@@ -6169,7 +6169,7 @@ function fingerprintBlockingPromptSessionSnapshot(options={}){
   const tabToken=storageGet(sessionStorage,SESSION_KEY),sharedToken=storageGet(localStorage,SESSION_KEY);
   // PC 기본 로그인은 탭 전용이므로 다른 탭의 localStorage 로그인 변경과 분리합니다.
   // 모바일/PC 로그인 유지는 localStorage 공유 세션이므로 blocking confirm 전후의 실제 저장소 값을 직접 비교합니다.
-  if(!MOBILE_SESSION_DEVICE&&tabToken===current)return {current,mode:'tab'};
+  if(!MOBILE_SESSION_DEVICE&&tabToken===current&&!sessionIsPersistent(current))return {current,mode:'tab'};
   if(sharedToken===current)return {current,mode:'shared'};
   // 다른 탭 로그인 변경을 이미 감지했고 사용자가 '현재 입력을 먼저 저장/취소'하도록 전환을 명시적으로 미룬 경우,
   // 현재 편집 내용을 저장하기 위한 확인창은 기존 세션으로 한 번 마무리할 수 있게 한다.
@@ -6208,7 +6208,7 @@ function fingerprintBlockingPromptSessionChanged(snapshot){
   if(String(state.sessionToken||'')!==snapshot.current)return true;
   // A logout marker can arrive while native confirm/prompt blocks the event loop.
   // Recheck the exact token before accepting even a previously valid snapshot.
-  if(storedSessionTombstoned(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}
+  if(storedSessionTombstoned(snapshot.current)||pcSharedAuthorityRevoked(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}
   if(snapshot.mode==='tab')return false;
   if(snapshot.mode==='deferred'){
     const changed=!sharedSessionChangePending||!sharedSessionUnsavedDeferred||String(storageGet(localStorage,SESSION_KEY)||'')!==String(snapshot.sharedAtStart||'');
