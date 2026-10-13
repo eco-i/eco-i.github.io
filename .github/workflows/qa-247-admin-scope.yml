@@ -1,0 +1,25 @@
+name: QA 2-8-247 Chrome administrator unlock storage-scope verification
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-247-admin-scope.yml"
+      - "qa-handoff/QA_247_ADMIN_UNLOCK_SCOPE.cjs"
+      - "qa-handoff/index.working-2-8-247.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa247scope --no-audit --no-fund playwright-core@1.55.1
+      - name: Check legacy stale administrator unlock across device/session scopes
+        env:
+          NODE_PATH: /tmp/qa247scope/node_modules
+        run: node qa-handoff/QA_247_ADMIN_UNLOCK_SCOPE.cjs
