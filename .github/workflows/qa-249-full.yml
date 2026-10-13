@@ -1,0 +1,25 @@
+name: QA 2-8-249 full Chromium eight-layer regression
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-249-full.yml"
+      - "qa-handoff/QA_249_FULL.cjs"
+      - "qa-handoff/index.working-2-8-249.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa249full --no-audit --no-fund playwright-core@1.55.1
+      - name: Complete Chromium regression 2-8-249 (pinned source SHA)
+        env:
+          NODE_PATH: /tmp/qa249full/node_modules
+        run: node qa-handoff/QA_249_FULL.cjs
