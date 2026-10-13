@@ -23,7 +23,7 @@ try{
     state.initialPinRequired=false;state.accountStatusPersonnelAuthoritative=true;
     sessionStorage.setItem(SESSION_KEY,token);sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);
     localStorage.setItem(SESSION_KEY,token);localStorage.setItem(ADMIN_UNLOCK_KEY,token);localStorage.setItem(PC_REMEMBER_KEY,'1');
-    return {admin:activeAdminMode(),persistent:sessionIsPersistent(token),history:sessionStorage.getItem('staffAttendance_pcSharedAuthorityHistory_v1')};
+    return {admin:activeAdminMode(),persistent:sessionIsPersistent(token),history:sessionStorage.getItem('staffAttendance_pcSharedAuthorityHistory_v1'),configured:configured(),nativeSnapshot:fingerprintBlockingPromptSessionSnapshot()};
   },token);
   let dialog=false,removed=false,dialogError='';
   a.once('dialog',async d=>{dialog=true;try{removed=await b.evaluate(op=>{
@@ -37,7 +37,7 @@ try{
     const confirmation=confirmMutationWithSessionGuard('QA249 native dialog shared revocation');
     let failure='';try{await rpc('list_recent_audit_page',{p_token:state.sessionToken})}catch(e){failure=String(e.message||e)}
     window.fetch=oldFetch;
-    return {confirmation,failure,calls,current:state.sessionToken,admin:activeAdminMode()};
+    return {confirmation,failure,calls,current:state.sessionToken,admin:activeAdminMode(),configured:configured(),afterSnapshot:fingerprintBlockingPromptSessionSnapshot()};
   }),new Promise((_,reject)=>setTimeout(()=>reject(Error('native confirm timeout')),12000))]);
   const checks={
     beganAdmin:before.admin&&before.persistent&&before.history===token,
