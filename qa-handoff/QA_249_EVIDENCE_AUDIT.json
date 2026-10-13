@@ -1,0 +1,88 @@
+{
+  "block": "2-8-249",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "previous_completed": "2-8-248",
+  "next_block": "2-8-250",
+  "started_kst": "2026-10-13T22:38:59+09:00",
+  "completed_kst": "2026-10-13T23:04:17.485+09:00",
+  "min_20_minutes_actual_qa_confirmed": true,
+  "previous_cumulative_defects": 531,
+  "new_independent_product_defects": 2,
+  "cumulative_defects": 533,
+  "baseline_sha256": "9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0",
+  "baseline_bytes": 1171231,
+  "final_sha256": "4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef",
+  "final_bytes": 1172999,
+  "defects": [
+    {
+      "category": "product",
+      "root_cause": "PC shared remembered session revoked but orphan matching tab admin marker resurrects authority and sensitive DOM",
+      "red_ci": 38407186141,
+      "green_ci": 38409331999,
+      "green_assertions": {
+        "passed": 14,
+        "failed": 0
+      }
+    },
+    {
+      "category": "product",
+      "root_cause": "Native confirm storage-visibility race permitted outgoing protected admin RPC after sibling shared clear",
+      "red_ci": 38408704094,
+      "green_ci": 38409579533,
+      "green_assertions": {
+        "passed": 10,
+        "failed": 0
+      }
+    }
+  ],
+  "tests": {
+    "full": [
+      {
+        "id": 38409501429,
+        "passed": 212,
+        "failed": 0,
+        "sha256": "4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef"
+      },
+      {
+        "id": 38409770570,
+        "passed": 212,
+        "failed": 0,
+        "sha256": "4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef"
+      },
+      {
+        "id": 38409799397,
+        "passed": 212,
+        "failed": 0,
+        "sha256": "4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef"
+      }
+    ],
+    "session_matrix": {
+      "id": 38408818543,
+      "cases": 648,
+      "failed": 0
+    },
+    "integrity": {
+      "id": 38409507687,
+      "js_scripts": 2,
+      "dom_ids": 457,
+      "source_hunks": 14,
+      "source_changed_lines": 40
+    }
+  },
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_changed": false,
+  "deployed": false,
+  "main_head": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "limitations": [
+    "No live production Supabase/RLS or authenticated multiuser backend",
+    "No physical Android native camera/picker",
+    "No iOS Safari",
+    "No persisted BFCache verified",
+    "No production backup/restore",
+    "RPC transport stubbed in real headless Chromium"
+  ]
+}
