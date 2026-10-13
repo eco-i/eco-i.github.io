@@ -21,6 +21,7 @@ check('239 mobile migration hard boundary explicitly coded',()=>html.includes('l
 check('239 per-token logout tombstone enforced at early boot',()=>html.includes('function storedSessionTombstoned(token)')&&html.includes('!storedSessionTombstoned(rawLocal)')&&html.includes('!storedSessionTombstoned(rawTab)'));
 check('239 tombstoned mobile legacy token discarded during migration',()=>html.includes('if(token&&storedSessionTombstoned(token))'));
 check('239 old PC token cleanup cannot remove newer tab-only token',()=>html.includes('if(matched||current)return;'));
+check('248 transitional shared/tab dual token demands both admin unlock markers',()=>html.includes('if(tabToken===token&&sharedToken===token&&!sessionIsPersistent(token)){')&&html.includes('storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token&&storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;'));
 check('247 administrator unlock selects authoritative session storage scope',()=>html.includes('if(!token||storedSessionTombstoned(token))return false;')&&html.includes('if(sharedToken===token)return storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;')&&html.includes('if(tabToken===token&&!sessionIsPersistent(token))return storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token;'));
 check('240 runtime tombstone closes existing sensitive UI',()=>html.includes("e.key.startsWith('staffAttendance_updateSessionLogoutToken_v1:')"));
 check('240 current token tombstone fenced even if shared storage stays the same',()=>html.includes('if(current&&storedSessionTombstoned(current))return true;'));
@@ -30,8 +31,8 @@ check('238 mobile tab-only carveout eliminated',()=>html.includes("if(!MOBILE_SE
 check('238 no stale legacy mobile fallback after shared logout',()=>html.includes("rawLocal ? localToken : (forbidden ? '' : temporaryToken)"));
 check('240 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='2e1f6a2347ce8df2bf2abb3907cdb002fef0b0d96d474860e4e7166e1dd32776');
 check('242 blocking dialog must re-read token tombstone',()=>html.includes('if(storedSessionTombstoned(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}'));
-check('247 final candidate SHA-256 exactly pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='2e1f6a2347ce8df2bf2abb3907cdb002fef0b0d96d474860e4e7166e1dd32776');
-check('247 final candidate byte count exactly pinned',()=>Buffer.byteLength(html)===1170255);
+check('248 final candidate SHA-256 exactly pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='041af469efc439357a6a4c8cb96ee245b55b14a658a5feba9e4918c8fc321723');
+check('248 final candidate byte count exactly pinned',()=>Buffer.byteLength(html)===1170674);
 check('243 source includes inherited 242 pre-RPC task fence',()=>html.includes('await new Promise(resolve=>setTimeout(resolve,0));'));
 check('244 candidate contains admin privilege RPC guard',()=>html.includes('function guardAdminPrivilegeRpcSession(name,options={})')&&html.includes('PIN_GATE_IDENTITY_READ_RPCS'));
 check('246 official baseline SHA-256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
