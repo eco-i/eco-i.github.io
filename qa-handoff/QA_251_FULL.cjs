@@ -11,7 +11,7 @@ const expected='aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841
 const pass=[];
 function check(name,fn){const result=fn(); assert(result!==false, name+' returned false');pass.push(name);}
 check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
-check('1173309 byte baseline',()=>Buffer.byteLength(baseline)===1173752);
+check('1173309 byte baseline',()=>Buffer.byteLength(baseline)===1173309);
 check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
 check('239 officially completed SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841');
 check('Web Locks critical sections applied',()=>html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
@@ -39,7 +39,7 @@ check('244 candidate contains admin privilege RPC guard',()=>html.includes('func
 check('246 official baseline SHA-256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('246 revised candidate admin restore revision protected',()=>html.includes("'get_personnel_restore_revision_v1'")&&html.includes('guardAdminPrivilegeRpcSession(name);'));
 check('247 revised candidate SHA differs from 246 baseline',()=>crypto.createHash('sha256').update(html).digest('hex')!==expected);
-check('247 revised candidate larger than 246 baseline by scoped admin fix',()=>Buffer.byteLength(html)>1173752);
+check('247 revised candidate larger than 246 baseline by scoped admin fix',()=>Buffer.byteLength(html)>1173309);
 check('246 dynamic admin capacity read RPCs fenced',()=>['get_company_event_capacity','get_holiday_work_eligibility_capacity','get_annual_leave_capacity','get_overtime_storage_capacity','get_memo_dday_storage_capacity'].every(n=>html.includes("'"+n+"'"))&&html.includes('guardAdminPrivilegeRpcSession(name);'));
 check('247 last-known admin prefetch fence retained',()=>html.includes("if(mutationRpc||sensitiveRpc||ADMIN_PRIVILEGED_READ_RPCS.has(String(name||'')))guardAdminPrivilegeRpcSession(name,options);"));
 check('245 revised candidate includes targeted admin read authorization',()=>html.includes('ADMIN_PRIVILEGED_READ_RPCS')&&html.includes('guardAdminPrivilegeRpcSession(name);'));
