@@ -1,0 +1,9 @@
+★★★근무모아 2-8-251 시작 인계★★★
+마지막 공식 완료 블록 2-8-250, 다음 시작 2-8-251, 공식 누적 제품 결함 534종 (250 신규 1종).
+GitHub eco-i/eco-i.github.io qa-2-8. 최종 QA index.html + index.working-2-8-250.html + 시작 qa-handoff/index.before-2-8-251.html SHA-256 aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841 / 1173309 bytes.
+불변 전 기준본 qa-handoff/index.before-2-8-250.html SHA-256 4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef / 1172999 bytes.
+250 신규 제품 결함: PC remembered + tab 동일 세션을 초기 복구할 때 state.me 초기화 전에 authority history 기록이 누락되어 공유 세션 삭제 이후 stale tab admin unlock 복구. state.me 의존 제거, token+remember 증거로 즉시 기록.
+RED 38411568281 (7/2) → GREEN 38411996488 (9/0), 실제 cold load 두 탭 38412684603 및 38413046942 (9/0 각각). 최종 동일 SHA Chromium 213 PASS/0 FAIL ×3 (38412437555,38413258738,38413272137), PC/mobile 648 matrix (38412921278,38413292490) PASS, native dialogs 10/0 (38412975637), SHA/JS2/DOM457/1hunk (38412622859) PASS.
+APP_VERSION ver20260927-0944, SQL/main/운영 실배포 변경 없음. main HEAD 5c9529069a4728e72b960c61a44e8045eacc0ca0.
+High, 깊이8, 블록당 최소 20분 실제 검수, 20분 이내 KST 보고, 발견 오류 즉시 수정+실 Chromium 회귀, 번호 연속. ZIP 요청하지 않음.
+공식 최신 CURRENT_STATE.json, START_HERE_NEW_CHAT.md, QA_2-8-250_REPORT.md, QA_250_EVIDENCE_AUDIT.json, QA_2-8-250_SHA_MANIFEST.json 확인 후 251 시작.
