@@ -49,8 +49,8 @@ check('243 protected RPC fences same-token security epoch after task boundary',(
 check('243 mandatory PIN gate protected RPC rejection and own reset exemption present',()=>html.includes('function guardMandatoryInitialPinGateRpc(name)')&&html.includes("String(name||'')==='change_own_pin_v2'")&&html.includes('guardMandatoryInitialPinGateRpc(name);'));
 check('243 existing read-only account becomes network write-fenced',()=>html.includes("if(String(name||'')!=='change_own_pin_v2'&&accountReadOnly())"));
 check('249 cold-bootstrap remembered scope history fixed',()=>html.includes("sharedToken===token&&storageGet(sessionStorage,SESSION_KEY)===token&&storageGet(localStorage,PC_REMEMBER_KEY)==='1'"));
-check('251 missing authority-history write wipes stranded PC tab credentials',()=>html.includes("storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
-      storageRemove(sessionStorage,SESSION_KEY);\n      return true;"));\nconsole.log('QA251_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
+check('251 persistent history write failure erases stale tab credentials',()=>html.includes('if(!storageSet(sessionStorage,PC_SHARED_AUTHORITY_HISTORY_KEY,token)){')&&html.includes('storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);')&&html.includes('storageRemove(sessionStorage,SESSION_KEY);'));
+console.log('QA251_WORKING_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 const allScript=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 check('all inline JS parses',()=>{for(const script of allScript)new vm.Script(script);return allScript.length>=2});
 const bodyBeforeJs=html.slice(0,html.indexOf('<script async src='));
