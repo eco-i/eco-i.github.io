@@ -11266,6 +11266,17 @@ function handleSharedSessionStorageChange(e){
     }
     return;
   }
+  // The desktop remembered-session marker can disappear independently of
+  // the shared login/admin keys. In an ambiguous dual-scoped session that
+  // transition can revoke administrator mode without an ADMIN_UNLOCK event.
+  // Purge cached sensitive DOM and PIN state as soon as storage notifies us.
+  if(e.key===PC_REMEMBER_KEY){
+    if(!MOBILE_SESSION_DEVICE&&state.me&&state.sessionToken&&!activeAdminMode()){
+      clearDeferredAdminDraftUnlockProof();
+      applyAccountModeUI({preserveOpenDetail:detailHasUnsavedChanges()});
+    }
+    return;
+  }
   if(e.key!==SESSION_KEY)return;
   // 같은 전환에서 SESSION_KEY 이벤트와 ADMIN_UNLOCK 이벤트의 전달 순서가 바뀌어도 proof를 오삭제하지 않는다.
   // proof가 기억한 shared 대상과 실제 새 대상이 다를 때만 이전 proof를 폐기한다.
