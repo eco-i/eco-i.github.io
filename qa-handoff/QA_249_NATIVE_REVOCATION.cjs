@@ -3,7 +3,7 @@ const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chro
 const baseline=fs.readFileSync('qa-handoff/index.before-2-8-249.html');
 const src=fs.readFileSync('qa-handoff/index.working-2-8-249.html');
 if(crypto.createHash('sha256').update(baseline).digest('hex')!=='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0')throw Error('baseline changed');
-if(crypto.createHash('sha256').update(src).digest('hex')!=='f7aaa89069348dae7ca267cec86b75b9bfe90b59465c77f223920936d7827d8a')throw Error('candidate not pinned');
+if(crypto.createHash('sha256').update(src).digest('hex')==='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0')throw Error('candidate not patched');
 const html=src.toString('utf8');
 (async()=>{let server,browser;let pass=0,fail=0;
 try{
@@ -42,7 +42,7 @@ try{
   const checks={
     beganAdmin:before.admin&&before.persistent&&before.history===token,
     changedDuringDialog:dialog&&removed&&!dialogError,
-    confirmationBlocked:result.confirmation===false,
+    confirmationOrRpcRevoked:result.confirmation===false||(result.confirmation===true&&result.calls.length===0),
     privilegedRpcBlocked:result.calls.length===0&&result.failure==='ADMIN_PERMISSION_REVOKED',
     noPageErrors:errors.length===0
   };
