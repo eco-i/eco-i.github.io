@@ -33,8 +33,8 @@ try{
   await page.waitForTimeout(700);
   const after=await page.evaluate(()=>({permitted:activeAdminMode(),role:state.me?.is_admin??null,token:state.sessionToken,loginHidden:document.getElementById('appView')?.classList.contains('hidden'),tabToken:sessionStorage.getItem(SESSION_KEY)}));
   const shared=mode!=='isolated-tab';
-  check(mode+':start-admin-valid',before.permitted,{before,after,errors});
-  check(mode+':revoked-admin-ui',shared?!after.permitted:after.permitted,{before,after,errors});
+  check(mode+':start-admin-safe',mode.startsWith('quota-')?!before.permitted:before.permitted,{before,after,errors});
+  check(mode+':revoked-admin-ui',shared?(!after.permitted&&after.role===null&&!after.token):after.permitted,{before,after,errors});
   check(mode+':tab-scope',mode.startsWith('quota-')?before.tabToken===null:before.tabToken===token,{before,after});
   check(mode+':no-pageerror',errors.length===0,{errors});
   await ctx.close();
