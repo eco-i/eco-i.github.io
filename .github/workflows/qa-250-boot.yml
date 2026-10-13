@@ -1,0 +1,25 @@
+name: QA 2-8-250 remembered admin boot race Chromium
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-250-boot.yml"
+      - "qa-handoff/QA_250_BOOT_RACE.cjs"
+      - "qa-handoff/index.before-2-8-250.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa250boot --no-audit --no-fund playwright-core@1.55.1
+      - name: Bootstrap role-fetch race with real two-tab storage deletion and admin restore
+        env:
+          NODE_PATH: /tmp/qa250boot/node_modules
+        run: node qa-handoff/QA_250_BOOT_RACE.cjs
