@@ -3209,6 +3209,8 @@ async function rpc(name, payload={}, options={}){
   // Yield one browser task before any authenticated RPC and repeat every ownership fence;
   // never send an old-token request merely because synchronous localStorage was stale.
   if(responseGuardedRpc){
+    const settleMs=nativeDialogOwnershipSettleUntil-Date.now();
+    if(settleMs>0)await new Promise(resolve=>setTimeout(resolve,Math.min(250,settleMs)));
     await new Promise(resolve=>setTimeout(resolve,0));
     // The same login token can survive a security-context reset, including
     // a forced initial-PIN gate. An old in-flight request must not cross the
@@ -6223,10 +6225,15 @@ function fingerprintBlockingPromptSessionChanged(snapshot){
   }
   return changed;
 }
+// Chromium can postpone cross-renderer localStorage visibility until after a
+// native modal returns. Do not dispatch a protected RPC in that short window.
+let nativeDialogOwnershipSettleUntil=0;
+function markNativeDialogReturn(){nativeDialogOwnershipSettleUntil=Date.now()+180;}
 function confirmMutationWithSessionGuard(message,options={}){
   const snapshot=fingerprintBlockingPromptSessionSnapshot(options);
   if(fingerprintBlockingPromptSessionChanged(snapshot)){showToast('다른 탭에서 로그인 상태가 변경되어 작업을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.','info');return false;}
   const confirmed=confirm(message);
+  markNativeDialogReturn();
   if(fingerprintBlockingPromptSessionChanged(snapshot)){showToast('확인하는 동안 다른 탭에서 로그인 상태가 변경되어 작업을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.','info');return false;}
   return confirmed;
 }
@@ -6234,6 +6241,7 @@ function promptMutationWithSessionGuard(message,defaultValue=''){
   const snapshot=fingerprintBlockingPromptSessionSnapshot();
   if(fingerprintBlockingPromptSessionChanged(snapshot)){showToast('다른 탭에서 로그인 상태가 변경되어 작업을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.','info');return null;}
   const value=prompt(message,defaultValue);
+  markNativeDialogReturn();
   if(fingerprintBlockingPromptSessionChanged(snapshot)){showToast('확인하는 동안 다른 탭에서 로그인 상태가 변경되어 작업을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.','info');return null;}
   return value;
 }
