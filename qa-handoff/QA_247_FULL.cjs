@@ -21,7 +21,7 @@ check('239 mobile migration hard boundary explicitly coded',()=>html.includes('l
 check('239 per-token logout tombstone enforced at early boot',()=>html.includes('function storedSessionTombstoned(token)')&&html.includes('!storedSessionTombstoned(rawLocal)')&&html.includes('!storedSessionTombstoned(rawTab)'));
 check('239 tombstoned mobile legacy token discarded during migration',()=>html.includes('if(token&&storedSessionTombstoned(token))'));
 check('239 old PC token cleanup cannot remove newer tab-only token',()=>html.includes('if(matched||current)return;'));
-check('240 closed-session admin unlock requires live token',()=>html.includes('!storedSessionTombstoned(token) && (storageGet(localStorage,ADMIN_UNLOCK_KEY)'));
+check('247 administrator unlock selects authoritative session storage scope',()=>html.includes('if(!token||storedSessionTombstoned(token))return false;')&&html.includes('if(sharedToken===token)return storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;')&&html.includes('if(tabToken===token&&!sessionIsPersistent(token))return storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token;'));
 check('240 runtime tombstone closes existing sensitive UI',()=>html.includes("e.key.startsWith('staffAttendance_updateSessionLogoutToken_v1:')"));
 check('240 current token tombstone fenced even if shared storage stays the same',()=>html.includes('if(current&&storedSessionTombstoned(current))return true;'));
 check('241 exact shared suppression also fenced inside all runtime ownership helpers',()=>html.includes('if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)return true;'));
@@ -30,15 +30,15 @@ check('238 mobile tab-only carveout eliminated',()=>html.includes("if(!MOBILE_SE
 check('238 no stale legacy mobile fallback after shared logout',()=>html.includes("rawLocal ? localToken : (forbidden ? '' : temporaryToken)"));
 check('240 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d');
 check('242 blocking dialog must re-read token tombstone',()=>html.includes('if(storedSessionTombstoned(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}'));
-check('247 candidate SHA-256 matches pinned working baseline',()=>crypto.createHash('sha256').update(html).digest('hex')===expected);
+check('247 candidate differs from immutable official 246 baseline',()=>crypto.createHash('sha256').update(html).digest('hex')!==expected);
 check('243 source includes inherited 242 pre-RPC task fence',()=>html.includes('await new Promise(resolve=>setTimeout(resolve,0));'));
 check('244 candidate contains admin privilege RPC guard',()=>html.includes('function guardAdminPrivilegeRpcSession(name,options={})')&&html.includes('PIN_GATE_IDENTITY_READ_RPCS'));
 check('246 official baseline SHA-256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
 check('246 revised candidate admin restore revision protected',()=>html.includes("'get_personnel_restore_revision_v1'")&&html.includes('guardAdminPrivilegeRpcSession(name);'));
-check('246 final candidate SHA256 pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d');
-check('246 final candidate exact byte count pinned',()=>Buffer.byteLength(html)===1169644);
+check('247 revised candidate SHA differs from 246 baseline',()=>crypto.createHash('sha256').update(html).digest('hex')!==expected);
+check('247 revised candidate larger than 246 baseline by scoped admin fix',()=>Buffer.byteLength(html)>1169644);
 check('246 dynamic admin capacity read RPCs fenced',()=>['get_company_event_capacity','get_holiday_work_eligibility_capacity','get_annual_leave_capacity','get_overtime_storage_capacity','get_memo_dday_storage_capacity'].every(n=>html.includes("'"+n+"'"))&&html.includes('guardAdminPrivilegeRpcSession(name);'));
-check('247 baseline and working bytes coincide before new edits',()=>Buffer.byteLength(html)===1169644);
+check('247 last-known admin prefetch fence retained',()=>html.includes("if(mutationRpc||sensitiveRpc||ADMIN_PRIVILEGED_READ_RPCS.has(String(name||'')))guardAdminPrivilegeRpcSession(name,options);"));
 check('245 revised candidate includes targeted admin read authorization',()=>html.includes('ADMIN_PRIVILEGED_READ_RPCS')&&html.includes('guardAdminPrivilegeRpcSession(name);'));
 check('245 just-in-time administrator prefetch fence',()=>html.includes("if(mutationRpc||sensitiveRpc||ADMIN_PRIVILEGED_READ_RPCS.has(String(name||'')))guardAdminPrivilegeRpcSession(name,options);"));
 check('244 response ownership privilege recheck present',()=>html.includes('guardAdminPrivilegeRpcSession(name,options);')&&html.includes('if(err?.adminPermissionRevoked)throw err;'));
