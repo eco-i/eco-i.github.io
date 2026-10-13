@@ -1,0 +1,25 @@
+name: QA 2-8-247 real two-tab native dialog stale admin unlock scope
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-247-native-scope.yml"
+      - "qa-handoff/QA_247_NATIVE_SCOPE.cjs"
+      - "qa-handoff/index.working-2-8-247.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa247native --no-audit --no-fund playwright-core@1.55.1
+      - name: Run real Chrome native dialog while second tab revokes persistent admin unlock
+        env:
+          NODE_PATH: /tmp/qa247native/node_modules
+        run: node qa-handoff/QA_247_NATIVE_SCOPE.cjs
