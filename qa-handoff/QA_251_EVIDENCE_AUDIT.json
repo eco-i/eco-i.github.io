@@ -1,0 +1,115 @@
+{
+  "project": "근무모아",
+  "block": "2-8-251",
+  "status": "COMPLETE",
+  "mode": "High",
+  "depth": 8,
+  "previous_completed": "2-8-250",
+  "next_block": "2-8-252",
+  "started_kst": "2026-10-13T23:45:00+09:00",
+  "completed_kst": "2026-10-14T00:07:21.936+09:00",
+  "min_20_minutes_actual_qa_confirmed": true,
+  "previous_cumulative_defects": 534,
+  "new_independent_product_defects": 1,
+  "cumulative_defects": 535,
+  "baseline_sha256": "aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841",
+  "baseline_bytes": 1173309,
+  "final_sha256": "90616051815b531adb615ba23005ad504ffb6898ffe5b6b19c3de9b147766c4e",
+  "final_bytes": 1173752,
+  "git_blob": "db7b1904ad620ac7fc630ff4c13ac57487983227",
+  "defects": [
+    {
+      "category": "product",
+      "cause": "QuotaExceededError when recording PC dual-scope persisted authority leaves old tab session/admin unlock available to restore after sibling clears shared login",
+      "red": {
+        "run": 38416370588,
+        "passed": 8,
+        "failed": 4
+      },
+      "fix": "Fail closed on history write failure and remove stale tab SESSION_KEY and ADMIN_UNLOCK_KEY; preserve independent tab-only login",
+      "green": [
+        {
+          "run": 38417057536,
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "run": 38418861912,
+          "passed": 12,
+          "failed": 0
+        }
+      ],
+      "real_ui": {
+        "run": 38418204991,
+        "passed": 16,
+        "failed": 0
+      },
+      "actual_cold_boot": [
+        {
+          "run": 38418643406,
+          "passed": 19,
+          "failed": 0
+        },
+        {
+          "run": 38418877031,
+          "passed": 19,
+          "failed": 0
+        }
+      ]
+    }
+  ],
+  "tests": {
+    "full_chromium_three_independent": [
+      {
+        "run": 38417831006,
+        "passed": 214,
+        "failed": 0,
+        "final_sha256": "90616051815b531adb615ba23005ad504ffb6898ffe5b6b19c3de9b147766c4e"
+      },
+      {
+        "run": 38418307576,
+        "passed": 214,
+        "failed": 0,
+        "final_sha256": "90616051815b531adb615ba23005ad504ffb6898ffe5b6b19c3de9b147766c4e"
+      },
+      {
+        "run": 38418466284,
+        "passed": 214,
+        "failed": 0,
+        "final_sha256": "90616051815b531adb615ba23005ad504ffb6898ffe5b6b19c3de9b147766c4e"
+      }
+    ],
+    "session_scope": {
+      "run": 38417703415,
+      "combinations": 648,
+      "passed": true
+    },
+    "native_dialog": {
+      "run": 38418450317,
+      "passed": 10,
+      "failed": 0
+    },
+    "source_integrity": {
+      "run": 38417415390,
+      "passed": true,
+      "inline_js": 2,
+      "unique_static_dom_ids": 457,
+      "diff_hunks": 1,
+      "changed_lines": 10
+    }
+  },
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_changed": false,
+  "deployed": false,
+  "main_head": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "limitations": [
+    "Production Supabase and RLS untested",
+    "Authenticated backend multiuser untested",
+    "Physical Android native camera/file picker untested",
+    "iOS Safari untested",
+    "Persisted BFCache untested",
+    "Production backup/restore untested",
+    "Network RPC stubbed on real headless Chromium"
+  ]
+}
