@@ -1,3 +1,4 @@
+# QA247 second independent pinned SHA 2e1f6a... full Chromium regression
 name: QA 2-8-247 comprehensive real Chromium depth eight
 on:
   push:
