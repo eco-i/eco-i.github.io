@@ -17,7 +17,7 @@ const html=fs.readFileSync('qa-handoff/index.working-2-8-247.html','utf8');
   const token='qa247-ui-secret-'+label,secret='QA247-SECRET-ADMIN-'+label;
   const initial=await a.evaluate(({token,secret})=>{
     state.sessionToken=token;state.me={employee_id:246,display_name:'QA247',category:'A',is_admin:true,is_read_only:false,personnel_account_status:'active'};state.accountStatusPersonnelAuthoritative=true;state.initialPinRequired=false;state.pinStatus={246:true};
-    localStorage.setItem(SESSION_KEY,token);localStorage.setItem(ADMIN_UNLOCK_KEY,token);
+    localStorage.setItem(SESSION_KEY,token);localStorage.setItem(ADMIN_UNLOCK_KEY,token);sessionStorage.setItem(ADMIN_UNLOCK_KEY,token); // Legacy stale tab unlock must not keep admin UI alive after shared revocation.
     if(!MOBILE_SESSION_DEVICE)localStorage.setItem(PC_REMEMBER_KEY,'1');
     localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
     for(const id of ['auditList','personnelSnapshotList','capacityBreakdown','safetyBackupList']){const el=document.getElementById(id);if(el)el.textContent=secret;}
