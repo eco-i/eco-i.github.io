@@ -2002,7 +2002,11 @@ function pcSharedAuthorityRevoked(token){
   token=String(token||'');
   if(MOBILE_SESSION_DEVICE||!token)return false;
   const sharedToken=storageGet(localStorage,SESSION_KEY);
-  if(state.me&&String(state.sessionToken||'')===token&&sharedToken===token&&storageGet(localStorage,PC_REMEMBER_KEY)==='1'){
+  // During cold session restoration state.me is not loaded yet. Record the
+  // trusted shared scope as soon as an identical tab token and persisted shared
+  // token are observed; otherwise a cross-tab clear during initial RPC awaits
+  // can silently turn that remembered admin token into a tab-only session.
+  if(sharedToken===token&&storageGet(sessionStorage,SESSION_KEY)===token&&storageGet(localStorage,PC_REMEMBER_KEY)==='1'){
     storageSet(sessionStorage,PC_SHARED_AUTHORITY_HISTORY_KEY,token);
   }
   return storageGet(sessionStorage,PC_SHARED_AUTHORITY_HISTORY_KEY)===token&&sharedToken!==token;
