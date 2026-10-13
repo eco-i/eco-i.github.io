@@ -3,7 +3,7 @@ const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chro
 const baseline=fs.readFileSync('qa-handoff/index.before-2-8-249.html');
 const src=fs.readFileSync('qa-handoff/index.working-2-8-249.html');
 if(crypto.createHash('sha256').update(baseline).digest('hex')!=='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0')throw Error('baseline changed');
-if(crypto.createHash('sha256').update(src).digest('hex')==='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0')throw Error('candidate not changed');
+if(crypto.createHash('sha256').update(src).digest('hex')!=='f7aaa89069348dae7ca267cec86b75b9bfe90b59465c77f223920936d7827d8a')throw Error('candidate not pinned');
 const html=src.toString('utf8');
 (async()=>{let server,browser;let pass=0,fail=0;
 try{
@@ -19,7 +19,7 @@ try{
   await Promise.all([a.goto(addr,{waitUntil:'domcontentloaded'}),b.goto(addr+'blank',{waitUntil:'domcontentloaded'})]);await a.waitForTimeout(350);
   const token='qa249-native-'+op;
   const before=await a.evaluate(token=>{
-    state.sessionToken=token;state.me={employee_id:249,is_admin:true,is_read_only:false,personnel_account_status:'active'};
+    window.configured=()=>true;state.sessionToken=token;state.me={employee_id:249,is_admin:true,is_read_only:false,personnel_account_status:'active'};
     state.initialPinRequired=false;state.accountStatusPersonnelAuthoritative=true;
     sessionStorage.setItem(SESSION_KEY,token);sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);
     localStorage.setItem(SESSION_KEY,token);localStorage.setItem(ADMIN_UNLOCK_KEY,token);localStorage.setItem(PC_REMEMBER_KEY,'1');
