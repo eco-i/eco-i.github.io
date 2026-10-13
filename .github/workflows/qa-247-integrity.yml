@@ -1,3 +1,4 @@
+# QA247 repeat exact source-delta and pinned SHA source integrity on same candidate
 name: QA 2-8-247 exact security source diff and immutable baseline integrity
 on:
   push:
