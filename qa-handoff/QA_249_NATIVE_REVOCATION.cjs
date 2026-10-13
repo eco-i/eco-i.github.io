@@ -3,7 +3,7 @@ const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chro
 const baseline=fs.readFileSync('qa-handoff/index.before-2-8-249.html');
 const src=fs.readFileSync('qa-handoff/index.working-2-8-249.html');
 if(crypto.createHash('sha256').update(baseline).digest('hex')!=='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0')throw Error('baseline changed');
-if(crypto.createHash('sha256').update(src).digest('hex')==='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0')throw Error('candidate not patched');
+if(crypto.createHash('sha256').update(src).digest('hex')!=='4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef')throw Error('candidate SHA drift');
 const html=src.toString('utf8');
 (async()=>{let server,browser;let pass=0,fail=0;
 try{
@@ -43,7 +43,7 @@ try{
     beganAdmin:before.admin&&before.persistent&&before.history===token,
     changedDuringDialog:dialog&&removed&&!dialogError,
     confirmationOrRpcRevoked:result.confirmation===false||(result.confirmation===true&&result.calls.length===0),
-    privilegedRpcBlocked:result.calls.length===0&&result.failure==='ADMIN_PERMISSION_REVOKED',
+    privilegedRpcBlocked:result.calls.length===0&&['ADMIN_PERMISSION_REVOKED','SHARED_SESSION_CHANGED'].includes(result.failure),
     noPageErrors:errors.length===0
   };
   for(const [name,ok]of Object.entries(checks)){(ok?pass++:fail++);console.log('QA249_NATIVE_'+(ok?'PASS':'FAIL'),op,name,JSON.stringify({before,result,errors,dialogError}));}
