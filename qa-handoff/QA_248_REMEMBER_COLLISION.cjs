@@ -3,6 +3,7 @@ const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chro
 const source=fs.readFileSync('qa-handoff/index.before-2-8-248.html');
 if(crypto.createHash('sha256').update(source).digest('hex')!=='2e1f6a2347ce8df2bf2abb3907cdb002fef0b0d96d474860e4e7166e1dd32776'||source.length!==1170255)throw Error('Official 248 source mismatch');
 const html=fs.readFileSync('qa-handoff/index.working-2-8-248.html','utf8'),results=[];
+console.log('QA248_CANDIDATE_SHA',crypto.createHash('sha256').update(html).digest('hex'),'bytes',Buffer.byteLength(html));
 (async()=>{let server,browser;try{
  server=http.createServer((q,r)=>{r.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});r.end(html)});await new Promise(ok=>server.listen(0,'127.0.0.1',ok));
  browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
