@@ -11,7 +11,7 @@ const expected='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0
 const pass=[];
 function check(name,fn){const result=fn(); assert(result!==false, name+' returned false');pass.push(name);}
 check('SHA256 official baseline',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
-check('1171231 byte baseline',()=>Buffer.byteLength(baseline)===1172433);
+check('1171231 byte baseline',()=>Buffer.byteLength(baseline)===1171231);
 check('APP_VERSION pinned',()=>html.includes("ver20260927-0944"));
 check('239 officially completed SHA256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0');
 check('Web Locks critical sections applied',()=>html.includes('withBrowserSharedSessionLock')&&html.includes('staffAttendance_sharedSessionBrowserLock_v3'));
@@ -23,7 +23,7 @@ check('239 tombstoned mobile legacy token discarded during migration',()=>html.i
 check('239 old PC token cleanup cannot remove newer tab-only token',()=>html.includes('if(matched||current)return;'));
 check('248 transitional shared/tab dual token demands both admin unlock markers',()=>html.includes('if(tabToken===token&&sharedToken===token&&!sessionIsPersistent(token)){')&&html.includes('storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token&&storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;'));
 check('248 storage notice purges admin-sensitive UI when PC remember scope vanishes',()=>html.includes('if(e.key===PC_REMEMBER_KEY){')&&html.includes('clearDeferredAdminDraftUnlockProof();\n      applyAccountModeUI({preserveOpenDetail:detailHasUnsavedChanges()});'));
-check('247 administrator unlock selects authoritative session storage scope',()=>html.includes('if(!token||storedSessionTombstoned(token))return false;')&&html.includes('if(sharedToken===token)return storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;')&&html.includes('if(tabToken===token&&!sessionIsPersistent(token))return storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token;'));
+check('247 administrator unlock selects authoritative session storage scope',()=>html.includes('if(!token||storedSessionTombstoned(token)||pcSharedAuthorityRevoked(token))return false;')&&html.includes('if(sharedToken===token)return storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;')&&html.includes('if(tabToken===token&&!sessionIsPersistent(token))return storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token;'));
 check('240 runtime tombstone closes existing sensitive UI',()=>html.includes("e.key.startsWith('staffAttendance_updateSessionLogoutToken_v1:')"));
 check('240 current token tombstone fenced even if shared storage stays the same',()=>html.includes('if(current&&storedSessionTombstoned(current))return true;'));
 check('241 exact shared suppression also fenced inside all runtime ownership helpers',()=>html.includes('if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)return true;'));
@@ -33,7 +33,7 @@ check('238 no stale legacy mobile fallback after shared logout',()=>html.include
 check('240 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0');
 check('242 blocking dialog must re-read token tombstone',()=>html.includes('if(storedSessionTombstoned(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}'));
 check('248 final candidate SHA-256 exactly pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='b1575aee1edf7e2277e1785b4da4489f4d8487fd677db1a95fa298427139c50d');
-check('248 final candidate byte count exactly pinned',()=>Buffer.byteLength(html)===1171231);
+check('249 candidate byte count exactly pinned',()=>Buffer.byteLength(html)===1172433);
 check('243 source includes inherited 242 pre-RPC task fence',()=>html.includes('await new Promise(resolve=>setTimeout(resolve,0));'));
 check('244 candidate contains admin privilege RPC guard',()=>html.includes('function guardAdminPrivilegeRpcSession(name,options={})')&&html.includes('PIN_GATE_IDENTITY_READ_RPCS'));
 check('246 official baseline SHA-256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
