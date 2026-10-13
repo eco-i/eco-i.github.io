@@ -2007,7 +2007,15 @@ function pcSharedAuthorityRevoked(token){
   // token are observed; otherwise a cross-tab clear during initial RPC awaits
   // can silently turn that remembered admin token into a tab-only session.
   if(sharedToken===token&&storageGet(sessionStorage,SESSION_KEY)===token&&storageGet(localStorage,PC_REMEMBER_KEY)==='1'){
-    storageSet(sessionStorage,PC_SHARED_AUTHORITY_HISTORY_KEY,token);
+    // If sessionStorage cannot persist the shared authority scope, never
+    // downgrade a remembered admin login into an unrevocable tab-only role.
+    if(!storageSet(sessionStorage,PC_SHARED_AUTHORITY_HISTORY_KEY,token)){
+      // Without durable revocation history, discard stranded tab credentials:
+      // a later reload must never turn a revoked shared login into a tab role.
+      storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
+      storageRemove(sessionStorage,SESSION_KEY);
+      return true;
+    }
   }
   return storageGet(sessionStorage,PC_SHARED_AUTHORITY_HISTORY_KEY)===token&&sharedToken!==token;
 }
