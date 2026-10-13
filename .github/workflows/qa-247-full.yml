@@ -1,0 +1,25 @@
+name: QA 2-8-247 comprehensive real Chromium depth eight
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-247-full.yml"
+      - "qa-handoff/QA_247_FULL.cjs"
+      - "qa-handoff/index.working-2-8-247.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa247full --no-audit --no-fund playwright-core@1.55.1
+      - name: Execute actual Chrome eight-layer full regression against immutable 246 baseline
+        env:
+          NODE_PATH: /tmp/qa247full/node_modules
+        run: node qa-handoff/QA_247_FULL.cjs
