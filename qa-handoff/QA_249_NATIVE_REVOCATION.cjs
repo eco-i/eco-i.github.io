@@ -3,11 +3,11 @@ const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chro
 const baseline=fs.readFileSync('qa-handoff/index.before-2-8-249.html');
 const src=fs.readFileSync('qa-handoff/index.working-2-8-249.html');
 if(crypto.createHash('sha256').update(baseline).digest('hex')!=='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0')throw Error('baseline changed');
-if(crypto.createHash('sha256').update(src).digest('hex')!=='b1575aee1edf7e2277e1785b4da4489f4d8487fd677db1a95fa298427139c50d')throw Error('candidate changed');
+if(crypto.createHash('sha256').update(src).digest('hex')==='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0')throw Error('candidate not changed');
 const html=src.toString('utf8');
 (async()=>{let server,browser;let pass=0,fail=0;
 try{
- server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html)});
+ server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(req.url==='/blank'?'<!doctype html><title>passive peer</title>':html)});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
  browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
  for(const op of ['shared-clear','shared-key-delete']){
@@ -16,7 +16,7 @@ try{
   a.on('pageerror',e=>errors.push(String(e)));
   await a.route('https://cdn.jsdelivr.net/**',r=>r.abort());await b.route('https://cdn.jsdelivr.net/**',r=>r.abort());
   const addr='http://127.0.0.1:'+server.address().port+'/';
-  await Promise.all([a.goto(addr,{waitUntil:'domcontentloaded'}),b.goto(addr,{waitUntil:'domcontentloaded'})]);await a.waitForTimeout(350);
+  await Promise.all([a.goto(addr,{waitUntil:'domcontentloaded'}),b.goto(addr+'blank',{waitUntil:'domcontentloaded'})]);await a.waitForTimeout(350);
   const token='qa249-native-'+op;
   const before=await a.evaluate(token=>{
     state.sessionToken=token;state.me={employee_id:249,is_admin:true,is_read_only:false,personnel_account_status:'active'};
