@@ -2005,6 +2005,12 @@ function adminUnlockMatches(token){
     if(sharedToken===token)return storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;
     return !sharedToken&&tabToken===token&&storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token;
   }
+  // If the same token is stranded in both stores but the remembered-login
+  // flag has vanished, neither stale secondary marker may revive the other.
+  // Require both acknowledgements for this ambiguous transitional scope.
+  if(tabToken===token&&sharedToken===token&&!sessionIsPersistent(token)){
+    return storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token&&storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;
+  }
   if(tabToken===token&&!sessionIsPersistent(token))return storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token;
   if(sharedToken===token)return storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;
   return false;
