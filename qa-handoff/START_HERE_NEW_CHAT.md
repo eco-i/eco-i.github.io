@@ -1,16 +1,14 @@
-# ★★★근무모아 2차·깊이8 공식 인계 — 246 완료
+# ★★★근무모아 2차·깊이8 종합검수 GitHub 공식 인계 — 247 완료
 
-- **마지막 공식 완료 2-8-246, 다음 2-8-247**, 누적 제품 결함 **528종**(이번 신규 **1종**, 영향 받는 RPC 6개. 원인 동일한 한 위치의 누락이므로 중복 집계 금지).
-- GitHub `eco-i/eco-i.github.io` 검수 브랜치 `qa-2-8`, 운영 `main` 변동/배포 없음, SQL 미변경. APP_VERSION `ver20260927-0944` 유지.
-- 최종 QA `index.html`, `qa-handoff/index.working-2-8-246.html`, 다음 시작 `qa-handoff/index.before-2-8-247.html`: SHA-256 **`8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d`**, **1,169,644 bytes**.
-- 이번 불변 시작 `qa-handoff/index.before-2-8-246.html` SHA-256 `be95422d3b79f9cc2348196a07b46e44d5269a353fc73dec98cdc065381029da`, **1,169,443 bytes**.
-- 신규 제품 결함: 관리자 2차 인증 해제 시 `get_personnel_restore_revision_v1` 및 관리자 용량 메타 5종이 공통 read guard를 우회. `ADMIN_PRIVILEGED_READ_RPCS` 누락 분류 6개 한 곳 보완. RED [#38322894855](https://github.com/eco-i/eco-i.github.io/actions/runs/38322894855), [#38323230263](https://github.com/eco-i/eco-i.github.io/actions/runs/38323230263); GREEN [#38323036969](https://github.com/eco-i/eco-i.github.io/actions/runs/38323036969) 19/0, [#38323322734](https://github.com/eco-i/eco-i.github.io/actions/runs/38323322734) 27/0.
-- 권한 회수·readonly·demotion 응답 시점 [#38323389313](https://github.com/eco-i/eco-i.github.io/actions/runs/38323389313) 18 PASS/0 FAIL.
-- 실제 Chrome 두 탭 native confirm 회수: [#38323157946](https://github.com/eco-i/eco-i.github.io/actions/runs/38323157946), [#38323513571](https://github.com/eco-i/eco-i.github.io/actions/runs/38323513571) 각 2/0. 실제 UI 민감 문자열·PIN 캐시 청소 [#38324406058](https://github.com/eco-i/eco-i.github.io/actions/runs/38324406058), native dialog [#38324315744](https://github.com/eco-i/eco-i.github.io/actions/runs/38324315744), 각 18/0.
-- 최종 후보 고정 Chrome 깊이8 **209 PASS / 0 FAIL × 3회 독립** [#38323566153](https://github.com/eco-i/eco-i.github.io/actions/runs/38323566153), [#38323876681](https://github.com/eco-i/eco-i.github.io/actions/runs/38323876681), [#38323995971](https://github.com/eco-i/eco-i.github.io/actions/runs/38323995971).
-- 정밀 SHA/diff [#38323467567](https://github.com/eco-i/eco-i.github.io/actions/runs/38323467567), [#38323909769](https://github.com/eco-i/eco-i.github.io/actions/runs/38323909769) PASS (source 1 hunk, scripts 2 parse, DOM ID 457 unique).
-- UI purge 초기 false FAIL은 테스트용 두 번째 탭의 자동 복원 루틴/저장소 write 관찰 전 조기 delete라는 **하네스 오류**. Passive blank same-origin B 탭 + 저장소 키 도착 확인 후 제거하여 18 PASS/0 FAIL로 바로잡음. 제품 결함 아님.
-- 보고서 `qa-handoff/QA_2-8-246_REPORT.md`, 증거 `qa-handoff/QA_246_EVIDENCE_AUDIT.json`, manifest `qa-handoff/QA_2-8-246_SHA_MANIFEST.json`.
-- 서버 실운영 Supabase/RLS/실유저 DB, 물리 Android 파일선택·카메라, iOS Safari, persisted BFCache, 운영 백업 복원은 **미검증**.
-- 다음 High·깊이8·실제 20분 이상 검수, 20분 이내 중간 보고, 번호 연속, 기술 결함 즉시 수정+회귀. 임의 APP_VERSION/SQL/main/배포 변경 금지.
-- GitHub 직접 연결. ZIP 업로드/다운로드 요구하지 말 것.
+- 마지막 유효 공식 완료 **2-8-247**, 다음 **2-8-248**, 공식 누적 제품 결함 **529종**(이번 신규 **1종**).
+- GitHub `eco-i/eco-i.github.io`, 검수 `qa-2-8`. 운영 `main` SHA `5c9529069a4728e72b960c61a44e8045eacc0ca0` 변경/배포 없음, SQL 변경 없음. APP_VERSION `ver20260927-0944` 유지.
+- 최종 QA `index.html`, `qa-handoff/index.working-2-8-247.html`, 다음 시작본 `qa-handoff/index.before-2-8-248.html` 완전 동일 SHA-256 `2e1f6a2347ce8df2bf2abb3907cdb002fef0b0d96d474860e4e7166e1dd32776` (**1,170,255 bytes**).
+- 이번 불변 원본 `qa-handoff/index.before-2-8-247.html`: SHA-256 `8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d` (**1,169,644 bytes**).
+- 제품 결함: 모바일 공유·PC 로그인 유지 세션의 shared 관리자 unlock이 해제됐는데 stale legacy sessionStorage 관리자 마커가 남아 있으면 관리 권한을 계속 승인한 문제. `adminUnlockMatches` 단일 함수에서 세션 저장소 권한을 먼저 판별하도록 수정. RED #38371591963 → GREEN #38371810438, #38372273058. PC 탭 전용 독립 로그인 유지 확인.
+- 진짜 두 탭 native Chrome `confirm` 재현 #38372173867 2/0. 모바일/PC 저장소-권한 조합 각162 + tombstone 각162 = 648 상태 PASS, #38372770118.
+- 민감 관리자 UI 캐시 정리와 native dialog 재회귀 #38373143028, #38373155719 각 18/0 + 18/0.
+- 최종 고정 SHA 실제 Chromium 전체 깊이8 **210 PASS / 0 FAIL × 3회**: #38372546876, #38372823590, #38372992035.
+- 원본 대비 소스 diff 1곳(관리자 helper 하나), 원본 및 최종 SHA/바이트 일치, inline JS 2 구문/DOM ID457개 독립 무결성 PASS #38372576639, #38373060134.
+- 자세한 공식 보고 `qa-handoff/QA_2-8-247_REPORT.md`, 증거 `qa-handoff/QA_247_EVIDENCE_AUDIT.json`, SHA `qa-handoff/QA_2-8-247_SHA_MANIFEST.json`.
+- 미검증: 진짜 Supabase/RLS/백엔드 권한·다중 사용자, 물리 Android camera/file chooser, iOS Safari, persisted BFCache, 운영 백업복원. 브라우저 권한검사 결과를 서버 보안 증거로 주장하지 말 것.
+- 다음은 **High/깊이8/최소 20분 실제 검수/20분 내 중간보고/번호 연속**, 기술 오류 즉시 수정+실 Chrome 회귀. APP_VERSION/SQL/main/실배포 임의 변경하지 말 것. GitHub 직접 작업, ZIP 불필요.

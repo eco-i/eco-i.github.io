@@ -1,0 +1,111 @@
+{
+  "block": "2-8-247",
+  "status": "COMPLETE",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "model_mode": "High",
+  "previous_completed": "2-8-246",
+  "next_block": "2-8-248",
+  "started_kst": "2026-10-13T17:41:00+09:00",
+  "completed_kst": "2026-10-13T18:03:02.054+09:00",
+  "minimum_20_minutes_actual_qa_confirmed": true,
+  "prior_cumulative_defects": 528,
+  "new_independent_product_defects": 1,
+  "official_cumulative_defects": 529,
+  "baseline_sha256": "8f46de72958935ce22a0dd9b4f72b0fca4664ea0ba83ceaf01131d9666b8327d",
+  "baseline_bytes": 1169644,
+  "final_sha256": "2e1f6a2347ce8df2bf2abb3907cdb002fef0b0d96d474860e4e7166e1dd32776",
+  "final_bytes": 1170255,
+  "defect": {
+    "classification": "product",
+    "root_cause": "Admin unlock ORed localStorage and legacy sessionStorage markers without verifying authoritative login scope",
+    "red_ci": 38371591963,
+    "red_failure_mobile_shared": 1,
+    "red_failure_pc_remembered": 1,
+    "green_ci": [
+      38371810438,
+      38372273058,
+      38372173867
+    ],
+    "patch": "Make adminUnlockMatches(token) select shared local or tab-only admin unlock from authoritative SESSION_KEY scope, with mobile temporary legacy fallback"
+  },
+  "tests": {
+    "focused_base": {
+      "id": 38371810438,
+      "passed": 3,
+      "failed": 0
+    },
+    "focused_expanded": {
+      "id": 38372273058,
+      "passed": 5,
+      "failed": 0
+    },
+    "native_cross_tab": {
+      "id": 38372173867,
+      "passed": 2,
+      "failed": 0
+    },
+    "auth_matrix": {
+      "id": 38372770118,
+      "states": 324,
+      "tombstone_states": 324,
+      "failed": 0
+    },
+    "sensitive_ui_purge": [
+      {
+        "id": 38373143028,
+        "ordinary_two_tabs_passed": 18,
+        "native_dialog_passed": 18,
+        "failed": 0
+      },
+      {
+        "id": 38373155719,
+        "ordinary_two_tabs_passed": 18,
+        "native_dialog_passed": 18,
+        "failed": 0
+      }
+    ],
+    "full_regression": [
+      {
+        "id": 38372546876,
+        "passed": 210,
+        "failed": 0,
+        "sha256": "2e1f6a2347ce8df2bf2abb3907cdb002fef0b0d96d474860e4e7166e1dd32776"
+      },
+      {
+        "id": 38372823590,
+        "passed": 210,
+        "failed": 0,
+        "sha256": "2e1f6a2347ce8df2bf2abb3907cdb002fef0b0d96d474860e4e7166e1dd32776"
+      },
+      {
+        "id": 38372992035,
+        "passed": 210,
+        "failed": 0,
+        "sha256": "2e1f6a2347ce8df2bf2abb3907cdb002fef0b0d96d474860e4e7166e1dd32776"
+      }
+    ],
+    "source_integrity": {
+      "runs": [
+        38372576639,
+        38373060134
+      ],
+      "passed": true,
+      "source_hunks": 1,
+      "inline_scripts": 2,
+      "unique_dom_ids": 457
+    }
+  },
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_changed": false,
+  "deployed": false,
+  "limits": [
+    "No real production Supabase/RLS",
+    "No actual backend multiuser login",
+    "No physical Android native camera/file chooser",
+    "No iOS Safari",
+    "No confirmed BFCache persistence",
+    "No production backup restore"
+  ]
+}

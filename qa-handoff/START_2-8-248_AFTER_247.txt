@@ -1,0 +1,7 @@
+★★★근무모아 2차 깊이8 다음 블록 시작 인계★★★
+최종 공식 완료 2-8-247, 다음 2-8-248, 누적 제품 결함 529종.
+GitHub eco-i/eco-i.github.io / qa-2-8. 248 시작본 qa-handoff/index.before-2-8-248.html SHA-256 2e1f6a2347ce8df2bf2abb3907cdb002fef0b0d96d474860e4e7166e1dd32776, 1170255 bytes.
+247의 신규 제품 결함 1종: shared 관리자 2차 unlock이 지워졌어도 stale sessionStorage unlock에 의해 승인되던 문제. adminUnlockMatches()에서 shared / tab-only 로그인 권한범위 확인하도록 수정. 전체 Chrome 210 PASS 0 FAIL 3회 독립.
+버전 ver20260927-0944 / SQL 없음 / main unchanged / 운영 배포 없음.
+High·깊이8·블록 최소20분 실제 검수·20분 이내 중간 보고·오류 즉시 수정 및 실 Chromium 회귀, 번호 건너뛰지 말 것.
+공식 GitHub QA_2-8-247_REPORT.md, QA_247_EVIDENCE_AUDIT.json, CURRENT_STATE.json, START_HERE_NEW_CHAT.md 참고. ZIP 요청하지 말 것.

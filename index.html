@@ -1995,7 +1995,19 @@ function sessionIsPersistent(token=storedSessionToken()){
   return MOBILE_SESSION_DEVICE || storageGet(localStorage,PC_REMEMBER_KEY)==='1';
 }
 function adminUnlockMatches(token){
-  return !!token && !storedSessionTombstoned(token) && (storageGet(localStorage,ADMIN_UNLOCK_KEY)===token || storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token);
+  token=String(token||'');
+  if(!token||storedSessionTombstoned(token))return false;
+  const sharedToken=storageGet(localStorage,SESSION_KEY);
+  const tabToken=storageGet(sessionStorage,SESSION_KEY);
+  // A stale legacy tab unlock must never resurrect a revoked shared admin
+  // login. Bind secondary authorization to the authoritative login scope.
+  if(MOBILE_SESSION_DEVICE){
+    if(sharedToken===token)return storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;
+    return !sharedToken&&tabToken===token&&storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token;
+  }
+  if(tabToken===token&&!sessionIsPersistent(token))return storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token;
+  if(sharedToken===token)return storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;
+  return false;
 }
 function clearAdminUnlock(){
   storageRemove(localStorage,ADMIN_UNLOCK_KEY);
