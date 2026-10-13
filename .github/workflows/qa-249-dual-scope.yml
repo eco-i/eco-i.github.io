@@ -1,0 +1,25 @@
+name: QA 2-8-249 dual-scope clear Chromium RED
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-249-dual-scope.yml"
+      - "qa-handoff/QA_249_DUAL_SCOPE_CLEAR.cjs"
+      - "qa-handoff/index.before-2-8-249.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa249 --no-audit --no-fund playwright-core@1.55.1
+      - name: Chromium dual-scope shared session clear revocation and isolated-tab control
+        env:
+          NODE_PATH: /tmp/qa249/node_modules
+        run: node qa-handoff/QA_249_DUAL_SCOPE_CLEAR.cjs
