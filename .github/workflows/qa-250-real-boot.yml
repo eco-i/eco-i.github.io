@@ -1,0 +1,25 @@
+name: QA 2-8-250 native cold-load storage race
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-250-real-boot.yml"
+      - "qa-handoff/QA_250_REAL_BOOT.cjs"
+      - "qa-handoff/index.working-2-8-250.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa250real --no-audit --no-fund playwright-core@1.55.1
+      - name: Real tab cold load with role-RPC pause and sibling share deletion
+        env:
+          NODE_PATH: /tmp/qa250real/node_modules
+        run: node qa-handoff/QA_250_REAL_BOOT.cjs
