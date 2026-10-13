@@ -1986,7 +1986,7 @@ function storedSessionToken(){
   // is not affected because the block applies only to the exact old token.
   const localToken=rawLocal&&rawLocal!==forbidden&&!storedSessionTombstoned(rawLocal)?rawLocal:'';
   const temporaryToken=rawTab&&rawTab!==forbidden&&!storedSessionTombstoned(rawTab)?rawTab:'';
-  return MOBILE_SESSION_DEVICE ? (rawLocal ? localToken : (forbidden ? '' : temporaryToken)) : (temporaryToken||localToken);
+  return MOBILE_SESSION_DEVICE ? (rawLocal ? localToken : (forbidden ? '' : temporaryToken)) : ((temporaryToken&&!pcSharedAuthorityRevoked(temporaryToken)?temporaryToken:'')||localToken);
 }
 function sessionIsPersistent(token=storedSessionToken()){
   if(!token || storageGet(localStorage,SESSION_KEY)!==token)return false;
@@ -1994,9 +1994,22 @@ function sessionIsPersistent(token=storedSessionToken()){
   // legacy 이관 중 localStorage 원본 삭제만 실패해 같은 토큰이 양쪽에 남아도 PC 임시 세션을 공유 persistent로 오인하지 않는다.
   return MOBILE_SESSION_DEVICE || storageGet(localStorage,PC_REMEMBER_KEY)==='1';
 }
+// A PC remembered session must not silently become a tab-only session when
+// shared storage is cleared while an old tab token remains. Record the trusted
+// shared scope in this tab's own storage so reload cannot revive the old token.
+const PC_SHARED_AUTHORITY_HISTORY_KEY='staffAttendance_pcSharedAuthorityHistory_v1';
+function pcSharedAuthorityRevoked(token){
+  token=String(token||'');
+  if(MOBILE_SESSION_DEVICE||!token)return false;
+  const sharedToken=storageGet(localStorage,SESSION_KEY);
+  if(state.me&&String(state.sessionToken||'')===token&&sharedToken===token&&storageGet(localStorage,PC_REMEMBER_KEY)==='1'){
+    storageSet(sessionStorage,PC_SHARED_AUTHORITY_HISTORY_KEY,token);
+  }
+  return storageGet(sessionStorage,PC_SHARED_AUTHORITY_HISTORY_KEY)===token&&sharedToken!==token;
+}
 function adminUnlockMatches(token){
   token=String(token||'');
-  if(!token||storedSessionTombstoned(token))return false;
+  if(!token||storedSessionTombstoned(token)||pcSharedAuthorityRevoked(token))return false;
   const sharedToken=storageGet(localStorage,SESSION_KEY);
   const tabToken=storageGet(sessionStorage,SESSION_KEY);
   // A stale legacy tab unlock must never resurrect a revoked shared admin
@@ -3196,6 +3209,8 @@ async function rpc(name, payload={}, options={}){
   // Yield one browser task before any authenticated RPC and repeat every ownership fence;
   // never send an old-token request merely because synchronous localStorage was stale.
   if(responseGuardedRpc){
+    const settleMs=nativeDialogOwnershipSettleUntil-Date.now();
+    if(settleMs>0)await new Promise(resolve=>setTimeout(resolve,Math.min(250,settleMs)));
     await new Promise(resolve=>setTimeout(resolve,0));
     // The same login token can survive a security-context reset, including
     // a forced initial-PIN gate. An old in-flight request must not cross the
@@ -6152,11 +6167,11 @@ function fingerprintPickerStillCurrent(ctx){
 function fingerprintBlockingPromptSessionSnapshot(options={}){
   const current=String(state.sessionToken||'');
   if(!configured()||!current)return {current,mode:'none'};
-  if(storedSessionTombstoned(current))return {current,mode:'mismatch'};
+  if(storedSessionTombstoned(current)||pcSharedAuthorityRevoked(current))return {current,mode:'mismatch'};
   const tabToken=storageGet(sessionStorage,SESSION_KEY),sharedToken=storageGet(localStorage,SESSION_KEY);
   // PC 기본 로그인은 탭 전용이므로 다른 탭의 localStorage 로그인 변경과 분리합니다.
   // 모바일/PC 로그인 유지는 localStorage 공유 세션이므로 blocking confirm 전후의 실제 저장소 값을 직접 비교합니다.
-  if(!MOBILE_SESSION_DEVICE&&tabToken===current)return {current,mode:'tab'};
+  if(!MOBILE_SESSION_DEVICE&&tabToken===current&&!sessionIsPersistent(current))return {current,mode:'tab'};
   if(sharedToken===current)return {current,mode:'shared'};
   // 다른 탭 로그인 변경을 이미 감지했고 사용자가 '현재 입력을 먼저 저장/취소'하도록 전환을 명시적으로 미룬 경우,
   // 현재 편집 내용을 저장하기 위한 확인창은 기존 세션으로 한 번 마무리할 수 있게 한다.
@@ -6172,6 +6187,7 @@ function fingerprintScheduleSharedSessionReconcile(){
 }
 function fingerprintCurrentSharedSessionMismatch(){
   const current=String(state.sessionToken||'');
+  if(pcSharedAuthorityRevoked(current))return true;
   if(!configured()||!current)return false;
   if(storedSessionTombstoned(current))return true;
   const tabToken=storageGet(sessionStorage,SESSION_KEY);
@@ -6194,7 +6210,7 @@ function fingerprintBlockingPromptSessionChanged(snapshot){
   if(String(state.sessionToken||'')!==snapshot.current)return true;
   // A logout marker can arrive while native confirm/prompt blocks the event loop.
   // Recheck the exact token before accepting even a previously valid snapshot.
-  if(storedSessionTombstoned(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}
+  if(storedSessionTombstoned(snapshot.current)||pcSharedAuthorityRevoked(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}
   if(snapshot.mode==='tab')return false;
   if(snapshot.mode==='deferred'){
     const changed=!sharedSessionChangePending||!sharedSessionUnsavedDeferred||String(storageGet(localStorage,SESSION_KEY)||'')!==String(snapshot.sharedAtStart||'');
@@ -6209,10 +6225,15 @@ function fingerprintBlockingPromptSessionChanged(snapshot){
   }
   return changed;
 }
+// Chromium can postpone cross-renderer localStorage visibility until after a
+// native modal returns. Do not dispatch a protected RPC in that short window.
+let nativeDialogOwnershipSettleUntil=0;
+function markNativeDialogReturn(){nativeDialogOwnershipSettleUntil=Date.now()+180;}
 function confirmMutationWithSessionGuard(message,options={}){
   const snapshot=fingerprintBlockingPromptSessionSnapshot(options);
   if(fingerprintBlockingPromptSessionChanged(snapshot)){showToast('다른 탭에서 로그인 상태가 변경되어 작업을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.','info');return false;}
   const confirmed=confirm(message);
+  markNativeDialogReturn();
   if(fingerprintBlockingPromptSessionChanged(snapshot)){showToast('확인하는 동안 다른 탭에서 로그인 상태가 변경되어 작업을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.','info');return false;}
   return confirmed;
 }
@@ -6220,6 +6241,7 @@ function promptMutationWithSessionGuard(message,defaultValue=''){
   const snapshot=fingerprintBlockingPromptSessionSnapshot();
   if(fingerprintBlockingPromptSessionChanged(snapshot)){showToast('다른 탭에서 로그인 상태가 변경되어 작업을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.','info');return null;}
   const value=prompt(message,defaultValue);
+  markNativeDialogReturn();
   if(fingerprintBlockingPromptSessionChanged(snapshot)){showToast('확인하는 동안 다른 탭에서 로그인 상태가 변경되어 작업을 중단했습니다. 새 로그인 상태로 전환된 뒤 다시 시도해 주세요.','info');return null;}
   return value;
 }
@@ -11156,6 +11178,7 @@ async function changeOwnPin(){
 
 function sharedPersistentSessionMismatch(){
   const current=String(state.sessionToken||'');
+  if(pcSharedAuthorityRevoked(current))return true;
   if(current&&storedSessionTombstoned(current))return true;
   const tabToken=storageGet(sessionStorage,SESSION_KEY);
   // PC의 기본 세션(sessionStorage)은 탭별 독립 로그인을 허용하므로 다른 탭의 localStorage 변화와 분리한다.
@@ -11234,7 +11257,7 @@ function handleSharedSessionStorageChange(e){
   // A desktop tab-only login is isolated from shared localStorage changes.
   if(e.key===null){
     const current=String(state.sessionToken||'');
-    const isolatedPcSession=!MOBILE_SESSION_DEVICE&&current&&storageGet(sessionStorage,SESSION_KEY)===current;
+    const isolatedPcSession=!MOBILE_SESSION_DEVICE&&current&&storageGet(sessionStorage,SESSION_KEY)===current&&!pcSharedAuthorityRevoked(current);
     if(current&&!isolatedPcSession&&storageGet(localStorage,SESSION_KEY)!==current){
       clearDeferredAdminDraftUnlockProof();
       void logout(false);
@@ -11278,6 +11301,11 @@ function handleSharedSessionStorageChange(e){
     return;
   }
   if(e.key!==SESSION_KEY)return;
+  if(pcSharedAuthorityRevoked(state.sessionToken)){
+    clearDeferredAdminDraftUnlockProof();
+    void logout(false);
+    return;
+  }
   // 같은 전환에서 SESSION_KEY 이벤트와 ADMIN_UNLOCK 이벤트의 전달 순서가 바뀌어도 proof를 오삭제하지 않는다.
   // proof가 기억한 shared 대상과 실제 새 대상이 다를 때만 이전 proof를 폐기한다.
   if(deferredAdminDraftUnlockProofToken&&deferredAdminDraftUnlockProofSharedTarget!==null&&String(e.newValue||'')!==String(deferredAdminDraftUnlockProofSharedTarget))clearDeferredAdminDraftUnlockProof();
