@@ -35,7 +35,7 @@ for(const variant of ['shared-token-remove','shared-full-clear','independent-pc-
    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(response)}).catch(()=>{});
  });
  await a.goto(url,{waitUntil:'domcontentloaded'});
- await a.waitForFunction(()=>typeof state==='object'&&!!state.sessionToken,{timeout:8000});
+ await a.waitForFunction(()=>{try{return typeof state==='object'&&!!state.sessionToken}catch(_){return false}},null,{timeout:8000});
  await a.waitForTimeout(350);
  const during=await a.evaluate(()=>{
   window.__restoreHits=[];
