@@ -7,8 +7,8 @@ const html=fs.readFileSync('qa-handoff/index.working-2-8-247.html','utf8');
 server=http.createServer((q,r)=>{r.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});r.end(html)});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
-for(const mode of ['mobile-shared','desktop-remembered','desktop-tab-only']){
- const mobile=mode==='mobile-shared';
+for(const mode of ['mobile-shared','desktop-remembered','desktop-remembered-dual','desktop-tab-only','mobile-legacy']){
+ const mobile=mode==='mobile-shared'||mode==='mobile-legacy';
  const ctx=await browser.newContext({viewport:{width:mobile?390:1024,height:800},isMobile:mobile,hasTouch:mobile,...(mobile?{userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125.0 Mobile Safari/537.36'}:{})});
  const page=await ctx.newPage();await page.route('https://cdn.jsdelivr.net/**',route=>route.abort());
  await page.goto('http://127.0.0.1:'+server.address().port+'/',{waitUntil:'domcontentloaded'});await page.waitForTimeout(250);
@@ -18,11 +18,14 @@ for(const mode of ['mobile-shared','desktop-remembered','desktop-tab-only']){
   localStorage.removeItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
   localStorage.removeItem(ADMIN_UNLOCK_KEY);sessionStorage.removeItem(ADMIN_UNLOCK_KEY);
   localStorage.removeItem(SESSION_KEY);sessionStorage.removeItem(SESSION_KEY);
-  if(mode==='mobile-shared'||mode==='desktop-remembered'){
+  if(mode==='mobile-shared'||mode==='desktop-remembered'||mode==='desktop-remembered-dual'){
    localStorage.setItem(SESSION_KEY,token);localStorage.setItem(PC_REMEMBER_KEY,'1');
    localStorage.setItem(ADMIN_UNLOCK_KEY,token);
    // Legacy stale tab marker survives even if another tab revokes shared admin unlock.
    sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);
+   if(mode==='desktop-remembered-dual')sessionStorage.setItem(SESSION_KEY,token);
+  }else if(mode==='mobile-legacy'){
+   localStorage.removeItem(SESSION_KEY);sessionStorage.setItem(SESSION_KEY,token);sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);
   }else{
    sessionStorage.setItem(SESSION_KEY,token);sessionStorage.setItem(ADMIN_UNLOCK_KEY,token);
    localStorage.setItem(SESSION_KEY,'unrelated-shared-user');
@@ -36,8 +39,8 @@ for(const mode of ['mobile-shared','desktop-remembered','desktop-tab-only']){
   window.configured=oldConfigured;window.fetch=oldFetch;
   return {mode,mobile:MOBILE_SESSION_DEVICE,before,after,error,sent:calls.length,tabSession:sessionStorage.getItem(SESSION_KEY),sharedSession:localStorage.getItem(SESSION_KEY)};
  },mode);
- const expected=mode==='desktop-tab-only';
- const ok=obs.before===true&&obs.after===expected&&obs.sent===(expected?1:0);
+ const expected=mode==='desktop-tab-only'||mode==='mobile-legacy';
+ const ok=obs.before===true&&obs.after===expected&&(mode==='mobile-legacy'?obs.after===true:obs.sent===(expected?1:0));
  results.push({...obs,ok});
  console.log('QA247_SCOPE_'+(ok?'PASS':'FAIL'),JSON.stringify(obs));
  await ctx.close();
@@ -45,5 +48,5 @@ for(const mode of ['mobile-shared','desktop-remembered','desktop-tab-only']){
 }catch(e){console.log('QA247_HARNESS_ERROR',String(e.stack||e));process.exitCode=1}
 finally{if(browser)await browser.close();if(server)await new Promise(resolve=>server.close(resolve))}
 console.log('QA247_SCOPE_SUMMARY',JSON.stringify({passed:results.filter(x=>x.ok).length,failed:results.filter(x=>!x.ok).length,source_sha:crypto.createHash('sha256').update(src).digest('hex')}));
-if(results.some(x=>!x.ok)||results.length!==3)process.exitCode=1;
+if(results.some(x=>!x.ok)||results.length!==5)process.exitCode=1;
 })();
