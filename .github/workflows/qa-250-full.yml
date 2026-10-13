@@ -1,0 +1,25 @@
+name: QA 2-8-250 full Chromium depth eight
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-250-full.yml"
+      - "qa-handoff/QA_250_FULL.cjs"
+      - "qa-handoff/index.working-2-8-250.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa250full --no-audit --no-fund playwright-core@1.55.1
+      - name: Exact SHA and 213 checks real Chromium eight-layer full regression
+        env:
+          NODE_PATH: /tmp/qa250full/node_modules
+        run: node qa-handoff/QA_250_FULL.cjs
