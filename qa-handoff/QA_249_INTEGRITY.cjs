@@ -4,11 +4,11 @@ const beforePath='qa-handoff/index.before-2-8-249.html',afterPath='qa-handoff/in
 const before=fs.readFileSync(beforePath),after=fs.readFileSync(afterPath),text=after.toString('utf8');
 const hash=x=>crypto.createHash('sha256').update(x).digest('hex');
 const oldSha='9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0';
-const newSha='f7aaa89069348dae7ca267cec86b75b9bfe90b59465c77f223920936d7827d8a';
+const newSha='4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef';
 assert.strictEqual(hash(before),oldSha,'Official 248→249 baseline changed');
 assert.strictEqual(before.length,1171231,'Original byte length mismatch');
 assert.strictEqual(hash(after),newSha,'249 candidate SHA drift');
-assert.strictEqual(after.length,1172508,'249 candidate byte length drift');
+assert.strictEqual(after.length,1172999,'249 candidate byte length drift');
 const scripts=[...text.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim());
 assert(scripts.length===2,'Unexpected inline JS script count: '+scripts.length);
 for(const script of scripts)new vm.Script(script);
