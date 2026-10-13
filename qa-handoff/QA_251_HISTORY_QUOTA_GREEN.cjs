@@ -29,7 +29,7 @@ for(const variant of ['quota-full-clear','quota-token-remove','normal-full-clear
    window.rpcPreferPersonnel=async()=>[{employee_id:250,display_name:'QA250 bootstrap',category:'B조',group_code:'B',is_admin:true}];
    window.__restoreHits=[];
    window.enterApp=async me=>{window.__restoreHits.push({me,token:state.sessionToken});return true};
-   return {token:storedSessionToken(),admin:adminUnlockMatches(token),authorityHistory:sessionStorage.getItem(PC_SHARED_AUTHORITY_HISTORY_KEY),me:state.me,remembered:sessionIsPersistent(token)};
+   return {token:storedSessionToken(),admin:adminUnlockMatches(token),authorityHistory:sessionStorage.getItem(PC_SHARED_AUTHORITY_HISTORY_KEY),me:state.me,remembered:sessionIsPersistent(token),tabToken:sessionStorage.getItem(SESSION_KEY),tabAdmin:sessionStorage.getItem(ADMIN_UNLOCK_KEY)};
  },{token,variant});
  await peer.evaluate(variant=>{
    if(variant==='quota-token-remove')localStorage.removeItem('staffAttendance_session_v1');
@@ -43,7 +43,7 @@ for(const variant of ['quota-full-clear','quota-token-remove','normal-full-clear
    return {before,after};
  });
  const related=variant!=='independent-tab';
- check(variant+':valid-bootstrap-setup',initial.token===token&&initial.me===null&&initial.authorityHistory===(variant==='normal-full-clear'?token:null)&&initial.admin===!variant.startsWith('quota-'),{initial,snapshot,errors});
+ check(variant+':valid-bootstrap-setup',initial.token===token&&initial.me===null&&initial.authorityHistory===(variant==='normal-full-clear'?token:null)&&initial.admin&&initial.tabToken===(variant.startsWith('quota-')?null:token)&&initial.tabAdmin===(variant.startsWith('quota-')?null:token),{initial,snapshot,errors});
  check(variant+':restoration-authority',related?snapshot.after.entered.length===0:snapshot.after.entered.length===1,{initial,snapshot,errors});
  check(variant+':no-page-error',errors.length===0,{errors});
  await ctx.close();
