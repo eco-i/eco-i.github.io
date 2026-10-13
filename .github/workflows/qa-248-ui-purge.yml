@@ -1,0 +1,30 @@
+name: QA 2-8-248 sensitive UI and two-tab dialog purge
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-248-ui-purge.yml"
+      - "qa-handoff/QA_248_DIALOG_PURGE.cjs"
+      - "qa-handoff/QA_248_UI_PURGE.cjs"
+      - "qa-handoff/index.working-2-8-248.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa248purge --no-audit --no-fund playwright-core@1.55.1
+      - name: Real Chrome sensitive admin UI cached-data wipe
+        env:
+          NODE_PATH: /tmp/qa248purge/node_modules
+        run: node qa-handoff/QA_248_UI_PURGE.cjs
+      - name: Real native Chrome dialogue sensitive UI purge
+        env:
+          NODE_PATH: /tmp/qa248purge/node_modules
+        run: node qa-handoff/QA_248_DIALOG_PURGE.cjs
