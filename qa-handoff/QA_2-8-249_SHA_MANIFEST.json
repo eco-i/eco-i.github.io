@@ -1,0 +1,44 @@
+{
+  "block": "2-8-249",
+  "status": "COMPLETE",
+  "mode": "High",
+  "depth": 8,
+  "completed_kst": "2026-10-13T23:04:17.485+09:00",
+  "new_defects": 2,
+  "cumulative_defects": 533,
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "main_changed": false,
+  "files": {
+    "qa-handoff/index.before-2-8-249.html": {
+      "sha256": "9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0",
+      "bytes": 1171231
+    },
+    "qa-handoff/index.working-2-8-249.html": {
+      "sha256": "4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef",
+      "bytes": 1172999
+    },
+    "qa-handoff/index.before-2-8-250.html": {
+      "sha256": "4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef",
+      "bytes": 1172999
+    },
+    "index.html (qa-2-8 only)": {
+      "sha256": "4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef",
+      "bytes": 1172999
+    }
+  },
+  "full_ci": [
+    38409501429,
+    38409770570,
+    38409799397
+  ],
+  "each_full_passed": 212,
+  "each_full_failed": 0,
+  "green_ci": [
+    38409331999,
+    38409579533
+  ],
+  "matrix_ci": 38408818543,
+  "integrity_ci": 38409507687
+}
