@@ -1,0 +1,25 @@
+name: QA 2-8-250 admin cold-bootstrap GREEN Chromium
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-250-boot-green.yml"
+      - "qa-handoff/QA_250_BOOT_GREEN.cjs"
+      - "qa-handoff/index.working-2-8-250.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa250green --no-audit --no-fund playwright-core@1.55.1
+      - name: Two-tab cold bootstrap admin revocation with independent temporary session
+        env:
+          NODE_PATH: /tmp/qa250green/node_modules
+        run: node qa-handoff/QA_250_BOOT_GREEN.cjs
