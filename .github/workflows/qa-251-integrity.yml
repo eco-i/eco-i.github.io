@@ -1,0 +1,21 @@
+name: QA 2-8-251 independent code integrity
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-251-integrity.yml"
+      - "qa-handoff/QA_251_INTEGRITY.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Immutable 251 baseline and SHA-pinned source JS syntax DOM and diff
+        run: node qa-handoff/QA_251_INTEGRITY.cjs
