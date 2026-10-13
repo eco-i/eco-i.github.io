@@ -1,0 +1,92 @@
+{
+  "block": "2-8-250",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "previous_completed": "2-8-249",
+  "next_block": "2-8-251",
+  "started_kst": "2026-10-13T23:09:25+09:00",
+  "completed_kst": "2026-10-13T23:34:12.872+09:00",
+  "min_20_minutes_actual_qa_confirmed": true,
+  "previous_cumulative_defects": 533,
+  "new_independent_product_defects": 1,
+  "cumulative_defects": 534,
+  "baseline_sha256": "4a39b50e90355a372c8cfc8d65e8d046d558da9bd193569bd4207f9289b670ef",
+  "baseline_bytes": 1172999,
+  "final_sha256": "aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841",
+  "final_bytes": 1173309,
+  "defects": [
+    {
+      "category": "product",
+      "root_cause": "PC remembered dual-scope authority history gated on state.me during cold bootstrap, allowing stale tab-scoped admin restore after shared session revocation",
+      "red_ci": 38411568281,
+      "red_passed": 7,
+      "red_failed": 2,
+      "green_ci": 38411996488,
+      "green_passed": 9,
+      "green_failed": 0,
+      "real_cold_green_ci": [
+        38412684603,
+        38413046942
+      ]
+    }
+  ],
+  "tests": {
+    "full": [
+      {
+        "id": 38412437555,
+        "passed": 213,
+        "failed": 0,
+        "sha256": "aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841"
+      },
+      {
+        "id": 38413258738,
+        "passed": 213,
+        "failed": 0,
+        "sha256": "aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841"
+      },
+      {
+        "id": 38413272137,
+        "passed": 213,
+        "failed": 0,
+        "sha256": "aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841"
+      }
+    ],
+    "scope_matrix": [
+      38412921278,
+      38413292490
+    ],
+    "scope_combinations": 648,
+    "native_confirm": {
+      "id": 38412975637,
+      "passed": 10,
+      "failed": 0
+    },
+    "source_integrity": {
+      "id": 38412622859,
+      "inline_scripts": 2,
+      "unique_dom_ids": 457,
+      "source_hunks": 1,
+      "source_changed_lines": 6
+    },
+    "baseline_cold_probe_harness_inconclusive": [
+      38413606172,
+      38413915094
+    ]
+  },
+  "app_version": "ver20260927-0944",
+  "main_head": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "sql_changed": false,
+  "main_changed": false,
+  "deployed": false,
+  "limitations": [
+    "No live production Supabase SQL/RLS or authenticated multiuser",
+    "No physical Android native camera/picker",
+    "No iOS Safari",
+    "No persisted BFCache",
+    "No production backup and restore",
+    "RPC network responses are stubbed in real Chromium"
+  ],
+  "notes": "One root cause counted once. Inconclusive baseline actual cold probe classified separately from product defects."
+}
