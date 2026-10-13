@@ -2005,6 +2005,12 @@ function adminUnlockMatches(token){
     if(sharedToken===token)return storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;
     return !sharedToken&&tabToken===token&&storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token;
   }
+  // If the same token is stranded in both stores but the remembered-login
+  // flag has vanished, neither stale secondary marker may revive the other.
+  // Require both acknowledgements for this ambiguous transitional scope.
+  if(tabToken===token&&sharedToken===token&&!sessionIsPersistent(token)){
+    return storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token&&storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;
+  }
   if(tabToken===token&&!sessionIsPersistent(token))return storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===token;
   if(sharedToken===token)return storageGet(localStorage,ADMIN_UNLOCK_KEY)===token;
   return false;
@@ -11256,6 +11262,17 @@ function handleSharedSessionStorageChange(e){
       // 같은 세션의 보안 잠금/권한 박탈은 proof를 남기지 않아 과거 2차 인증을 재사용할 수 없다.
       const canKeepDraftProof=sharedPersistentSessionMismatch()&&state.me.is_admin&&!accountReadOnly()&&adminDeferredDraftHasUnsavedChanges();
       if(canKeepDraftProof){deferredAdminDraftUnlockProofToken=current;deferredAdminDraftUnlockProofSharedTarget=String(storageGet(localStorage,SESSION_KEY)||'');}else clearDeferredAdminDraftUnlockProof();
+      applyAccountModeUI({preserveOpenDetail:detailHasUnsavedChanges()});
+    }
+    return;
+  }
+  // The desktop remembered-session marker can disappear independently of
+  // the shared login/admin keys. In an ambiguous dual-scoped session that
+  // transition can revoke administrator mode without an ADMIN_UNLOCK event.
+  // Purge cached sensitive DOM and PIN state as soon as storage notifies us.
+  if(e.key===PC_REMEMBER_KEY){
+    if(!MOBILE_SESSION_DEVICE&&state.me&&state.sessionToken&&!activeAdminMode()){
+      clearDeferredAdminDraftUnlockProof();
       applyAccountModeUI({preserveOpenDetail:detailHasUnsavedChanges()});
     }
     return;

@@ -1,0 +1,84 @@
+{
+  "block": "2-8-248",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "previous_completed": "2-8-247",
+  "next_block": "2-8-249",
+  "started_kst": "2026-10-13T21:23:42+09:00",
+  "completed_kst": "2026-10-13T21:47:19.413+09:00",
+  "min_20_minutes_actual_qa_confirmed": true,
+  "previous_cumulative_defects": 529,
+  "new_independent_product_defects": 2,
+  "cumulative_defects": 531,
+  "baseline_sha256": "2e1f6a2347ce8df2bf2abb3907cdb002fef0b0d96d474860e4e7166e1dd32776",
+  "baseline_bytes": 1170255,
+  "final_sha256": "9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0",
+  "final_bytes": 1171231,
+  "defects": [
+    {
+      "category": "product",
+      "root_cause": "PC remembered-to-tab ambiguous admin authorization scope",
+      "red_ci": 38397092669,
+      "green_ci": [
+        38397375409,
+        38398920753
+      ],
+      "matrix_ci": 38398920563,
+      "native_dialog_ci": 38398920581
+    },
+    {
+      "category": "product",
+      "root_cause": "PC_REMEMBER_KEY cross-tab storage event omitted sensitive admin DOM and PIN-cache purge",
+      "red_ci": 38398742914,
+      "green_ci": 38398920657,
+      "ui_and_dialog_regression_ci": 38398920653
+    }
+  ],
+  "tests": {
+    "full": [
+      {
+        "id": 38399063267,
+        "passed": 212,
+        "failed": 0,
+        "sha256": "9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0"
+      },
+      {
+        "id": 38399397943,
+        "passed": 212,
+        "failed": 0,
+        "sha256": "9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0"
+      },
+      {
+        "id": 38399407162,
+        "passed": 212,
+        "failed": 0,
+        "sha256": "9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0"
+      }
+    ],
+    "source_integrity": [
+      38399075837,
+      38399407162
+    ],
+    "source_hunks": 2,
+    "inline_scripts": 2,
+    "unique_dom_ids": 457,
+    "session_matrix_states": 648,
+    "session_matrix_failed": 0,
+    "remembered_ui_purge_ci": 38398920657,
+    "remembered_ui_purge_passed": 9,
+    "remembered_ui_purge_failed": 0
+  },
+  "version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_changed": false,
+  "deployed": false,
+  "limitations": [
+    "No production Supabase/RLS or real backend multiuser",
+    "No physical Android native camera/file picker",
+    "No iOS Safari",
+    "No confirmed persisted BFCache",
+    "No actual production backup/restore"
+  ]
+}

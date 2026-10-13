@@ -1,0 +1,6 @@
+★★★근무모아 2-8-249 시작 인계★★★
+공식 마지막 완료 2-8-248, 다음 2-8-249, 누적 제품 결함 531종.
+GitHub eco-i/eco-i.github.io qa-2-8 브랜치, 시작 qa-handoff/index.before-2-8-249.html SHA-256 9ac74340a527a35f1f971b4a391417dfe395f2c4714a1cb66b03562ecf85a6c0, 1171231 bytes.
+248 신규 2종: ① PC 로그인 유지 마커 유실 과도기 admin scope fail-closed, ② PC_REMEMBER_KEY cross-tab event에 민감 관리자 UI/PIN cache 제거. 각 RED→GREEN. Chromium 212 PASS/0 FAIL 3회, JS/DOM/정확히 2개 소스 변경 무결성 PASS.
+APP_VERSION ver20260927-0944, SQL/main/실배포 변경 없음.
+High, 깊이8, 최소20분 실제 검수, 20분 내 진행보고, 오류 즉시 수정+실 Chrome 회귀, 번호 연속. ZIP 불필요.
