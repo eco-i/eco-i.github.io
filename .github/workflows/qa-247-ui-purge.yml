@@ -1,0 +1,30 @@
+name: QA 2-8-247 two-tab sensitive UI and native dialog purge
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-247-ui-purge.yml"
+      - "qa-handoff/QA_247_UI_PURGE.cjs"
+      - "qa-handoff/QA_247_DIALOG_PURGE.cjs"
+      - "qa-handoff/index.working-2-8-247.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa247purge --no-audit --no-fund playwright-core@1.55.1
+      - name: Real Chrome cross-tab revoked-admin cached sensitive UI purge
+        env:
+          NODE_PATH: /tmp/qa247purge/node_modules
+        run: node qa-handoff/QA_247_UI_PURGE.cjs
+      - name: Real Chrome native confirm revoked-admin sensitive UI purge
+        env:
+          NODE_PATH: /tmp/qa247purge/node_modules
+        run: node qa-handoff/QA_247_DIALOG_PURGE.cjs
