@@ -1,0 +1,10 @@
+★★★근무모아 2차·깊이8 2-8-252 공식 시작 인계★★★
+마지막 공식 완료 2-8-251, 다음 블록 2-8-252, 누적 제품 결함 535종(251 신규 1종).
+GitHub eco-i/eco-i.github.io qa-2-8. 현재 QA index.html, qa-handoff/index.working-2-8-251.html, 기준 qa-handoff/index.before-2-8-252.html SHA-256 90616051815b531adb615ba23005ad504ffb6898ffe5b6b19c3de9b147766c4e, 1173752 bytes, Git blob db7b1904ad620ac7fc630ff4c13ac57487983227.
+불변 전 기준 qa-handoff/index.before-2-8-251.html SHA-256 aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841, 1173309 bytes.
+251 결함: PC remembered/shared+tab 동일 token의 관리자 인증 신뢰범위 이력 sessionStorage.setItem QuotaExceededError 실패 시 공유 로그인 삭제 이후 stale tab 권한 복구. 이력 기록 실패 시 tab SESSION_KEY 및 ADMIN_UNLOCK_KEY 삭제 후 fail closed.
+RED 38416370588(8 PASS/4 FAIL), GREEN 38417057536 및 38418861912(각 12 PASS/0 FAIL), 실제 UI 38418204991 (16/0), 실제 cold load+quota+reload 38418643406, 38418877031(각 19/0), 전체 8단계 Chromium 214/0 ×3: 38417831006,38418307576,38418466284. Mobile+PC 648개 상태 PASS 38417703415, native 10/0 38418450317, integrity SHA/JS2/DOM457/1hunk 38417415390 PASS.
+APP_VERSION ver20260927-0944, SQL 불변, main HEAD 5c9529069a4728e72b960c61a44e8045eacc0ca0 불변, 운영 배포 없음.
+2026-10-13 23:45~2026-10-14 00:07 KST 실제 20분 이상 심층검수 완료.
+다음 블록 252 High·깊이8 유지, 최소20분 실제검수, 20분 이내 중간보고(매 답변 KST), 문제는 즉시 수정+실 Chromium 회귀, 마지막 유효 완료 다음 번호만, ZIP 요청금지.
+다음 시작 전 CURRENT_STATE.json, START_HERE_NEW_CHAT.md, QA_2-8-251_REPORT.md, QA_251_EVIDENCE_AUDIT.json, QA_2-8-251_SHA_MANIFEST.json, index.before-2-8-252.html을 직접 GitHub 확인.
