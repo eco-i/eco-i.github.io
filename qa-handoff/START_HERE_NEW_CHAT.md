@@ -1,21 +1,19 @@
-# ★★★근무모아 2차·깊이8 공식 GitHub 인계 — 253 완료
+# ★★★근무모아 2차·깊이8 공식 GitHub 인계 — 254 완료
 
-- 마지막 유효 완료 **2-8-253**, 다음 시작 **2-8-254**, 누적 독립 제품 결함 **536종** (253 신규 **0종**).
-- GitHub `eco-i/eco-i.github.io`, QA `qa-2-8`; 운영 `main` HEAD `5c9529069a4728e72b960c61a44e8045eacc0ca0` 불변, SQL/실배포/APP_VERSION 변경 없음. `ver20260927-0944`.
-- QA `index.html`, `qa-handoff/index.working-2-8-253.html`, 시작 `qa-handoff/index.before-2-8-254.html` 모두 **SHA-256 `32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb`**, **1,174,027 bytes**, Git blob `f530e495859f46f0eaa669acdbc8e7a3f6907bdf`. 이번 블록 제품 HTML 수정 없음.
-- 공식 시작본 `qa-handoff/index.before-2-8-253.html`도 위와 동일.
-- 실제 High·깊이 8 검수 **2026-10-14 21:01~21:22 KST, 21분 이상**. 20분 이내 중간보고 실시, 소스/검사 수준 축소하지 않음.
-- 동일 SHA 독립 Chromium 8계층 **214 PASS/0 FAIL ×3**: [#38561386795](https://github.com/eco-i/eco-i.github.io/actions/runs/38561386795), [#38562361154](https://github.com/eco-i/eco-i.github.io/actions/runs/38562361154), [#38562368802](https://github.com/eco-i/eco-i.github.io/actions/runs/38562368802).
-- PC/모바일 648 세션 상태 [#38561513667](https://github.com/eco-i/eco-i.github.io/actions/runs/38561513667) PASS; 네이티브 확인창+deferred 구 권한 RPC [#38561188198](https://github.com/eco-i/eco-i.github.io/actions/runs/38561188198) 16/0.
-- 실제 파일 입력·업로드·취소·중복 [#38562062844](https://github.com/eco-i/eco-i.github.io/actions/runs/38562062844) 12/0, 이미지 압축 형식·용량 [#38561729394](https://github.com/eco-i/eco-i.github.io/actions/runs/38561729394) 24/0.
-- Native prompt 세션 철회 독립 18개 Chromium 컨텍스트 [#38562424749](https://github.com/eco-i/eco-i.github.io/actions/runs/38562424749) 72/0; 2026~2027 A/B/C/D 교대근무/대정비 전수 [#38562781753](https://github.com/eco-i/eco-i.github.io/actions/runs/38562781753) 6542/0.
-- 관리자 UI 역할 철회 [#38562707240](https://github.com/eco-i/eco-i.github.io/actions/runs/38562707240) 16/0; 실제 브라우저 cold boot quota/재로드 [#38562895758](https://github.com/eco-i/eco-i.github.io/actions/runs/38562895758) 19/0; SHA/JS2/DOM457/RPC75 분류 [#38562260129](https://github.com/eco-i/eco-i.github.io/actions/runs/38562260129) 20/0.
-- 근무표 초기 확장 검사 [#38562587921](https://github.com/eco-i/eco-i.github.io/actions/runs/38562587921)는 하네스가 `비`를 유효 교대분류에서 빠뜨린 오류. 기준 정정 후 6542 PASS; 제품 오류 아님. 신규 독립 결함 0종.
-- 운영 Supabase/RLS/인증 다중사용자, 물리 Android 카메라/피커, iOS Safari, persisted BFCache, 운영 백업 복원 미검증. 실제 headless Chrome 사용, 네트워크 RPC는 stub.
-- 공식 보고서 `qa-handoff/QA_2-8-253_REPORT.md`, 증거 `QA_253_EVIDENCE_AUDIT.json`, SHA `QA_2-8-253_SHA_MANIFEST.json`.
+- 마지막 공식 완료 **2-8-254**, 다음 시작 **2-8-255**, 누적 독립 제품 결함 **537종** (254 신규 **1종**).
+- GitHub `eco-i/eco-i.github.io`, 검수 `qa-2-8`, 운영 `main`. 운영 HEAD `5c9529069a4728e72b960c61a44e8045eacc0ca0` 불변. SQL/배포/`APP_VERSION` 변경 없음, `ver20260927-0944`.
+- 이전 기준 `qa-handoff/index.before-2-8-254.html`: SHA-256 `32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb`, 1,174,027 bytes, blob `f530e495859f46f0eaa669acdbc8e7a3f6907bdf`.
+- 수정 검수본 `index.html` (QA 한정), `qa-handoff/index.working-2-8-254.html`, 다음 시작 불변 `qa-handoff/index.before-2-8-255.html`: 동일 **SHA-256 `056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b`**, **1,174,092 bytes**, Git blob `5e0de9676d1a0f71054c790927efbd4f4a67762b`.
+- High·깊이8 실제 심층검수 2026-10-14 **22:22~22:45 KST (23.2분)**, 20분 이내 중간 보고.
+- **254 신규 독립 제품 결함 1종**: `scheduleSharedSessionReload`의 네이티브 로그인 전환 confirm 직후 `markNativeDialogReturn()`이 누락돼 교차 탭 로그인 변경이 지연된 동안 옛 세션 토큰으로 쓰기 RPC 발신 가능. RED 실 Chromium [#38572152898](https://github.com/eco-i/eco-i.github.io/actions/runs/38572152898): 15 PASS/1 FAIL, 이전 토큰 `save_my_memo_v2` 전송 확인. `switchNow=confirm(...)` 반환 다음에 `markNativeDialogReturn()`을 넣어 수정, 파일 한 지점 (+65바이트, 3줄 추가/1줄 삭제). GREEN [#38573327790](https://github.com/eco-i/eco-i.github.io/actions/runs/38573327790) 16/0, 8회×4종 추가 [#38573244291](https://github.com/eco-i/eco-i.github.io/actions/runs/38573244291) 128/0.
+- 동일 final SHA 전체 Chromium 8단계 **214/0 ×4**: [#38573028764](https://github.com/eco-i/eco-i.github.io/actions/runs/38573028764), [#38573575362](https://github.com/eco-i/eco-i.github.io/actions/runs/38573575362), [#38573933390](https://github.com/eco-i/eco-i.github.io/actions/runs/38573933390), [#38573941015](https://github.com/eco-i/eco-i.github.io/actions/runs/38573941015).
+- PC/모바일 로그인 token scope/tombstone 648 [#38571923751](https://github.com/eco-i/eco-i.github.io/actions/runs/38571923751). **2026~2027 연가/야간/겹침 34,020 검증** [#38573341080](https://github.com/eco-i/eco-i.github.io/actions/runs/38573341080). 실제 파일 피커12·이미지24·native 사진 stress72·관리자UI16·cold boot19·handoff16, 총159/0 [#38573327790](https://github.com/eco-i/eco-i.github.io/actions/runs/38573327790). SHA/JS/DOM/RPC 무결성 21/0 [#38573488452](https://github.com/eco-i/eco-i.github.io/actions/runs/38573488452).
+- 초기 하네스 오류: 날짜별 00:00~08:00 사례가 all_day로 남은 테스트 입력, 수정 전 SHA pin, 세션 보안 리로드 순간 page.evaluate 문맥 파괴 1회. 제품 결함에 오계상 금지. 같은 final SHA로 독립 214/0 전체완주 4회 확보.
+- 환경 한계: 실제 headless Chromium PC/Android 에뮬레이션, native confirm, FileList, 다중 탭, mock RPC. 운영 Supabase/RLS·진짜 복수 사용자, 물리 Android 카메라, iOS Safari, persisted BFCache, 운영 백업/복원은 미검증.
+- 공식 `qa-handoff/QA_2-8-254_REPORT.md`, `QA_254_EVIDENCE_AUDIT.json`, `QA_2-8-254_SHA_MANIFEST.json`, `START_2-8-255_AFTER_254.txt` 참조.
 
-## 필수 운영 규칙
-- **다음은 2-8-254**, `qa-handoff/index.before-2-8-254.html`에서 시작. 반드시 `CURRENT_STATE.json` 및 공식 보고서 먼저 확인. 공식 마지막 유효 번호 바로 다음부터 연속.
-- High·깊이8, 블록당 **최소20분 실제 심층검수**, 20분 안 KST 시각 포함 중간보고, 발견 즉시 수정+RED→GREEN→독립 실 Chromium 회귀·SHA 검증, 하네스와 제품 결함 분리.
-- `main`·SQL·APP_VERSION·실배포 임의 변경 금지. **ZIP 파일 요청·제안 금지.**
-- **채팅 길이 최적화는 출력량만**: 1MB HTML·Actions 전체 로그·JSON·거대 diff는 GitHub에 두고 채팅에는 필요한 SHA/건수/결과/링크/시간만 표시. 검수 깊이·횟수·시간 절대 축소 금지. 채팅 최대 한도 자체 해제는 아님.
+## 다음 검수 필수 원칙
+- **다음 블록은 2-8-255**, `qa-handoff/index.before-2-8-255.html` 시작. GitHub 공식 상태 `CURRENT_STATE.json` 검증 후 마지막 완료 번호 다음만 진행.
+- High·깊이8, 블록별 **최소20분 실제 검수**, KST 20분 내 중간보고, 오류 즉시 수정/RED→GREEN/독립 회귀. 테스트 하네스 오류와 독립 제품 결함 구분.
+- QA/운영 브랜치 엄격 분리, SQL/APP_VERSION/배포 임의 변경 금지. **ZIP 요청·제안 금지.**
+- 채팅 길이 최적화는 대용량 HTML/Actions 원본 로그/JSON의 출력량만. 실제 검수 범위·깊이·시간·독립 반복은 줄이지 말 것. 채팅 최대 길이 자체를 보장할 수는 없음.
