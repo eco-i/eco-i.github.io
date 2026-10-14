@@ -24,3 +24,4 @@ jobs:
           NODE_PATH: /tmp/qa254full/node_modules
         run: node qa-handoff/QA_254_FULL.cjs
 # QA254 same fixed SHA independent Chromium full-suite repetition 2
+# QA254 same fixed SHA independent Chromium full-suite repetition 3
