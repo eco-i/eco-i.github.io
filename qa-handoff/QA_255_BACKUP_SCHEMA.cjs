@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),http=require('http'),crypto=require('crypto');const {chromium}=require('playwright-core');
 const html=fs.readFileSync('qa-handoff/index.working-2-8-255.html','utf8'),sha=crypto.createHash('sha256').update(html).digest('hex');
-if(sha!=='056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b')throw Error('255 immutable candidate changed');
+if(sha!=='b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2')throw Error('255 immutable candidate changed');
 (async()=>{let server,browser,pass=0,fail=0;const check=(name,ok,info)=>{(ok?pass++:fail++);console.log('QA255_SCHEMA_'+(ok?'PASS':'FAIL'),name,JSON.stringify(info||{}))};
 try{server=http.createServer((q,r)=>{r.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});r.end(html)});await new Promise(r=>server.listen(0,'127.0.0.1',r));browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
 for(const mobile of [false,true]){const ctx=await browser.newContext({viewport:{width:mobile?390:1200,height:mobile?850:900},isMobile:mobile,...(mobile?{userAgent:'Mozilla/5.0 (Linux; Android 14) Chrome/125 Mobile Safari/537.36'}:{})});const p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(String(e)));await p.route('https://cdn.jsdelivr.net/**',r=>r.abort());await p.goto('http://127.0.0.1:'+server.address().port+'/',{waitUntil:'domcontentloaded'});
