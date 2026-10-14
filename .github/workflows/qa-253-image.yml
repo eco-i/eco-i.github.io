@@ -1,0 +1,24 @@
+name: QA 2-8-253 photo image compression browser edge cases
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-253-image.yml"
+      - "qa-handoff/QA_253_IMAGE_PIPELINE.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa253image --no-audit --no-fund playwright-core@1.55.1
+      - name: Desktop and mobile browser jpeg conversion and picker edge tests
+        env:
+          NODE_PATH: /tmp/qa253image/node_modules
+        run: node qa-handoff/QA_253_IMAGE_PIPELINE.cjs
