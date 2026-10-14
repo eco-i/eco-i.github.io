@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),http=require('http'),crypto=require('crypto');const {chromium}=require('playwright-core');
-const html=fs.readFileSync('qa-handoff/index.before-2-8-254.html','utf8');
-if(crypto.createHash('sha256').update(html).digest('hex')!=='32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb')throw Error('253 immutable baseline SHA differs');
+const html=fs.readFileSync('qa-handoff/index.working-2-8-254.html','utf8');
+if(crypto.createHash('sha256').update(html).digest('hex')!=='056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b')throw Error('254 patched candidate SHA differs');
 (async()=>{let srv,browser,pass=0,fail=0;const check=(tag,ok,v)=>{(ok?pass++:fail++);console.log('QA254_'+(ok?'PASS':'FAIL'),tag,JSON.stringify(v));};
 try{srv=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(req.url==='/blank'?'<!doctype html><title>Peer</title>':html)});await new Promise(r=>srv.listen(0,'127.0.0.1',r));
 browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
