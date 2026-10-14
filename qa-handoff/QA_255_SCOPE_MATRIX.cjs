@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chromium}=require('playwright-core');
-const before=fs.readFileSync('qa-handoff/index.working-2-8-255.html');if(crypto.createHash('sha256').update(before).digest('hex')!=='32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb')throw Error('247 official baseline changed');
+const before=fs.readFileSync('qa-handoff/index.working-2-8-255.html');if(crypto.createHash('sha256').update(before).digest('hex')!=='b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2')throw Error('255 candidate SHA mismatch');
 const html=fs.readFileSync('qa-handoff/index.working-2-8-255.html','utf8');
 (async()=>{let browser,server;const items=[];try{
 server=http.createServer((q,r)=>{r.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});r.end(html)});
