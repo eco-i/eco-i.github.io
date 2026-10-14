@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chromium}=require('playwright-core');
-const html=fs.readFileSync('qa-handoff/index.before-2-8-254.html','utf8');if(crypto.createHash('sha256').update(html).digest('hex')!=='32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb')throw Error('bad 253 source');
+const html=fs.readFileSync('qa-handoff/index.working-2-8-254.html','utf8');if(crypto.createHash('sha256').update(html).digest('hex')!=='056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b')throw Error('bad 253 source');
 (async()=>{let srv,browser,pass=0,fail=0;const check=(name,ok,info={})=>{(ok?pass++:fail++);console.log('QA254_PICKER_'+(ok?'PASS':'FAIL'),name,JSON.stringify(info));};
 try{srv=http.createServer((q,r)=>{r.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});r.end(html)});await new Promise(res=>srv.listen(0,'127.0.0.1',res));browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
 for(const mobile of [false,true]){
