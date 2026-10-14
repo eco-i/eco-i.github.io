@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chromium}=require('playwright-core');
-const html=fs.readFileSync('qa-handoff/index.before-2-8-254.html','utf8'),sha=crypto.createHash('sha256').update(html).digest('hex');
-if(sha!=='32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb')throw Error('QA254 final candidate SHA mismatch');
+const html=fs.readFileSync('qa-handoff/index.working-2-8-254.html','utf8'),sha=crypto.createHash('sha256').update(html).digest('hex');
+if(sha!=='056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b')throw Error('QA254 final candidate SHA mismatch');
 (async()=>{let browser,server,pass=0,fail=0;
 const check=(name,ok,data)=>{if(ok)pass++;else fail++;console.log('QA254_UI_'+(ok?'PASS':'FAIL'),name,JSON.stringify(data))};
 try{
