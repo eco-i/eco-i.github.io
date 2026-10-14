@@ -1,0 +1,29 @@
+name: QA 2-8-255 full depth-eight Chromium
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-255-full.yml"
+      - "qa-handoff/QA_255_FULL.cjs"
+      - "qa-handoff/index.working-2-8-255.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa255full --no-audit --no-fund playwright-core@1.55.1
+      - name: Complete eight-layer browser regression
+        env:
+          NODE_PATH: /tmp/qa255full/node_modules
+        run: node qa-handoff/QA_255_FULL.cjs
+# QA255 same fixed SHA independent Chromium full-suite repetition 2
+# QA255 same fixed SHA independent Chromium full-suite repetition 3
+# Re-run independent complete QA255 Chromium 4 after browser security-driven navigation interruption in unrelated test harness
+# Re-run independent complete QA255 Chromium 5 after browser security-driven navigation interruption in unrelated test harness
