@@ -2,7 +2,7 @@
 const fs=require('fs'), crypto=require('crypto'),vm=require('vm'),assert=require('assert');
 const http=require('http'); const {chromium}=require('playwright-core');
 const baseline=fs.readFileSync('qa-handoff/index.before-2-8-251.html','utf8');
-const file='qa-handoff/index.before-2-8-252.html';
+const file='qa-handoff/index.working-2-8-252.html';
 const html=fs.readFileSync(file,'utf8');
 const expected='aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841';
 // QA 241 independent candidate-stable repeat: 194-pass eight-layer browser suite
