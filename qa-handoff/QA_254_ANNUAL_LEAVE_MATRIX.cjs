@@ -33,7 +33,7 @@ for(const group of ['A','B','C','D','DAY']){
  if(shift==='야'&&eligible){
   const partial={...rec,absence_mode:'time',start_time:'22:00',end_time:'08:00'};
   const sum=annualLeaveMinutesForRecord(partial,emp,from,to);test(sum===600,'night-22-08: '+group+key,{sum,shift});
-  const afterMidnight={...rec,start_time:'00:00',end_time:'08:00'};
+  const afterMidnight={...partial,start_time:'00:00',end_time:'08:00'};
   const nightMorning=annualLeaveMinutesForRecord(afterMidnight,emp,from,to);test(nightMorning===480,'night-00-08: '+group+key,{nightMorning});
  }
  if((shift==='주'||shift==='일근'||shift==='주2')&&eligible){
