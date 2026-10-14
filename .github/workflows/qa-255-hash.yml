@@ -1,0 +1,21 @@
+name: QA 2-8-255 candidate hashes and diff
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-255-hash.yml"
+      - "qa-handoff/index.working-2-8-255.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sha:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hash and compare only candidate to immutable baseline
+        run: |
+          sha256sum qa-handoff/index.before-2-8-255.html qa-handoff/index.working-2-8-255.html index.html
+          wc -c qa-handoff/index.before-2-8-255.html qa-handoff/index.working-2-8-255.html
+          git diff --no-index --numstat qa-handoff/index.before-2-8-255.html qa-handoff/index.working-2-8-255.html || test "$?" -eq 1
