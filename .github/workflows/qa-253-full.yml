@@ -23,3 +23,4 @@ jobs:
         env:
           NODE_PATH: /tmp/qa253full/node_modules
         run: node qa-handoff/QA_253_FULL.cjs
+# QA 2-8-253 independent 214-check candidate repetition 2
