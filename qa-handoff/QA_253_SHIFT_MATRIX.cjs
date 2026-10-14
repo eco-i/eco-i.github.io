@@ -9,12 +9,12 @@ const stats=await p.evaluate(()=>{
   if(y>2027)continue;const wd=new Date(y,m,d).getDay(),holiday=!!HOLIDAYS[key];const expectedDay=(wd===0||wd===6||holiday)?'휴':'일근';
   ck(shiftForGroup('DAY',y,m,d)===expectedDay,'office-day-'+key,shiftForGroup('DAY',y,m,d));
   for(const group of ['A','B','C','D']){
-    const shift=shiftForGroup(group,y,m,d);ck(['주','야','휴','주2'].includes(shift),'allowed-'+group+key,shift);
+    const shift=shiftForGroup(group,y,m,d);ck(['주','야','휴','비','주2'].includes(shift),'allowed-'+group+key,shift);
     if(special(key)){const expected=(wd===0||wd===6||holiday)?'휴':(group==='C'&&key==='2026-10-15'?'야':'주2');ck(shift===expected,'overhaul-'+group+key,shift);}
     if(!special(key)&&!special(key8)){const t=shiftForGroup(group,dt8.getUTCFullYear(),dt8.getUTCMonth(),dt8.getUTCDate());ck(shift===t,'8cycle-'+group+key,shift+' vs '+t);}
   }
  }
- for(const group of ['A','B','C','D']){const start=new Date(2027,5,4),tally={};for(let i=0;i<8;i++){let d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i);let shift=shiftForGroup(group,d.getFullYear(),d.getMonth(),d.getDate());tally[shift]=(tally[shift]||0)+1;}ck(tally['주']===2&&tally['야']===2&&tally['휴']===4,'8day-count-'+group,tally);}
+ for(const group of ['A','B','C','D']){const start=new Date(2027,5,4),tally={};for(let i=0;i<8;i++){let d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i);let shift=shiftForGroup(group,d.getFullYear(),d.getMonth(),d.getDate());tally[shift]=(tally[shift]||0)+1;}ck(tally['주']===2&&tally['야']===2&&tally['휴']===2&&tally['비']===2,'8day-count-'+group,tally);}
  return {pass,fail,samples};
 });
 console.log('QA253_SHIFT_SUMMARY',JSON.stringify(stats));if(stats.fail)process.exitCode=1;await ctx.close();
