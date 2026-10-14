@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chromium}=require('playwright-core');
 const html=fs.readFileSync('qa-handoff/index.working-2-8-254.html','utf8');
-const sha=crypto.createHash('sha256').update(html).digest('hex');if(sha!=='32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb')throw Error('QA254 baseline SHA mismatch '+sha);
+const sha=crypto.createHash('sha256').update(html).digest('hex');if(sha!=='056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b')throw Error('QA254 baseline SHA mismatch '+sha);
 (async()=>{let server,browser;try{
 server=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html)});await new Promise(r=>server.listen(0,'127.0.0.1',r));
 browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
