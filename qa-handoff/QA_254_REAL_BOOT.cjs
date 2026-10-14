@@ -1,10 +1,10 @@
 'use strict';
 const fs=require('fs'),crypto=require('crypto'),http=require('http');const {chromium}=require('playwright-core');
-const filename='qa-handoff/index.before-2-8-254.html';
+const filename='qa-handoff/index.working-2-8-254.html';
 const html=fs.readFileSync(filename,'utf8');
 const sha=crypto.createHash('sha256').update(html).digest('hex');
 const fixed=true;
-if(sha!=='32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb')throw Error('Wrong QA254 source SHA '+sha);
+if(sha!=='056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b')throw Error('Wrong QA254 source SHA '+sha);
 (async()=>{let srv,browser,passes=0,failures=0;
 function check(name,okay,d){(okay?passes++:failures++);console.log('QA254_REALBOOT_'+(okay?'PASS':'FAIL'),name,JSON.stringify(d))}
 try{
