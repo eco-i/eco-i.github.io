@@ -1,0 +1,49 @@
+name: QA 2-8-254 cross-tab native and image full browser replay
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-254-broad.yml"
+      - "qa-handoff/QA_254_HANDOFF_DIALOG.cjs"
+      - "qa-handoff/QA_254_PICKER_REAL.cjs"
+      - "qa-handoff/QA_254_NATIVE_STRESS.cjs"
+      - "qa-handoff/QA_254_IMAGE_PIPELINE.cjs"
+      - "qa-handoff/QA_254_REAL_BOOT.cjs"
+      - "qa-handoff/QA_254_ADMIN_UI.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa254broad --no-audit --no-fund playwright-core@1.55.1
+      - name: Real Chrome HANDOFF_DIALOG
+        env:
+          NODE_PATH: /tmp/qa254broad/node_modules
+        run: node qa-handoff/QA_254_HANDOFF_DIALOG.cjs
+      - name: Real Chrome PICKER_REAL
+        env:
+          NODE_PATH: /tmp/qa254broad/node_modules
+        run: node qa-handoff/QA_254_PICKER_REAL.cjs
+      - name: Real Chrome NATIVE_STRESS
+        env:
+          NODE_PATH: /tmp/qa254broad/node_modules
+        run: node qa-handoff/QA_254_NATIVE_STRESS.cjs
+      - name: Real Chrome IMAGE_PIPELINE
+        env:
+          NODE_PATH: /tmp/qa254broad/node_modules
+        run: node qa-handoff/QA_254_IMAGE_PIPELINE.cjs
+      - name: Real Chrome REAL_BOOT
+        env:
+          NODE_PATH: /tmp/qa254broad/node_modules
+        run: node qa-handoff/QA_254_REAL_BOOT.cjs
+      - name: Real Chrome ADMIN_UI
+        env:
+          NODE_PATH: /tmp/qa254broad/node_modules
+        run: node qa-handoff/QA_254_ADMIN_UI.cjs
