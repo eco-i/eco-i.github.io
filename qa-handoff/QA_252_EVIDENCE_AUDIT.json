@@ -1,0 +1,104 @@
+{
+  "project": "근무모아",
+  "block": "2-8-252",
+  "status": "COMPLETE",
+  "model_mode": "High",
+  "depth": 8,
+  "previous_completed": "2-8-251",
+  "next_block": "2-8-253",
+  "started_kst_approx": "2026-10-14T20:35:00+09:00",
+  "completed_kst": "2026-10-14T20:56:34.669+09:00",
+  "min_20_minutes_actual_qa_confirmed": true,
+  "previous_cumulative_defects": 535,
+  "new_independent_product_defects": 1,
+  "cumulative_defects": 536,
+  "baseline_sha256": "90616051815b531adb615ba23005ad504ffb6898ffe5b6b19c3de9b147766c4e",
+  "baseline_bytes": 1173752,
+  "final_sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb",
+  "final_bytes": 1174027,
+  "git_blob": "f530e495859f46f0eaa669acdbc8e7a3f6907bdf",
+  "defect": {
+    "type": "product",
+    "cause": "Unwrapped native confirm returns in eleven mutating UI paths omit markNativeDialogReturn; Chrome may resume before another tab's shared logout reaches localStorage and send protected RPC with revoked login",
+    "repro": "Real two-tab Chrome fingerprint non-workday photo save; sibling clear-all and key-delete both send old-token save_my_fingerprint_photo RPC",
+    "red": {
+      "run": 38558453478,
+      "passed": 10,
+      "failed": 2
+    },
+    "fix": "Call markNativeDialogReturn immediately after each of 11 native mutation confirms, enabling the existing 180ms task settlement and pre-RPC ownership revalidation",
+    "green": {
+      "run": 38558725521,
+      "passed": 12,
+      "failed": 0
+    }
+  },
+  "tests": {
+    "full_chromium_three_independent": [
+      {
+        "run": 38558897297,
+        "passed": 214,
+        "failed": 0,
+        "final_sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb"
+      },
+      {
+        "run": 38559179238,
+        "passed": 214,
+        "failed": 0,
+        "final_sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb"
+      },
+      {
+        "run": 38559178870,
+        "passed": 214,
+        "failed": 0,
+        "final_sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb"
+      }
+    ],
+    "native_pc": {
+      "run": 38558725521,
+      "passed": 12,
+      "failed": 0
+    },
+    "mobile_chrome_emulation": {
+      "run": 38559156586,
+      "passed": 12,
+      "failed": 0
+    },
+    "native_chrome_stress": {
+      "run": 38559348314,
+      "passed": 72,
+      "failed": 0,
+      "contexts": 18
+    },
+    "session_matrix": {
+      "run": 38559555387,
+      "passed": true,
+      "scope_combinations": 324,
+      "tombstone_combinations": 324,
+      "total_checks": 648
+    },
+    "source_integrity": {
+      "run": 38559795074,
+      "passed": true,
+      "inline_js": 2,
+      "unique_static_dom_ids": 457,
+      "source_hunks": 11,
+      "changed_lines": 22,
+      "triplicate_blob_identical": true
+    }
+  },
+  "harness_note": "An intermediate full test run failed only because its expected SHA/byte assertion still pointed at the previous candidate. Updated test fixture then three final full suites passed; not counted as product defect.",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_changed": false,
+  "deployed": false,
+  "main_head": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "limitations": [
+    "Actual Chrome headless with desktop/mobile emulation; RPCs stubbed, not live Supabase",
+    "Production SQL/RLS and authenticated backend multiuser untested",
+    "Physical Android camera/file picker untested",
+    "iOS Safari and persisted BFCache untested",
+    "Production backup/restore untested"
+  ],
+  "chat_length_controls": "GitHub holds full sources/tests/logs; conversation receives concise KST summaries. Test depth/time/repetition unchanged."
+}
