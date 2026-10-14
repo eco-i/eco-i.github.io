@@ -1,0 +1,24 @@
+name: QA 2-8-254 native shared handoff cancellation stress
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-254-handoff-stress.yml"
+      - "qa-handoff/QA_254_HANDOFF_STRESS.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa254native --no-audit --no-fund playwright-core@1.55.1
+      - name: Repeated real Chrome two-tab native modal race
+        env:
+          NODE_PATH: /tmp/qa254native/node_modules
+        run: node qa-handoff/QA_254_HANDOFF_STRESS.cjs
