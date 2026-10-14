@@ -1,0 +1,21 @@
+name: QA 2-8-254 candidate hash manifest
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-254-hash.yml"
+      - "qa-handoff/index.working-2-8-254.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  hash:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify immutable old baseline and current patched exact bytes
+        run: |
+          sha256sum qa-handoff/index.before-2-8-254.html qa-handoff/index.working-2-8-254.html index.html
+          wc -c qa-handoff/index.before-2-8-254.html qa-handoff/index.working-2-8-254.html
+          git diff --no-index --numstat qa-handoff/index.before-2-8-254.html qa-handoff/index.working-2-8-254.html || test "$?" -eq 1
