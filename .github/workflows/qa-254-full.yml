@@ -25,3 +25,4 @@ jobs:
         run: node qa-handoff/QA_254_FULL.cjs
 # QA254 same fixed SHA independent Chromium full-suite repetition 2
 # QA254 same fixed SHA independent Chromium full-suite repetition 3
+# Re-run independent complete QA254 Chromium 4 after browser security-driven navigation interruption in unrelated test harness
