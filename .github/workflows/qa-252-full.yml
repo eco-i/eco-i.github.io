@@ -1,0 +1,24 @@
+name: QA 2-8-252 full depth-eight Chromium
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-252-full.yml"
+      - "qa-handoff/QA_252_FULL.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa252full --no-audit --no-fund playwright-core@1.55.1
+      - name: Run 214+ assertions across eight QA layers
+        env:
+          NODE_PATH: /tmp/qa252full/node_modules
+        run: node qa-handoff/QA_252_FULL.cjs
