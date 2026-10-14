@@ -1,0 +1,20 @@
+name: QA 2-8-253 source and RPC integrity
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-253-integrity.yml"
+      - "qa-handoff/QA_253_INTEGRITY.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node qa-handoff/QA_253_INTEGRITY.cjs
