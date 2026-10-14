@@ -1,0 +1,25 @@
+name: QA 2-8-254 full depth-eight Chromium
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-254-full.yml"
+      - "qa-handoff/QA_254_FULL.cjs"
+      - "qa-handoff/index.working-2-8-254.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa254full --no-audit --no-fund playwright-core@1.55.1
+      - name: Complete eight-layer browser regression
+        env:
+          NODE_PATH: /tmp/qa254full/node_modules
+        run: node qa-handoff/QA_254_FULL.cjs
