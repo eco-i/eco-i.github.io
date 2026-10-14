@@ -32,4 +32,10 @@ assert(fileLines.length<=24,'Unexpectedly broad source modifications: '+fileLine
 const removed=text.replace(/(\bconst proceed=confirm\((?:.|\n)*?\);)markNativeDialogReturn\(\);/g,'$1');
 assert.strictEqual(removed,before.toString('utf8'),'Only eleven native confirmation marks may differ');
 assert.strictEqual((text.match(/markNativeDialogReturn\(\);/g)||[]).length,13,'Expect original two + eleven added marks');
+const guardedConfirmations=[...text.matchAll(/\bconst proceed=confirm\((?:.|\n)*?\);markNativeDialogReturn\(\);/g)];
+assert.strictEqual(guardedConfirmations.length,11,'Each of eleven confirm exits must mark settlement');
+for(const item of guardedConfirmations){
+  assert(text.slice(item.index-530,item.index).includes('fingerprintBlockingPromptSessionChanged(promptSession)'),'Missing pre-dialog ownership check');
+  assert(text.slice(item.index+item[0].length,item.index+item[0].length+390).includes('fingerprintBlockingPromptSessionChanged(promptSession)'),'Missing post-dialog ownership check');
+}
 console.log('QA252_INTEGRITY_PASS',JSON.stringify({oldSha,newSha,oldBytes:before.length,newBytes:after.length,scripts:scripts.length,uniqueDomIds:ids.length,sourceHunks:hunks,changedLines:fileLines.length,version:'ver20260927-0944'}));
