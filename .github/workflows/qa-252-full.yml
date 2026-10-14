@@ -23,3 +23,4 @@ jobs:
           NODE_PATH: /tmp/qa252full/node_modules
         run: node qa-handoff/QA_252_FULL.cjs
 # independent candidate-SHA Chromium rerun 2, QA 2-8-252
+# independent candidate-SHA Chromium rerun 3, QA 2-8-252
