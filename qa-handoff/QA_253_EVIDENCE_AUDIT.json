@@ -1,0 +1,111 @@
+{
+  "project": "근무모아",
+  "block": "2-8-253",
+  "status": "COMPLETE",
+  "mode": "High",
+  "depth": 8,
+  "previous_completed": "2-8-252",
+  "next_block": "2-8-254",
+  "started_kst": "2026-10-14T21:01:03.502+09:00",
+  "completed_kst": "2026-10-14T21:22:29.521+09:00",
+  "duration_minutes_actual": 21.43365,
+  "min_20_minutes_actual_qa_confirmed": true,
+  "previous_cumulative_defects": 536,
+  "new_independent_product_defects": 0,
+  "cumulative_defects": 536,
+  "baseline_sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb",
+  "baseline_bytes": 1174027,
+  "final_sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb",
+  "final_bytes": 1174027,
+  "git_blob": "f530e495859f46f0eaa669acdbc8e7a3f6907bdf",
+  "independent_browser_checks": {
+    "deferred_native_shared_handoff": {
+      "run": 38561188198,
+      "passed": 16,
+      "failed": 0
+    },
+    "full_chromium_depth8_three_times": [
+      {
+        "run": 38561386795,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb"
+      },
+      {
+        "run": 38562361154,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb"
+      },
+      {
+        "run": 38562368802,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb"
+      }
+    ],
+    "pc_mobile_token_and_tombstone_matrix": {
+      "run": 38561513667,
+      "pass": true,
+      "scope_combinations": 324,
+      "tombstone_combinations": 324,
+      "total_checks": 648
+    },
+    "image_conversion_mime_size_filename": {
+      "run": 38561729394,
+      "passed": 24,
+      "failed": 0
+    },
+    "real_file_picker_input_change_cancel_duplicate": {
+      "run": 38562062844,
+      "passed": 12,
+      "failed": 0
+    },
+    "source_and_rpc_inventory_integrity": {
+      "run": 38562260129,
+      "passed": 20,
+      "failed": 0,
+      "dom_ids": 457,
+      "js_inline": 2,
+      "rpc_names": 75
+    },
+    "native_photo_two_tab_18_context_stress": {
+      "run": 38562424749,
+      "passed": 72,
+      "failed": 0
+    },
+    "shift_schedule_2026_2027_matrix": {
+      "run": 38562781753,
+      "passed": 6542,
+      "failed": 0
+    },
+    "administrator_ui_revocation": {
+      "run": 38562707240,
+      "passed": 16,
+      "failed": 0
+    },
+    "cold_boot_quota_restart": {
+      "run": 38562895758,
+      "passed": 19,
+      "failed": 0
+    }
+  },
+  "harness_findings": [
+    {
+      "category": "test_harness_only",
+      "incident": "Initially assumed all non-work shifts were 휴; official SHIFT_PATTERNS has 비 as an additional 2-day post-night category. Updated oracle to include both 비 and 휴.",
+      "failed_first_run": 38562587921,
+      "corrected_green_run": 38562781753,
+      "product_defect": false
+    }
+  ],
+  "workflow_changes_only": true,
+  "application_modified": false,
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_changed": false,
+  "deployed": false,
+  "main_head": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "test_environment": "Actual headless Chromium, desktop/mobile emulation, native dialogs, file input, two tabs and Web Locks. RPC stubs, no production Supabase, physical mobile camera, iOS Safari or persistent BFCache.",
+  "transcript_output_optimization": "All source and long logs retained on GitHub; only compact progress and final summary shown in chat."
+}
