@@ -1,0 +1,140 @@
+{
+  "project": "근무모아",
+  "block": "2-8-255",
+  "status": "COMPLETE",
+  "model_mode": "High",
+  "depth": 8,
+  "started_kst": "2026-10-14T23:26:38.698+09:00",
+  "completed_kst": "2026-10-14T23:48:46.686+09:00",
+  "minutes_actual": 22.1,
+  "min_20_minutes_confirmed": true,
+  "previous_completed": "2-8-254",
+  "next_block": "2-8-256",
+  "previous_cumulative_product_defects": 537,
+  "new_independent_product_defects": 1,
+  "cumulative_product_defects": 538,
+  "immutable_baseline_sha256": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b",
+  "immutable_baseline_bytes": 1174092,
+  "immutable_baseline_blob": "5e0de9676d1a0f71054c790927efbd4f4a67762b",
+  "final_sha256": "b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2",
+  "final_bytes": 1174581,
+  "final_blob": "d8ff52e793ac1fe49b8fc473a2ba432b4ac60798",
+  "defect": {
+    "category": "frontend backup schema preflight",
+    "cause": "parseDataBackupText accepted data arrays, duplicate or unknown included_sections and mismatched data keys; malformed backup payloads advanced to server preview rather than being rejected immediately in the local file parser",
+    "impact": "Avoidable preview RPC / ambiguous server-side errors for invalid backup files; no demonstrated successful unauthorized restore or production data corruption",
+    "red": {
+      "run": 38580989397,
+      "passed": 62,
+      "failed": 6,
+      "platforms": [
+        "desktop Chrome",
+        "Android-emulated Chrome"
+      ]
+    },
+    "fix": "Require data to be a non-array JSON object; validate expected-scope included sections as unique known allowed section IDs with dataRpcExactSections; assert data own-key set is exactly the included section set.",
+    "patch_diff": {
+      "added_lines": 5,
+      "deleted_lines": 1,
+      "bytes_delta": 489
+    },
+    "green": {
+      "run": 38581443453,
+      "passed": 68,
+      "failed": 0
+    }
+  },
+  "tests": {
+    "complete_depth8": [
+      {
+        "run": 38581432518,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2"
+      },
+      {
+        "run": 38582233897,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2"
+      },
+      {
+        "run": 38582248326,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2"
+      },
+      {
+        "run": 38582260642,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2"
+      }
+    ],
+    "schema": {
+      "run": 38581443453,
+      "passed": 68,
+      "failed": 0
+    },
+    "schema_property": {
+      "run": 38582937742,
+      "passed": 6144,
+      "failed": 0
+    },
+    "file_reader_cross_tab": {
+      "run": 38582082351,
+      "passed": 40,
+      "failed": 0
+    },
+    "native_dialog_and_picker": {
+      "run": 38581792459,
+      "passed": 28,
+      "failed": 0
+    },
+    "pc_mobile_scope_tombstone": {
+      "run": 38582604180,
+      "scope_combinations": 324,
+      "tombstone_checks": 324,
+      "total": 648,
+      "failed": 0
+    },
+    "annual_leave_two_year": {
+      "run": 38582455474,
+      "desktop_checks": 17010,
+      "mobile_checks": 17010,
+      "total": 34020,
+      "failed": 0
+    },
+    "source_rpc_integrity": {
+      "run": 38582726686,
+      "passed": 23,
+      "failed": 0,
+      "dom_ids": 457,
+      "rpc_names": 75
+    },
+    "sha_diff": {
+      "run": 38581313705,
+      "baseline_sha": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b",
+      "final_sha": "b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2"
+    }
+  },
+  "harness_only_failures": [
+    {
+      "run": 38581253505,
+      "reason": "full regression still pinned old SHA immediately after product fix; test oracle updated and four full green runs achieved",
+      "product_defect": false
+    },
+    {
+      "run": 38582361408,
+      "reason": "scope test reused older 247 immutable SHA constant after candidate path changed; corrected fixed SHA and tested 648 states",
+      "product_defect": false
+    }
+  ],
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "production_deployed": false,
+  "main_changed": false,
+  "main_head": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "limitations": "Headless desktop and Android-emulated Chromium, 2-tab localStorage cross-over, native dialogs, actual FileList, mocked RPC. Production Supabase/RLS/authenticated multiuser, physical Android camera/file picker, iOS Safari, persisted BFCache, production backup/restore not validated.",
+  "chat_length_optimization": "Keep complete QA evidence and logs in GitHub; present only concise report and exact SHA to chat without shortening actual testing."
+}
