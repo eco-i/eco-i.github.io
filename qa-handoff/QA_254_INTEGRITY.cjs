@@ -1,9 +1,10 @@
 'use strict';
 const fs=require('fs'),crypto=require('crypto'),vm=require('vm'),assert=require('assert');const source=fs.readFileSync('qa-handoff/index.working-2-8-254.html','utf8');
 const base=fs.readFileSync('qa-handoff/index.before-2-8-254.html','utf8'),index=fs.readFileSync('index.html','utf8');
-const sha=x=>crypto.createHash('sha256').update(x).digest('hex');const expected='32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb';let checks=0;
+const sha=x=>crypto.createHash('sha256').update(x).digest('hex');const previous='32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb',expected='056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b';let checks=0;
 const check=(name,test)=>{assert(test,name);checks++;console.log('QA254_AUDIT_PASS',name)};
-check('immutable 254 baseline SHA',sha(base)===expected);check('working source matches baseline SHA',sha(source)===expected);check('QA index matches same SHA',sha(index)===expected);check('canonical bytes 1174027',Buffer.byteLength(source)===1174027);
+check('immutable 254 baseline SHA',sha(base)===previous);check('working source matches patched SHA',sha(source)===expected);check('QA index matches same SHA',sha(index)===expected);check('canonical bytes 1174092',Buffer.byteLength(source)===1174092);
+check('only one protected shared handoff prompt changed',source.includes("const switchNow=confirm('다른 탭에서 로그인 상태가 변경되었습니다.")&&source.includes('markNativeDialogReturn();\n      if(!switchNow){')&&!base.includes('const switchNow=confirm('));
 check('APP_VERSION unchanged',source.includes("ver20260927-0944"));
 const scripts=[...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(x=>x.trim());check('two inline scripts',scripts.length===2);for(const [i,s]of scripts.entries()){new vm.Script(s);check('inline script '+(i+1)+' parses',true)}
 const head=source.slice(0,source.indexOf('<script async src=')),ids=[...head.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);check('457 unique static DOM IDs',ids.length===457&&new Set(ids).size===457);
