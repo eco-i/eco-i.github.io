@@ -27,3 +27,4 @@ jobs:
 # QA255 same fixed SHA independent Chromium full-suite repetition 3
 # Re-run independent complete QA255 Chromium 4 after browser security-driven navigation interruption in unrelated test harness
 # Re-run independent complete QA255 Chromium 5 after browser security-driven navigation interruption in unrelated test harness
+# QA255 independent Chrome full-suite same candidate repetition 2 at 2026-10-14
