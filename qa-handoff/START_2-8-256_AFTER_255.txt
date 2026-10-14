@@ -1,0 +1,9 @@
+★★★근무모아 2차·깊이8 256차 공식 인계★★★
+마지막 공식 완료 2-8-255, 다음 2-8-256, 누적 제품 결함 538(+1).
+GitHub eco-i/eco-i.github.io branch qa-2-8; 운영 main/SQL/APP_VERSION/배포 불변, main 5c9529069a4728e72b960c61a44e8045eacc0ca0, ver20260927-0944.
+최종 qa index.html, working-2-8-255.html, 차기 불변 index.before-2-8-256.html SHA256 b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2, bytes 1174581, Git blob d8ff52e793ac1fe49b8fc473a2ba432b4ac60798. 255 시작 불변 SHA 056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b, 1174092 bytes.
+새 제품 결함: parseDataBackupText가 중복/잘못된 included_sections, data 배열, data 키 불일치를 서버 미리보기 이전에 차단하지 않음. RED PC/mobile 62/6 #38580989397; 수정 5줄 추가/1줄 삭제(+489 bytes), GREEN 68/0 #38581443453. 허용되는 백업/오류 조합 6144/0 #38582937742, file.text + 교차 탭 세션 경쟁 40/0 #38582082351.
+동일 최종 SHA 214/0 ×4 full 38581432518,38582233897,38582248326,38582260642, 648 scope #38582604180, 34020 leave #38582455474, native/file picker 28 #38581792459, source integrity23 #38582726686.
+검수 2026-10-14 2026-10-14T23:26:38.698+09:00~2026-10-14T23:48:46.686+09:00, 22.1분 High 깊이8, KST 중간보고.
+이전 SHA pin 하네스 실패 #38581253505 / 이전 247 baseline SHA 남은 하네스 #38582361408 는 제품 결함 아님. 공식 report/evidence/manifest와 GitHub CURRENT_STATE.json, START_HERE_NEW_CHAT.md 먼저 확인.
+다음 256. High·깊이8 최소20분 실제검수, 20분 내 KST 보고, 오류 즉시 수정+RED/GREEN+독립 회귀. ZIP 금지; main/SQL/version/deploy 임의 변경 금지; chat 길이 절약은 원본 HTML/로그 대량 출력만 최소화하고 실제 검사 시간/범위는 줄이지 않음.
