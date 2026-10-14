@@ -38,4 +38,9 @@ for(const item of guardedConfirmations){
   assert(text.slice(item.index-530,item.index).includes('fingerprintBlockingPromptSessionChanged(promptSession)'),'Missing pre-dialog ownership check');
   assert(text.slice(item.index+item[0].length,item.index+item[0].length+390).includes('fingerprintBlockingPromptSessionChanged(promptSession)'),'Missing post-dialog ownership check');
 }
+const qaIndex=fs.readFileSync('index.html'),nextBaseline=fs.readFileSync('qa-handoff/index.before-2-8-253.html');
+assert.strictEqual(hash(qaIndex),newSha,'QA index not synchronized with the validated candidate');
+assert.strictEqual(hash(nextBaseline),newSha,'253 immutable start baseline differs');
+assert.strictEqual(qaIndex.length,after.length,'QA index byte drift');
+assert.strictEqual(nextBaseline.length,after.length,'253 baseline byte drift');
 console.log('QA252_INTEGRITY_PASS',JSON.stringify({oldSha,newSha,oldBytes:before.length,newBytes:after.length,scripts:scripts.length,uniqueDomIds:ids.length,sourceHunks:hunks,changedLines:fileLines.length,version:'ver20260927-0944'}));
