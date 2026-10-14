@@ -1,0 +1,8 @@
+★★★근무모아 2차·깊이8 — 2-8-253 공식 시작 인계★★★
+최종 유효 완료 2-8-252, 다음 2-8-253, 누적 제품 결함 536종(252 신규 1종).
+GitHub eco-i/eco-i.github.io qa-2-8, QA index.html·working-2-8-252.html·before-2-8-253.html 모두 SHA256 32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb, 1174027 bytes, Git blob f530e495859f46f0eaa669acdbc8e7a3f6907bdf.
+이전 불변 before-2-8-252.html SHA 90616051815b531adb615ba23005ad504ffb6898ffe5b6b19c3de9b147766c4e, 1173752 bytes. 252 신규 결함: 네이티브 confirm 11곳에서 return settle fence 누락으로 다른 탭 logout 직후 revoked-token RPC. 11개 mutation confirm마다 markNativeDialogReturn() 즉시 추가.
+실 Chromium RED 38558453478 10/2, GREEN 38558725521 12/0, 모바일 38559156586 12/0, 18컨텍스트 스트레스 38559348314 72/0, 전체 214/0×3 38558897297,38559179238,38559178870, session/tombstone 648 38559555387, SHA/JS2/DOM457/11hunks 38559795074.
+실제 검수 2026-10-14 20:35경~2026-10-14T20:56:34.669+09:00 20분 이상. APP_VERSION ver20260927-0944, SQL 변경 없음, main 5c9529069a4728e72b960c61a44e8045eacc0ca0 불변, 실배포 없음.
+다음 253 High·깊이8, 블록마다 최소20분 실제 심층검수, 20분 안 KST 중간보고, 결함 즉시 수정/회귀, 유효 번호 연속. ZIP 금지. 채팅 로그·원문 과다 출력 금지(검수 깊이 축소 금지).
+GitHub qa-handoff/CURRENT_STATE.json, START_HERE_NEW_CHAT.md, QA_2-8-252_REPORT.md, QA_252_EVIDENCE_AUDIT.json, QA_2-8-252_SHA_MANIFEST.json 확인.
