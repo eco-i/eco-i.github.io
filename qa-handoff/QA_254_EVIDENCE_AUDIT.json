@@ -1,0 +1,139 @@
+{
+  "project": "근무모아",
+  "block": "2-8-254",
+  "status": "COMPLETE",
+  "mode": "High",
+  "depth": 8,
+  "started_kst": "2026-10-14T22:22:31.235+09:00",
+  "completed_kst": "2026-10-14T22:45:44.062+09:00",
+  "actual_minutes": 23.2,
+  "min_20_minutes_confirmed": true,
+  "previous_completed": "2-8-253",
+  "next_block": "2-8-255",
+  "new_product_defects": 1,
+  "previous_cumulative_defects": 536,
+  "cumulative_defects": 537,
+  "original_sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb",
+  "original_bytes": 1174027,
+  "original_blob": "f530e495859f46f0eaa669acdbc8e7a3f6907bdf",
+  "final_sha256": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b",
+  "final_bytes": 1174092,
+  "final_blob": "5e0de9676d1a0f71054c790927efbd4f4a67762b",
+  "defect": {
+    "classification": "product: race on native shared-session transition cancel",
+    "cause": "The sole direct native confirmation in scheduleSharedSessionReload returned without markNativeDialogReturn; browsers can defer another tab's localStorage logout propagation until after the dialog. An immediately initiated deferred draft RPC can send an old token even though its response gets discarded.",
+    "repro": {
+      "workflow_run": 38572152898,
+      "actual_chrome_checks_passed": 15,
+      "actual_chrome_checks_failed": 1,
+      "protected_old_token_rpc_sent": "save_my_memo_v2"
+    },
+    "fix": "Replace if(!confirm(...)) with const switchNow=confirm(...); markNativeDialogReturn(); if(!switchNow) ...; session settle guard preflight and just-before-network RPC fence then prevent old-token request.",
+    "diff": {
+      "added_lines": 3,
+      "removed_lines": 1,
+      "utf8_delta": 65
+    },
+    "postfix": {
+      "single_run": 38573327790,
+      "pass": 128,
+      "fail": 0,
+      "stress_run": 38573244291
+    }
+  },
+  "checks": {
+    "full_depth_eight_chromium": [
+      {
+        "run": 38573028764,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b"
+      },
+      {
+        "run": 38573575362,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b"
+      },
+      {
+        "run": 38573933390,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b"
+      },
+      {
+        "run": 38573941015,
+        "passed": 214,
+        "failed": 0,
+        "sha256": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b"
+      }
+    ],
+    "pc_mobile_scope_tombstone": {
+      "run": 38571923751,
+      "scope_states": 324,
+      "tombstone_states": 324,
+      "passed": 648
+    },
+    "two_year_leave": {
+      "run": 38573341080,
+      "desktop": 17010,
+      "mobile": 17010,
+      "passed": 34020
+    },
+    "browser_multi_suite": {
+      "run": 38573327790,
+      "rpc_handoff": 16,
+      "real_picker": 12,
+      "photo_stress": 72,
+      "image_pipeline": 24,
+      "real_cold_boot": 19,
+      "admin_ui": 16,
+      "total": 159,
+      "fail": 0
+    },
+    "handoff_cancel_repeat": {
+      "run": 38573244291,
+      "passed": 128,
+      "failed": 0
+    },
+    "static_audit": {
+      "run": 38573488452,
+      "passed": 21,
+      "failed": 0,
+      "dom_ids": 457,
+      "rpc_names": 75
+    },
+    "sha_bytes": {
+      "run": 38572929097,
+      "baseline_sha": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb",
+      "final_sha": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b"
+    }
+  },
+  "harness_failures_not_product": [
+    {
+      "run": 38571700298,
+      "reason": "Time-based midnight record in test inadvertently inherited all_day absence_mode; corrected to time; 34,020 checks green."
+    },
+    {
+      "run": 38572643299,
+      "reason": "Fixed application SHA triggered old hardcoded QA regression expected SHA; corrected SHA+byte assertion, no product issue."
+    },
+    {
+      "run": 38573566107,
+      "reason": "Security-triggered navigation destroyed page.evaluate context mid test after 188 passes; independent runs on same final SHA subsequently obtained four 214/0 greens."
+    }
+  ],
+  "unchanged": {
+    "main_head": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+    "sql": true,
+    "production_deployment": true,
+    "app_version": "ver20260927-0944"
+  },
+  "environment_limitations": "Real headless Chromium desktop/mobile emulation and multi-tab native dialogs with RPC mocks; no production Supabase RLS authenticated multiuser, physical Android camera, iOS Safari, persisted BFCache or production backup restore.",
+  "files": {
+    "baseline": "qa-handoff/index.before-2-8-254.html",
+    "working": "qa-handoff/index.working-2-8-254.html",
+    "next_baseline": "qa-handoff/index.before-2-8-255.html",
+    "report": "qa-handoff/QA_2-8-254_REPORT.md"
+  }
+}
