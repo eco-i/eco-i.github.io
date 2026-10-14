@@ -1,0 +1,64 @@
+{
+  "block": "2-8-254",
+  "status": "COMPLETE",
+  "mode": "High",
+  "depth": 8,
+  "completed_kst": "2026-10-14T22:45:44.062+09:00",
+  "minutes": 23.2,
+  "new_defects": 1,
+  "cumulative_defects": 537,
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_changed": false,
+  "deployed": false,
+  "files": {
+    "qa-handoff/index.before-2-8-254.html": {
+      "sha256": "32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb",
+      "bytes": 1174027,
+      "git_blob": "f530e495859f46f0eaa669acdbc8e7a3f6907bdf"
+    },
+    "qa-handoff/index.working-2-8-254.html": {
+      "sha256": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b",
+      "bytes": 1174092,
+      "git_blob": "5e0de9676d1a0f71054c790927efbd4f4a67762b"
+    },
+    "qa-handoff/index.before-2-8-255.html": {
+      "sha256": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b",
+      "bytes": 1174092,
+      "git_blob": "5e0de9676d1a0f71054c790927efbd4f4a67762b"
+    },
+    "index.html (QA only)": {
+      "sha256": "056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b",
+      "bytes": 1174092,
+      "git_blob": "5e0de9676d1a0f71054c790927efbd4f4a67762b"
+    }
+  },
+  "full_chromium_ci": [
+    38573028764,
+    38573575362,
+    38573933390,
+    38573941015
+  ],
+  "full_per_run": 214,
+  "full_failed_per_run": 0,
+  "additional_runs": {
+    "initialFull": 38571486042,
+    "red": 38572152898,
+    "redStress": 38572508847,
+    "greenHandoff": 38573327790,
+    "greenHandoffStress": 38573244291,
+    "full": [
+      38573028764,
+      38573575362,
+      38573933390,
+      38573941015
+    ],
+    "scope": 38571923751,
+    "annual": 38573341080,
+    "audit": 38573488452,
+    "hash": 38572929097,
+    "fixtureAnnualFail": 38571700298,
+    "fixtureShaFail": 38572643299,
+    "fixtureNavigationFail": 38573566107
+  }
+}
