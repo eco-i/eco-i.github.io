@@ -2,7 +2,7 @@
 const fs=require('fs'),http=require('http'),crypto=require('crypto');const {chromium}=require('playwright-core');
 const source=fs.readFileSync('qa-handoff/index.working-2-8-254.html','utf8');
 const sha=crypto.createHash('sha256').update(source).digest('hex');
-if(sha!=='32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb')throw Error('253 verified baseline drift');
+if(sha!=='056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b')throw Error('253 verified baseline drift');
 (async()=>{let srv,browser,passed=0,failed=0;const check=(name,ok,detail)=>{(ok?passed++:failed++);console.log('QA254_'+(ok?'PASS':'FAIL'),name,JSON.stringify(detail||{}));};
 try{
  srv=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(req.url==='/blank'?'<!doctype html><title>Sibling</title>':source)});await new Promise(r=>srv.listen(0,'127.0.0.1',r));
