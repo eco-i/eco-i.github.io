@@ -1,8 +1,8 @@
 'use strict';
 const fs=require('fs'),http=require('http'),crypto=require('crypto');const {chromium}=require('playwright-core');
-const source=fs.readFileSync('qa-handoff/index.before-2-8-252.html','utf8');
+const source=fs.readFileSync('qa-handoff/index.working-2-8-252.html','utf8');
 const sha=crypto.createHash('sha256').update(source).digest('hex');
-if(sha!=='90616051815b531adb615ba23005ad504ffb6898ffe5b6b19c3de9b147766c4e')throw Error('official SHA drift');
+const immutable=crypto.createHash('sha256').update(fs.readFileSync('qa-handoff/index.before-2-8-252.html')).digest('hex');if(immutable!=='90616051815b531adb615ba23005ad504ffb6898ffe5b6b19c3de9b147766c4e'||sha===immutable)throw Error('baseline integrity or patch not applied');
 (async()=>{let srv,browser,passed=0,failed=0;const check=(name,ok,detail)=>{(ok?passed++:failed++);console.log('QA252_'+(ok?'PASS':'FAIL'),name,JSON.stringify(detail||{}));};
 try{
  srv=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(req.url==='/blank'?'<!doctype html><title>Sibling</title>':source)});await new Promise(r=>srv.listen(0,'127.0.0.1',r));
