@@ -11232,7 +11232,9 @@ function scheduleSharedSessionReload(delay=60){
     if(appHasUnsavedChanges()){
       if(sharedSessionUnsavedDeferred&&String(sharedSessionDeferredTargetToken||'')===String(storageGet(localStorage,SESSION_KEY)||'')){scheduleSharedSessionReload(1000);return;}
       if(sharedSessionUnsavedDeferred){sharedSessionUnsavedDeferred=false;sharedSessionDeferredTargetToken='';}
-      if(!confirm('다른 탭에서 로그인 상태가 변경되었습니다. 현재 저장하지 않은 입력이 사라질 수 있습니다. 새 로그인 상태로 전환할까요?')){
+      const switchNow=confirm('다른 탭에서 로그인 상태가 변경되었습니다. 현재 저장하지 않은 입력이 사라질 수 있습니다. 새 로그인 상태로 전환할까요?');
+      markNativeDialogReturn();
+      if(!switchNow){
         sharedSessionUnsavedDeferred=true;
         sharedSessionDeferredTargetToken=String(storageGet(localStorage,SESSION_KEY)||'');
         syncDeferredAdminDraftPermissionSurfaces();
