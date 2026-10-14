@@ -10516,7 +10516,11 @@ function parseDataBackupText(text,expectedScope){
   if(!payload||payload.format!=='workmoa-data-backup')throw new Error('새 데이터 관리 기능에서 만든 백업 파일이 아닙니다.');
   if(Number(payload.backup_schema_version)!==1)throw new Error(Number(payload.backup_schema_version)>1?'현재 사이트보다 새로운 백업 형식입니다. 사이트를 먼저 업데이트해 주세요.':'지원하지 않는 이전 백업 형식입니다.');
   if(payload.backup_type!==expectedScope)throw new Error(expectedScope==='personal'?'개인 백업 파일을 선택해 주세요.':'관리자 백업 파일을 선택해 주세요.');
-  if(!Array.isArray(payload.included_sections)||!payload.data||typeof payload.data!=='object')throw new Error('백업 파일 구조가 올바르지 않습니다.');
+  if(!Array.isArray(payload.included_sections)||!payload.data||typeof payload.data!=='object'||Array.isArray(payload.data))throw new Error('백업 파일 구조가 올바르지 않습니다.');
+  const allowed=expectedScope==='personal'?MY_DATA_SECTION_KEYS:ADMIN_DATA_SECTION_KEYS;
+  const sections=dataRpcExactSections(payload.included_sections,null,allowed,'백업 파일의 항목 구성이 올바르지 않습니다.');
+  const dataKeys=Object.keys(payload.data);
+  if(dataKeys.length!==sections.length||dataKeys.some(key=>!sections.includes(key)))throw new Error('백업 파일의 항목 목록과 데이터 구성이 일치하지 않습니다.');
   return payload;
 }
 // QA 2-8-223: 모든 백업 응답 시각은 동일한 ISO 구성요소 유효성 검사를 거친다.
