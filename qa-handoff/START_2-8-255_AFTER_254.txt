@@ -1,0 +1,8 @@
+★★★근무모아 2차·깊이8 — 255 시작 공식 인계★★★
+254 공식 완료, 255 다음. 누적 독립 제품 결함 537종(+1).
+GitHub eco-i/eco-i.github.io; qa-2-8에서만 수정, main/SQL/실배포/APP_VERSION 변경 없음. main 5c9529069a4728e72b960c61a44e8045eacc0ca0, APP_VERSION ver20260927-0944.
+공식 255 불변 기준 qa-handoff/index.before-2-8-255.html, QA index.html, working-2-8-254.html SHA-256 056afefb42ca1876b417e22f7bdfe184eb41f467768030016ab3c101f42b2b5b, bytes 1174092, git blob 5e0de9676d1a0f71054c790927efbd4f4a67762b. 254 시작 baseline 32379ce57e0d5dac03686b82fa4b2c78c9427473cb1d35dda47dc41fce250aeb.
+254 실검수 시작 2026-10-14T22:22:31.235+09:00, 완료 2026-10-14T22:45:44.062+09:00, 23.2분 High·8단계. 신규 결함: shared 세션 변경을 취소하는 네이티브 confirm이 반환한 뒤 markNativeDialogReturn 누락으로 이전 토큰 RPC 경합. RED run 38572152898 1 FAIL /15 PASS, 수정 1지점(3줄 추가/1줄 삭제), GREEN handoff 16/0 38573327790 및 128/0 38573244291. 완전 Chromium 214/0 ×4 38573028764,38573575362,38573933390,38573941015; 2개년 연가 PC/모바일 34020 GREEN 38573341080; scope/tombstone648 38571923751; 사진/권한/기동 159 GREEN 38573327790; source21 38573488452.
+하네스 초기 annual 입력모드 실수, 수정전 SHA 기대값 오류, 시험 중 자동 reload로 인한 한번의 page.evaluate 문맥 파괴는 제품 결함에 포함하지 않음; 동일 수정본 214/0 네 번 완주.
+GitHub CURRENT_STATE.json, START_HERE_NEW_CHAT.md, QA_2-8-254_REPORT.md, QA_254_EVIDENCE_AUDIT.json, QA_2-8-254_SHA_MANIFEST.json 먼저 조회.
+매 블록 High·깊이8 최소20분 실제 검수. 20분 안 KST 보고, 결함 즉시 기술수정 후 RED→GREEN/독립 회귀. main/SQL/version/실배포 임의 변경 금지, ZIP 파일 요청·제안 금지. 채팅 길이 절약은 대용량 source/log/JSON 출력만 요약(검수 깊이 축소 금지).
