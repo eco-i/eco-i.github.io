@@ -1,0 +1,24 @@
+name: QA 2-8-261 account leave and tenure independent browser contracts
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-261-account-leave.yml"
+      - "qa-handoff/QA_261_ACCOUNT_LEAVE.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tenure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa261leave --no-audit --no-fund playwright-core@1.55.1
+      - name: PC/mobile Chrome account status, annual leave 2026/27 and long-service invalid RPC response matrix
+        env:
+          NODE_PATH: /tmp/qa261leave/node_modules
+        run: node qa-handoff/QA_261_ACCOUNT_LEAVE.cjs
