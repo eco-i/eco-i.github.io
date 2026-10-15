@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('fs'),http=require('http'),crypto=require('crypto');const {chromium}=require('playwright-core');
-const html=fs.readFileSync('qa-handoff/index.working-2-8-254.html','utf8');
-if(crypto.createHash('sha256').update(html).digest('hex')!=='fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9')throw Error('254 patched candidate SHA differs');
+const html=fs.readFileSync('qa-handoff/index.working-2-8-256.html','utf8');
+if(crypto.createHash('sha256').update(html).digest('hex')!=='fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9')throw Error('256 patched candidate SHA differs');
 (async()=>{let srv,browser,pass=0,fail=0;const check=(tag,ok,v)=>{(ok?pass++:fail++);console.log('QA256_'+(ok?'PASS':'FAIL'),tag,JSON.stringify(v));};
 try{srv=http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(req.url==='/blank'?'<!doctype html><title>Peer</title>':html)});await new Promise(r=>srv.listen(0,'127.0.0.1',r));
 browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
