@@ -1,0 +1,47 @@
+name: QA 2-8-256 Frontend Chromium battery
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-256-frontend.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa256frontend --no-audit --no-fund playwright-core@1.55.1
+      - name: HANDOFF_DIALOG real Chromium
+        env:
+          NODE_PATH: /tmp/qa256frontend/node_modules
+        run: node qa-handoff/QA_256_HANDOFF_DIALOG.cjs
+      - name: HANDOFF_STRESS real Chromium
+        env:
+          NODE_PATH: /tmp/qa256frontend/node_modules
+        run: node qa-handoff/QA_256_HANDOFF_STRESS.cjs
+      - name: PICKER_REAL real Chromium
+        env:
+          NODE_PATH: /tmp/qa256frontend/node_modules
+        run: node qa-handoff/QA_256_PICKER_REAL.cjs
+      - name: NATIVE_STRESS real Chromium
+        env:
+          NODE_PATH: /tmp/qa256frontend/node_modules
+        run: node qa-handoff/QA_256_NATIVE_STRESS.cjs
+      - name: IMAGE_PIPELINE real Chromium
+        env:
+          NODE_PATH: /tmp/qa256frontend/node_modules
+        run: node qa-handoff/QA_256_IMAGE_PIPELINE.cjs
+      - name: REAL_BOOT real Chromium
+        env:
+          NODE_PATH: /tmp/qa256frontend/node_modules
+        run: node qa-handoff/QA_256_REAL_BOOT.cjs
+      - name: ADMIN_UI real Chromium
+        env:
+          NODE_PATH: /tmp/qa256frontend/node_modules
+        run: node qa-handoff/QA_256_ADMIN_UI.cjs
