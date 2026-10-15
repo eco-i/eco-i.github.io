@@ -1,0 +1,66 @@
+{
+  "block": "2-8-264",
+  "result": "CLEAN",
+  "recorded_kst": "2026-10-15T17:19:36+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "baseline": "qa-handoff/index.before-2-8-264.html",
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "source_blob_sha": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "bytes": 1175136,
+  "workflow": {
+    "run_id": 38702058849,
+    "status": "completed",
+    "conclusion": "success",
+    "started_kst": "2026-10-15T16:55:36+09:00",
+    "completed_kst": "2026-10-15T17:17:14+09:00",
+    "jobs_succeeded": 6
+  },
+  "soak": {
+    "job_id": 116312361565,
+    "actual_seconds": 1287,
+    "rounds": 10,
+    "suites": 230,
+    "started_kst": "2026-10-15T16:55:44+09:00",
+    "completed_kst": "2026-10-15T17:17:11+09:00",
+    "failures": 0
+  },
+  "novel": {
+    "job_id": 116312361623,
+    "ui": 1401,
+    "boundary": 765,
+    "failed": 0
+  },
+  "source_integrity": {
+    "job_id": 116312361517,
+    "passed": 21,
+    "failed": 0
+  },
+  "prior_contracts": {
+    "run_id": 38702058894,
+    "job_id": 116312361656,
+    "passed": 20301,
+    "failed": 0
+  },
+  "multi_tab": {
+    "run_id": 38702058845,
+    "job_id": 116312361383,
+    "redgreen": 80,
+    "races": 480,
+    "failed": 0
+  },
+  "parallel_success": {
+    "frontend": 116312361259,
+    "full": 116312361682,
+    "backend": 116312361706
+  },
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "limits": [
+    "Real production Supabase RLS and multiple authenticated users",
+    "Physical Android camera/OS picker",
+    "iOS Safari",
+    "Persisted BFCache",
+    "Real production database backup/restore"
+  ]
+}
