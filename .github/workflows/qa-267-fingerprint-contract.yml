@@ -1,0 +1,23 @@
+name: QA 2-8-267 independent fingerprint RPC contract
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-267-fingerprint-contract.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fingerprint-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa267fp --no-audit --no-fund playwright-core@1.55.1
+      - name: Real Chrome invalid dates, strict fingerprint flags, timestamp and duplicate payload rejection
+        env:
+          NODE_PATH: /tmp/qa267fp/node_modules
+        run: node qa-handoff/QA_267_FINGERPRINT_CONTRACT.cjs

@@ -1,0 +1,43 @@
+name: QA 2-8-267 two-tab shared session ownership RED GREEN stress
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-267-ownership.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ownership:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa267ownership --no-audit --no-fund playwright-core@1.55.1
+      - name: Stress two-tab restore ownership, mobile and PC, 2026 previous correction
+        env:
+          NODE_PATH: /tmp/qa267ownership/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          node qa-handoff/QA_267_ADAPT.cjs QA_256_RESTORE_RACE
+          for i in $(seq 1 5); do
+            if ! node qa-handoff/QA_258_DELAYED_STORAGE_RED_GREEN.cjs > /tmp/qa260-race.log 2>&1; then
+              echo "QA267_RED_GREEN_FAILED round=$i"
+              grep -E 'SUMMARY|FAIL|ERROR' /tmp/qa260-race.log | tail -n 15 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa260-race.log | tail -n 1 || true
+          done
+          for i in $(seq 1 12); do
+            if ! node qa-handoff/QA_267_ADAPTED_QA_256_RESTORE_RACE.cjs > /tmp/qa260-race.log 2>&1; then
+              echo "QA267_RESTORE_RACE_FAILED round=$i"
+              grep -E 'SUMMARY|FAIL|ERROR' /tmp/qa260-race.log | tail -n 15 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa260-race.log | tail -n 1 || true
+          done
+          echo "QA267_OWNERSHIP_FINAL_PASS redgreen_cases=80 restore_race_cases=480"
