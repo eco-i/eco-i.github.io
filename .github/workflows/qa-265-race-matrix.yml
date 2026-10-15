@@ -1,0 +1,39 @@
+name: QA 2-8-265 concurrent restore race contention verification
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-265-race-matrix.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  stress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa265matrix --no-audit --no-fund playwright-core@1.55.1
+      - name: Four independent real Chromium restore-ownership races per shard
+        shell: bash
+        env:
+          NODE_PATH: /tmp/qa265matrix/node_modules
+        run: |
+          set -euo pipefail
+          node qa-handoff/QA_265_ADAPT.cjs QA_256_RESTORE_RACE
+          for round in $(seq 1 4); do
+            if ! node qa-handoff/QA_265_ADAPTED_QA_256_RESTORE_RACE.cjs > /tmp/qa265-matrix.log 2>&1; then
+              echo "QA265_MATRIX_FAIL shard=${{ matrix.shard }} round=$round"
+              grep -E 'FAIL|SUMMARY|ERROR' /tmp/qa265-matrix.log | tail -n 12
+              exit 1
+            fi
+            grep QA256_RESTORE_RACE_SUMMARY /tmp/qa265-matrix.log | tail -n 1 || true
+          done
+          echo "QA265_MATRIX_PASS shard=${{ matrix.shard }} rounds=4 checks=160"
