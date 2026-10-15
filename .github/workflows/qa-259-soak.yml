@@ -1,0 +1,47 @@
+name: QA 2-8-259 sustained High depth-eight Chromium
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-259-soak.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  depth-eight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa259 --no-audit --no-fund playwright-core@1.55.1
+      - name: Sustained independent 19-minute candidate Chrome regression with variable seeds
+        shell: bash
+        env:
+          NODE_PATH: /tmp/qa259/node_modules
+        run: |
+          set -euo pipefail
+          names="QA_256_FULL QA_256_BACKUP_PROPERTY QA_256_CODEC_FUZZ QA_256_RESTORE_RACE QA_256_RESTORE_GUARD QA_256_ADMIN_RESTORE_GUARD QA_256_SCOPE_MATRIX QA_256_ANNUAL_LEAVE_MATRIX QA_256_PICKER_REAL QA_256_IMAGE_PIPELINE QA_257_EDGE QA_257_RPC_CONTRACT QA_257_SEOUL_MIDNIGHT QA_258_UNTRUSTED_UI QA_258_BACKUP_ROUNDTRIP"
+          node qa-handoff/QA_259_ADAPT.cjs $names
+          began=$(date +%s)
+          end=$((began+1140))
+          round=0
+          total=0
+          while [ "$(date +%s)" -lt "$end" ]; do
+            round=$((round+1))
+            export QA257_FUZZ_START=$((round+258))
+            echo "QA259_ROUND_BEGIN round=$round epoch=$(date +%s)"
+            for name in $names; do
+              if ! node qa-handoff/QA_259_ADAPTED_${name}.cjs > /tmp/qa259-case.log 2>&1; then
+                echo "QA259_SOAK_FAILURE round=$round suite=$name"
+                grep -E 'FAIL|ERROR|SUMMARY|AssertionError' /tmp/qa259-case.log | tail -n 30 || true
+                exit 1
+              fi
+              total=$((total+1))
+              grep 'SUMMARY' /tmp/qa259-case.log | tail -n 1 | cut -c 1-420 || true
+            done
+            echo "QA259_SOAK_ROUND_PASS round=$round tested_suites=$total elapsed_seconds=$(($(date +%s)-began))"
+          done
+          echo "QA259_SOAK_FINAL_PASS rounds=$round tested_suites=$total actual_seconds=$(($(date +%s)-began))"
