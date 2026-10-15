@@ -4,6 +4,7 @@ on:
     branches: [qa-2-8]
     paths:
       - ".github/workflows/qa-259-soak.yml"
+      - "qa-handoff/QA_259_ADAPT.cjs"
   workflow_dispatch:
 permissions:
   contents: read
