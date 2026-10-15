@@ -2,7 +2,7 @@
 const fs=require('fs'),crypto=require('crypto'),vm=require('vm');
 const digest=x=>crypto.createHash('sha256').update(x).digest('hex');
 const expected='19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af';
-const files=['index.html','qa-handoff/index.before-2-8-263.html','qa-handoff/index.working-2-8-262.html','qa-handoff/index.before-2-8-263.html'];
+const files=['index.html','qa-handoff/index.before-2-8-262.html','qa-handoff/index.working-2-8-262.html','qa-handoff/index.before-2-8-263.html'];
 const state=JSON.parse(fs.readFileSync('qa-handoff/CURRENT_STATE.json','utf8'));
 const manifest=JSON.parse(fs.readFileSync('qa-handoff/QA_2-8-262_SHA_MANIFEST.json','utf8'));
 let pass=0,fail=0;
