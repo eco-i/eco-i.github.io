@@ -1,0 +1,24 @@
+name: QA 2-8-256 backup schema type strictness
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-256-version.yml"
+      - "qa-handoff/QA_256_SCHEMA_VERSION.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa256version --no-audit --no-fund playwright-core@1.55.1
+      - name: Reproduce backup schema coercion in real desktop and mobile Chrome
+        env:
+          NODE_PATH: /tmp/qa256version/node_modules
+        run: node qa-handoff/QA_256_SCHEMA_VERSION.cjs
