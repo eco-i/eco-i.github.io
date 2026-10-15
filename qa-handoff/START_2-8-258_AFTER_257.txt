@@ -1,0 +1,6 @@
+★★★근무모아 2차·깊이8 / 257 완료 → 258 다음★★★
+공식 2-8-257 완료, 다음 2-8-258, 누적 제품 결함 539종. QA 257 신규 0종/CLEAN.
+GitHub eco-i/eco-i.github.io qa-2-8; main 5c9529069a4728e72b960c61a44e8045eacc0ca0 불변. APP_VERSION ver20260927-0944; SQL/운영 배포 없음.
+SHA256 fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9, UTF-8 1174614 bytes, Git blob 8d9cbf6ed2d7b35a44348bae3e3ee8b4f15712c3. 다음 immutable source qa-handoff/index.before-2-8-258.html.
+검수 2026-10-15 약 10:04~10:26 KST 약22분. full Chrome 214/0 ×2, edge 3171/0, RPC184/0, 한국 자정72/0, native287/0, backup6144/0, fuzz16384/0, annual34020, sessions648. 지속 QA 857초/13회/143묶음 전체 성공 (run38664288131). 테스트 하네스 오류는 정정했으며 제품결함 제외.
+다음 258에서도 High·깊이8·실제20분 이상·중간보고 KST·결함 수정 회귀. ZIP 불가. 운영/SQL/APP_VERSION 무단 수정 금지. 실DB·물리 모바일·iOS 등 미검증 범위 정직 명시.
