@@ -1,0 +1,21 @@
+name: QA 2-8-261 KASI 2027 official 24 solar terms
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-261-solar-terms.yml"
+      - "qa-handoff/QA_261_SOLAR_TERMS.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  almanac:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compare full 2027 solar calendar against KASI 2027 monthly almanac
+        run: node qa-handoff/QA_261_SOLAR_TERMS.cjs
