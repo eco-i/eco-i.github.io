@@ -1,0 +1,45 @@
+name: QA 2-8-258 sustained depth-eight Chromium audit
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-258-soak.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sustained:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa258soak --no-audit --no-fund playwright-core@1.55.1
+      - name: Depth-eight variable input Chrome regression for 19 minutes
+        env:
+          NODE_PATH: /tmp/qa258soak/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          began=$(date +%s)
+          until_time=$((began+1140))
+          round=0
+          suites=0
+          while [ "$(date +%s)" -lt "$until_time" ]; do
+            round=$((round+1))
+            export QA257_FUZZ_START=$((round+97))
+            echo "QA258_ROUND_BEGIN round=$round epoch=$(date +%s)"
+            for test_file in QA_257_EDGE QA_257_RPC_CONTRACT QA_257_SEOUL_MIDNIGHT QA_256_FULL QA_256_BACKUP_PROPERTY QA_256_CODEC_FUZZ QA_256_ANNUAL_LEAVE_MATRIX QA_256_SCOPE_MATRIX QA_256_RESTORE_RACE QA_256_PICKER_REAL QA_256_IMAGE_PIPELINE QA_256_HANDOFF_DIALOG QA_256_QA_INDEX_SMOKE QA_256_INTEGRITY; do
+              if ! node qa-handoff/${test_file}.cjs > /tmp/qa258-soak-one.log 2>&1; then
+                echo "QA258_SOAK_FAILED round=$round suite=$test_file"
+                grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa258-soak-one.log | tail -n 40 || true
+                exit 1
+              fi
+              grep 'SUMMARY' /tmp/qa258-soak-one.log | tail -n 1 | cut -c 1-420 || true
+              suites=$((suites+1))
+            done
+            echo "QA258_SOAK_ROUND_PASS round=$round suites=$suites elapsed_seconds=$(($(date +%s)-began))"
+          done
+          echo "QA258_SOAK_FINAL_PASS rounds=$round passed_suite_executions=$suites actual_seconds=$(($(date +%s)-began))"
