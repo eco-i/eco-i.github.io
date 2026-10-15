@@ -1,0 +1,7 @@
+★★★근무모아 2차·깊이8 이어서 261 시작★★★
+GitHub eco-i/eco-i.github.io QA qa-2-8; main SHA 5c9529069a4728e72b960c61a44e8045eacc0ca0 불변.
+OFFICIAL LAST COMPLETED 2-8-260 CLEAN, NEXT 2-8-261, CUMULATIVE DEFECTS 540, NEW DEFECTS 0.
+BASELINE qa-handoff/index.before-2-8-261.html; SHA256 19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af; 1175136 bytes, blob 7077d4c27abf1b847471e32f462df0efd7cbd08f.
+2026-10-15 KST 13:00:36~13:21:07 (20m31s) High/8. Full 3 Job success run38679584146, sustained 1143sec 9*18=162 suites PASS run38679267891, independent edge 481sec 22*5=110 suites PASS run38680032891, new independent 9694 PASS/0, session ownership 560 PASS, source 21 PASS.
+APP_VERSION ver20260927-0944, SQL/operating deploy/main unchanged. Native Android/iOS/production Supabase/RLS/live DB not tested.
+Next block 261 High 8-depth at least 20m actual QA, KST progress within20m, fix real defects and regression, no ZIP, no main/SQL/APP_VERSION/deploy alteration. Full report qa-handoff/QA_2-8-260_REPORT.md.
