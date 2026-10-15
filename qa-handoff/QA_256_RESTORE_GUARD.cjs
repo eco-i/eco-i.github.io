@@ -29,7 +29,7 @@ for(const mobile of [false,true])for(const mode of ['shared-removal','shared-rep
  await a.evaluate(()=>window.__textResolver?.());
  await a.waitForFunction(()=>window.__done===true,{timeout:10000});await a.waitForTimeout(200);
  const result=await a.evaluate(()=>({rpc:window.__rpcNames,busy:dataManagementBusy,session:state.sessionToken,shared:localStorage.getItem(SESSION_KEY),text:$('myDataError')?.textContent||'',pending:pendingMyDataRestore!==null}));
- const revoked=mode.startsWith('shared-'),invalid=mode==='invalid';const expectedRpc=revoked||invalid?0:1;
+ const revoked=mode.startsWith('shared-'),invalid=mode==='invalid'||(mode.startsWith('schema-')&&mode!=='schema-good');const expectedRpc=revoked||invalid?0:1;
  ck(label+':reader-started',setup.contextOk&&setup.busy&&setup.readerReady,{setup});
  ck(label+':preview-before-network-fenced',result.rpc.filter(x=>x==='preview_data_restore_v2').length===expectedRpc,{result,changeValue,expectedRpc});
  ck(label+':busy-released',result.busy===false,{result});
