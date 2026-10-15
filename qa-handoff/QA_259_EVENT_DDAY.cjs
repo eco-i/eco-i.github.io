@@ -20,14 +20,17 @@ try{
     const base={id:3,start_date:'2026-10-15',end_date:'2027-01-04',memo_text:'정기점검',created_by:1,updated_at:'2026-10-15T09:00:00+09:00'};
     const testEvent=(r,opt={})=>{try{return strictCompanyEventRpcRows([r],opt).length===1}catch(_){return false}};
     check('valid event',testEvent(base));
+    // PostgreSQL bigint fields can legally arrive as decimal strings: strictRpcInteger preserves compatibility.
+    check('numeric-string ID accepted',testEvent({...base,id:'3'}));
+    check('numeric-string creator accepted',testEvent({...base,created_by:'1'}));
     const cases=[
-      ['id-string',r=>r.id='3'],['id-zero',r=>r.id=0],['id-float',r=>r.id=3.2],
+      ['id-zero',r=>r.id=0],['id-float',r=>r.id=3.2],
       ['invalid-start',r=>r.start_date='2026-02-30'],['invalid-end',r=>r.end_date='2027-02-30'],
       ['reversed',r=>r.end_date='2026-10-01'],['non-string-start',r=>r.start_date=20261015],
       ['non-string-end',r=>r.end_date=20270104],['note-empty',r=>r.memo_text=''],
       ['note-whitespace',r=>r.memo_text='  '],['note-not-string',r=>r.memo_text=4],
       ['note-too-long',r=>r.memo_text='x'.repeat(1001)],
-      ['no-creator',r=>delete r.created_by],['creator-string',r=>r.created_by='1'],
+      ['no-creator',r=>delete r.created_by],
       ['creator-zero',r=>r.created_by=0],['timestamp-null',r=>r.updated_at=null],
       ['timestamp-invalid',r=>r.updated_at='2026-02-30T00:00:00Z'],
       ['timestamp-offset',r=>r.updated_at='2026-10-15T00:00:00+15:00'],
