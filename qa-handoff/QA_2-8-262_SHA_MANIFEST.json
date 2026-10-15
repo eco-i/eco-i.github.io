@@ -1,0 +1,50 @@
+{
+  "block": "2-8-262",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_depth": 8,
+  "completed_kst": "2026-10-15T16:01:55+09:00",
+  "actual_seconds": 1234,
+  "novel_independent_pass": 765,
+  "integrity_pass": 21,
+  "soak_rounds": 9,
+  "soak_suite_groups": 207,
+  "new_defects": 0,
+  "cumulative_defects": 540,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "sql_changed": false,
+  "deployed": false,
+  "app_version": "ver20260927-0944",
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-262.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-262.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-263.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "run_id": 38693638034,
+  "jobs": {
+    "integrity": 116285054753,
+    "independent": 116285054770,
+    "full": 116285054670,
+    "backend": 116285054671,
+    "frontend": 116285054296,
+    "depth-eight": 116285055110
+  }
+}

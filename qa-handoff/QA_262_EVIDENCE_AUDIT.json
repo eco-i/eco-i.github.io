@@ -1,0 +1,71 @@
+{
+  "block": "2-8-262",
+  "result": "CLEAN",
+  "mode": "High",
+  "depth": 8,
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "recorded_kst": "2026-10-15T16:01:55+09:00",
+  "run_id": 38693638034,
+  "run_status": "completed",
+  "conclusion": "success",
+  "workflow_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38693638034",
+  "run_created_kst": "2026-10-15T15:38:38+09:00",
+  "run_completed_kst": "2026-10-15T15:59:30+09:00",
+  "soak": {
+    "job_id": 116285055110,
+    "actual_seconds": 1234,
+    "rounds": 9,
+    "suite_groups": 207,
+    "failures": 0
+  },
+  "jobs": [
+    {
+      "name": "integrity",
+      "id": 116285054753,
+      "conclusion": "success",
+      "checks": 21,
+      "fail": 0
+    },
+    {
+      "name": "independent",
+      "id": 116285054770,
+      "conclusion": "success",
+      "checks": 765,
+      "fail": 0,
+      "contexts": 9
+    },
+    {
+      "name": "full",
+      "id": 116285054670,
+      "conclusion": "success"
+    },
+    {
+      "name": "backend",
+      "id": 116285054671,
+      "conclusion": "success"
+    },
+    {
+      "name": "frontend",
+      "id": 116285054296,
+      "conclusion": "success"
+    },
+    {
+      "name": "depth-eight",
+      "id": 116285055110,
+      "conclusion": "success"
+    }
+  ],
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "source_blob_sha": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "bytes": 1175136,
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "excluded_live": [
+    "production Supabase/RLS real multiaccount",
+    "physical Android camera and file picker",
+    "iOS Safari",
+    "persistent BFCache",
+    "production DB restore"
+  ]
+}
