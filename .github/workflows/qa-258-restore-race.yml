@@ -1,0 +1,39 @@
+name: QA 2-8-258 restore File.text cross-tab timing stress
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-258-restore-race.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  race:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa258race --no-audit --no-fund playwright-core@1.55.1
+      - name: Repeat real 2-tab restore file-read race against immutable QA candidate
+        env:
+          NODE_PATH: /tmp/qa258race/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          passes=0
+          fails=0
+          for i in $(seq 1 12); do
+            if node qa-handoff/QA_256_RESTORE_RACE.cjs > /tmp/race-log.txt 2>&1; then
+              passes=$((passes+1))
+            else
+              fails=$((fails+1))
+              echo "QA258_RESTORE_RACE_REPRODUCTION iteration=$i"
+              grep -E 'FAIL|ERROR|SUMMARY' /tmp/race-log.txt | tail -n 15 || true
+            fi
+            echo "QA258_RACE_PROGRESS iteration=$i passed=$passes failed=$fails"
+          done
+          echo "QA258_RACE_FINAL iteration=12 pass=$passes fail=$fails"
+          if [ "$fails" -gt 0 ]; then exit 1; fi
