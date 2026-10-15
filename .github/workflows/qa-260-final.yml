@@ -1,0 +1,23 @@
+name: QA 2-8-260 promoted next-handoff integrity and Chrome
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - "qa-handoff/index.before-2-8-261.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa260final --no-audit --no-fund playwright-core@1.55.1
+      - name: SHA chain, immutable QA source, 320/390/1280px Chrome login, official state 261
+        env:
+          NODE_PATH: /tmp/qa260final/node_modules
+        run: node qa-handoff/QA_260_POST_PROMOTE.cjs
