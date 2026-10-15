@@ -18,6 +18,8 @@ try{
    const token='qa270-picker-session';
    state.me={employee_id:270,is_admin:false,is_read_only:false};state.sessionToken=token;state.initialPinRequired=false;
    state.view='mine';state.selectedDate='2026-10-15';
+   // A genuine login writes the token to the authoritative shared storage before picker opening.
+   localStorage.setItem(SESSION_KEY,token);
    const epoch=sessionContextEpoch,modal=document.getElementById('detailBackdrop');
    if(!modal)throw Error('detail modal missing');
    const previous=modal.classList.contains('open');modal.classList.add('open');
