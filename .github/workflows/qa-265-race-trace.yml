@@ -1,0 +1,37 @@
+name: QA 2-8-265 isolate restore token resurrection trace
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-265-race-trace.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  race-trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa265trace --no-audit --no-fund playwright-core@1.55.1
+      - name: Observe actual session key writes and events in repeated browser restoration races
+        env:
+          NODE_PATH: /tmp/qa265trace/node_modules
+        shell: bash
+        run: |
+          node qa-handoff/QA_265_ADAPT.cjs QA_256_RESTORE_RACE
+          node qa-handoff/QA_265_TRACE_BUILDER.cjs
+          failures=0
+          for round in $(seq 1 7); do
+            if node qa-handoff/QA_265_TRACE_RACE.generated.cjs > /tmp/qa265-trace.log 2>&1; then
+              echo "QA265_TRACE_PASS round=$round"
+            else
+              failures=$((failures+1))
+              grep -E 'QA256_RESTORE_RACE_FAIL|QA256_RESTORE_RACE_SUMMARY' /tmp/qa265-trace.log | cut -c 1-2600 | tail -n 8 || true
+              echo "QA265_TRACE_FAIL round=$round"
+            fi
+          done
+          echo "QA265_TRACE_FINAL rounds=7 failures=$failures"

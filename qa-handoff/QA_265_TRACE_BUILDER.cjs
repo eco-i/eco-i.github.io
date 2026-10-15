@@ -1,0 +1,12 @@
+'use strict';
+const fs=require('fs');
+const p='qa-handoff/QA_265_ADAPTED_QA_256_RESTORE_RACE.cjs';
+let s=fs.readFileSync(p,'utf8');
+const marker="let changeValue=null;if(mode==='shared-removal')";
+if(!s.includes(marker))throw Error('missing injection target');
+s=s.replace(marker,"await a.evaluate(()=>{\n  window.__qa265trace=[];\n  window.addEventListener('storage',e=>{if(e.key==='staffAttendance_session_v1'||e.key===null)window.__qa265trace.push({type:'peer-event',at:performance.now(),key:e.key,old:e.oldValue,new:e.newValue})});\n  const originalSet=Storage.prototype.setItem;\n  Storage.prototype.setItem=function(k,v){\n    if(k==='staffAttendance_session_v1')window.__qa265trace.push({type:'set',at:performance.now(),value:v,stack:String(new Error().stack).slice(0,440)});\n    return originalSet.call(this,k,v);\n  };\n});\nlet changeValue=null;if(mode==='shared-removal')");
+const target='pending:pendingMyDataRestore!==null}));';
+if(!s.includes(target))throw Error('missing result target');
+s=s.replace(target,'pending:pendingMyDataRestore!==null,trace:window.__qa265trace||[]}));');
+fs.writeFileSync('qa-handoff/QA_265_TRACE_RACE.generated.cjs',s);
+console.log('QA265_TRACE_BUILT');
