@@ -1,0 +1,21 @@
+name: QA 2-8-259 official Korean 2027 holidays
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-259-holidays.yml"
+      - "qa-handoff/QA_259_OFFICIAL_HOLIDAYS.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  holiday-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compare all 2027 holidays against KASA published almanac
+        run: node qa-handoff/QA_259_OFFICIAL_HOLIDAYS.cjs
