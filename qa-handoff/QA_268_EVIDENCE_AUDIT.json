@@ -1,0 +1,67 @@
+{
+  "block": "2-8-268",
+  "conclusion": "CLEAN within tested scope",
+  "timestamp_kst": "2026-10-15T21:37:20+09:00",
+  "repo": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "bytes": 1175136,
+  "workflow": {
+    "id": 38733199670,
+    "conclusion": "success",
+    "six_jobs_success": true,
+    "started_kst": "2026-10-15T21:14:56+09:00",
+    "completed_kst": "2026-10-15T21:35:23+09:00"
+  },
+  "soak": {
+    "job_id": 116415832671,
+    "seconds": 1215,
+    "rounds": 10,
+    "suite_groups": 230,
+    "failed": 0
+  },
+  "novel_fingerprint_date": {
+    "job_id": 116415832283,
+    "passed": 21930,
+    "failed": 0,
+    "contexts": 6
+  },
+  "other_independent": {
+    "dates": 26430,
+    "transitions": 30606,
+    "ui": 1401,
+    "boundary": 765,
+    "session": 60,
+    "integrity": 21
+  },
+  "fingerprint": {
+    "id": 38733199938,
+    "pass": 156,
+    "fail": 0
+  },
+  "ownership": {
+    "id": 38733199801,
+    "pass": 560,
+    "fail": 0
+  },
+  "authentic_logout": {
+    "id": 38733199852,
+    "pass": 640,
+    "fail": 0
+  },
+  "crossblock": {
+    "id": 38733200050,
+    "conclusion": "success"
+  },
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "legacy_qa_caveat": "Raw localStorage direct deletion absent real token tombstone had intermittent QA failure in 265, remains historical limitation.",
+  "not_tested": [
+    "production Supabase/RLS multiaccount",
+    "physical Android picker/camera",
+    "iOS Safari",
+    "persisted BFCache",
+    "production backup/restore"
+  ]
+}
