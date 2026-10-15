@@ -1,0 +1,37 @@
+name: QA 2-8-261 final promotion script dry run only
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-261-final-dry.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa261dry --no-audit --no-fund playwright-core@1.55.1
+      - name: Use local runner-only future state copies to validate pending promotion script; never commit
+        env:
+          NODE_PATH: /tmp/qa261dry/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp qa-handoff/index.before-2-8-261.html qa-handoff/index.before-2-8-262.html
+          node - <<'NODE'
+          const fs=require('fs');
+          const path='qa-handoff/CURRENT_STATE.json',s=JSON.parse(fs.readFileSync(path,'utf8'));
+          if(s.last_completed_block!=='2-8-260'||s.next_block!=='2-8-261')throw Error('Unverified original official state');
+          s.last_completed_block='2-8-261';s.next_block='2-8-262';
+          fs.writeFileSync(path,JSON.stringify(s));
+          fs.writeFileSync('qa-handoff/QA_2-8-261_SHA_MANIFEST.json',JSON.stringify({block:'2-8-261',status:'COMPLETE'}));
+          console.log('QA261_RUNNER_ONLY_FUTURE_STATE_DRY_RUN: no push or commit');
+          NODE
+          node qa-handoff/QA_261_POST_PROMOTE.cjs
+          echo "QA261_DRY_RUN_PASS no repo official mutation"
