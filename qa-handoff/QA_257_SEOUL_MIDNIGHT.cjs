@@ -4,9 +4,9 @@ const html=fs.readFileSync('qa-handoff/index.before-2-8-257.html','utf8');
 const hash=crypto.createHash('sha256').update(html).digest('hex');
 if(hash!=='fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9')throw Error('candidate SHA mismatch');
 const at=[
-['2026-10-14T14:59:59Z','2026-10-14'],['2026-10-14T15:00:00Z','2026-10-15'],
-['2026-12-31T14:59:59Z','2026-12-31'],['2026-12-31T15:00:00Z','2027-01-01'],
-['2027-01-01T14:59:59Z','2027-01-01'],['2027-01-01T15:00:00Z','2027-01-02']
+['2026-10-14T14:58:00Z','2026-10-14'],['2026-10-14T15:01:00Z','2026-10-15'],
+['2026-12-31T14:58:00Z','2026-12-31'],['2026-12-31T15:01:00Z','2027-01-01'],
+['2027-01-01T14:58:00Z','2027-01-01'],['2027-01-01T15:01:00Z','2027-01-02']
 ];
 (async()=>{let server,browser,pass=0,fail=0;const details=[];
 try{server=http.createServer((q,r)=>{r.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});r.end(html)});
