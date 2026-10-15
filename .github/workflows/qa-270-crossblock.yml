@@ -1,0 +1,34 @@
+name: QA 2-8-270 cross-block independent Chrome oracle and 2027 solar terms
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-270-crossblock.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-crossblock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa270cross --no-audit --no-fund playwright-core@1.55.1
+      - name: Cross-verify 261 and 262 independent oracles against identical QA 263 baseline
+        env:
+          NODE_PATH: /tmp/qa270cross/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          for suite in QA_261_AUTH_CONTRACT QA_261_SHIFT_INVARIANTS QA_261_SUBSTITUTE_HOLIDAY QA_261_ACCOUNT_LEAVE QA_261_TEXT_SCALE QA_261_NAV_A11Y QA_261_SOLAR_TERMS QA_270_BROWSER_BOUNDARY; do
+            if ! node qa-handoff/$suite.cjs > /tmp/qa270-cross.log 2>&1; then
+              echo "QA270_CROSSBLOCK_FAIL $suite"
+              grep -E 'FAIL|ERROR|SUMMARY|AssertionError' /tmp/qa270-cross.log | tail -n 18 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa270-cross.log | tail -n 1 | cut -c 1-320 || true
+          done
+          echo "QA270_CROSSBLOCK_FINAL_PASS suites=8"

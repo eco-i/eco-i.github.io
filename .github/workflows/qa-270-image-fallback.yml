@@ -1,0 +1,23 @@
+name: QA 2-8-270 image compression 95KB and 110KB fallback contracts
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-270-image-fallback.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  jpeg-fallback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa270fallback --no-audit --no-fund playwright-core@1.55.1
+      - name: Assert JPEG quality retry ladder and cap under deterministic mocked blob sizes in actual Chromium
+        env:
+          NODE_PATH: /tmp/qa270fallback/node_modules
+        run: node qa-handoff/QA_270_IMAGE_FALLBACK.cjs
