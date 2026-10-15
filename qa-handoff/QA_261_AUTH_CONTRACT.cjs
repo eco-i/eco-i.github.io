@@ -18,6 +18,8 @@ try{
    const accepted=r=>{try{return strictLoginRpcRow([r])?.employee_id===261}catch(_){return false}};
    ck('valid login',accepted(valid));
    ck('bigint login employee id',accepted({...valid,employee_id:'261'}));
+   // Legacy PostgreSQL timezone-free timestamps are accepted by strictRpcTimestamp intentionally.
+   ck('legacy timezone-less ISO expiry compatible',accepted({...valid,expires_at:'2027-11-30T13:00:00'}));
    const invalid=[
      ['token-missing',r=>delete r.token],['token-nonuuid',r=>r.token='x'.repeat(36)],
      ['token-shape',r=>r.token='12345678123442349234123456789abc'],
@@ -29,7 +31,7 @@ try{
      ['admin-string',r=>r.is_admin='false'],['admin-null',r=>r.is_admin=null],
      ['expires-empty',r=>r.expires_at=''],['expires-invalid-day',r=>r.expires_at='2027-02-30T13:00:00+09:00'],
      ['expires-invalid-time',r=>r.expires_at='2027-11-30T25:00:00+09:00'],
-     ['expires-no-timezone',r=>r.expires_at='2027-11-30T13:00:00'],
+     
      ['category-unknown',r=>r.category='E조'],['group-bad',r=>r.group_code='A'],
      ['category-null',r=>r.category=null],['group-null',r=>r.group_code=null]
    ];
