@@ -1,0 +1,43 @@
+name: QA 2-8-260 independent 8-minute Chrome edge soak
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-260-edge-soak.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa260edge --no-audit --no-fund playwright-core@1.55.1
+      - name: Sustain novel independent 260 data contract/security/responsive/browser privacy tests
+        env:
+          NODE_PATH: /tmp/qa260edge/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          started=$(date +%s)
+          deadline=$((started+480))
+          rounds=0
+          suites=0
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            rounds=$((rounds+1))
+            for suite in QA_260_OVERTIME_HOLIDAY QA_260_RESPONSIVE QA_260_ADMIN_SECURITY QA_260_GLOBAL_TIMEZONE QA_260_STORAGE_PRIVACY; do
+              if ! node qa-handoff/${suite}.cjs > /tmp/qa260-edge.log 2>&1; then
+                echo "QA260_EDGE_SOAK_FAILURE round=$rounds suite=$suite"
+                grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa260-edge.log | tail -n 25 || true
+                exit 1
+              fi
+              suites=$((suites+1))
+              grep 'SUMMARY' /tmp/qa260-edge.log | tail -n 1 | cut -c 1-230 || true
+            done
+            echo "QA260_EDGE_SOAK_ROUND_PASS round=$rounds suites=$suites elapsed_seconds=$(($(date +%s)-started))"
+          done
+          echo "QA260_EDGE_SOAK_FINAL_PASS rounds=$rounds suites=$suites actual_seconds=$(($(date +%s)-started))"
