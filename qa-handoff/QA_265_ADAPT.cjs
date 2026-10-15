@@ -22,6 +22,16 @@ for(const name of names){
     .replaceAll('qa-handoff/index.working-2-8-258.html',src)
     .replaceAll('fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9',expected)
     .replaceAll('1174614',String(Buffer.byteLength(html)));
+
+ if(name==='QA_256_RESTORE_RACE'){
+   // The raw 256 test deleted a shared token without the logout suppression marker.
+   // Real app logout atomically marks the exact token revoked before attempting removal;
+   // preserve the original historical test but adapt this case to the supported protocol.
+   const unsafe="localStorage.removeItem('staffAttendance_session_v1');return localStorage.getItem('staffAttendance_session_v1')";
+   const authentic="localStorage.setItem('staffAttendance_sharedLoggedOutToken_v1','qa256-restore-old-shared-removal');localStorage.removeItem('staffAttendance_session_v1');return localStorage.getItem('staffAttendance_session_v1')";
+   if(!s.includes(unsafe))throw Error('Restore race oracle changed unexpectedly');
+   s=s.replace(unsafe,authentic);
+ }
  fs.writeFileSync(output,s);
  new vm.Script(s,{filename:output});
  console.log('QA263_ADAPTED',name);
