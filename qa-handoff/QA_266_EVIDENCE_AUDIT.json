@@ -1,0 +1,68 @@
+{
+  "block": "2-8-266",
+  "conclusion": "CLEAN within tested Chromium + stubbed RPC scope",
+  "recorded_kst": "2026-10-15T20:08:37+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "bytes": 1175136,
+  "main": {
+    "run_id": 38722557451,
+    "conclusion": "success",
+    "jobs_succeeded": 6,
+    "started_kst": "2026-10-15T19:45:47+09:00",
+    "completed_kst": "2026-10-15T20:06:58+09:00"
+  },
+  "soak": {
+    "job_id": 116380422791,
+    "actual_seconds": 1257,
+    "rounds": 8,
+    "suite_groups": 184,
+    "failures": 0
+  },
+  "independent": {
+    "job_id": 116380422824,
+    "ui_pass": 1401,
+    "boundary_pass": 765,
+    "transition_pass": 30606,
+    "session_guard_pass": 60
+  },
+  "integrity": {
+    "job_id": 116380422594,
+    "pass": 21,
+    "fail": 0
+  },
+  "crossblock": {
+    "run_id": 38722568171,
+    "pass": 20301,
+    "fail": 0
+  },
+  "ownership": {
+    "run_id": 38722562566,
+    "pass": 560,
+    "fail": 0
+  },
+  "logout": {
+    "run_id": 38722623946,
+    "pass": 640,
+    "fail": 0
+  },
+  "fingerprint": {
+    "run_id": 38723208259,
+    "pass": 156,
+    "fail": 0
+  },
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "anomalies": [
+    "265 legacy raw localStorage key-only removal intermittent failure persists as documented historical QA limitation; supported logout token suppression path passed"
+  ],
+  "not_directly_tested": [
+    "production Supabase/RLS multiple authenticated users",
+    "physical Android camera/filepicker",
+    "iOS Safari",
+    "persistent BFCache",
+    "live production database restore"
+  ]
+}
