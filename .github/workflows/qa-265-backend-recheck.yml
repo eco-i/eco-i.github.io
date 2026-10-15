@@ -1,0 +1,35 @@
+name: QA 2-8-265 independent backend full recheck after intermittent race
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-265-backend-recheck.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa260backend --no-audit --no-fund playwright-core@1.55.1
+      - name: Revalidate backup property, codec, session, restore race and annual leave
+        env:
+          NODE_PATH: /tmp/qa260backend/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          names="QA_256_BACKUP_PROPERTY QA_256_CODEC_FUZZ QA_256_RESTORE_RACE QA_256_RESTORE_GUARD QA_256_ADMIN_RESTORE_GUARD QA_256_SCOPE_MATRIX QA_256_ANNUAL_LEAVE_MATRIX QA_260_OVERTIME_HOLIDAY QA_260_ADMIN_SECURITY"
+          node qa-handoff/QA_265_ADAPT.cjs $names
+          for name in $names; do
+            if ! node qa-handoff/QA_265_ADAPTED_${name}.cjs > /tmp/qa260-back.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY|AssertionError' /tmp/qa260-back.log | tail -n 25 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa260-back.log | tail -n 1 | cut -c 1-530 || true
+          done
+
