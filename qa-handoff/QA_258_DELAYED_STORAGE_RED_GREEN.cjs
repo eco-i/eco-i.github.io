@@ -13,6 +13,7 @@ try{
   a.on('pageerror',e=>errs.push(e.message));
   await a.route('https://cdn.jsdelivr.net/**',r=>r.abort());await b.route('https://cdn.jsdelivr.net/**',r=>r.abort());
   const url='http://127.0.0.1:'+server.address().port+'/';await Promise.all([a.goto(url+mode,{waitUntil:'domcontentloaded'}),b.goto(url+'peer',{waitUntil:'domcontentloaded'})]);
+  await a.waitForTimeout(300);
   const setting=await a.evaluate(({mode,scope,mobile,other})=>{
    const token='qa258-delayed-storage-'+mode+scope+mobile+other;
    window.configured=()=>true;window.activeAdminMode=()=>true;state.me={employee_id:258,is_admin:scope==='admin',is_read_only:false};state.sessionToken=token;state.initialPinRequired=false;pageLifecycleFreshnessPending=false;
