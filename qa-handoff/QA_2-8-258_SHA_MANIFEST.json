@@ -1,0 +1,51 @@
+{
+  "project": "근무모아",
+  "block": "2-8-258",
+  "status": "COMPLETE",
+  "mode": "High",
+  "depth": 8,
+  "started_kst": "2026-10-15T11:01:05+09:00",
+  "completed_kst": "2026-10-15T11:22:03+09:00",
+  "elapsed_seconds": 1258,
+  "new_product_defects": 1,
+  "cumulative_defects": 540,
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_changed": false,
+  "deployed": false,
+  "files": {
+    "qa-handoff/index.before-2-8-258.html": {
+      "sha256": "fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9",
+      "bytes": 1174614,
+      "blob": "8d9cbf6ed2d7b35a44348bae3e3ee8b4f15712c3"
+    },
+    "qa-handoff/index.working-2-8-258.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "bytes": 1175136,
+      "blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f"
+    },
+    "index.html (QA branch only)": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "bytes": 1175136,
+      "blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f"
+    },
+    "qa-handoff/index.before-2-8-259.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "bytes": 1175136,
+      "blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f"
+    }
+  },
+  "runs": {
+    "baseline_full_red": 38668983587,
+    "baseline_race_red": 38669216746,
+    "storage_visibility": 38669318057,
+    "controlled_red_green": 38670140217,
+    "green_chromium": 38669681084,
+    "green_initial_harness_error": 38669593228,
+    "html_security": 38668948405,
+    "download_roundtrip": 38669122742,
+    "integrity": 38669846503,
+    "baseline_soak": 38668796571,
+    "patched_soak": 38669769440
+  }
+}

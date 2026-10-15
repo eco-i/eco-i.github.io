@@ -10884,7 +10884,11 @@ async function prepareMyDataRestore(file,pickerCtx=null){
   if(!beginDataManagementAction())return;
   showLoading(true);
   try{
-    const payload=parseDataBackupText(await file.text(),'personal');if(!stillCurrent()||!pageStillCurrent())return;
+    const payload=parseDataBackupText(await file.text(),'personal');
+    // QA 2-8-258: cross-renderer localStorage events can arrive after the peer tab finishes logout.
+    // Yield a short ownership-settle window before sending any sensitive backup preview payload.
+    await new Promise(resolve=>setTimeout(resolve,220));
+    if(!stillCurrent()||!pageStillCurrent())return;
     if(!dataRestorePickerContextStillCurrent(ctx,'my')){$('myDataError').textContent='백업 파일을 확인하는 동안 로그인 상태가 변경되어 서버 미리보기를 실행하지 않았습니다. 새 로그인 상태로 전환된 뒤 다시 선택해 주세요.';return;}
     const included=MY_DATA_SECTION_KEYS.filter(k=>payload.included_sections.includes(k));if(!included.length)throw new Error('복원할 개인 데이터가 없습니다.');
     renderDataSectionGrid('myDataSections',MY_DATA_SECTION_KEYS,included,MY_DATA_SECTION_KEYS.filter(k=>!included.includes(k)));
@@ -10966,7 +10970,11 @@ async function prepareAdminDataRestore(file,pickerCtx=null){
   if(!beginDataManagementAction())return;
   showLoading(true);
   try{
-    const payload=parseDataBackupText(await file.text(),'admin');if(!stillCurrent()||!pageStillCurrent())return;
+    const payload=parseDataBackupText(await file.text(),'admin');
+    // QA 2-8-258: cross-renderer localStorage events can arrive after the peer tab finishes logout.
+    // Yield a short ownership-settle window before sending any sensitive backup preview payload.
+    await new Promise(resolve=>setTimeout(resolve,220));
+    if(!stillCurrent()||!pageStillCurrent())return;
     if(!dataRestorePickerContextStillCurrent(ctx,'admin')){$('adminDataError').textContent='백업 파일을 확인하는 동안 로그인 또는 관리자 상태가 변경되어 서버 미리보기를 실행하지 않았습니다. 새 로그인 상태로 전환된 뒤 다시 선택해 주세요.';return;}
     const included=ADMIN_DATA_SECTION_KEYS.filter(k=>k!=='audit_logs'&&payload.included_sections.includes(k));if(!included.length)throw new Error('복원 가능한 업무데이터가 없습니다.');
     renderDataSectionGrid('adminDataSections',ADMIN_DATA_SECTION_KEYS,included,ADMIN_DATA_SECTION_KEYS.filter(k=>!payload.included_sections.includes(k)||k==='audit_logs'));

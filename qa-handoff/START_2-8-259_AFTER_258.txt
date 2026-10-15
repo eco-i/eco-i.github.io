@@ -1,0 +1,5 @@
+★★★근무모아 2차·깊이8 / 258 완료, 259 다음★★★
+GitHub eco-i/eco-i.github.io QA qa-2-8. main 5c9529069a4728e72b960c61a44e8045eacc0ca0 변경 없음. 마지막 완료 2-8-258, 다음 시작 2-8-259. 누적 제품 결함 540종(258 신규 1종).
+버전 ver20260927-0944, SQL/운영배포 변경 없음. 258 원본 sha fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9. 258 최종/QA index/259 시작 sha 19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af, bytes1175136, blob 7077d4c27abf1b847471e32f462df0efd7cbd08f.
+2026-10-15 KST 11:01:05~11:22:03 20분58초. 원본 cross-renderer localStorage logout 보이지 않는 짧은 구간의 백업 preview 전송 경합 1종 수정. RED 38668983587 / 38669216746, 통제 RED8/GREEN8 38670140217, GREEN full 38669681084, 원본 19m 196스위트 성공 38668796571, 수정본 9m 70스위트 성공 38669769440. DB 운영·실물 모바일·iOS 등 미검증 한계.
+다음 259부터 High·깊이8·실제20분+·KST 20분 내 중간보고·결함 수정/회귀. ZIP 금지, SQL/main/APP_VERSION 임의 변경/배포 금지. 상세 내용 QA_2-8-258_REPORT.md.

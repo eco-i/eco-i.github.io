@@ -1,0 +1,113 @@
+{
+  "project": "근무모아",
+  "qa_round": 2,
+  "qa_depth": 8,
+  "block": "2-8-258",
+  "status": "COMPLETE",
+  "mode": "High",
+  "started_kst": "2026-10-15T11:01:05+09:00",
+  "completed_kst": "2026-10-15T11:22:03+09:00",
+  "actual_seconds": 1258,
+  "minimum_20_minutes": true,
+  "last_completed_before": "2-8-257",
+  "next_block": "2-8-259",
+  "defects_before": 539,
+  "independent_new_defects": 1,
+  "cumulative_defects": 540,
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "previous_sha256": "fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9",
+  "official_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "old_bytes": 1174614,
+  "new_bytes": 1175136,
+  "old_blob": "8d9cbf6ed2d7b35a44348bae3e3ee8b4f15712c3",
+  "new_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "product_fix": {
+    "category": "cross-tab backup restore preview File.text ownership propagation race",
+    "cause": "Cross-renderer localStorage updates not immediately visible to another tab after peer removal; old authentication may pass synchronous guard before shared storage propagation",
+    "impact": "Sensitive preview RPC can be dispatched under earlier browser-side session ownership; no proof of production data leak or backend authorization bypass",
+    "locations": [
+      "prepareMyDataRestore",
+      "prepareAdminDataRestore"
+    ],
+    "change": "220ms asynchronous browser-storage settle after File.text followed by original epoch/page/context/shared ownership checks",
+    "scope": "2 targeted JS sites only; +522 bytes"
+  },
+  "verification": {
+    "red_full": {
+      "run": 38668983587,
+      "pass": 39,
+      "fail": 1
+    },
+    "red_repeat": {
+      "run": 38669216746,
+      "successful_iterations": 11,
+      "failed_iterations": 1
+    },
+    "visibility": {
+      "run": 38669318057,
+      "contexts": 48,
+      "stale_read": 7,
+      "stale_rpc": 1,
+      "received_new_value_unprotected": 0
+    },
+    "controlled_redgreen": {
+      "run": 38670140217,
+      "old_red_cases": 8,
+      "new_green_cases": 8,
+      "unexpected_failures": 0
+    },
+    "green_race": {
+      "run": 38669681084,
+      "iterations": 14,
+      "per_iteration": 40,
+      "failures": 0
+    },
+    "green_full": {
+      "run": 38669681084,
+      "checks": 214,
+      "failures": 0
+    },
+    "backup_property": 6144,
+    "codec_fuzz": 16384,
+    "session_scope_tombstone": 648,
+    "annual_calendar": 34020,
+    "frontend_native": 287,
+    "html_security": {
+      "run": 38668948405,
+      "checks": 92,
+      "failed": 0
+    },
+    "actual_backup_download": {
+      "run": 38669122742,
+      "checks": 22,
+      "failed": 0
+    },
+    "source_delta": {
+      "run": 38669846503,
+      "checks": 13,
+      "failed": 0
+    },
+    "baseline_soak": {
+      "run": 38668796571,
+      "actual_seconds": 1148,
+      "rounds": 14,
+      "suite_executions": 196,
+      "failures": 0
+    },
+    "patched_soak": {
+      "run": 38669769440,
+      "actual_seconds": 547,
+      "rounds": 7,
+      "suite_executions": 70,
+      "failures": 0
+    }
+  },
+  "non_product_harness_issues": [
+    "Fixed previous expected byte count in adjusted QA256 FULL run; reproduced full GREEN",
+    "Corrected controlled-stale-storage test to wait for initial app bootstrap"
+  ],
+  "limitations": "Headless Chromium PC/mobile emulation, two tabs, file picker, stubbed RPC. No production Supabase/RLS multiuser, physical Android camera/picker, iOS Safari, persisted BFCache, or live production DB backup/restore."
+}
