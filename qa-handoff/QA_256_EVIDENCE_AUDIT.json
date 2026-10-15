@@ -1,0 +1,159 @@
+{
+  "project": "근무모아",
+  "block": "2-8-256",
+  "status": "COMPLETE",
+  "mode": "High",
+  "depth": 8,
+  "started_kst": "2026-10-15T09:36:11.567+09:00",
+  "completed_kst": "2026-10-15T09:58:05.250+09:00",
+  "actual_minutes": 21.9,
+  "min_20_minutes_confirmed": true,
+  "previous_official": "2-8-255",
+  "next_block": "2-8-257",
+  "defects_before": 538,
+  "new_independent_product_defects": 1,
+  "cumulative_defects": 539,
+  "old_sha256": "b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2",
+  "old_bytes": 1174581,
+  "old_git_blob": "d8ff52e793ac1fe49b8fc473a2ba432b4ac60798",
+  "final_sha256": "fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9",
+  "final_bytes": 1174614,
+  "final_git_blob": "8d9cbf6ed2d7b35a44348bae3e3ee8b4f15712c3",
+  "defect": {
+    "category": "Backup restore client schema version coercion",
+    "cause": "parseDataBackupText converted arbitrary JSON backup_schema_version using Number(...) while strictDataExportRpc exports and validates a true JSON numeric schema version 1.",
+    "red": {
+      "run": 38661163899,
+      "pass": 42,
+      "fail": 28,
+      "examples": [
+        "\"1\"",
+        "true",
+        "[1]",
+        "[\"1\"]",
+        "\"1.0\"",
+        "\"1e0\"",
+        "\" 1 \""
+      ]
+    },
+    "fix": {
+      "file": "qa-handoff/index.working-2-8-256.html",
+      "method": "Use payload.backup_schema_version!==1, and preserve future numeric version error message without coercing version acceptance.",
+      "diff_added_lines": 1,
+      "diff_removed_lines": 1,
+      "diff_delta_utf8_bytes": 33
+    },
+    "postfix": {
+      "run": 38661329330,
+      "pass": 70,
+      "fail": 0
+    },
+    "impact": "Malformed backup JSON could reach the authenticated preview RPC instead of being rejected at client preflight; no evidence of completed restore, server data corruption or Supabase policy failure."
+  },
+  "verification": {
+    "full_chromium": [
+      {
+        "run": 38661339218,
+        "passed": 214,
+        "failed": 0
+      },
+      {
+        "run": 38661833780,
+        "passed": 214,
+        "failed": 0
+      },
+      {
+        "run": 38661838720,
+        "passed": 214,
+        "failed": 0
+      },
+      {
+        "run": 38661844430,
+        "passed": 214,
+        "failed": 0
+      },
+      {
+        "run": 38662807827,
+        "passed": 214,
+        "failed": 0
+      }
+    ],
+    "schema_basic": {
+      "run": 38661329330,
+      "pass": 70,
+      "fail": 0
+    },
+    "backup_property": {
+      "run": 38661609876,
+      "pass": 6144,
+      "fail": 0
+    },
+    "backup_independent_fuzz": {
+      "run": 38662095917,
+      "pass": 16384,
+      "fail": 0
+    },
+    "restore_file_read_session_race": {
+      "run": 38661609876,
+      "pass": 40,
+      "fail": 0
+    },
+    "personal_restore_ui": {
+      "run": 38662267283,
+      "pass": 100,
+      "fail": 0
+    },
+    "admin_restore_ui": {
+      "run": 38662362464,
+      "pass": 100,
+      "fail": 0
+    },
+    "token_scope_and_logout": {
+      "run": 38661609876,
+      "pass": 648,
+      "fail": 0
+    },
+    "annual_calendar": {
+      "run": 38661609876,
+      "pass": 34020,
+      "fail": 0
+    },
+    "native_frontend": {
+      "run": 38661791167,
+      "pass": 287,
+      "fail": 0
+    },
+    "integrity": {
+      "run": 38662503423,
+      "pass": 24,
+      "fail": 0
+    },
+    "live_qa_index": {
+      "run": 38662594315,
+      "pass": 56,
+      "fail": 0
+    },
+    "final_source_chain": {
+      "run": 38662712348,
+      "pass": 5,
+      "fail": 0
+    }
+  },
+  "harness_failures_not_product": [
+    {
+      "run": 38661251758,
+      "reason": "Full regression expected previous candidate SHA before test script pin was updated"
+    },
+    {
+      "run": 38661616929,
+      "reason": "Native handoff stress script accidentally pointed to prior block HTML, corrected test path; all seven suites subsequently passed."
+    }
+  ],
+  "unchanged": {
+    "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+    "sql": true,
+    "production_deploy": true,
+    "APP_VERSION": "ver20260927-0944"
+  },
+  "scope_limitations": "Real headless Chrome desktop/mobile emulation, native confirm, simulated two tabs, file inputs and stubbed RPC. No real production Supabase/RLS, authenticated simultaneous remote users, physical Android camera, iOS Safari, persisted BFCache or production backup restore."
+}
