@@ -3,7 +3,7 @@ const fs=require('fs'),crypto=require('crypto'),vm=require('vm'),assert=require(
 const base=fs.readFileSync('qa-handoff/index.before-2-8-256.html','utf8'),index=fs.readFileSync('index.html','utf8');
 const sha=x=>crypto.createHash('sha256').update(x).digest('hex');const previous='b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2',expected='fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9';let checks=0;
 const check=(name,test)=>{assert(test,name);checks++;console.log('QA256_AUDIT_PASS',name)};
-check('immutable 254 baseline SHA',sha(base)===previous);check('working source matches patched SHA',sha(source)===expected);check('QA index still old immutable before promotion',sha(index)===previous);check('canonical bytes 1174614',Buffer.byteLength(source)===1174614);
+check('immutable 254 baseline SHA',sha(base)===previous);check('working source matches patched SHA',sha(source)===expected);check('QA index matches final fixed-candidate SHA',sha(index)===expected);check('canonical bytes 1174614',Buffer.byteLength(source)===1174614);
 check('backup schema version requires strict numeric 1',source.includes('if(payload.backup_schema_version!==1)')&&!source.includes('if(Number(payload.backup_schema_version)!==1)'));
 check('backup parser rejects array-shaped JSON data',source.includes("typeof payload.data!=='object'||Array.isArray(payload.data)"));
 check('backup parser exact allowed sections',source.includes("dataRpcExactSections(payload.included_sections,null,allowed"));
