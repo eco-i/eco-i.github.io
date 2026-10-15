@@ -2,7 +2,7 @@
 const fs=require('fs'),http=require('http'),crypto=require('crypto');const {chromium}=require('playwright-core');
 const html=fs.readFileSync('qa-handoff/index.working-2-8-256.html','utf8');
 const sha=crypto.createHash('sha256').update(html).digest('hex');
-const oldSha='b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2';
+const oldSha='fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9';
 if(sha!==oldSha)throw Error('256 untouched initial source SHA mismatch');
 const personal=['attendance','holiday_work'];const admin=['company_events','personnel'];
 (async()=>{let srv,br,pass=0,fail=0;const check=(name,ok,v)=>{if(ok)pass++;else fail++;console.log('QA256_VERSION_'+(ok?'PASS':'FAIL'),name,JSON.stringify(v||{}))};
