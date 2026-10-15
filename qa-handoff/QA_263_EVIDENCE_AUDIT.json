@@ -1,0 +1,69 @@
+{
+  "block": "2-8-263",
+  "result": "CLEAN",
+  "reported_kst": "2026-10-15T16:29:44+09:00",
+  "repo": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "baseline": "qa-handoff/index.before-2-8-263.html",
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "source_blob_sha": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "bytes": 1175136,
+  "main_run": {
+    "id": 38696601055,
+    "success": true,
+    "started_kst": "2026-10-15T16:06:52+09:00",
+    "finished_kst": "2026-10-15T16:28:07+09:00",
+    "jobs_succeeded": 6
+  },
+  "soak": {
+    "job_id": 116294498212,
+    "actual_seconds": 1252,
+    "started_kst": "2026-10-15T16:07:11+09:00",
+    "finished_kst": "2026-10-15T16:28:03+09:00",
+    "rounds": 9,
+    "suite_groups": 207,
+    "failed": 0
+  },
+  "independent": {
+    "job_id": 116294498026,
+    "passed": 1401,
+    "failed": 0,
+    "contexts": 9,
+    "calendar_month_renders": 216,
+    "storage_profiles": 12
+  },
+  "integrity": {
+    "job_id": 116294497819,
+    "passed": 21,
+    "failed": 0
+  },
+  "prior_oracles": {
+    "run_id": 38697446935,
+    "job_id": 116297269537,
+    "independent_suite_groups": 8,
+    "passed": 20301,
+    "failed": 0
+  },
+  "multitab": {
+    "run_id": 38697137521,
+    "job_id": 116296273996,
+    "redgreen": 80,
+    "race": 480,
+    "failed": 0
+  },
+  "full_backend_frontend": {
+    "full": 116294498222,
+    "backend": 116294498107,
+    "frontend": 116294498195,
+    "conclusion": "success"
+  },
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "not_verified": [
+    "live production Supabase/RLS authenticated multiple accounts",
+    "physical Android camera and OS file picker",
+    "iOS Safari",
+    "persisted BFCache",
+    "real production database restore"
+  ]
+}

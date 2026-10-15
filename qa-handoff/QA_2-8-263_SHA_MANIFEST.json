@@ -1,0 +1,58 @@
+{
+  "block": "2-8-263",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_depth": 8,
+  "completed_kst": "2026-10-15T16:29:44+09:00",
+  "actual_seconds": 1252,
+  "rounds": 9,
+  "soak_suites": 207,
+  "novel_ui_tests_pass": 1401,
+  "crossblock_tests_pass": 20301,
+  "ownership_tests_pass": 560,
+  "source_integrity_pass": 21,
+  "new_defects": 0,
+  "cumulative_defects": 540,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "sql_changed": false,
+  "deployed": false,
+  "app_version": "ver20260927-0944",
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-263.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-263.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-264.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "runs": {
+    "main": 38696601055,
+    "ownership": 38697137521,
+    "crossblock": 38697446935
+  },
+  "job_ids": {
+    "soak": 116294498212,
+    "full": 116294498222,
+    "backend": 116294498107,
+    "frontend": 116294498195,
+    "independent": 116294498026,
+    "integrity": 116294497819,
+    "ownership": 116296273996,
+    "crossblock": 116297269537
+  }
+}
