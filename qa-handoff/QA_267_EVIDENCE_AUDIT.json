@@ -1,0 +1,72 @@
+{
+  "block": "2-8-267",
+  "result": "CLEAN within tested scope",
+  "recorded_kst": "2026-10-15T21:01:02+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "source_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "bytes": 1175136,
+  "main": {
+    "id": 38728726740,
+    "conclusion": "success",
+    "jobs_success": 6,
+    "run_started_kst": "2026-10-15T20:38:06+09:00",
+    "run_finished_kst": "2026-10-15T20:58:47+09:00"
+  },
+  "soak": {
+    "job_id": 116400912819,
+    "seconds": 1231,
+    "rounds": 8,
+    "suite_groups": 184,
+    "failed": 0
+  },
+  "independent": {
+    "job_id": 116400912578,
+    "date_property_pass": 26430,
+    "transition_pass": 30606,
+    "ui_pass": 1401,
+    "boundary_pass": 765,
+    "session_guard_pass": 60,
+    "fail": 0
+  },
+  "source_integrity": {
+    "job_id": 116400912644,
+    "pass": 21,
+    "fail": 0
+  },
+  "crossblock": {
+    "run_id": 38728726596,
+    "success": true,
+    "suite_groups": 8
+  },
+  "ownership": {
+    "run_id": 38728726812,
+    "success": true,
+    "redgreen": 80,
+    "restore_race": 480,
+    "fail": 0
+  },
+  "real_logout": {
+    "run_id": 38728726578,
+    "success": true,
+    "pass": 640,
+    "fail": 0
+  },
+  "fingerprint": {
+    "run_id": 38728727002,
+    "success": true,
+    "pass": 156,
+    "fail": 0
+  },
+  "new_confirmed_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "prior_scope_limitation": "Legacy raw localStorage key-only removal without token suppression remains an abnormal previously observed intermittent case; actual logout protocol passes.",
+  "not_tested": [
+    "production Supabase/RLS multiaccount",
+    "physical Android camera/picker",
+    "iOS Safari",
+    "persistent BFCache",
+    "live DB restore"
+  ]
+}
