@@ -1,0 +1,39 @@
+name: QA 2-8-256 Backend Chromium battery
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-256-backend.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa256backend --no-audit --no-fund playwright-core@1.55.1
+      - name: SCHEMA_VERSION real Chromium
+        env:
+          NODE_PATH: /tmp/qa256backend/node_modules
+        run: node qa-handoff/QA_256_SCHEMA_VERSION.cjs
+      - name: BACKUP_PROPERTY real Chromium
+        env:
+          NODE_PATH: /tmp/qa256backend/node_modules
+        run: node qa-handoff/QA_256_BACKUP_PROPERTY.cjs
+      - name: RESTORE_RACE real Chromium
+        env:
+          NODE_PATH: /tmp/qa256backend/node_modules
+        run: node qa-handoff/QA_256_RESTORE_RACE.cjs
+      - name: SCOPE_MATRIX real Chromium
+        env:
+          NODE_PATH: /tmp/qa256backend/node_modules
+        run: node qa-handoff/QA_256_SCOPE_MATRIX.cjs
+      - name: ANNUAL_LEAVE_MATRIX real Chromium
+        env:
+          NODE_PATH: /tmp/qa256backend/node_modules
+        run: node qa-handoff/QA_256_ANNUAL_LEAVE_MATRIX.cjs
