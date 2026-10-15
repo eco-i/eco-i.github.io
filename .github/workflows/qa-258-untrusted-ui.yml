@@ -1,0 +1,24 @@
+name: QA 2-8-258 untrusted HTML browser mutation audit
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-258-untrusted-ui.yml"
+      - "qa-handoff/QA_258_UNTRUSTED_UI.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  secure-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa258untrusted --no-audit --no-fund playwright-core@1.55.1
+      - name: PC/mobile render injection and strict event response browser checks
+        env:
+          NODE_PATH: /tmp/qa258untrusted/node_modules
+        run: node qa-handoff/QA_258_UNTRUSTED_UI.cjs
