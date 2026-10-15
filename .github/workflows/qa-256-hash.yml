@@ -1,0 +1,21 @@
+name: QA 2-8-256 SHA and diff
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-256-hash.yml"
+      - "qa-handoff/index.working-2-8-256.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hash original and repaired candidate
+        run: |
+          sha256sum qa-handoff/index.before-2-8-256.html qa-handoff/index.working-2-8-256.html index.html
+          wc -c qa-handoff/index.before-2-8-256.html qa-handoff/index.working-2-8-256.html
+          git diff --no-index --numstat qa-handoff/index.before-2-8-256.html qa-handoff/index.working-2-8-256.html || test "$?" -eq 1
