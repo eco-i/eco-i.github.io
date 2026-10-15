@@ -1,0 +1,21 @@
+name: QA 2-8-256 integrity, source authentication and provenance
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-256-integrity.yml"
+      - "qa-handoff/QA_256_INTEGRITY.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check 75 RPC names, 457 IDs, 2 valid JS scripts, strict schema and immutable previous SHA
+        run: node qa-handoff/QA_256_INTEGRITY.cjs
