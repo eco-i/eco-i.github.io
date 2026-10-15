@@ -1,0 +1,7 @@
+★★★근무모아 2차-깊이8 이어서 — 259 완료 / 260 시작★★★
+GitHub eco-i/eco-i.github.io, qa-2-8; main unchanged 5c9529069a4728e72b960c61a44e8045eacc0ca0.
+LAST COMPLETED 2-8-259, NEXT 2-8-260, DEFECTS 540 total, 259 NEW 0 CLEAN.
+SHA256 19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af, bytes 1175136, blob 7077d4c27abf1b847471e32f462df0efd7cbd08f; immutable qa-handoff/index.before-2-8-260.html.
+2026-10-15 KST 11:33:10~11:56:15 23분05초 High/8단계 검수. 19분41초 반복 run38671708475 11×15=165 suites all passed; parallel full run38672117996 3 jobs SUCCESS; DDAY3156 fingerprint2846 personnel2990 official holidays58 900 rows14 ownership repeat400 all pass.
+APP_VERSION ver20260927-0944; SQL, main, production deployment unchanged. 실제 운영 DB/Android/iOS 등 미검증.
+260부터 High 8단계 최소20분 실검수, 20분 내 KST 보고, 결함 즉시 수정/독립회귀, ZIP 금지.

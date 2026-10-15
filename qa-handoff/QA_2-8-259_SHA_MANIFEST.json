@@ -1,0 +1,45 @@
+{
+  "block": "2-8-259",
+  "status": "COMPLETE",
+  "completed_kst": "2026-10-15T11:56:15+09:00",
+  "cumulative_defects": 540,
+  "new_product_defects": 0,
+  "mode": "High",
+  "depth": 8,
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "main_changed": false,
+  "deployed": false,
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "bytes": 1175136,
+      "blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f"
+    },
+    "qa-handoff/index.before-2-8-259.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "bytes": 1175136,
+      "blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f"
+    },
+    "qa-handoff/index.working-2-8-259.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "bytes": 1175136,
+      "blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f"
+    },
+    "qa-handoff/index.before-2-8-260.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "bytes": 1175136,
+      "blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f"
+    }
+  },
+  "runs": {
+    "sustained": 38671708475,
+    "full": 38672117996,
+    "event_dday": 38671909177,
+    "fingerprint": 38672025689,
+    "personnel": 38672214299,
+    "holiday": 38672743347,
+    "ownership": 38672329590,
+    "list_scale": 38672920313
+  }
+}
