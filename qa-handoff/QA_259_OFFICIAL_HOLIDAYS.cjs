@@ -27,6 +27,16 @@ test('no non-substitute Memorial Day on 2027-06-07',!actual.has('2027-06-07'));
 test('2027 Labor Day substitute present',actual.has('2027-05-03'));
 test('2027 Constitution Day substitute present',actual.has('2027-07-19'));
 test('2027 last Christmas substitute present',actual.has('2027-12-27'));
+const sundays=new Set(),weekends=new Set();
+for(let month=1;month<=12;month++)for(let day=1;day<=31;day++){
+ const d=new Date(Date.UTC(2027,month-1,day));
+ if(d.getUTCMonth()!==month-1)continue;
+ const iso=d.toISOString().slice(0,10),weekday=d.getUTCDay();
+ if(weekday===0)sundays.add(iso);
+ if(weekday===0||weekday===6)weekends.add(iso);
+}
+test('KASA 2027 official Sundays + holidays unique 72',new Set([...sundays,...actual]).size===72);
+test('KASA 2027 five-day employee calendar off days 119',new Set([...weekends,...actual]).size===119);
 test('2026-10-15 shutdown boundary preserved',original.includes("if(group==='C'&&key==='2026-10-15')return '야';"));
 test('calendar year span 2026-2027 maintained',original.includes('MAX_YEAR = 2027;'));
 console.log('QA259_OFFICIAL_HOLIDAY_SUMMARY',JSON.stringify({passed,failed,calendar_dates:actual.size,published_dates:published.length,sha}));
