@@ -12,6 +12,7 @@ assert.equal(scripts.length,2);for(const s of scripts)new vm.Script(s);
 const ids=[...source.slice(0,source.indexOf('<script async src=')).matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
 assert.equal(ids.length,new Set(ids).size);
 let passed=5,failed=0, observed=[];
+const fuzzStart=Number(process.env.QA257_FUZZ_START||0)||0;
 const check=(ok,name,data)=>{if(ok)passed++;else{failed++;console.log('QA257_FAIL',name,JSON.stringify(data).slice(0,750))}};
 (async()=>{let browser,server;
 try{
@@ -24,7 +25,7 @@ const page=await cx.newPage(),errors=[];
 page.on('pageerror',e=>errors.push(e.message));
 await page.route('https://cdn.jsdelivr.net/**',r=>r.abort());
 await page.goto('http://127.0.0.1:'+server.address().port+'/',{waitUntil:'domcontentloaded'});
-const result=await page.evaluate(async()=>{
+const result=await page.evaluate(async(fuzzStart)=>{
 let tested=0,failures=[], observations={};
 const requireCase=(cond,label,extra)=>{tested++;if(!cond&&failures.length<25)failures.push({label,extra})};
 const personal=MY_DATA_SECTION_KEYS,admin=ADMIN_DATA_SECTION_KEYS;
@@ -37,8 +38,9 @@ let accepted=false;try{parseDataBackupText(JSON.stringify(payload),scope);accept
 requireCase(!accepted,scope+':invalid-version:'+String(v),v);
 }
 for(let seed=0;seed<768;seed++){
-const keys=sections.filter((_,i)=>(seed>>i)&1);if(!keys.length)keys.push(sections[seed%sections.length]);
-const rseed=Math.imul(seed+1847,2654435761)>>>0;
+const caseSeed=seed+fuzzStart*768;
+const keys=sections.filter((_,i)=>(caseSeed>>i)&1);if(!keys.length)keys.push(sections[caseSeed%sections.length]);
+const rseed=Math.imul(caseSeed+1847,2654435761)>>>0;
 const mutate=rseed%12;
 const included=keys.slice(),data=Object.fromEntries(keys.map(k=>[k,[]]));
 let payload={format:'workmoa-data-backup',backup_schema_version:1,backup_type:scope,included_sections:included,data};
@@ -66,7 +68,7 @@ const imageData=await new Promise(r=>canvas.toBlob(r,'image/png'));
 const input=[['valid',new File([imageData],'sample.png',{type:'image/png'})],['invalid',new File([new Uint8Array(100)],'bad.png',{type:'image/png'})],['empty-mime',new File([imageData],'sample.png',{type:''})]];
 for(const [tag,file] of input){let answer;try{const v=await compressFingerprintImage(file);answer={accepted:true,mime:v.mime,bytes:v.bytes}}catch(e){answer={accepted:false,error:String(e.message||e)}};observations[tag]=answer;if(tag==='valid')requireCase(answer.accepted&&answer.mime==='image/jpeg','valid jpeg rasterization',answer);if(tag==='invalid')requireCase(!answer.accepted,'reject bogus png',answer)}
 return {tested,failures,observations,version:typeof APP_VERSION!=='undefined'?APP_VERSION:null,ids:document.querySelectorAll('[id]').length};
-});
+},fuzzStart);
 check(result.failures.length===0,(mobile?'mobile':'desktop')+':property-errors',result.failures);
 passed+=result.tested-result.failures.length;failed+=result.failures.length;
 check(result.version==='ver20260927-0944','app version stable',result.version);
