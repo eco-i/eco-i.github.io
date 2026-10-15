@@ -1,0 +1,41 @@
+name: QA 2-8-259 cross-tab restore security repetition
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-259-ownership.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ownership:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa259own --no-audit --no-fund playwright-core@1.55.1
+      - name: Repeat RED to GREEN controlled stale-storage and 8 rounds of 40 restore ownership cases
+        env:
+          NODE_PATH: /tmp/qa259own/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          node qa-handoff/QA_259_ADAPT.cjs QA_256_RESTORE_RACE
+          for n in $(seq 1 5); do
+            if ! node qa-handoff/QA_258_DELAYED_STORAGE_RED_GREEN.cjs > /tmp/qa259-ownership.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa259-ownership.log | tail -n 18 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa259-ownership.log | tail -n 1 || true
+          done
+          for n in $(seq 1 8); do
+            if ! node qa-handoff/QA_259_ADAPTED_QA_256_RESTORE_RACE.cjs > /tmp/qa259-ownership.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa259-ownership.log | tail -n 18 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa259-ownership.log | tail -n 1 || true
+          done
+          echo "QA259_OWNERSHIP_FINAL_PASS redgreen_iterations=5 restore_race_iterations=8 tests_approx=400"
