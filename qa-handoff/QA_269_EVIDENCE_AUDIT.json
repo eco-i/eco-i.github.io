@@ -1,0 +1,74 @@
+{
+  "block": "2-8-269",
+  "conclusion": "CLEAN within tested Chromium/mock RPC scope",
+  "recorded_kst": "2026-10-15T22:13:06+09:00",
+  "repo": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "bytes": 1175136,
+  "main": {
+    "id": 38737637286,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs_success": 6,
+    "created_kst": "2026-10-15T21:49:44+09:00",
+    "completed_kst": "2026-10-15T22:11:06+09:00"
+  },
+  "soak": {
+    "job_id": 116430896304,
+    "seconds": 1266,
+    "rounds": 9,
+    "existing_suite_groups": 207,
+    "failed": 0
+  },
+  "independent": {
+    "job_id": 116430896503,
+    "photo_real": 474,
+    "photo_fail": 0,
+    "transitions": 30606,
+    "dates": 26430,
+    "fingerprint_days": 21930,
+    "ui": 1401,
+    "boundary": 765,
+    "session": 60
+  },
+  "fallback": {
+    "run_id": 38738123545,
+    "job_id": 116432536117,
+    "passed": 186,
+    "failed": 0,
+    "blob_sizes_controlled_simulation": true
+  },
+  "crossblock": {
+    "run_id": 38737637243,
+    "passed": 20301,
+    "failed": 0
+  },
+  "ownership": {
+    "run_id": 38737637121,
+    "redgreen": 80,
+    "restore": 480,
+    "failed": 0
+  },
+  "logout": {
+    "run_id": 38737637278,
+    "pass": 640,
+    "fail": 0
+  },
+  "fingerprint": {
+    "run_id": 38737637114,
+    "pass": 156,
+    "fail": 0
+  },
+  "new_confirmed_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "prior_qa_limitation": "265 raw storage direct deletion omitted exact-token revocation marker, intermittently failed and evidence retained",
+  "not_tested": [
+    "Live Supabase RLS authenticated multiaccount",
+    "physical Android camera/OS picker",
+    "iOS Safari",
+    "persistent BFCache",
+    "live DB restore"
+  ]
+}
