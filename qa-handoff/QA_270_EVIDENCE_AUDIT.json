@@ -1,0 +1,69 @@
+{
+  "block": "2-8-270",
+  "conclusion": "CLEAN in tested Chromium/stubbed RPC scope",
+  "recorded_kst": "2026-10-15T23:17:43+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "bytes": 1175136,
+  "full_run": {
+    "id": 38743321207,
+    "conclusion": "success",
+    "six_jobs_success": true
+  },
+  "soak": {
+    "seconds": 1278,
+    "rounds": 10,
+    "suites": 230,
+    "failures": 0
+  },
+  "new_independent": {
+    "picker_session": {
+      "passed": 114,
+      "failed": 0
+    },
+    "picker_events": {
+      "passed": 66,
+      "failed": 0
+    }
+  },
+  "initial_failed_oracles": {
+    "context": {
+      "run_id": 38742999298,
+      "pass": 90,
+      "fail": 24
+    },
+    "picker_events": [
+      {
+        "run_id": 38743920973,
+        "pass": 41,
+        "fail": 25
+      },
+      {
+        "run_id": 38744252108,
+        "pass": 50,
+        "fail": 16
+      }
+    ],
+    "cause": "Incomplete simulated login token and app async event initialization in QA harness, not confirmed product defects"
+  },
+  "other_verified_runs": {
+    "ownership": 38742999183,
+    "crossblock": 38742999006,
+    "logout": 38742999174,
+    "fingerprint": 38742999085,
+    "image_fallback": 38742999129
+  },
+  "extra_run": {
+    "run_id": 38749151235,
+    "status_at_reporting": "five jobs succeeded; separate sustained duplicate not included in official criteria"
+  },
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "limitations": [
+    "Physical Android/iOS native picker not exercised",
+    "production Supabase/RLS multiaccount not tested",
+    "persisted BFCache not tested",
+    "production DB restore not tested"
+  ]
+}
