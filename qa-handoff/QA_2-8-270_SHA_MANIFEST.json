@@ -57,5 +57,6 @@
     "image_fallback": 38742999129,
     "extra_ongoing": 38749151235
   },
-  "duplicate_270_soak_did_not_count": true
+  "duplicate_270_soak_did_not_count": true,
+  "actual_seconds": 1278
 }
