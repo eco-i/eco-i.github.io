@@ -1,0 +1,43 @@
+name: QA 265 diagnose token resurrection under concurrent Chromium workloads
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-265-trace-matrix.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1,2,3,4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa265tracemat --no-audit --no-fund playwright-core@1.55.1
+      - name: Instrument shared token write stack and cross-tab removal event
+        env:
+          NODE_PATH: /tmp/qa265tracemat/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          node qa-handoff/QA_265_ADAPT.cjs QA_256_RESTORE_RACE
+          node qa-handoff/QA_265_TRACE_BUILDER.cjs
+          failures=0
+          for i in $(seq 1 4); do
+            if node qa-handoff/QA_265_TRACE_RACE.generated.cjs > /tmp/trace.log 2>&1; then
+              echo "QA265_TRACE_MATRIX_PASS shard=${{ matrix.shard }} run=$i"
+            else
+              failures=$((failures+1))
+              echo "QA265_TRACE_MATRIX_FAIL shard=${{ matrix.shard }} run=$i"
+              grep -E 'QA256_RESTORE_RACE_FAIL|QA256_RESTORE_RACE_SUMMARY' /tmp/trace.log | cut -c 1-4200 | tail -n 10 || true
+            fi
+          done
+          echo "QA265_TRACE_MATRIX_FINAL shard=${{ matrix.shard }} failures=$failures"
+          test "$failures" -eq 0
