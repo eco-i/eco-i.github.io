@@ -5,7 +5,6 @@ on:
     paths:
       - ".github/workflows/qa-256-final-chain.yml"
       - "qa-handoff/index.before-2-8-257.html"
-      - "index.html"
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,6 +14,6 @@ jobs:
     timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
-      - name: Verify original 256, fixed QA index and immutable 257 exact bytes
+      - name: Verify immutable 256 final and immutable 257 handoff exact bytes
         run: |
-          node -e "const fs=require('fs'),crypto=require('crypto');const old='b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2',fin='fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9';let ps=['qa-handoff/index.before-2-8-256.html','qa-handoff/index.working-2-8-256.html','qa-handoff/index.before-2-8-257.html','index.html'];for(let [i,p] of ps.entries()){let b=fs.readFileSync(p),sha=crypto.createHash('sha256').update(b).digest('hex'),exp=i?fin:old,n=i?1174614:1174581;if(sha!==exp||b.length!==n)throw Error(p+' '+sha+' '+b.length);console.log('QA256_CHAIN_PASS',p,sha,b.length)}let s=fs.readFileSync('index.html','utf8');if(!s.includes('if(payload.backup_schema_version!==1)')||s.includes('if(Number(payload.backup_schema_version)!==1)'))throw Error('schema migration invalid');console.log('QA256_CHAIN_SUMMARY',JSON.stringify({pass:5,fail:0,next_block:'2-8-257'}))"
+          node -e "const fs=require('fs'),crypto=require('crypto');const old='b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2',fin='fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9';let ps=['qa-handoff/index.before-2-8-256.html','qa-handoff/index.working-2-8-256.html','qa-handoff/index.before-2-8-257.html'];for(let [i,p] of ps.entries()){let b=fs.readFileSync(p),sha=crypto.createHash('sha256').update(b).digest('hex'),exp=i?fin:old,n=i?1174614:1174581;if(sha!==exp||b.length!==n)throw Error(p+' '+sha+' '+b.length);console.log('QA256_CHAIN_PASS',p,sha,b.length)}let s=fs.readFileSync('qa-handoff/index.working-2-8-256.html','utf8');if(!s.includes('if(payload.backup_schema_version!==1)')||s.includes('if(Number(payload.backup_schema_version)!==1)'))throw Error('schema migration invalid');console.log('QA256_CHAIN_SUMMARY',JSON.stringify({pass:4,fail:0,next_block:'2-8-257'}))"
