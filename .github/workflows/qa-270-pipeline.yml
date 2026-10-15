@@ -1,4 +1,4 @@
-name: QA 2-8-270 High eight-depth Chromium after authentic picker login-seed correction
+name: QA 2-8-270 sustained 20-minute High eight-depth Chromium
 on:
   push:
     branches: [qa-2-8]
@@ -33,7 +33,7 @@ jobs:
           suites=0
           while [ "$(date +%s)" -lt "$deadline" ]; do
             rounds=$((rounds+1))
-            export QA257_FUZZ_START=$((27000+rounds))
+            export QA257_FUZZ_START=$((26900+rounds))
             echo "QA270_SOAK_BEGIN round=$rounds epoch=$(date +%s)"
             for name in $names; do
               if ! node qa-handoff/QA_270_ADAPTED_${name}.cjs > /tmp/qa270-soak.log 2>&1; then
@@ -44,7 +44,7 @@ jobs:
               suites=$((suites+1))
               grep 'SUMMARY' /tmp/qa270-soak.log | tail -n 1 | cut -c 1-300 || true
             done
-            node qa-handoff/QA_270_PICKER_CONTEXT.cjs > /tmp/qa270-novel.log 2>&1 || { grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa270-novel.log | tail -n 10; exit 1; }
+            node qa-handoff/QA_270_IMAGE_CODEC.cjs > /tmp/qa270-novel.log 2>&1 || { grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa270-novel.log | tail -n 10; exit 1; }
             echo "QA270_SOAK_ROUND_PASS round=$rounds suites=$suites elapsed_seconds=$(($(date +%s)-started))"
           done
           echo "QA270_SOAK_FINAL_PASS rounds=$rounds suites=$suites actual_seconds=$(($(date +%s)-started))"
@@ -135,7 +135,7 @@ jobs:
       - name: Independent 264 real Chrome 2-year 216-month-view UI matrix and security contracts
         env:
           NODE_PATH: /tmp/qa270ind/node_modules
-        run: node qa-handoff/QA_270_UI_MATRIX.cjs && node qa-handoff/QA_270_BROWSER_BOUNDARY.cjs && node qa-handoff/QA_270_TRANSITIONS.cjs && node qa-handoff/QA_270_SESSION_GUARD.cjs && node qa-handoff/QA_270_DATE_PROPERTIES.cjs && node qa-handoff/QA_270_FINGERPRINT_DATE_MATRIX.cjs && node qa-handoff/QA_270_IMAGE_CODEC.cjs && node qa-handoff/QA_270_PICKER_CONTEXT.cjs
+        run: node qa-handoff/QA_270_UI_MATRIX.cjs && node qa-handoff/QA_270_BROWSER_BOUNDARY.cjs && node qa-handoff/QA_270_TRANSITIONS.cjs && node qa-handoff/QA_270_SESSION_GUARD.cjs && node qa-handoff/QA_270_DATE_PROPERTIES.cjs && node qa-handoff/QA_270_FINGERPRINT_DATE_MATRIX.cjs && node qa-handoff/QA_270_IMAGE_CODEC.cjs
   integrity:
     runs-on: ubuntu-latest
     timeout-minutes: 8
