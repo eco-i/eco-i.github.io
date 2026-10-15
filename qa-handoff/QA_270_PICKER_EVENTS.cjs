@@ -17,7 +17,9 @@ state.me={employee_id:270,is_admin:false,is_read_only:false};state.sessionToken=
 localStorage.setItem(SESSION_KEY,token);realtimeNeedsCatchup=false;pageLifecycleFreshnessPending=false;
 const detail=document.getElementById('detailBackdrop');detail.classList.add('open');
 const input=document.getElementById('fingerprintPhotoInput');if(!input)throw Error('fingerprint input absent');
-const oldHandler=handleFingerprintPhotoInput,oldRender=renderFingerprintDetail;
+// Session ownership was independently asserted in QA270_PICKER_CONTEXT; keep this event-only fixture's owner stable while async timers fire.
+const oldHandler=handleFingerprintPhotoInput,oldRender=renderFingerprintDetail,oldStill=fingerprintPickerStillCurrent,oldSession=fingerprintPickerSessionCurrent;
+fingerprintPickerStillCurrent=()=>true;fingerprintPickerSessionCurrent=()=>true;
 handleFingerprintPhotoInput=async()=>{calls++;clearFingerprintPickerContext()};
 renderFingerprintDetail=()=>{};
 const ctx=()=>({actor:270,token,contextEpoch:sessionContextEpoch,key:'2026-10-15',kind:'clock_in',changeSeen:false});
@@ -43,7 +45,7 @@ ck('cancel with no event invokes no handler',calls===beforeCancel);
 ck('cancel cleanup releases flow',fingerprintPickerFlowActive===false);
 ck('cancel cleanup clears context',fingerprintPickerContext===null);
 ck('cancel cleanup clears pending kind',fingerprintPendingKind==='');
-handleFingerprintPhotoInput=oldHandler;renderFingerprintDetail=oldRender;
+handleFingerprintPhotoInput=oldHandler;renderFingerprintDetail=oldRender;fingerprintPickerStillCurrent=oldStill;fingerprintPickerSessionCurrent=oldSession;
 return {pass,fail,issues,calls};
 });
 pass+=r.pass;fail+=r.fail+errors.length;contexts++;if(r.fail||errors.length)issues.push({tz,mobile,issues:r.issues,pageErrors:errors.slice(0,3)});
