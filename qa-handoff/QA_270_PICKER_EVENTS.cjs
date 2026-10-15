@@ -8,7 +8,9 @@ server=http.createServer((q,r)=>{r.writeHead(200,{'Content-Type':'text/html; cha
 browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox']});
 for(const mobile of [false,true])for(const tz of ['Asia/Seoul','UTC','America/Los_Angeles']){
 const cx=await browser.newContext({timezoneId:tz,viewport:{width:mobile?390:1280,height:mobile?850:900},isMobile:mobile,hasTouch:mobile});
-const p=await cx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.route('https://cdn.jsdelivr.net/**',r=>r.abort());await p.goto('http://127.0.0.1:'+server.address().port+'/',{waitUntil:'domcontentloaded'});
+const p=await cx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.route('https://cdn.jsdelivr.net/**',r=>r.abort());await p.goto('http://127.0.0.1:'+server.address().port+'/',{waitUntil:'load'});
+// The app awaits a Web Lock and migration before wire() binds change/cancel listeners.
+await p.waitForTimeout(1600);
 const r=await p.evaluate(async()=>{
 let pass=0,fail=0,issues=[],calls=0;
 const ck=(n,test)=>{if(test)pass++;else{fail++;if(issues.length<20)issues.push(n)}};

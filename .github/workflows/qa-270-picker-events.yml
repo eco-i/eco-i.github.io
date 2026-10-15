@@ -1,4 +1,4 @@
-name: QA 2-8-270 picker event isolated ownership regression
+name: QA 2-8-270 picker event after startup Web Lock wire regression
 on:
   push:
     branches: [qa-2-8]
