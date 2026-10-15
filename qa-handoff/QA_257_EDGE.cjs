@@ -7,9 +7,9 @@ const expected='fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9
 if(hash!==expected)throw new Error('QA257 baseline hash mismatch '+hash);
 const files=['index.html','qa-handoff/index.working-2-8-256.html',p];
 for(const file of files)assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),expected,'QA source mismatch: '+file);
-const scripts=[...source.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)].map(m=>m[1]).filter(x=>x.trim());
+const scripts=[...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(x=>x.trim());
 assert.equal(scripts.length,2);for(const s of scripts)new vm.Script(s);
-const ids=[...source.slice(0,source.indexOf('<script async src=')).matchAll(/\\bid="([^"]+)"/g)].map(m=>m[1]);
+const ids=[...source.slice(0,source.indexOf('<script async src=')).matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
 assert.equal(ids.length,new Set(ids).size);
 let passed=5,failed=0, observed=[];
 const check=(ok,name,data)=>{if(ok)passed++;else{failed++;console.log('QA257_FAIL',name,JSON.stringify(data).slice(0,750))}};
