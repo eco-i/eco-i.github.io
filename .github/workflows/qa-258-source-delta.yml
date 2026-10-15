@@ -1,0 +1,21 @@
+name: QA 2-8-258 source patch provenance and integrity
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-258-source-delta.yml"
+      - "qa-handoff/QA_258_SOURCE_DELTA.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact candidate and original SHA256 and two scoped RPC guards
+        run: node qa-handoff/QA_258_SOURCE_DELTA.cjs
