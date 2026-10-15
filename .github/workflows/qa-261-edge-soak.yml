@@ -1,0 +1,43 @@
+name: QA 2-8-261 sustained novel independent auth shift payroll leave Chrome
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-261-edge-soak.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  novel-edge-soak:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa261edge --no-audit --no-fund playwright-core@1.55.1
+      - name: Independently repeat novel 261 browser contract, rota, compensation and employee tenure for nine minutes
+        env:
+          NODE_PATH: /tmp/qa261edge/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          started=$(date +%s)
+          deadline=$((started+540))
+          rounds=0
+          suites=0
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            rounds=$((rounds+1))
+            for suite in QA_261_AUTH_CONTRACT QA_261_SHIFT_INVARIANTS QA_261_SUBSTITUTE_HOLIDAY QA_261_ACCOUNT_LEAVE; do
+              if ! node qa-handoff/${suite}.cjs > /tmp/qa261edge.log 2>&1; then
+                echo "QA261_EDGE_FAILURE round=$rounds suite=$suite"
+                grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa261edge.log | tail -n 24 || true
+                exit 1
+              fi
+              suites=$((suites+1))
+              grep 'SUMMARY' /tmp/qa261edge.log | tail -n 1 | cut -c 1-260 || true
+            done
+            echo "QA261_EDGE_ROUND_PASS round=$rounds suites=$suites elapsed_seconds=$(($(date +%s)-started))"
+          done
+          echo "QA261_EDGE_SOAK_FINAL_PASS rounds=$rounds suites=$suites actual_seconds=$(($(date +%s)-started))"
