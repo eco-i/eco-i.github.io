@@ -1,0 +1,80 @@
+name: QA 2-8-258 eight-depth baseline and independent edge
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-258-full.yml"
+      - "qa-handoff/QA_258_UNTRUSTED_UI.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa258 --no-audit --no-fund playwright-core@1.55.1
+      - name: Pinned full Chromium depth-eight regression and QA 257 independent edge
+        env:
+          NODE_PATH: /tmp/qa258/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          for script in QA_256_FULL QA_257_EDGE QA_257_RPC_CONTRACT QA_257_SEOUL_MIDNIGHT QA_258_UNTRUSTED_UI QA_256_QA_INDEX_SMOKE QA_256_SCHEMA_VERSION QA_256_INTEGRITY; do
+            echo "RUN ${script}"
+            if ! node qa-handoff/${script}.cjs > /tmp/${script}.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY' /tmp/${script}.log | tail -n 28 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/${script}.log | tail -n 1 || true
+          done
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa258 --no-audit --no-fund playwright-core@1.55.1
+      - name: Backup, identity, session, restore, calendar depth-eight battery
+        env:
+          NODE_PATH: /tmp/qa258/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          for script in QA_256_BACKUP_PROPERTY QA_256_CODEC_FUZZ QA_256_RESTORE_RACE QA_256_RESTORE_GUARD QA_256_ADMIN_RESTORE_GUARD QA_256_SCOPE_MATRIX QA_256_ANNUAL_LEAVE_MATRIX; do
+            echo "RUN ${script}"
+            if ! node qa-handoff/${script}.cjs > /tmp/${script}.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY' /tmp/${script}.log | tail -n 24 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/${script}.log | tail -n 1 || true
+          done
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa258 --no-audit --no-fund playwright-core@1.55.1
+      - name: Real Chrome UI, image, native dialog, multi-tab, boot battery
+        env:
+          NODE_PATH: /tmp/qa258/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          for script in QA_256_HANDOFF_DIALOG QA_256_HANDOFF_STRESS QA_256_PICKER_REAL QA_256_NATIVE_STRESS QA_256_IMAGE_PIPELINE QA_256_REAL_BOOT QA_256_ADMIN_UI; do
+            echo "RUN ${script}"
+            if ! node qa-handoff/${script}.cjs > /tmp/${script}.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY' /tmp/${script}.log | tail -n 24 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/${script}.log | tail -n 1 || true
+          done
