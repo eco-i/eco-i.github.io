@@ -45,3 +45,5 @@ jobs:
         env:
           NODE_PATH: /tmp/qa256frontend/node_modules
         run: node qa-handoff/QA_256_ADMIN_UI.cjs
+
+# QA256 rerun: correct stress fixture source from 254 to immutable 256 candidate
