@@ -1,0 +1,47 @@
+name: QA 2-8-261 sustained 19-minute High depth-eight Chromium
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-261-soak.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  depth-eight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa261 --no-audit --no-fund playwright-core@1.55.1
+      - name: Sustain exact immutable source 8-depth real Chrome and 260 edge suites at least 19min
+        shell: bash
+        env:
+          NODE_PATH: /tmp/qa261/node_modules
+        run: |
+          set -euo pipefail
+          names="QA_256_FULL QA_256_BACKUP_PROPERTY QA_256_CODEC_FUZZ QA_256_RESTORE_RACE QA_256_RESTORE_GUARD QA_256_ADMIN_RESTORE_GUARD QA_256_SCOPE_MATRIX QA_256_ANNUAL_LEAVE_MATRIX QA_256_PICKER_REAL QA_256_IMAGE_PIPELINE QA_257_EDGE QA_257_RPC_CONTRACT QA_257_SEOUL_MIDNIGHT QA_258_UNTRUSTED_UI QA_258_BACKUP_ROUNDTRIP QA_259_EVENT_DDAY QA_259_FINGERPRINT QA_259_PERSONNEL QA_260_OVERTIME_HOLIDAY QA_260_RESPONSIVE QA_260_ADMIN_SECURITY QA_260_GLOBAL_TIMEZONE QA_260_STORAGE_PRIVACY"
+          node qa-handoff/QA_261_ADAPT.cjs $names
+          started=$(date +%s)
+          deadline=$((started+1140))
+          rounds=0
+          suites=0
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            rounds=$((rounds+1))
+            export QA257_FUZZ_START=$((26100+rounds))
+            echo "QA261_SOAK_BEGIN round=$rounds epoch=$(date +%s)"
+            for name in $names; do
+              if ! node qa-handoff/QA_261_ADAPTED_${name}.cjs > /tmp/qa261-soak.log 2>&1; then
+                echo "QA261_SOAK_FAIL round=$rounds name=$name"
+                grep -E 'FAIL|ERROR|SUMMARY|AssertionError' /tmp/qa261-soak.log | tail -n 26 || true
+                exit 1
+              fi
+              suites=$((suites+1))
+              grep 'SUMMARY' /tmp/qa261-soak.log | tail -n 1 | cut -c 1-300 || true
+            done
+            echo "QA261_SOAK_ROUND_PASS round=$rounds suites=$suites elapsed_seconds=$(($(date +%s)-started))"
+          done
+          echo "QA261_SOAK_FINAL_PASS rounds=$rounds suites=$suites actual_seconds=$(($(date +%s)-started))"
