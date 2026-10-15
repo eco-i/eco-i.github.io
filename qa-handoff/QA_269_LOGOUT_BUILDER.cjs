@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('fs');
+const p='qa-handoff/QA_269_ADAPTED_QA_256_RESTORE_RACE.cjs';
+let s=fs.readFileSync(p,'utf8');
+const before="localStorage.removeItem('staffAttendance_session_v1');return localStorage.getItem('staffAttendance_session_v1')";
+const after="localStorage.setItem('staffAttendance_sharedLoggedOutToken_v1','qa256-restore-old-shared-removal');localStorage.removeItem('staffAttendance_session_v1');return localStorage.getItem('staffAttendance_session_v1')";
+if(!s.includes(before))throw Error('Expected existing raw removal harness not found');
+s=s.replace(before,after);
+fs.writeFileSync('qa-handoff/QA_269_LOGOUT_RACE.generated.cjs',s);
+console.log('QA269_AUTHENTIC_LOGOUT_ORACLE_BUILD_SUCCESS');
