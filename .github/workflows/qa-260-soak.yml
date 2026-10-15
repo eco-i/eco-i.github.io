@@ -1,0 +1,47 @@
+name: QA 2-8-260 sustained 19-minute High eight-depth Chromium
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-260-soak.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sustained:
+    runs-on: ubuntu-latest
+    timeout-minutes: 27
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa260 --no-audit --no-fund playwright-core@1.55.1
+      - name: Sustain independently pinned real Chrome 8-depth regression for 19 minutes
+        env:
+          NODE_PATH: /tmp/qa260/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          names="QA_256_FULL QA_256_BACKUP_PROPERTY QA_256_CODEC_FUZZ QA_256_RESTORE_RACE QA_256_RESTORE_GUARD QA_256_ADMIN_RESTORE_GUARD QA_256_SCOPE_MATRIX QA_256_ANNUAL_LEAVE_MATRIX QA_256_PICKER_REAL QA_256_IMAGE_PIPELINE QA_257_EDGE QA_257_RPC_CONTRACT QA_257_SEOUL_MIDNIGHT QA_258_UNTRUSTED_UI QA_258_BACKUP_ROUNDTRIP QA_259_EVENT_DDAY QA_259_FINGERPRINT QA_259_PERSONNEL"
+          node qa-handoff/QA_260_ADAPT.cjs $names
+          started=$(date +%s)
+          deadline=$((started+1140))
+          round=0
+          suites=0
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            round=$((round+1))
+            export QA257_FUZZ_START=$((26000+round))
+            echo "QA260_ROUND_BEGIN round=$round elapsed=$(($(date +%s)-started))"
+            for name in $names; do
+              if ! node qa-handoff/QA_260_ADAPTED_${name}.cjs > /tmp/qa260-run.log 2>&1; then
+                echo "QA260_SOAK_FAIL round=$round name=$name"
+                grep -E 'FAIL|ERROR|SUMMARY|AssertionError' /tmp/qa260-run.log | tail -n 32 || true
+                exit 1
+              fi
+              suites=$((suites+1))
+              grep 'SUMMARY' /tmp/qa260-run.log | tail -n 1 | cut -c 1-330 || true
+            done
+            echo "QA260_ROUND_PASS round=$round suites=$suites elapsed=$(($(date +%s)-started))"
+          done
+          echo "QA260_SOAK_FINAL_PASS rounds=$round suites=$suites actual_seconds=$(($(date +%s)-started))"
