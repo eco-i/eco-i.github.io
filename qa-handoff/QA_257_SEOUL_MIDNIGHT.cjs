@@ -17,7 +17,7 @@ for(const tz of ['Asia/Seoul','UTC','America/Los_Angeles'])for(const mobile of [
  const p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
  await p.clock.install({time:new Date(utc)});await p.route('https://cdn.jsdelivr.net/**',r=>r.abort());await p.goto('http://127.0.0.1:'+server.address().port+'/',{waitUntil:'domcontentloaded'});
  const result=await p.evaluate(()=>({today:todayKey(),year:state.year,month:state.month,version:APP_VERSION}));
- const dateCorrect=result.today===expected && result.year===+expected.slice(0,4)&&result.month===+expected.slice(5,7);
+ const dateCorrect=result.today===expected && result.year===+expected.slice(0,4)&&result.month===+expected.slice(5,7)-1;
  const safe=errors.length===0&&result.version==='ver20260927-0944';
  if(dateCorrect&&safe)pass+=2;else{if(!dateCorrect)fail++;else pass++;if(!safe)fail++;else pass++;details.push({tz,mobile,utc,expected,result,errors})}
  await ctx.close();
