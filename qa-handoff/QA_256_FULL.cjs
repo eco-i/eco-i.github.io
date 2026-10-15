@@ -32,8 +32,8 @@ check('238 mobile tab-only carveout eliminated',()=>html.includes("if(!MOBILE_SE
 check('238 no stale legacy mobile fallback after shared logout',()=>html.includes("rawLocal ? localToken : (forbidden ? '' : temporaryToken)"));
 check('240 immutable official baseline SHA pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')==='aaf9fc0a9f69c5d5a59280e4050ed6b7036f969febf86ed142fda60ed6d08841');
 check('242 blocking dialog must re-read token tombstone',()=>html.includes('if(storedSessionTombstoned(snapshot.current)||pcSharedAuthorityRevoked(snapshot.current)){fingerprintScheduleSharedSessionReconcile();return true;}'));
-check('248 final candidate SHA-256 exactly pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='b29f97d10cd2231ce45ef1aed0c6915f3466ecae30217d6835a42e27b24d65a2');
-check('249 candidate byte count exactly pinned',()=>Buffer.byteLength(html)===1174581);
+check('248 final candidate SHA-256 exactly pinned',()=>crypto.createHash('sha256').update(html).digest('hex')==='fabf9ebc53cfe57d4533a53013b26692179f5c1ad5105c0351fbb881342176a9');
+check('249 candidate byte count exactly pinned',()=>Buffer.byteLength(html)===1174614);
 check('243 source includes inherited 242 pre-RPC task fence',()=>html.includes('await new Promise(resolve=>setTimeout(resolve,0));'));
 check('244 candidate contains admin privilege RPC guard',()=>html.includes('function guardAdminPrivilegeRpcSession(name,options={})')&&html.includes('PIN_GATE_IDENTITY_READ_RPCS'));
 check('246 official baseline SHA-256 pinned',()=>crypto.createHash('sha256').update(baseline).digest('hex')===expected);
