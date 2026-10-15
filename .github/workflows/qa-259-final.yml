@@ -1,0 +1,23 @@
+name: QA 2-8-259 final promotion SHA chain
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - "qa-handoff/index.before-2-8-260.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  final:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa259final --no-audit --no-fund playwright-core@1.55.1
+      - name: SHA256 chain, canonical official state and real Chrome PC/mobile smoke
+        env:
+          NODE_PATH: /tmp/qa259final/node_modules
+        run: node qa-handoff/QA_259_POST_PROMOTE.cjs
