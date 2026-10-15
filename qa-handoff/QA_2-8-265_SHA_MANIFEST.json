@@ -1,0 +1,61 @@
+{
+  "block": "2-8-265",
+  "status": "COMPLETE",
+  "mode": "High",
+  "qa_depth": 8,
+  "completed_kst": "2026-10-15T17:50:46+09:00",
+  "actual_seconds": 1239,
+  "soak_rounds": 9,
+  "soak_suite_groups": 207,
+  "transition_pass": 30606,
+  "ui_pass": 1401,
+  "boundary_pass": 765,
+  "crossblock_pass": 20301,
+  "ownership_pass": 560,
+  "real_logout_pass": 640,
+  "integrity_pass": 21,
+  "new_product_defects": 0,
+  "cumulative_defects": 540,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "sql_changed": false,
+  "deployed": false,
+  "app_version": "ver20260927-0944",
+  "initial_backend_failure_preserved": true,
+  "initial_backend_failure_reason": "Legacy direct raw localStorage SESSION_KEY removal omitted actual per-token logout suppression. It intermittently fails under parallel runs; anomaly remains documented.",
+  "supported_logout_recheck_success": true,
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-265.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-265.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-266.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "runs": {
+    "main": 38705667447,
+    "crossblock": 38705667340,
+    "ownership": 38705667397,
+    "reproduce": 38705876497,
+    "backend_recheck": 38706273479,
+    "trace": 38706615800,
+    "raw_parallel": 38707280992,
+    "trace_parallel": 38707469965,
+    "authentic_logout": 38707807331,
+    "supported_backend": 38708113447
+  }
+}

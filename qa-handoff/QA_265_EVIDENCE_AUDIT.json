@@ -1,0 +1,75 @@
+{
+  "block": "2-8-265",
+  "result": "CLEAN for supported product paths, with disclosed legacy QA anomaly",
+  "recorded_kst": "2026-10-15T17:50:46+09:00",
+  "repo": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "baseline": "qa-handoff/index.before-2-8-265.html",
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "source_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "bytes": 1175136,
+  "soak": {
+    "seconds": 1239,
+    "rounds": 9,
+    "suites": 207,
+    "failed": 0
+  },
+  "independent": {
+    "transitions": {
+      "pass": 30606,
+      "fail": 0
+    },
+    "ui": {
+      "pass": 1401,
+      "fail": 0
+    },
+    "boundary": {
+      "pass": 765,
+      "fail": 0
+    },
+    "integrity": {
+      "pass": 21,
+      "fail": 0
+    }
+  },
+  "crossblock": {
+    "pass": 20301,
+    "fail": 0
+  },
+  "multitab": {
+    "pass": 560,
+    "fail": 0
+  },
+  "authentic_logout": {
+    "repeats": 16,
+    "pass": 640,
+    "fail": 0
+  },
+  "legacy_raw_removal": {
+    "initial_fail": true,
+    "parallel_failures_reproduced": true,
+    "limitations": "Synthetic raw localStorage key deletion without token revocation marker does not reproduce real app logout protocol"
+  },
+  "backend_final": "success",
+  "new_confirmed_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "runs": {
+    "main": 38705667447,
+    "crossblock": 38705667340,
+    "ownership": 38705667397,
+    "reproduce": 38705876497,
+    "backend_recheck": 38706273479,
+    "trace": 38706615800,
+    "raw_parallel": 38707280992,
+    "trace_parallel": 38707469965,
+    "authentic_logout": 38707807331,
+    "supported_backend": 38708113447
+  },
+  "environment_limits": [
+    "Live production Supabase multiaccount RLS",
+    "physical Android camera and picker",
+    "iOS Safari",
+    "persisted BFCache",
+    "live production DB restore"
+  ]
+}
