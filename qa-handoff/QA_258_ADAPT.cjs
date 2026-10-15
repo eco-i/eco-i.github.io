@@ -7,7 +7,7 @@ for(const name of process.argv.slice(2)){
  if(!/^QA_(256|257|258)_[A-Z0-9_]+$/.test(name))throw Error('Invalid suite name '+name);
  const input='qa-handoff/'+name+'.cjs',output='qa-handoff/QA_258_ADAPTED_'+name+'.cjs';
  let s=fs.readFileSync(input,'utf8');
- s=s.replaceAll("qa-handoff/index.working-2-8-256.html",source).replaceAll("qa-handoff/index.before-2-8-257.html",source).replaceAll("qa-handoff/index.before-2-8-258.html",source).replaceAll(old,hash);
+ s=s.replaceAll("qa-handoff/index.working-2-8-256.html",source).replaceAll("qa-handoff/index.before-2-8-257.html",source).replaceAll("qa-handoff/index.before-2-8-258.html",source).replaceAll(old,hash).replaceAll('1174614',String(Buffer.byteLength(text)));
  fs.writeFileSync(output,s);
  console.log('QA258_ADAPT',name,'->',output);
 }
