@@ -1,0 +1,48 @@
+{
+  "block": "2-8-271",
+  "conclusion": "CLEAN in tested headless Chromium/mock RPC scope",
+  "recorded_kst": "2026-10-16T00:03:40.614+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "bytes": 1175136,
+  "full_run": {
+    "id": 38753524965,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38753524965",
+    "conclusion": "success",
+    "all_seven_jobs_success": true
+  },
+  "soak": {
+    "seconds": 1211,
+    "rounds": 9,
+    "suite_groups": 207,
+    "failures": 0
+  },
+  "new_independent": {
+    "cross_tab_picker_session": {
+      "passed": 168,
+      "failed": 0,
+      "contexts": 6
+    },
+    "preflight": {
+      "passed": 15,
+      "failed": 0
+    }
+  },
+  "previous_historical_evidence": {
+    "block265_legacy_raw_key_removal_suppression_missing": "Retained as unverified pathological storage manipulation, not silently marked solved",
+    "block270_initial_picker_harness_failures": "Preserved in QA_2-8-270_REPORT.md",
+    "duplicate_270_run": {
+      "id": 38749151235,
+      "conclusion": "success"
+    }
+  },
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "limitations": [
+    "Real Supabase/RLS authenticated multiuser not exercised",
+    "Native physical Android/iOS picker and camera not exercised",
+    "Persistent browser BFCache not exercised",
+    "Production DB backup/restore not exercised"
+  ]
+}

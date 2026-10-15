@@ -1,0 +1,87 @@
+{
+  "block": "2-8-271",
+  "status": "COMPLETE",
+  "model_mode": "High",
+  "qa_depth": 8,
+  "completed_kst": "2026-10-16T00:03:40.614+09:00",
+  "actual_seconds": 1211,
+  "soak_seconds": 1211,
+  "soak_rounds": 9,
+  "soak_suite_groups": 207,
+  "cross_tab_pass": 168,
+  "cross_tab_fail": 0,
+  "cross_tab_contexts": 6,
+  "preflight_pass": 15,
+  "new_confirmed_product_defects": 0,
+  "cumulative_defects": 540,
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-271.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-271.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-272.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "runs": {
+    "main": 38753524965,
+    "duplicate_270_verified_success": 38749151235
+  },
+  "jobs": {
+    "integrity": {
+      "id": 116485823865,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "cross-tab": {
+      "id": 116485824178,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "independent": {
+      "id": 116485824281,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "backend": {
+      "id": 116485824306,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "full": {
+      "id": 116485824567,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "depth-eight": {
+      "id": 116485824819,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "frontend": {
+      "id": 116485824986,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "legacy_265_direct_removal_caveat_retained": true
+}
