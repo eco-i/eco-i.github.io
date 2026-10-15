@@ -1,0 +1,7 @@
+★★★근무모아 2차·깊이8 공식 QA 다음 2-8-262★★★
+Last completed 2-8-261 CLEAN; next 2-8-262; accumulated independent product defects 540; 261 new 0.
+GitHub eco-i/eco-i.github.io QA branch qa-2-8, main 5c9529069a4728e72b960c61a44e8045eacc0ca0 unchanged. No SQL, deployment, version changes: APP_VERSION ver20260927-0944.
+Next immutable start qa-handoff/index.before-2-8-262.html; SHA256 19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af, bytes 1175136, git blob 7077d4c27abf1b847471e32f462df0efd7cbd08f; identical index.html and 261 source.
+2026-10-15 13:27:37~13:49:21 KST 21m44s actual High depth8; 1232seconds 8x23=184 real Chrome suites PASS (run38681632972), 544seconds 111x4=444 newly authored suites PASS (run38682192510), parallel 3 jobs PASS (run38681722027), newly authored 19536 cases PASS, two-tab redgreen 560 PASS, final transition dry-run 39 PASS.
+No production Supabase/RLS live authenticated multiple users, real physical Android camera/picker, iOS Safari, persistent BFCache, or live database restore tested.
+Rules: depth8 High >=20m actual, <20m KST intermediate reports and answer timestamps, real product bug correct+independent RED GREEN, consecutive numbers, ZIP ban, main/SQL/APP_VERSION/operating deployment not changed without permission. Report qa-handoff/QA_2-8-261_REPORT.md.
