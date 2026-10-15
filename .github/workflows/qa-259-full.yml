@@ -1,0 +1,86 @@
+name: QA 2-8-259 independent parallel eight-depth full regression
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-259-full.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  complete:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa259full --no-audit --no-fund playwright-core@1.55.1
+      - name: Independent Chrome full baseline and browser-specific 259 edge matrices
+        env:
+          NODE_PATH: /tmp/qa259full/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          names="QA_256_FULL QA_257_EDGE QA_257_RPC_CONTRACT QA_257_SEOUL_MIDNIGHT QA_258_UNTRUSTED_UI QA_258_BACKUP_ROUNDTRIP"
+          node qa-handoff/QA_259_ADAPT.cjs $names
+          for name in $names QA_259_EVENT_DDAY QA_259_FINGERPRINT; do
+            if [[ "$name" == QA_259_* ]]; then target="qa-handoff/${name}.cjs"; else target="qa-handoff/QA_259_ADAPTED_${name}.cjs"; fi
+            echo "QA259_FULL_BEGIN $name"
+            if ! node "$target" > /tmp/qa259-run.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa259-run.log | tail -n 30 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa259-run.log | tail -n 1 | cut -c 1-550 || true
+          done
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa259back --no-audit --no-fund playwright-core@1.55.1
+      - name: Restore race and ownership, backup fuzz, authorization tombstone and annual shift matrix
+        env:
+          NODE_PATH: /tmp/qa259back/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          names="QA_256_BACKUP_PROPERTY QA_256_CODEC_FUZZ QA_256_RESTORE_RACE QA_256_RESTORE_GUARD QA_256_ADMIN_RESTORE_GUARD QA_256_SCOPE_MATRIX QA_256_ANNUAL_LEAVE_MATRIX"
+          node qa-handoff/QA_259_ADAPT.cjs $names
+          for name in $names; do
+            echo "QA259_BACKEND_BEGIN $name"
+            if ! node "qa-handoff/QA_259_ADAPTED_${name}.cjs" > /tmp/qa259-run.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa259-run.log | tail -n 30 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa259-run.log | tail -n 1 | cut -c 1-550 || true
+          done
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa259ui --no-audit --no-fund playwright-core@1.55.1
+      - name: Native browser dialogs, two-tab stress, media picker, photo decode, real boot and admin
+        env:
+          NODE_PATH: /tmp/qa259ui/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          names="QA_256_HANDOFF_DIALOG QA_256_HANDOFF_STRESS QA_256_PICKER_REAL QA_256_NATIVE_STRESS QA_256_IMAGE_PIPELINE QA_256_REAL_BOOT QA_256_ADMIN_UI"
+          node qa-handoff/QA_259_ADAPT.cjs $names
+          for name in $names; do
+            echo "QA259_FRONTEND_BEGIN $name"
+            if ! node "qa-handoff/QA_259_ADAPTED_${name}.cjs" > /tmp/qa259-run.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa259-run.log | tail -n 30 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa259-run.log | tail -n 1 | cut -c 1-550 || true
+          done
