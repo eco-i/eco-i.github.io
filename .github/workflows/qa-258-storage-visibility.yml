@@ -1,0 +1,24 @@
+name: QA 2-8-258 shared storage visibility diagnostic
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-258-storage-visibility.yml"
+      - "qa-handoff/QA_258_STORAGE_VISIBILITY.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa258storage --no-audit --no-fund playwright-core@1.55.1
+      - name: PC/mobile actual localStorage propagation versus awaited File.text sensitive RPC
+        env:
+          NODE_PATH: /tmp/qa258storage/node_modules
+        run: node qa-handoff/QA_258_STORAGE_VISIBILITY.cjs
