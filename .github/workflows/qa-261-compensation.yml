@@ -1,0 +1,24 @@
+name: QA 2-8-261 substitute-holiday cross-personnel payroll
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-261-compensation.yml"
+      - "qa-handoff/QA_261_SUBSTITUTE_HOLIDAY.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  substitute-payroll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa261substitute --no-audit --no-fund playwright-core@1.55.1
+      - name: Compare 2026 and 2027 substitute holiday 4h/1.5h/5.5h actual group hours and staff changeover
+        env:
+          NODE_PATH: /tmp/qa261substitute/node_modules
+        run: node qa-handoff/QA_261_SUBSTITUTE_HOLIDAY.cjs
