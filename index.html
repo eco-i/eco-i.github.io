@@ -10514,7 +10514,7 @@ function parseDataBackupText(text,expectedScope){
   if(text.length>DATA_BACKUP_MAX_BYTES)throw new Error('백업 파일이 너무 큽니다.');
   let payload;try{payload=JSON.parse(text);}catch{throw new Error('JSON 백업 파일을 읽지 못했습니다.');}
   if(!payload||payload.format!=='workmoa-data-backup')throw new Error('새 데이터 관리 기능에서 만든 백업 파일이 아닙니다.');
-  if(Number(payload.backup_schema_version)!==1)throw new Error(Number(payload.backup_schema_version)>1?'현재 사이트보다 새로운 백업 형식입니다. 사이트를 먼저 업데이트해 주세요.':'지원하지 않는 이전 백업 형식입니다.');
+  if(payload.backup_schema_version!==1)throw new Error(typeof payload.backup_schema_version==='number'&&payload.backup_schema_version>1?'현재 사이트보다 새로운 백업 형식입니다. 사이트를 먼저 업데이트해 주세요.':'지원하지 않는 이전 백업 형식입니다.');
   if(payload.backup_type!==expectedScope)throw new Error(expectedScope==='personal'?'개인 백업 파일을 선택해 주세요.':'관리자 백업 파일을 선택해 주세요.');
   if(!Array.isArray(payload.included_sections)||!payload.data||typeof payload.data!=='object'||Array.isArray(payload.data))throw new Error('백업 파일 구조가 올바르지 않습니다.');
   const allowed=expectedScope==='personal'?MY_DATA_SECTION_KEYS:ADMIN_DATA_SECTION_KEYS;
