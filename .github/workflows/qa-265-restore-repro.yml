@@ -1,0 +1,39 @@
+name: QA 2-8-265 reproduce shared session restore race with fresh browsers
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-265-restore-repro.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa265repro --no-audit --no-fund playwright-core@1.55.1
+      - name: Repeat same immutable 265 data restore shared-token invalidation oracle
+        env:
+          NODE_PATH: /tmp/qa265repro/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          node qa-handoff/QA_265_ADAPT.cjs QA_256_RESTORE_RACE
+          failures=0
+          for round in $(seq 1 12); do
+            if node qa-handoff/QA_265_ADAPTED_QA_256_RESTORE_RACE.cjs > /tmp/race-repro.log 2>&1; then
+              grep 'QA256_RESTORE_RACE_SUMMARY' /tmp/race-repro.log | tail -n 1
+              echo "QA265_REPRO_PASS round=$round"
+            else
+              failures=$((failures+1))
+              grep -E 'QA256_RESTORE_RACE_FAIL|QA256_RESTORE_RACE_SUMMARY|HARNESS_ERROR' /tmp/race-repro.log | tail -n 8 || true
+              echo "QA265_REPRO_FAIL round=$round"
+            fi
+          done
+          echo "QA265_REPRO_FINAL rounds=12 failures=$failures"
+          test "$failures" -eq 0
