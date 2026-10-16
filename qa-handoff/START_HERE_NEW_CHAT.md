@@ -1,11 +1,10 @@
-# ★★★근무모아 2차·깊이8 — 273 완료 / 274 다음
+# ★★★근무모아 2차·깊이8 — 274 완료 / 275 다음
 
-- 마지막 공식 완료 **2-8-273 CLEAN(검증한 환경 범위)**, 다음 **2-8-274**, 누적 확정 제품 결함 **540종**, 이번 신규 확정 **0종**.
-- [273 GitHub Actions 최종 9/9 SUCCESS](https://github.com/eco-i/eco-i.github.io/actions/runs/38871054655), **실제 1216초**, 8×23=184 지속회귀 묶음 PASS/0 FAIL. 새 picker lifecycle **180 PASS**, RPC boundary **498 PASS**, cross-tab session **168 PASS**, 독립 2년 근무표 30,606 PASS.
-- GitHub `eco-i/eco-i.github.io`, QA `qa-2-8` (운영 `main` SHA `5c9529069a4728e72b960c61a44e8045eacc0ca0` 불변). APP_VERSION `ver20260927-0944`, SQL 변경·운영 배포 없음.
-- 다음 기준본 `qa-handoff/index.before-2-8-274.html`, SHA256 `19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af`, Git blob `7077d4c27abf1b847471e32f462df0efd7cbd08f`, 1,175,136 bytes. 273 시작/작업본과 제품 `index.html` 동일.
-- 공식 인계 `CURRENT_STATE.json`, `QA_2-8-273_REPORT.md`, `QA_2-8-273_SHA_MANIFEST.json`, `QA_273_EVIDENCE_AUDIT.json`.
-- 273 새 picker 이벤트 QA 초기 두 탭 foreground 하네스 시험 시도 [38870038990](https://github.com/eco-i/eco-i.github.io/actions/runs/38870038990)·[38870690285](https://github.com/eco-i/eco-i.github.io/actions/runs/38870690285)에서 picker/independent 취소 기록 보존. **최종 단독 foreground QA 이벤트와 별도 cross-tab 보안 실험으로 분리 후 9/9 성공**. 제품 결함 0종과 QA fixture 취소는 구분.
-- 265 raw localStorage 직접 키 삭제에 정상 로그아웃 폐기 표식 미설정 간헐 레거시 실패 예외와 270 picker 초기 QA 하네스 RED trial 모두 유지. 실운영 Supabase/RLS 인증 멀티유저, 물리 Android/iOS native picker, 영속 BFCache, 운영 DB 복원 직접 미검증.
-- **274도 High·깊이8·블록별 실제20분+·20분 내 KST 진행보고·오류 즉시 수정+회귀**, GitHub 직접 작업·ZIP 금지, main/SQL/APP_VERSION/배포 무단 변경 금지. 대용량 로그는 Actions/인계 파일, 채팅에는 요지만.
-- 이전 `QA_2-8-273_WIP.md`는 중간 기록이며 최신 `CURRENT_STATE.json`이 공식 상태.
+- 공식 마지막 **2-8-274 CLEAN(검증한 Chromium/모의 RPC 범위)**, 다음 **2-8-275**, 확정 제품 결함 누적 **540종** (274 신규 확정 **0종**).
+- [274 최종 10/10 GitHub Actions SUCCESS](https://github.com/eco-i/eco-i.github.io/actions/runs/38877682762): 실제 **1266초**, 8×23=184 반복회귀 스위트 PASS 0 FAIL. 새 지문 갱신 낙관적 상태·stale guard **5,850 PASS**, 273 사진선택 **180 PASS**, 272 RPC **498 PASS**, 271 교차탭 **168 PASS**, 원본 독립 근무표 30,606 PASS.
+- GitHub `eco-i/eco-i.github.io`, QA 브랜치 `qa-2-8`, 운영 main `5c9529069a4728e72b960c61a44e8045eacc0ca0` 불변. 제품 APP_VERSION `ver20260927-0944`, SQL 변경·운영 배포 없음.
+- 275 기준본 `qa-handoff/index.before-2-8-275.html`, SHA256 `19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af`, Git blob `7077d4c27abf1b847471e32f462df0efd7cbd08f`, **1,175,136 bytes**. 274 시작/작업본 및 `index.html`과 동일. 공식 인계 `CURRENT_STATE.json`, `QA_2-8-274_REPORT.md`, `QA_2-8-274_SHA_MANIFEST.json`, `QA_274_EVIDENCE_AUDIT.json`.
+- **265 레거시 raw SESSION_KEY 삭제에 tombstone 생략된 QA 간헐 실패**, **270 초기 picker QA 하네스 RED**, **273 두 탭/foreground picker 초기 QA 하네스 취소 이력**은 모두 보존. 기존 테스트 성공으로 과거 기록을 지우거나 안전 범위를 확장하지 말 것.
+- 실운영 Supabase/RLS 실계정 멀티유저, 물리 Android/iOS native picker/카메라, 영속 BFCache, 실운영 DB 복원 미검증.
+- 275 High·깊이8·실제20분 이상·20분 내 KST 보고·발견 결함 즉시 수정+회귀. GitHub 직접 사용·ZIP 금지, main·SQL·APP_VERSION·배포 임의 변경 금지. 채팅은 핵심만, 로그는 Actions/QA 파일로.
+- 과거 `QA_2-8-274_WIP.md`는 진행 스냅샷이므로 `CURRENT_STATE.json` 및 공식 274 보고서가 최신 기준.

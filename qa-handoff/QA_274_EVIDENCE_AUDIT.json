@@ -1,0 +1,60 @@
+{
+  "block": "2-8-274",
+  "status": "COMPLETE/CLEAN within verified Chromium and mocked RPC scope",
+  "recorded_kst": "2026-10-16T18:24:49.937+09:00",
+  "branch": "qa-2-8",
+  "run": {
+    "id": 38877682762,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38877682762",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs_succeeded": 10,
+    "jobs_total": 10
+  },
+  "soak": {
+    "actual_seconds": 1266,
+    "rounds": 8,
+    "suites": 184,
+    "fail": 0,
+    "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af"
+  },
+  "independent": {
+    "fingerprint_hint_matrix": {
+      "pass": 5850,
+      "fail": 0,
+      "contexts": 6,
+      "scope": "Chrome PC/mobile * 3 timezones; compare-and-swap updated_at, stale microsecond rejection, 31-date save/delete/confirm isolation"
+    },
+    "picker_lifecycle": {
+      "pass": 180,
+      "fail": 0
+    },
+    "rpc_boundary": {
+      "pass": 498,
+      "fail": 0
+    },
+    "cross_tab": {
+      "pass": 168,
+      "fail": 0
+    },
+    "preflight": {
+      "pass": 15,
+      "fail": 0
+    }
+  },
+  "historical_QA_exceptions": [
+    "265 direct raw SESSION_KEY deletion missing logout tombstone occasional legacy failure",
+    "270 initial picker harness async-login RED trial",
+    "273 two-tab/foreground picker test cancellation attempts, corrected distinct oracle succeeded"
+  ],
+  "product_defects_new": 0,
+  "product_defects_cumulative": 540,
+  "not_live_verified": [
+    "Production Supabase/RLS authenticated multiple users",
+    "Physical Android and iOS native camera and picker",
+    "Persisted BFCache behavior",
+    "Production DB restore"
+  ],
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af"
+}
