@@ -1,0 +1,53 @@
+{
+  "block": "2-8-281",
+  "status": "COMPLETE/CLEAN in tested Chromium/mock scope",
+  "reported_at_kst": "2026-10-17T02:39:55.731+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "run": {
+    "id": 38938332730,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38938332730",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": 17,
+    "passed": 17
+  },
+  "soak": {
+    "rounds": 8,
+    "suites": 184,
+    "actual_seconds": 1323,
+    "fail": 0
+  },
+  "new_independent": {
+    "name": "QA_281_EXCLUSION_PERMUTATION_FUZZ",
+    "pass": 658206,
+    "fail": 0,
+    "contexts": 6,
+    "cases": 63,
+    "hires": 6,
+    "sampled_dates": 92,
+    "assertions": "deterministic randomized exclusion interval union, invalid/reversed dates, duplicated and permuted periods, adjacency, leap-day anniversary first eligible date, recognized tenure, input immutability"
+  },
+  "prior_independent": {
+    "longservice_band_pass": 1734246,
+    "excluded_tenure_pass": 636354,
+    "fingerprint_rpc_rows_pass": 245406,
+    "fingerprint_badge_pass": 205884,
+    "privacy_pass": 1326,
+    "viewer_sync_pass": 10518,
+    "mutation_pass": 5850,
+    "picker_pass": 180,
+    "rpc_boundary_pass": 498,
+    "cross_tab_pass": 168
+  },
+  "preflight": {
+    "pass": 16,
+    "fail": 0
+  },
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "known_legacy_QA_exceptions": "265의 raw SESSION_KEY 직접삭제 후 로그아웃 tombstone 누락 간헐 QA 실패, 270 초기 picker RED, 273 초기 2탭 picker 하네스 취소, 276 초기 preflight 참조 오류·모달 오라클 78 RED·초회 cross-tab 제한시간 취소 후 회복 기록 모두 보존. 소급 성공 처리나 이력 삭제 금지.",
+  "untested_scope": "운영 Supabase/RLS 실제 인증 다중 사용자, 물리 Android/iOS 기본 사진 선택·카메라, 지속 BFCache, 운영 DB 백업·복원 직접 미검증. Chromium PC/모바일 에뮬레이션 및 모의 RPC 범위 한정."
+}

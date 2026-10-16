@@ -1,0 +1,160 @@
+{
+  "block": "2-8-281",
+  "status": "COMPLETE",
+  "model_mode": "High",
+  "qa_depth": 8,
+  "completed_kst": "2026-10-17T02:39:55.731+09:00",
+  "actual_seconds": 1323,
+  "soak_seconds": 1323,
+  "soak_rounds": 8,
+  "soak_suite_groups": 184,
+  "exclusion_permutation_pass": 658206,
+  "exclusion_permutation_fail": 0,
+  "exclusion_permutation_contexts": 6,
+  "exclusion_permutation_cases": 63,
+  "exclusion_permutation_hires": 6,
+  "exclusion_permutation_sample_dates": 92,
+  "longservice_band_pass": 1734246,
+  "longservice_band_fail": 0,
+  "longservice_exclusion_pass": 636354,
+  "longservice_exclusion_fail": 0,
+  "fingerprint_rpc_row_pass": 245406,
+  "fingerprint_rpc_row_fail": 0,
+  "fingerprint_badge_pass": 205884,
+  "fingerprint_badge_fail": 0,
+  "modal_privacy_pass": 1326,
+  "modal_privacy_fail": 0,
+  "viewer_sync_pass": 10518,
+  "viewer_sync_fail": 0,
+  "fingerprint_hint_pass": 5850,
+  "fingerprint_hint_fail": 0,
+  "picker_lifecycle_pass": 180,
+  "picker_lifecycle_fail": 0,
+  "rpc_boundary_pass": 498,
+  "rpc_boundary_fail": 0,
+  "cross_tab_pass": 168,
+  "cross_tab_fail": 0,
+  "preflight_pass": 16,
+  "preflight_fail": 0,
+  "new_confirmed_product_defects": 0,
+  "cumulative_defects": 540,
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-281.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-281.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-282.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "runs": {
+    "main": 38938332730
+  },
+  "jobs": {
+    "integrity": {
+      "id": 117099351240,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "depth-eight": {
+      "id": 117099351718,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "badge-calendar": {
+      "id": 117099351735,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "rpc-row-matrix": {
+      "id": 117099351741,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "picker-lifecycle": {
+      "id": 117099351745,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "exclusion-permutation": {
+      "id": 117099351795,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "viewer-sync": {
+      "id": 117099351808,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "modal-privacy": {
+      "id": 117099351848,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "fingerprint-hint": {
+      "id": 117099351849,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "rpc-boundary": {
+      "id": 117099351885,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "backend": {
+      "id": 117099351909,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "frontend": {
+      "id": 117099351950,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "full": {
+      "id": 117099351994,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "independent": {
+      "id": 117099352001,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "longservice-band": {
+      "id": 117099352291,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "longservice-exclusion": {
+      "id": 117099352389,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "cross-tab": {
+      "id": 117100587962,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "prior_QA_exception_records_preserved": true
+}
