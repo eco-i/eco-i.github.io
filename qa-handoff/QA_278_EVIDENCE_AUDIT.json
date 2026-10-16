@@ -1,0 +1,48 @@
+{
+  "block": "2-8-278",
+  "status": "COMPLETE/CLEAN tested scope",
+  "recorded_kst": "2026-10-17T00:06:21.644+09:00",
+  "repo": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "run": {
+    "id": 38918174267,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38918174267",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs_total": 14,
+    "jobs_success": 14
+  },
+  "soak": {
+    "actual_seconds": 1216,
+    "rounds": 10,
+    "suite_groups": 230,
+    "failed": 0
+  },
+  "new_independent": {
+    "fingerprint_rpc_row": {
+      "pass": 245406,
+      "fail": 0,
+      "contexts": 6,
+      "days": 730,
+      "baseline_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af"
+    }
+  },
+  "retained_results": {
+    "fingerprint_badge_pass": 205884,
+    "modal_privacy_pass": 1326,
+    "viewer_sync_pass": 10518,
+    "fingerprint_hint_pass": 5850,
+    "picker_lifecycle_pass": 180,
+    "rpc_boundary_pass": 498,
+    "cross_tab_pass": 168,
+    "preflight_pass": 15
+  },
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "cumulative_defects": 540,
+  "new_confirmed_defects": 0,
+  "historical_exceptions": "265 raw localStorage SESSION_KEY 삭제에 logout tombstone이 없는 QA 간헐 실패; 270 초기 picker 하네스 RED; 273 초기 두 탭 picker 하네스 취소; 276 초기 preflight 번호 오류/모달 QA 오라클 78 RED 및 초회 cross-tab 제한시간 취소 후 재검증 168 PASS. 원래 QA 실패 기록 유지.",
+  "not_live_verified": "실운영 Supabase/RLS 인증 다중 사용자, 실물 Android/iOS native 사진 선택/카메라, 장기 영속 BFCache, 운영 DB 실제 백업·복원은 직접 검증하지 않음."
+}

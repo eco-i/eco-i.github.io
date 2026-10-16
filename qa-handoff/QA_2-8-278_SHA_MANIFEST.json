@@ -1,0 +1,135 @@
+{
+  "block": "2-8-278",
+  "status": "COMPLETE",
+  "model_mode": "High",
+  "qa_depth": 8,
+  "completed_kst": "2026-10-17T00:06:21.644+09:00",
+  "actual_seconds": 1216,
+  "soak_seconds": 1216,
+  "soak_rounds": 10,
+  "soak_suite_groups": 230,
+  "fingerprint_rpc_row_pass": 245406,
+  "fingerprint_rpc_row_fail": 0,
+  "fingerprint_rpc_row_contexts": 6,
+  "fingerprint_badge_pass": 205884,
+  "fingerprint_badge_fail": 0,
+  "modal_privacy_pass": 1326,
+  "modal_privacy_fail": 0,
+  "viewer_sync_pass": 10518,
+  "viewer_sync_fail": 0,
+  "fingerprint_hint_pass": 5850,
+  "fingerprint_hint_fail": 0,
+  "picker_lifecycle_pass": 180,
+  "picker_lifecycle_fail": 0,
+  "rpc_boundary_pass": 498,
+  "rpc_boundary_fail": 0,
+  "cross_tab_pass": 168,
+  "cross_tab_fail": 0,
+  "preflight_pass": 15,
+  "new_confirmed_product_defects": 0,
+  "cumulative_defects": 540,
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-278.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-278.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-279.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "runs": {
+    "main": 38918174267
+  },
+  "jobs": {
+    "backend": {
+      "id": 117030943612,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "frontend": {
+      "id": 117030943651,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "picker-lifecycle": {
+      "id": 117030943695,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "integrity": {
+      "id": 117030943697,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "depth-eight": {
+      "id": 117030943726,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "full": {
+      "id": 117030943764,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "rpc-boundary": {
+      "id": 117030943790,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "viewer-sync": {
+      "id": 117030943874,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "rpc-row-matrix": {
+      "id": 117030944032,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "modal-privacy": {
+      "id": 117030944040,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "fingerprint-hint": {
+      "id": 117030944110,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "independent": {
+      "id": 117030944864,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "badge-calendar": {
+      "id": 117030944904,
+      "conclusion": "success",
+      "status": "completed"
+    },
+    "cross-tab": {
+      "id": 117032013485,
+      "conclusion": "success",
+      "status": "completed"
+    }
+  },
+  "historical_QA_exceptions_retained": true
+}
