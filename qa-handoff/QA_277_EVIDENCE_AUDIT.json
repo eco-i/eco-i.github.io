@@ -1,0 +1,66 @@
+{
+  "block": "2-8-277",
+  "official_status": "COMPLETE/CLEAN in tested Chromium/mock Supabase scope",
+  "checked_at_kst": "2026-10-16T22:06:40.680+09:00",
+  "GitHub": {
+    "repository": "eco-i/eco-i.github.io",
+    "branch": "qa-2-8",
+    "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+    "run_id": 38902439306,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38902439306",
+    "status": "completed",
+    "conclusion": "success",
+    "success_jobs": 13,
+    "total_jobs": 13
+  },
+  "soak": {
+    "rounds": 8,
+    "suites": 184,
+    "seconds": 1318,
+    "failed": 0
+  },
+  "independent": {
+    "badge_matrix": {
+      "pass": 205884,
+      "fail": 0,
+      "contexts": 6,
+      "dates": 730,
+      "states_per_day": 6,
+      "checks": "actual Chrome monthly fingerprint badge CSS, 0/1/2 images, ✓ confirm status, aria label, independent adjacent-day, unexpected key omission"
+    },
+    "modal_privacy": {
+      "pass": 1326,
+      "fail": 0
+    },
+    "viewer_sync": {
+      "pass": 10518,
+      "fail": 0
+    },
+    "fingerprint_hint": {
+      "pass": 5850,
+      "fail": 0
+    },
+    "picker_lifecycle": {
+      "pass": 180,
+      "fail": 0
+    },
+    "rpc_boundary": {
+      "pass": 498,
+      "fail": 0
+    },
+    "cross_tab": {
+      "pass": 168,
+      "fail": 0,
+      "workflows_staggered_after_independent": true
+    },
+    "preflight": {
+      "pass": 15,
+      "fail": 0
+    }
+  },
+  "defects_new_confirmed": 0,
+  "defects_cumulative": 540,
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "legacy_QA_exception_retained": "265 raw localStorage SESSION_KEY 직접 삭제 후 tombstone 누락 간헐 QA 예외; 270 picker 초기 하네스 RED; 273 초기 두 탭 picker 하네스 취소; 276 처음 preflight 버전 참조 오류, 초기 modal oracle 78 RED 및 cross-tab 취소 후 성공적인 단일 작업 재검수. 역사적 실패 지우거나 성공으로 소급 처리하지 않음.",
+  "not_physically_tested": "실운영 Supabase/RLS 인증 다중 사용자, 실물 Android/iOS native camera/file picker, 영속 BFCache, 운영 DB 실제 백업·복원은 직접 미검증."
+}

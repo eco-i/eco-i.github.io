@@ -1,0 +1,129 @@
+{
+  "block": "2-8-277",
+  "status": "COMPLETE",
+  "model_mode": "High",
+  "qa_depth": 8,
+  "completed_kst": "2026-10-16T22:06:40.680+09:00",
+  "actual_seconds": 1318,
+  "soak_seconds": 1318,
+  "soak_rounds": 8,
+  "soak_suite_groups": 184,
+  "fingerprint_badge_pass": 205884,
+  "fingerprint_badge_fail": 0,
+  "fingerprint_badge_contexts": 6,
+  "calendar_days_tested": 730,
+  "modal_privacy_pass": 1326,
+  "modal_privacy_fail": 0,
+  "viewer_sync_pass": 10518,
+  "viewer_sync_fail": 0,
+  "fingerprint_hint_pass": 5850,
+  "fingerprint_hint_fail": 0,
+  "picker_lifecycle_pass": 180,
+  "picker_lifecycle_fail": 0,
+  "rpc_boundary_pass": 498,
+  "rpc_boundary_fail": 0,
+  "cross_tab_pass": 168,
+  "cross_tab_fail": 0,
+  "preflight_pass": 15,
+  "new_confirmed_product_defects": 0,
+  "cumulative_defects": 540,
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-277.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-277.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-278.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "runs": {
+    "main": 38902439306
+  },
+  "jobs": {
+    "integrity": {
+      "id": 116977703388,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "rpc-boundary": {
+      "id": 116977703639,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "independent": {
+      "id": 116977703681,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "full": {
+      "id": 116977703692,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "badge-calendar": {
+      "id": 116977703723,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "fingerprint-hint": {
+      "id": 116977703760,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "viewer-sync": {
+      "id": 116977703775,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "frontend": {
+      "id": 116977703814,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "backend": {
+      "id": 116977703823,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "modal-privacy": {
+      "id": 116977703850,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "picker-lifecycle": {
+      "id": 116977703878,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "depth-eight": {
+      "id": 116977704060,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "cross-tab": {
+      "id": 116978526317,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "prior_265_270_273_276_QA_caveats_preserved": true
+}
