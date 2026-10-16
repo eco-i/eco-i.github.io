@@ -1,0 +1,24 @@
+name: QA 2-8-272 promoted 273 baseline SHA and real Chrome boot
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-272-final.yml"
+      - "qa-handoff/index.before-2-8-273.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  final-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa272final --no-audit --no-fund playwright-core@1.55.1
+      - name: Verify official 272 state, 273 immutable start and real Chrome PC/mobile boot
+        env:
+          NODE_PATH: /tmp/qa272final/node_modules
+        run: node qa-handoff/QA_272_POST_PROMOTE.cjs

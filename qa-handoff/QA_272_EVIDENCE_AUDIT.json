@@ -1,0 +1,50 @@
+{
+  "block": "2-8-272",
+  "conclusion": "COMPLETE/CLEAN in tested headless Chromium and mocked RPC scope",
+  "recorded_kst": "2026-10-16T16:47:55.373+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "bytes": 1175136,
+  "full_run": {
+    "id": 38867133983,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38867133983",
+    "status": "completed",
+    "conclusion": "success",
+    "all_eight_jobs_success": true
+  },
+  "soak": {
+    "seconds": 1236,
+    "rounds": 8,
+    "suite_groups": 184,
+    "failures": 0
+  },
+  "new_independent": {
+    "rpc_boundary": {
+      "passed": 498,
+      "failed": 0,
+      "contexts": 6
+    },
+    "cross_tab": {
+      "passed": 168,
+      "failed": 0,
+      "contexts": 6
+    },
+    "preflight": {
+      "passed": 15,
+      "failed": 0
+    }
+  },
+  "preserved_historical_failures": {
+    "block265": "Legacy direct raw localStorage SESSION_KEY deletion omitting normal logout tombstone is not certified fixed",
+    "block270": "Initial picker context and event QA harness RED attempts remain recorded"
+  },
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "limitations": [
+    "No real production Supabase/RLS authenticated multiuser test",
+    "No physical Android/iOS native picker and camera",
+    "No persistent BFCache behavior verification",
+    "No live production DB restore"
+  ]
+}
