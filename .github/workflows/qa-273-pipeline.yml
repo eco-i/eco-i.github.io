@@ -1,0 +1,190 @@
+name: QA 2-8-273 sustained 20-minute High eight-depth Chromium
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-273-pipeline.yml"
+      - "qa-handoff/QA_273_REAL_PICKER_LIFECYCLE.cjs"
+      - "qa-handoff/QA_273_PREFLIGHT.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  depth-eight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa270 --no-audit --no-fund playwright-core@1.55.1
+      - name: Sustain exact immutable source 8-depth real Chrome and 260 edge suites at least 1201 seconds
+        shell: bash
+        env:
+          NODE_PATH: /tmp/qa270/node_modules
+        run: |
+          set -euo pipefail
+          names="QA_256_FULL QA_256_BACKUP_PROPERTY QA_256_CODEC_FUZZ QA_256_RESTORE_RACE QA_256_RESTORE_GUARD QA_256_ADMIN_RESTORE_GUARD QA_256_SCOPE_MATRIX QA_256_ANNUAL_LEAVE_MATRIX QA_256_PICKER_REAL QA_256_IMAGE_PIPELINE QA_257_EDGE QA_257_RPC_CONTRACT QA_257_SEOUL_MIDNIGHT QA_258_UNTRUSTED_UI QA_258_BACKUP_ROUNDTRIP QA_259_EVENT_DDAY QA_259_FINGERPRINT QA_259_PERSONNEL QA_260_OVERTIME_HOLIDAY QA_260_RESPONSIVE QA_260_ADMIN_SECURITY QA_260_GLOBAL_TIMEZONE QA_260_STORAGE_PRIVACY"
+          node qa-handoff/QA_270_ADAPT.cjs $names
+          started=$(date +%s)
+          deadline=$((started+1201))
+          rounds=0
+          suites=0
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            rounds=$((rounds+1))
+            export QA257_FUZZ_START=$((26900+rounds))
+            echo "QA273_SOAK_BEGIN round=$rounds epoch=$(date +%s)"
+            for name in $names; do
+              if ! node qa-handoff/QA_270_ADAPTED_${name}.cjs > /tmp/qa270-soak.log 2>&1; then
+                echo "QA273_SOAK_FAIL round=$rounds name=$name"
+                grep -E 'FAIL|ERROR|SUMMARY|AssertionError' /tmp/qa270-soak.log | tail -n 26 || true
+                exit 1
+              fi
+              suites=$((suites+1))
+              grep 'SUMMARY' /tmp/qa270-soak.log | tail -n 1 | cut -c 1-300 || true
+            done
+            node qa-handoff/QA_270_IMAGE_CODEC.cjs > /tmp/qa270-novel.log 2>&1 || { grep -E 'FAIL|ERROR|SUMMARY' /tmp/qa270-novel.log | tail -n 10; exit 1; }
+            echo "QA273_SOAK_ROUND_PASS round=$rounds suites=$suites elapsed_seconds=$(($(date +%s)-started))"
+          done
+          echo "QA273_SOAK_FINAL_PASS rounds=$rounds suites=$suites actual_seconds=$(($(date +%s)-started))"
+
+  full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa260full --no-audit --no-fund playwright-core@1.55.1
+      - name: Complete real Chromium full browser, RPC, image and calendar regression
+        env:
+          NODE_PATH: /tmp/qa260full/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          names="QA_256_FULL QA_257_EDGE QA_257_RPC_CONTRACT QA_257_SEOUL_MIDNIGHT QA_258_UNTRUSTED_UI QA_258_BACKUP_ROUNDTRIP QA_259_EVENT_DDAY QA_259_FINGERPRINT QA_259_PERSONNEL QA_260_OVERTIME_HOLIDAY QA_260_ADMIN_SECURITY"
+          node qa-handoff/QA_270_ADAPT.cjs $names
+          for name in $names; do
+            echo "QA260_FULL_BEGIN $name"
+            if ! node qa-handoff/QA_270_ADAPTED_${name}.cjs > /tmp/qa260-full.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY|AssertionError' /tmp/qa260-full.log | tail -n 25 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa260-full.log | tail -n 1 | cut -c 1-530 || true
+          done
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa260backend --no-audit --no-fund playwright-core@1.55.1
+      - name: Revalidate backup property, codec, session, restore race and annual leave
+        env:
+          NODE_PATH: /tmp/qa260backend/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          names="QA_256_BACKUP_PROPERTY QA_256_CODEC_FUZZ QA_256_RESTORE_RACE QA_256_RESTORE_GUARD QA_256_ADMIN_RESTORE_GUARD QA_256_SCOPE_MATRIX QA_256_ANNUAL_LEAVE_MATRIX QA_260_OVERTIME_HOLIDAY QA_260_ADMIN_SECURITY"
+          node qa-handoff/QA_270_ADAPT.cjs $names
+          for name in $names; do
+            if ! node qa-handoff/QA_270_ADAPTED_${name}.cjs > /tmp/qa260-back.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY|AssertionError' /tmp/qa260-back.log | tail -n 25 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa260-back.log | tail -n 1 | cut -c 1-530 || true
+          done
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa260front --no-audit --no-fund playwright-core@1.55.1
+      - name: Real native dialog, picker, photo, Chrome boot and admin UI regression
+        env:
+          NODE_PATH: /tmp/qa260front/node_modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          names="QA_256_HANDOFF_DIALOG QA_256_HANDOFF_STRESS QA_256_PICKER_REAL QA_256_NATIVE_STRESS QA_256_IMAGE_PIPELINE QA_256_REAL_BOOT QA_256_ADMIN_UI QA_260_OVERTIME_HOLIDAY QA_260_ADMIN_SECURITY"
+          node qa-handoff/QA_270_ADAPT.cjs $names
+          for name in $names; do
+            if ! node qa-handoff/QA_270_ADAPTED_${name}.cjs > /tmp/qa260-front.log 2>&1; then
+              grep -E 'FAIL|ERROR|SUMMARY|AssertionError' /tmp/qa260-front.log | tail -n 25 || true
+              exit 1
+            fi
+            grep 'SUMMARY' /tmp/qa260-front.log | tail -n 1 | cut -c 1-530 || true
+          done
+
+  independent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa270ind --no-audit --no-fund playwright-core@1.55.1
+      - name: Independent 264 real Chrome 2-year 216-month-view UI matrix and security contracts
+        env:
+          NODE_PATH: /tmp/qa270ind/node_modules
+        run: node qa-handoff/QA_273_REAL_PICKER_LIFECYCLE.cjs && node qa-handoff/QA_272_RPC_BOUNDARY.cjs && node qa-handoff/QA_271_CROSS_TAB_SESSION.cjs && node qa-handoff/QA_270_UI_MATRIX.cjs && node qa-handoff/QA_270_BROWSER_BOUNDARY.cjs && node qa-handoff/QA_270_TRANSITIONS.cjs && node qa-handoff/QA_270_SESSION_GUARD.cjs && node qa-handoff/QA_270_DATE_PROPERTIES.cjs && node qa-handoff/QA_270_FINGERPRINT_DATE_MATRIX.cjs && node qa-handoff/QA_270_IMAGE_CODEC.cjs
+  integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify immutable 270 baseline and last official state 269
+        run: node qa-handoff/QA_273_PREFLIGHT.cjs
+
+  cross-tab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa271tab --no-audit --no-fund playwright-core@1.55.1
+      - name: Independently exercise two same-origin Chrome tabs, real storage signal, logout invalidation and picker recovery
+        env:
+          NODE_PATH: /tmp/qa271tab/node_modules
+        run: node qa-handoff/QA_271_CROSS_TAB_SESSION.cjs
+
+  rpc-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa272rpc --no-audit --no-fund playwright-core@1.55.1
+      - name: Independent PC mobile three-timezone fail-closed fingerprint RPC contracts and temporal metamorphic boundary
+        env:
+          NODE_PATH: /tmp/qa272rpc/node_modules
+        run: node qa-handoff/QA_272_RPC_BOUNDARY.cjs
+
+  picker-lifecycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa273picker --no-audit --no-fund playwright-core@1.55.1
+      - name: Actual wired Chrome desktop mobile picker events, stale actor date tab session epoch and cancellation races
+        env:
+          NODE_PATH: /tmp/qa273picker/node_modules
+        run: node qa-handoff/QA_273_REAL_PICKER_LIFECYCLE.cjs
