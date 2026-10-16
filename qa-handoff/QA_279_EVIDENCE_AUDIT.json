@@ -1,0 +1,74 @@
+{
+  "block": "2-8-279",
+  "status": "COMPLETE/CLEAN in verified Chromium simulated backend scope",
+  "recorded_kst": "2026-10-17T01:15:10.409+09:00",
+  "github": {
+    "repo": "eco-i/eco-i.github.io",
+    "branch": "qa-2-8",
+    "run": 38927474536,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38927474536",
+    "status": "completed",
+    "conclusion": "success",
+    "success": 15,
+    "total": 15
+  },
+  "soak": {
+    "rounds": 9,
+    "suites": 207,
+    "seconds": 1242,
+    "fail": 0
+  },
+  "independent": {
+    "longservice_exclusions": {
+      "pass": 636354,
+      "fail": 0,
+      "contexts": 6,
+      "days": 730,
+      "scenarios": 12,
+      "hires": 3,
+      "features": "independent inclusive day-set oracle, leap-day hire, overlap and adjacency merge, invalid period rejection, nonmutation, exact recognized date arithmetic"
+    },
+    "fingerprint_rpc_row": {
+      "pass": 245406,
+      "fail": 0
+    },
+    "fingerprint_badge": {
+      "pass": 205884,
+      "fail": 0
+    },
+    "modal_privacy": {
+      "pass": 1326,
+      "fail": 0
+    },
+    "viewer_sync": {
+      "pass": 10518,
+      "fail": 0
+    },
+    "fingerprint_hint": {
+      "pass": 5850,
+      "fail": 0
+    },
+    "picker_lifecycle": {
+      "pass": 180,
+      "fail": 0
+    },
+    "rpc_boundary": {
+      "pass": 498,
+      "fail": 0
+    },
+    "cross_tab": {
+      "pass": 168,
+      "fail": 0
+    },
+    "preflight": {
+      "pass": 15,
+      "fail": 0
+    }
+  },
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "legacy_QA_exceptions": "265 raw localStorage SESSION_KEY 직접 삭제와 로그아웃 tombstone 누락의 간헐 QA 실패; 270 초기 picker 하네스 RED; 273 초기 두 탭 picker 하네스 취소; 276 preflight 이전 번호 참조, modal oracle 78 RED 및 초회 cross-tab 제한시간 취소 후 단일 Job 재검증으로 복구. 초기 실패 이력 삭제 금지.",
+  "unverified_external": "실운영 Supabase/RLS 인증 다중 사용자, 실물 Android/iOS native picker/카메라, 영속 BFCache, 실운영 DB 백업·복원은 직접 검증하지 않음."
+}

@@ -1,0 +1,145 @@
+{
+  "block": "2-8-279",
+  "status": "COMPLETE",
+  "model_mode": "High",
+  "qa_depth": 8,
+  "completed_kst": "2026-10-17T01:15:10.409+09:00",
+  "actual_seconds": 1242,
+  "soak_seconds": 1242,
+  "soak_rounds": 9,
+  "soak_suite_groups": 207,
+  "longservice_exclusion_pass": 636354,
+  "longservice_exclusion_fail": 0,
+  "longservice_exclusion_contexts": 6,
+  "scenarios_exclusion": 12,
+  "hire_dates_count": 3,
+  "tested_dates": 730,
+  "fingerprint_rpc_row_pass": 245406,
+  "fingerprint_rpc_row_fail": 0,
+  "fingerprint_badge_pass": 205884,
+  "fingerprint_badge_fail": 0,
+  "modal_privacy_pass": 1326,
+  "modal_privacy_fail": 0,
+  "viewer_sync_pass": 10518,
+  "viewer_sync_fail": 0,
+  "fingerprint_hint_pass": 5850,
+  "fingerprint_hint_fail": 0,
+  "picker_lifecycle_pass": 180,
+  "picker_lifecycle_fail": 0,
+  "rpc_boundary_pass": 498,
+  "rpc_boundary_fail": 0,
+  "cross_tab_pass": 168,
+  "cross_tab_fail": 0,
+  "preflight_pass": 15,
+  "new_confirmed_product_defects": 0,
+  "cumulative_defects": 540,
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-279.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-279.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-280.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "runs": {
+    "main": 38927474536
+  },
+  "jobs": {
+    "integrity": {
+      "id": 117062600156,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "depth-eight": {
+      "id": 117062600302,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "longservice-exclusion": {
+      "id": 117062600400,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "badge-calendar": {
+      "id": 117062600424,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "independent": {
+      "id": 117062600426,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "full": {
+      "id": 117062600449,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "backend": {
+      "id": 117062600563,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "fingerprint-hint": {
+      "id": 117062600571,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "modal-privacy": {
+      "id": 117062600581,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "picker-lifecycle": {
+      "id": 117062600583,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "frontend": {
+      "id": 117062600609,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "rpc-boundary": {
+      "id": 117062600663,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "viewer-sync": {
+      "id": 117062600699,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "rpc-row-matrix": {
+      "id": 117062600701,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "cross-tab": {
+      "id": 117063515021,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "historical_QA_exceptions_retained": true
+}
