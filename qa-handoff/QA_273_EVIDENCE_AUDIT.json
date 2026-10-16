@@ -1,0 +1,68 @@
+{
+  "block": "2-8-273",
+  "status": "COMPLETE/CLEAN in tested Chromium/mock RPC scope",
+  "recorded_kst": "2026-10-16T17:25:04.423+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "bytes": 1175136,
+  "full_run": {
+    "id": 38871054655,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38871054655",
+    "status": "completed",
+    "conclusion": "success",
+    "nine_jobs_success": true
+  },
+  "soak": {
+    "actual_seconds": 1216,
+    "rounds": 8,
+    "suite_groups": 184,
+    "failures": 0
+  },
+  "independent": {
+    "picker_lifecycle": {
+      "passed": 180,
+      "failed": 0,
+      "contexts": 6,
+      "scope": "genuine browser wired change/cancel with downstream upload stub; no production upload"
+    },
+    "rpc_boundary": {
+      "passed": 498,
+      "failed": 0
+    },
+    "cross_tab": {
+      "passed": 168,
+      "failed": 0
+    },
+    "preflight": {
+      "passed": 15,
+      "failed": 0
+    }
+  },
+  "historical_qa_trials": {
+    "run1": {
+      "id": 38870038990,
+      "comment": "Initial 2-tab foreground fixture picker/independent canceled due in-progress test timeout; retained"
+    },
+    "run2": {
+      "id": 38870690285,
+      "comment": "Foreground-only correction not enough; picker/independent canceled; retained"
+    },
+    "corrected": {
+      "id": 38871054655,
+      "comment": "Foreground single-tab picker fixture + independent and full 9 Jobs pass"
+    }
+  },
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "unverified": [
+    "Live production Supabase/RLS authentication and multiuser",
+    "Physical Android/iOS native camera/photo picker",
+    "Persisted BFCache",
+    "Production DB backup and restore"
+  ],
+  "other_retained_limits": [
+    "265 direct raw localStorage SESSION_KEY removal without logout tombstone intermittent QA oracle",
+    "270 initial asynchronous picker QA harness failures"
+  ]
+}
