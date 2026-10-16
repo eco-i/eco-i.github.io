@@ -15,6 +15,11 @@ if(digest!=='19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af')t
     const main=await cx.newPage(),peer=await cx.newPage(),errors=[];
     for(const p of [main,peer]){p.on('pageerror',e=>errors.push(String(e.message||e)));await p.route('https://cdn.jsdelivr.net/**',r=>r.abort());}
     await Promise.all([main,peer].map(p=>p.goto('http://127.0.0.1:'+server.address().port+'/',{waitUntil:'load'})));
+    // User is interacting with the first tab. Keep it foreground: Chrome intentionally defers a file-picker
+    // change for up to 15 s while its document is backgrounded, which invalidates the short-event oracle.
+    await main.bringToFront();
+    const isForeground=await main.evaluate(()=>!document.hidden);
+    if(!isForeground)throw Error('QA fixture: main picker tab is unexpectedly backgrounded');
     // Real application startup needs Web Locks and local storage migration before event wire() is bound.
     await main.waitForTimeout(1700);
     const token='qa273-picker-'+(mobile?'m':'d')+'-'+timezone;
