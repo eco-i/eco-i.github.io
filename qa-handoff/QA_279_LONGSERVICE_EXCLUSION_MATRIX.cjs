@@ -51,12 +51,11 @@ try{
        ck('scenario '+si+' merged sorted disjoint',merged.every((p,i)=>i===0||date(merged[i-1].end_date)+one<date(p.start_date)));
        ck('scenario '+si+' normalization nonmutating',JSON.stringify(periods)===original);
        for(const hire of hireDates){
-         const beforeTargetDays=new Map(),prefix=new Map();let counter=0;
+         const prefix=new Map();let counter=[...covered].filter(d=>d>=hire&&d<'2026-01-01').length;
          for(const target of targets){
            if(target>=hire&&covered.has(target))counter++;
            prefix.set(target,counter);
          }
-         const prior=[...covered].filter(d=>d<hire);
          for(let i=0;i<targets.length;i++){
            const target=targets[i],beforeHire=target<hire,oracle=beforeHire?0:prefix.get(target);
            const tag='scenario='+si+' hire='+hire+' target='+target;
