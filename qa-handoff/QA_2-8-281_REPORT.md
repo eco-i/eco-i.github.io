@@ -18,3 +18,7 @@
 - `index.html`, 281 시작/작업본, **282 시작본**은 모두 1,175,136 bytes / SHA256 `19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af` / Git blob `7077d4c27abf1b847471e32f462df0efd7cbd08f`로 동일.
 - 운영 main SHA `5c9529069a4728e72b960c61a44e8045eacc0ca0` 불변, APP_VERSION `ver20260927-0944`, SQL 변경 없음, 운영 배포 없음.
 - 공식 상태 기록 시각 KST 2026-10-17T02:39:55.731+09:00. 282도 High·깊이8·실제 20분 이상, 20분 이내 KST 보고, 신규 독립시나리오 추가, 모든 실패 이력 보존, GitHub 직접 작업, ZIP 금지.
+
+## 282 시작본 최종 인계 검사
+- [281 post-promote GitHub Actions](https://github.com/eco-i/eco-i.github.io/actions/runs/38941434837) **14 PASS / 0 FAIL**, 실제 Chromium PC·모바일(360/390/1280px), 제품 HTML 4개 SHA·파일크기 동일성, 281 완료 상태 및 매니페스트, APP_VERSION, 자바스크립트 파싱을 검증함.
+- 검증 시각 KST 2026-10-17T02:40:58.639+09:00. 기존 QA 과거 실패 기록/환경 제한 및 281 주 검수 로그 보존.

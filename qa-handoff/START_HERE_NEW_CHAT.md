@@ -9,4 +9,4 @@
 - 이전 QA 실패 이력: 265 raw SESSION_KEY/tombstone, 270 picker 초기 RED, 273 2탭 하네스 취소, 276 preflight·모달 오라클 78 RED·cross-tab 제한시간 취소 모두 보존. 소급 처리 금지.
 - 운영 Supabase/RLS 실제 인증 다중사용자, 물리 휴대폰 기본 카메라·파일선택, 지속 BFCache, 운영 DB 백업·복원 직접 미검증.
 - 282도 High·깊이8·실제 20분+, 20분 내 KST 보고, 제품 결함 즉시 수정/회귀, 신규 독립검사, GitHub 직접 연결, ZIP 금지, main/SQL/APP_VERSION/배포 임의 변경 금지, 채팅 로그 요약.
-- 282 인계 후속 GitHub Actions Chrome 14-assert 확인을 위한 `QA_281_POST_PROMOTE.cjs` 및 `qa-281-final.yml` 준비.
+- [282 인계 검증 14 PASS / 0 FAIL](https://github.com/eco-i/eco-i.github.io/actions/runs/38941434837) 완료. 282 후속 검증을 위한 `QA_281_POST_PROMOTE.cjs` 및 `qa-281-final.yml` 준비.

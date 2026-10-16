@@ -49,5 +49,13 @@
   "new_product_defects": 0,
   "cumulative_product_defects": 540,
   "known_legacy_QA_exceptions": "265의 raw SESSION_KEY 직접삭제 후 로그아웃 tombstone 누락 간헐 QA 실패, 270 초기 picker RED, 273 초기 2탭 picker 하네스 취소, 276 초기 preflight 참조 오류·모달 오라클 78 RED·초회 cross-tab 제한시간 취소 후 회복 기록 모두 보존. 소급 성공 처리나 이력 삭제 금지.",
-  "untested_scope": "운영 Supabase/RLS 실제 인증 다중 사용자, 물리 Android/iOS 기본 사진 선택·카메라, 지속 BFCache, 운영 DB 백업·복원 직접 미검증. Chromium PC/모바일 에뮬레이션 및 모의 RPC 범위 한정."
+  "untested_scope": "운영 Supabase/RLS 실제 인증 다중 사용자, 물리 Android/iOS 기본 사진 선택·카메라, 지속 BFCache, 운영 DB 백업·복원 직접 미검증. Chromium PC/모바일 에뮬레이션 및 모의 RPC 범위 한정.",
+  "post_promote": {
+    "status": "SUCCESS",
+    "run_id": 38941434837,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38941434837",
+    "pass": 14,
+    "fail": 0,
+    "checked_kst": "2026-10-17T02:40:58.639+09:00"
+  }
 }
