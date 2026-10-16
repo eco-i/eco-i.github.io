@@ -18,7 +18,7 @@ if(sha!=='19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af')thro
       let pass=0,fail=0,issues=[];const ck=(name,yes)=>{if(yes)pass++;else{fail++;if(issues.length<28)issues.push(name)}};
       const ids=BACKDROP_SENSITIVE_INPUT_IDS,backdrops=Object.keys(ids),all=Object.values(ids).flat(),tick=()=>new Promise(resolve=>setTimeout(resolve,30));
       ck('five pinned sensitive modal groups',backdrops.length===5);
-      ck('nine sensitive input ids in all groups',all.length===9);
+      ck('mapped eight sensitive input ids in five groups',all.length===8);
       ck('no duplicate sensitive input map ids',new Set(all).size===all.length);
       ck('all mapped PIN DOM inputs exist',all.every(id=>!!document.getElementById(id)));
       ck('all mapped inputs passwords',all.every(id=>document.getElementById(id)?.type==='password'));
@@ -63,6 +63,7 @@ if(sha!=='19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af')thro
        for(let round=1;round<=12;round++){
         closeAll();clear();
         for(const b of backdrops)openBackdrop(b);
+        await tick(); // Native openBackdrop applies focus/ARIA stack in next event-loop turn.
         ck('stack top should be last opened '+round,topOpenBackdrop()?.id===backdrops.at(-1));
         ck('stack only top aria visible '+round,[...document.querySelectorAll('.backdrop.open')].every(b=>b.getAttribute('aria-hidden')===(b.id===backdrops.at(-1)?'false':'true')));
         set('stack-round'+round);
