@@ -1,0 +1,63 @@
+{
+  "block": "2-8-275",
+  "conclusion": "COMPLETE/CLEAN in explicitly tested Chromium and mocked RPC scope",
+  "recorded_kst": "2026-10-16T18:56:15.883+09:00",
+  "branch": "qa-2-8",
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "bytes": 1175136,
+  "full_run": {
+    "id": 38881172897,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38881172897",
+    "status": "completed",
+    "conclusion": "success",
+    "all_11_jobs_success": true
+  },
+  "soak": {
+    "actual_seconds": 1294,
+    "rounds": 10,
+    "suite_groups": 230,
+    "fail": 0
+  },
+  "independent": {
+    "viewer_sync": {
+      "pass": 10518,
+      "fail": 0,
+      "contexts": 6,
+      "scope": "true Chrome DOM viewer stale-photo close and photo-src scrubbing versus identical offset instant retention"
+    },
+    "fingerprint_hint": {
+      "pass": 5850,
+      "fail": 0
+    },
+    "picker_lifecycle": {
+      "pass": 180,
+      "fail": 0
+    },
+    "rpc_boundary": {
+      "pass": 498,
+      "fail": 0
+    },
+    "cross_tab": {
+      "pass": 168,
+      "fail": 0
+    },
+    "preflight": {
+      "pass": 15,
+      "fail": 0
+    }
+  },
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "legacy_QA_limits": [
+    "265 direct SESSION_KEY removal without logout suppression marker intermittent old QA failure retained",
+    "270 original picker QA async session error RED retained",
+    "273 original two-tab picker harness canceled before corrected successful test retained"
+  ],
+  "not_verified": [
+    "Live Supabase/RLS authenticated multiuser",
+    "Physical Android/iOS native camera/gallery",
+    "Persistent BFCache",
+    "Production database backup and restore"
+  ],
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0"
+}
