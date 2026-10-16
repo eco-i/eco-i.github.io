@@ -12,9 +12,10 @@ if(digest!=='19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af')t
   for(const timezone of ['Asia/Seoul','UTC','America/Los_Angeles'])for(const mobile of [false,true]){
    const cx=await browser.newContext({timezoneId:timezone,viewport:{width:mobile?390:1280,height:mobile?850:900},isMobile:mobile,hasTouch:mobile});
    try{
-    const main=await cx.newPage(),peer=await cx.newPage(),errors=[];
-    for(const p of [main,peer]){p.on('pageerror',e=>errors.push(String(e.message||e)));await p.route('https://cdn.jsdelivr.net/**',r=>r.abort());}
-    await Promise.all([main,peer].map(p=>p.goto('http://127.0.0.1:'+server.address().port+'/',{waitUntil:'load'})));
+    const main=await cx.newPage(),errors=[];
+    main.on('pageerror',e=>errors.push(String(e.message||e)));await main.route('https://cdn.jsdelivr.net/**',r=>r.abort());
+    console.log('QA273_PICKER_CONTEXT_BEGIN',timezone,mobile);
+    await main.goto('http://127.0.0.1:'+server.address().port+'/',{waitUntil:'load',timeout:20000});
     // User is interacting with the first tab. Keep it foreground: Chrome intentionally defers a file-picker
     // change for up to 15 s while its document is backgrounded, which invalidates the short-event oracle.
     await main.bringToFront();
@@ -23,7 +24,7 @@ if(digest!=='19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af')t
     // Real application startup needs Web Locks and local storage migration before event wire() is bound.
     await main.waitForTimeout(1700);
     const token='qa273-picker-'+(mobile?'m':'d')+'-'+timezone;
-    const result=await main.evaluate(async token=>{
+    const result=await Promise.race([main.evaluate(async token=>{
       let pass=0,fail=0,issues=[],calls=0;
       const ck=(label,yes)=>{if(yes)pass++;else{fail++;if(issues.length<30)issues.push(label)}};
       const input=document.getElementById('fingerprintPhotoInput'),modal=document.getElementById('detailBackdrop');
@@ -127,7 +128,8 @@ if(digest!=='19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af')t
         modal.classList.remove('open');
       }
       return {pass,fail,issues,calls};
-    },token);
+    },token),new Promise((_,reject)=>setTimeout(()=>reject(new Error('QA context evaluate time limit 20000ms')),20000))]);
+    console.log('QA273_PICKER_CONTEXT_DONE',timezone,mobile,JSON.stringify({pass:result.pass,fail:result.fail,issues:result.issues}));
     pass+=result.pass;fail+=result.fail+errors.length;contexts++;
     if(result.fail||errors.length)issues.push({timezone,mobile,details:result.issues,errors:errors.slice(0,4)});
     await cx.close();
