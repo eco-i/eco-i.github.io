@@ -1,0 +1,125 @@
+{
+  "block": "2-8-276",
+  "status": "COMPLETE",
+  "model_mode": "High",
+  "qa_depth": 8,
+  "completed_kst": "2026-10-16T19:56:18.365+09:00",
+  "actual_seconds": 1269,
+  "soak_seconds": 1269,
+  "soak_rounds": 8,
+  "soak_suite_groups": 184,
+  "modal_privacy_pass": 1326,
+  "modal_privacy_fail": 0,
+  "modal_privacy_contexts": 6,
+  "viewer_sync_pass": 10518,
+  "viewer_sync_fail": 0,
+  "fingerprint_hint_pass": 5850,
+  "fingerprint_hint_fail": 0,
+  "picker_lifecycle_pass": 180,
+  "picker_lifecycle_fail": 0,
+  "rpc_boundary_pass": 498,
+  "rpc_boundary_fail": 0,
+  "cross_tab_pass": 168,
+  "cross_tab_fail": 0,
+  "cross_tab_rerun": true,
+  "preflight_pass": 15,
+  "new_confirmed_product_defects": 0,
+  "cumulative_defects": 540,
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-276.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-276.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-277.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "runs": {
+    "final": 38887878278,
+    "final_attempt": 2,
+    "initial_bad_preflight": 38887644748,
+    "initial_bad_modal_oracle": 38887679888
+  },
+  "jobs": {
+    "cross-tab": {
+      "id": 116937823778,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "integrity": {
+      "id": 116937825172,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "depth-eight": {
+      "id": 116937825535,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "frontend": {
+      "id": 116937825613,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "viewer-sync": {
+      "id": 116937825984,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "independent": {
+      "id": 116937826226,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "picker-lifecycle": {
+      "id": 116937826587,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "backend": {
+      "id": 116937855461,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "rpc-boundary": {
+      "id": 116937856126,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "modal-privacy": {
+      "id": 116937869755,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "fingerprint-hint": {
+      "id": 116937869845,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "full": {
+      "id": 116937884217,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "historical_exceptions_preserved": true
+}
