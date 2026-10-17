@@ -1,0 +1,36 @@
+{
+  "block": "2-8-286",
+  "test": "QA_286_ABSENCE_COVERAGE_ORACLE",
+  "status": "INDEPENDENT_PASS_PENDING_SUSTAINED_SOAK",
+  "run_id": 39009514749,
+  "job_id": 117328801877,
+  "pass": 1007406,
+  "fail": 0,
+  "contexts": 6,
+  "samples": 240900,
+  "days": 730,
+  "employees": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "DAY"
+  ],
+  "scenarios": [
+    "empty",
+    "all-day",
+    "day-09-11",
+    "night-22-02",
+    "full-day-split",
+    "full-night-split",
+    "duplicate-day-overlap",
+    "night-next-day-morning",
+    "invalid-zero-window",
+    "day-plus-all-day",
+    "other-employee-only"
+  ],
+  "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39009514749",
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "product_changed": false,
+  "notes": "This result is confirmed independently via job logs; official 286 completion requires final ≥1200s sustained soak and all 22 jobs green."
+}
