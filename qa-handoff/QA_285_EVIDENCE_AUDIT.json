@@ -1,0 +1,123 @@
+{
+  "block": "2-8-285",
+  "status": "COMPLETE/CLEAN in Chromium and mock RPC scope",
+  "reported_at_kst": "2026-10-17T14:31:35.094+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "run": {
+    "id": 39005214654,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39005214654",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": 21,
+    "passed": 21,
+    "attempt": 1
+  },
+  "soak": {
+    "rounds": 10,
+    "suites": 230,
+    "actual_seconds": 1210,
+    "fail": 0
+  },
+  "new_independent": {
+    "name": "QA_285_ANNUAL_LEAVE_WORKTIME_ORACLE",
+    "pass": 111042,
+    "fail": 0,
+    "contexts": 6,
+    "dates": 730,
+    "groups": 5,
+    "assertions": "real Chromium two-year 5-category independent shift minute/segment oracle; midnight-crossing night shift, 2026-09-12 deduction start, duplicate absence union, 09-11 and 22-02 partial leave windows, nonactive employees"
+  },
+  "integrated_independent": [
+    {
+      "name": "QA285_ANNUAL_LEAVE_WORKTIME_ORACLE_SUMMARY",
+      "pass": 111042,
+      "fail": 0
+    },
+    {
+      "name": "QA284_SUBSTITUTE_HOLIDAY_ROSTER_ORACLE_SUMMARY",
+      "pass": 50694,
+      "fail": 0
+    },
+    {
+      "name": "QA283_SHIFT_HOLIDAY_ORACLE_SUMMARY",
+      "pass": 57222,
+      "fail": 0
+    },
+    {
+      "name": "QA282_FINGERPRINT_TIMESTAMP_MATRIX_SUMMARY",
+      "pass": 988956,
+      "fail": 0
+    },
+    {
+      "name": "QA280_LONGSERVICE_BAND_BOUNDARY_SUMMARY",
+      "pass": 1734246,
+      "fail": 0
+    },
+    {
+      "name": "QA279_LONGSERVICE_EXCLUSION_MATRIX_SUMMARY",
+      "pass": 636354,
+      "fail": 0
+    },
+    {
+      "name": "QA278_FINGERPRINT_RPC_ROW_MATRIX_SUMMARY",
+      "pass": 245406,
+      "fail": 0
+    },
+    {
+      "name": "QA277_FINGERPRINT_BADGE_MATRIX_SUMMARY",
+      "pass": 205884,
+      "fail": 0
+    },
+    {
+      "name": "QA276_MODAL_PRIVACY_FOCUS_SUMMARY",
+      "pass": 1326,
+      "fail": 0
+    },
+    {
+      "name": "QA275_VIEWER_SYNC_MATRIX_SUMMARY",
+      "pass": 10518,
+      "fail": 0
+    },
+    {
+      "name": "QA274_FINGERPRINT_HINT_MATRIX_SUMMARY",
+      "pass": 5850,
+      "fail": 0
+    },
+    {
+      "name": "QA273_REAL_PICKER_LIFECYCLE_SUMMARY",
+      "pass": 180,
+      "fail": 0
+    },
+    {
+      "name": "QA272_RPC_BOUNDARY_SUMMARY",
+      "pass": 498,
+      "fail": 0
+    },
+    {
+      "name": "QA271_CROSS_TAB_SESSION_SUMMARY",
+      "pass": 168,
+      "fail": 0
+    },
+    {
+      "name": "QA281_EXCLUSION_PERMUTATION_FUZZ_SUMMARY",
+      "pass": 658206,
+      "fail": 0
+    }
+  ],
+  "preflight": {
+    "pass": 16,
+    "fail": 0
+  },
+  "cross_tab": {
+    "pass": 168,
+    "fail": 0,
+    "contexts": 6
+  },
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "legacy_QA_failures_preserved": "265 raw SESSION_KEY/tombstone; 270 initial picker RED; 273 two-tab harness cancelled; 276 preflight/modal oracle RED and cross-tab timeout; 282 navigation-context cross-tab initial RED; 284 QA test SyntaxError initial RED. No retroactive erasure.",
+  "untested_scope": "Production authenticated Supabase/RLS multi-user, physical Android/iOS camera/gallery, persistent BFCache and production database backup and restore unverified; scope restricted to Chromium emulation and mock RPC."
+}
