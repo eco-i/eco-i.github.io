@@ -31,7 +31,12 @@
     "independent_regression_groups": 20,
     "preflight_pass": 16,
     "cross_tab_pass": 168,
-    "post_promote_check": "PENDING 14 assertions"
+    "post_promote_check": {
+      "status": "SUCCESS",
+      "run_id": 39020447385,
+      "pass": 14,
+      "fail": 0
+    }
   },
   "risks_unverified": [
     {
@@ -69,5 +74,6 @@
     282,
     284
   ],
-  "note": "540 is the canonical accumulated historical product-defect count per official reports; this closure audit confirms 31 consecutive zero-new-defect manifests and current regressions, not an independent manual reconstruction of every past defect. Simulated QA success does not certify production."
+  "note": "540 is the canonical accumulated historical product-defect count per official reports; this closure audit confirms 31 consecutive zero-new-defect manifests and current regressions, not an independent manual reconstruction of every past defect. Simulated QA success does not certify production.",
+  "decision_completed_kst": "2026-10-17T18:16:20+09:00"
 }
