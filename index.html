@@ -1194,7 +1194,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261017-2221 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261017-2249 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1719,8 +1719,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20261017-2221';
+const APP_VERSION = 'ver20261017-2249';
 const UPDATE_HISTORY = [
+  {version:'ver20261017-2249',date:'2026.10.17',items:['2차 종합검수 수정사항 반영','지문 출퇴근 사진 선택 후 등록 대기 오류 수정']},
   {version:'ver20260917-2153',date:'2026.09.17',items:['D-DAY 표시 기능 추가']},
   {version:'ver20260916-1703',date:'2026.09.16',items:['초과근무 계획·완료 관리 기능 추가']},
   {version:'ver20260915-2352',date:'2026.09.15',items:['사내일정 달력 표시 기능 추가']},
@@ -11720,7 +11721,7 @@ function wire(){
     checkForAppUpdate();if(reconcileSharedSessionIfNeeded())return;
     if(state.initialPinRequired){void recheckInitialPinGate();return;}
     if(state.me){
-      if(!loginPending&&!sessionRestoreInFlight)invalidatePageLifecycleFreshnessFlags();
+      if(!loginPending&&!sessionRestoreInFlight&&!fingerprintPickerFlowActive&&!fingerprintPickerContext)invalidatePageLifecycleFreshnessFlags();
       // 네이티브 카메라/파일 선택기에서 복귀한 순간에는 전체 Realtime 새로고침을
       // 사진 change 처리와 경쟁시키지 않는다. personnelBackendReady가 일시적으로
       // null/false가 되어 선택 사진이 무작위로 중단되는 race를 막는다.
@@ -11733,7 +11734,12 @@ function wire(){
     if(document.hidden){
       fingerprintPageLifecycleEpoch++;
       markFingerprintBackgroundResume();
-      invalidatePageLifecycleReadLoads();
+      // OS native picker의 visibilitychange는 일반 백그라운드 이동과 다르다.
+      // 파일 선택 문맥이 살아있는 동안만 기존 정상 read/freshness를 보존한다.
+      // 파일 선택을 마친 뒤 handleFingerprintPhotoInput의 authoritative personnel/holiday
+      // 확인 및 지연된 realtime catch-up을 통해 서버 최신 상태를 확인한다.
+      if(fingerprintPickerFlowActive||fingerprintPickerContext)realtimeNeedsCatchup=true;
+      else invalidatePageLifecycleReadLoads();
       // 지문 사진을 열어 둔 채 앱을 벗어나면 최근 앱 미리보기/메모리에 민감 사진이 오래 남지 않게 즉시 닫습니다.
       if($('fingerprintPhotoBackdrop')?.classList.contains('open'))closeBackdrop('fingerprintPhotoBackdrop',true);
       return;
@@ -11765,7 +11771,11 @@ function wire(){
   window.addEventListener('offline',()=>{if(reconcileSharedSessionIfNeeded())return;if(state.me){markRealtimeFreshnessGap();setRealtimeStatus('offline')}});
   window.addEventListener('pagehide',()=>{
     fingerprintPageLifecycleEpoch++;
-    invalidatePageLifecycleReadLoads();
+    // Android/PWA 네이티브 파일 선택기의 가짜 pagehide에서 readiness 잠금을
+    // 걸면 OS에서 사진을 골라도 쓰기 전에 보류되고 전체 화면이 '불러오는 중'에 고착된다.
+    // 실제 네비게이션은 재부팅되므로 일반 pagehide 경로만 read 상태를 폐기한다.
+    if(fingerprintPickerFlowActive||fingerprintPickerContext)realtimeNeedsCatchup=true;
+    else invalidatePageLifecycleReadLoads();
     markFingerprintBackgroundResume();
     // 일반 페이지 이탈/BFCache 진입에서는 팝업 닫기 경로를 거치지 않아도 모든 PIN을 즉시 폐기한다.
     // 단, JSON 복원 네이티브 picker 왕복 중에는 adminDataPin만 유지해 정상 파일 선택 흐름을 보존한다.
