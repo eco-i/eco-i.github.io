@@ -1,0 +1,128 @@
+name: Shared update history admin/editor regression
+on:
+  push:
+    branches: [feature-admin-update-history-20261018]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  update-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/update-history-qa --no-audit --no-fund playwright-core@1.55.1
+      - name: Real Chromium UI, permission, XSS, stale & SQL migration smoke
+        env:
+          NODE_PATH: /tmp/update-history-qa/node_modules
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+          const {chromium}=require('playwright-core');
+          (async()=>{
+            const html=fs.readFileSync('index.html','utf8');
+            const migration=fs.readFileSync('db/update_history_overrides_20261018.sql','utf8');
+            for(const name of ['public._session_employee(p_token)','public._require_admin(p_token)','UPDATE_HISTORY_STALE','enable row level security','revoke all on table public.update_history_overrides','on conflict(version) do nothing'])assert.ok(migration.includes(name),'missing migration guard '+name);
+            assert.ok(html.includes("'admin_set_update_history_override','save_my_memo_v2'"),'mutation session guard');
+            const scriptMatches=[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+            let parsed=0;for(const match of scriptMatches){if(/\bsrc\s*=/.test(match[1]))continue;new vm.Script(match[2]);parsed++;}
+            assert.ok(parsed>=2,'inline app JS parses');
+            const snippet=html.slice(html.indexOf('let updateHistoryOverrides=new Map();'),html.indexOf('function syncVersionFooter(){'));
+            assert.ok(snippet.startsWith('let updateHistoryOverrides'));
+            const style=html.slice(html.indexOf('<style>')+7,html.indexOf('</style>'));
+            const helper=String.raw\`
+              window.TEST_ADMIN=false;
+              window.TEST_READ_FAILURE=false;
+              window.TEST_ROWS={};
+              window.TEST_CALLS=[];
+              window.state={me:{employee_id:1,is_admin:true},sessionToken:'uuid-demo'};
+              var sessionContextEpoch=0;
+              var READONLY_RPC_TIMEOUT_MS=10000;
+              var MUTATION_RPC_TIMEOUT_MS=30000;
+              const UPDATE_HISTORY=[
+                {version:'ver20261017-2320',date:'2026.10.17',items:['기존 기록 하나']},
+                {version:'ver20261017-2311',date:'2026.10.17',items:['기존 기록 둘']}
+              ];
+              function $(id){return document.getElementById(id);}
+              function escapeHtml(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+              function activeAdminMode(){return window.TEST_ADMIN;}
+              function pageLifecycleWriteFreshnessReady(){return true;}
+              function configured(){return true;}
+              function sharedSessionContextCurrent(){return true;}
+              function openBackdrop(id){$(id).classList.add('open');}
+              function confirmMutationWithSessionGuard(){return true;}
+              async function rpc(name,args){
+                window.TEST_CALLS.push({name,args});
+                if(name==='list_update_history_overrides'){
+                  if(window.TEST_READ_FAILURE)throw Error('rpc unavailable');
+                  return Object.entries(window.TEST_ROWS).map(([version,row])=>({version,items:row.items,deleted:row.deleted,revision:row.revision}));
+                }
+                if(name==='admin_set_update_history_override'){
+                  if(!window.TEST_ADMIN)throw Error('NO_PERMISSION');
+                  const old=window.TEST_ROWS[args.p_version];
+                  const revision=old?old.revision:0;
+                  if(revision!==args.p_expected_revision)throw Error('UPDATE_HISTORY_STALE');
+                  window.TEST_ROWS[args.p_version]={items:args.p_items,deleted:args.p_is_deleted,revision:revision+1};
+                  return revision+1;
+                }
+                throw Error('unexpected RPC '+name);
+              }
+            \`;
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']});
+            for(const [width,dark] of [[390,false],[1300,false],[390,true]]){
+              const page=await browser.newPage({viewport:{width,height:800}});
+              await page.setContent('<!doctype html><html '+(dark?'data-theme="dark"':'')+'><head><style>'+style+'</style></head><body><button id="versionHistoryBtn">업데이트 내역</button><div id="updateHistoryBackdrop"><div id="updateHistoryStatus"></div><div id="updateHistoryBody" class="update-history-list"></div></div></body></html>');
+              await page.addScriptTag({content:helper});
+              await page.addScriptTag({content:snippet});
+              await page.evaluate(()=>{
+                document.getElementById('updateHistoryBody').addEventListener('click',event=>{
+                  const btn=event.target.closest('button[data-update-history-action]');
+                  if(btn)void updateHistoryAction(btn.dataset.updateHistoryAction,btn.dataset.updateHistoryVersion);
+                });
+                openUpdateHistory();
+              });
+              await page.waitForFunction(()=>document.getElementById('updateHistoryStatus').textContent===''&&document.querySelectorAll('.update-history-item').length===2);
+              assert.equal(await page.locator('[data-update-history-action]').count(),0,'regular staff must not see admin controls');
+              await page.evaluate(()=>{window.TEST_ADMIN=true;openUpdateHistory();});
+              await page.waitForFunction(()=>document.querySelectorAll('[data-update-history-action="edit"]').length===2);
+              await page.locator('[data-update-history-action="edit"]').first().click();
+              await page.locator('textarea[data-update-history-input]').fill('수정된 내용\n둘째 줄');
+              await page.locator('[data-update-history-action="save"]').click();
+              await page.waitForFunction(()=>document.querySelectorAll('.update-history-items li').length===3&&document.querySelector('.update-history-items').textContent.includes('수정된 내용'));
+              const reads=await page.evaluate(()=>window.TEST_CALLS.filter(x=>x.name==='admin_set_update_history_override'));
+              assert.equal(reads.length,1);
+              assert.equal(reads[0].args.p_expected_revision,0);
+              assert.deepEqual(reads[0].args.p_items,['수정된 내용','둘째 줄']);
+              await page.evaluate(()=>{window.TEST_ADMIN=false;openUpdateHistory();});
+              await page.waitForFunction(()=>document.querySelectorAll('.update-history-item').length===2&&document.querySelector('.update-history-items').textContent.includes('수정된 내용'));
+              assert.equal(await page.locator('[data-update-history-action]').count(),0,'every worker reads same edit but no edit/delete');
+              await page.evaluate(()=>{window.TEST_ADMIN=true;openUpdateHistory();});
+              await page.waitForFunction(()=>document.querySelectorAll('[data-update-history-action="delete"]').length===2);
+              await page.locator('[data-update-history-action="delete"]').first().click();
+              await page.waitForFunction(()=>document.querySelectorAll('.update-history-item').length===1);
+              const deleted=await page.evaluate(()=>window.TEST_ROWS['ver20261017-2320']);
+              assert.equal(deleted.deleted,true);
+              await page.evaluate(()=>{
+                window.TEST_ROWS['ver20261017-2311']={items:['<img src=x onerror=alert(1)>'],deleted:false,revision:9};
+                openUpdateHistory();
+              });
+              await page.waitForFunction(()=>document.querySelector('.update-history-items').textContent.includes('<img'));
+              assert.equal(await page.locator('.update-history-items img').count(),0,'server HTML escaped');
+              await page.evaluate(()=>{window.TEST_READ_FAILURE=true;openUpdateHistory();});
+              await page.waitForFunction(()=>document.getElementById('updateHistoryStatus').textContent.includes('불러오지 못했습니다'));
+              assert.equal(await page.locator('[data-update-history-action]').count(),0,'stale server read disables writes');
+              const color=await page.locator('.update-history-status').evaluate(x=>getComputedStyle(x).color);
+              assert.ok(color.startsWith('rgb('));
+              console.log('PASS real Chromium',width,dark?'dark':'light','read/update/delete, ACL, XSS, fallback');
+              await page.close();
+            }
+            await browser.close();
+            console.log('SHARED_HISTORY_QA_PASS');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
