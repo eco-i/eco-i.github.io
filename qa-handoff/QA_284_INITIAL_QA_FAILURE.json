@@ -1,0 +1,18 @@
+{
+  "block": "2-8-284",
+  "status": "INITIAL_QA_RED_PRESERVED",
+  "product_defects_confirmed": 0,
+  "first_run": 39002924389,
+  "first_sha": "f268b7c167794f0f97568cbdb5fe5a8f6dde6b92",
+  "failing_jobs": [
+    "independent",
+    "substitute-roster-oracle"
+  ],
+  "dependent_skipped_job": "cross-tab",
+  "harness_file": "qa-handoff/QA_284_SUBSTITUTE_HOLIDAY_ROSTER_ORACLE.cjs",
+  "initial_error": "SyntaxError: Unexpected token 'finally' — else block missing closing brace",
+  "fix_commit": "2c5effa126453e338d918735d1af0bd6b5959f41",
+  "second_run": 39002978396,
+  "classification": "QA test harness syntax failure, not production HTML failure",
+  "policy": "Retain original failed GitHub run and this evidence; no retroactive success. Promote only if new workflow all jobs successful and 20 minutes actual soak observed."
+}
