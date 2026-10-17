@@ -1,0 +1,57 @@
+{
+  "block": "2-8-283",
+  "status": "COMPLETE/CLEAN in tested Chromium/mock scope",
+  "reported_at_kst": "2026-10-17T12:45:50.597+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "run": {
+    "id": 38998568240,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38998568240",
+    "status": "completed",
+    "conclusion": "success",
+    "attempt": 1,
+    "jobs": 19,
+    "passed": 19
+  },
+  "soak": {
+    "rounds": 8,
+    "suites": 184,
+    "actual_seconds": 1249,
+    "fail": 0
+  },
+  "new_independent": {
+    "name": "QA_283_SHIFT_HOLIDAY_ORACLE",
+    "pass": 57222,
+    "fail": 0,
+    "contexts": 6,
+    "days": 730,
+    "holiday_source_keys": 46,
+    "substitute_holiday_source_keys": 11,
+    "ui_months_per_context": 24,
+    "assertions": "independent anchored four-group eight-day cycle for two years; 2026 10/1-15 overhaul weekend holiday and 10/15 C night; 2026-27 app holiday table consistency; KST-independent browser timezone; 24-month calendar DOM rendering/overflow"
+  },
+  "prior_independent": {
+    "timestamp_matrix_pass": 988956,
+    "exclusion_permutation_pass": 658206,
+    "longservice_band_pass": 1734246,
+    "longservice_exclusion_pass": 636354,
+    "fingerprint_rpc_row_pass": 245406,
+    "fingerprint_badge_pass": 205884,
+    "modal_privacy_pass": 1326,
+    "viewer_sync_pass": 10518,
+    "fingerprint_hint_pass": 5850,
+    "picker_lifecycle_pass": 180,
+    "rpc_boundary_pass": 498,
+    "cross_tab_pass": 168
+  },
+  "preflight": {
+    "pass": 16,
+    "fail": 0
+  },
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "known_legacy_QA_exceptions": "265 raw SESSION_KEY/tombstone, 270 picker initial RED, 273 two-tab harness cancellation, 276 preflight/modal oracle RED and cross-tab timeout, 282 initial second-tab navigation-context QA RED after which recovery passed; all retained and not retroactively erased",
+  "untested_scope": "Production Supabase/RLS authenticated multi-user, physical Android/iOS gallery/camera, durable BFCache and production DB backup/restore are not directly tested; limited to Chromium PC/mobile emulation with mock RPC."
+}
