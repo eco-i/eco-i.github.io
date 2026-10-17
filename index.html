@@ -3162,7 +3162,7 @@ async function submitUpdateHistoryChange(version,deleted){
     if(!textarea)return;
     items=textarea.value.split(/\r?\n/).map(item=>item.trim()).filter(Boolean);
     if(!items.length||items.length>12||items.some(item=>item.length>200)){
-      updateHistoryStatus='변경사항을 1~12줄, 줄마다 200자 이내로 입력해 주세요.';renderUpdateHistory();return;
+      updateHistoryStatus='변경사항을 1~12줄, 줄마다 200자 이내로 입력해 주세요.';if($('updateHistorySyncStatus'))$('updateHistorySyncStatus').textContent=updateHistoryStatus;return;
     }
   }else{
     if(!confirmMutationWithSessionGuard(`${version} 업데이트 내역을 모든 직원의 화면에서 삭제할까요?`))return;
