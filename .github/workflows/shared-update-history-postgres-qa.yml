@@ -1,0 +1,94 @@
+name: Shared update history SQL permission and concurrency test
+on:
+  push:
+    branches: [feature-shared-update-history-admin-20261018]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: local-qa-only
+          POSTGRES_DB: attendance_qa
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d attendance_qa"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: local-qa-only
+      PGDATABASE: attendance_qa
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create harmless test fixture (never real Supabase)
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          create role anon nologin;
+          create role authenticated nologin;
+          create table public.employees(id smallint primary key,is_admin boolean not null,is_read_only boolean not null);
+          create table public.app_sessions(token uuid primary key,employee_id smallint references public.employees(id),expires_at timestamptz not null);
+          create or replace function public._session_employee(p_token uuid) returns smallint
+          language plpgsql security definer set search_path=public as $fn$
+          declare v_id smallint;
+          begin
+            select employee_id into v_id from public.app_sessions where token=p_token and expires_at>now();
+            if v_id is null then raise exception 'SESSION_EXPIRED'; end if;
+            return v_id;
+          end $fn$;
+          create or replace function public._require_admin(p_token uuid) returns smallint
+          language plpgsql security definer set search_path=public as $fn$
+          declare v_id smallint;
+          begin
+            v_id:=public._session_employee(p_token);
+            if not exists(select 1 from public.employees where id=v_id and is_admin and not is_read_only) then raise exception 'NO_PERMISSION'; end if;
+            return v_id;
+          end $fn$;
+          insert into public.employees values (1,true,false),(2,false,false),(3,true,true);
+          insert into public.app_sessions values
+            ('00000000-0000-0000-0000-000000000001',1,now()+interval '1 day'),
+            ('00000000-0000-0000-0000-000000000002',2,now()+interval '1 day'),
+            ('00000000-0000-0000-0000-000000000003',3,now()+interval '1 day');
+          SQL
+      - name: Run migration twice and prove server-side role restrictions
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -f db/migrations/20261018_shared_update_history_admin.sql
+          psql -v ON_ERROR_STOP=1 -f db/migrations/20261018_shared_update_history_admin.sql
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          select public.admin_save_update_history_override_v1(
+            '00000000-0000-0000-0000-000000000001','ver20261017-2320','["관리자가 고친 첫 번째 설명"]'::jsonb,false,0);
+          do $test$
+          begin
+            if (select revision from public.site_update_history_overrides where version='ver20261017-2320')<>1 then raise exception 'INSERT_REVISION_FAILED'; end if;
+            if (select count(*) from public.list_update_history_overrides_v1('00000000-0000-0000-0000-000000000002'))<>1 then raise exception 'STAFF_SHARED_READ_FAILED'; end if;
+          end $test$;
+          select public.admin_save_update_history_override_v1(
+            '00000000-0000-0000-0000-000000000001','ver20261017-2320','[]'::jsonb,true,1);
+          do $test$
+          begin
+            if (select revision from public.site_update_history_overrides where version='ver20261017-2320')<>2 then raise exception 'DELETION_REVISION_FAILED'; end if;
+            if not (select deleted from public.site_update_history_overrides where version='ver20261017-2320') then raise exception 'SHARED_TOMBSTONE_FAILED'; end if;
+          end $test$;
+          SQL
+          if psql -v ON_ERROR_STOP=1 -c "select public.admin_save_update_history_override_v1('00000000-0000-0000-0000-000000000002','ver20261017-2320','[\"bad\"]'::jsonb,false,2)" >/tmp/staff-out 2>&1; then echo "SECURITY FAILURE: staff write allowed"; exit 1; fi
+          grep -q 'NO_PERMISSION' /tmp/staff-out
+          if psql -v ON_ERROR_STOP=1 -c "select public.admin_save_update_history_override_v1('00000000-0000-0000-0000-000000000003','ver20261017-2320','[\"bad\"]'::jsonb,false,2)" >/tmp/readonly-out 2>&1; then echo "SECURITY FAILURE: readonly admin write allowed"; exit 1; fi
+          grep -q 'NO_PERMISSION' /tmp/readonly-out
+          if psql -v ON_ERROR_STOP=1 -c "select public.admin_save_update_history_override_v1('00000000-0000-0000-0000-000000000001','ver20261017-2320','[\"stale\"]'::jsonb,false,1)" >/tmp/stale-out 2>&1; then echo "CONCURRENCY FAILURE: stale write allowed"; exit 1; fi
+          grep -q 'STALE_UPDATE_HISTORY' /tmp/stale-out
+          if psql -v ON_ERROR_STOP=1 -c "select * from public.list_update_history_overrides_v1('00000000-0000-0000-0000-000000009999')" >/tmp/expired-out 2>&1; then echo "SECURITY FAILURE: invalid token read allowed"; exit 1; fi
+          grep -q 'SESSION_EXPIRED' /tmp/expired-out
+          if psql -v ON_ERROR_STOP=1 -c "set role anon; select count(*) from public.site_update_history_overrides" >/tmp/anon-out 2>&1; then echo "SECURITY FAILURE: direct anon table read allowed"; exit 1; fi
+          grep -q 'permission denied' /tmp/anon-out
+          psql -v ON_ERROR_STOP=1 -c "select version,deleted,revision from public.list_update_history_overrides_v1('00000000-0000-0000-0000-000000000002')"
+          echo "SQL_SECURITY_AND_CONCURRENCY_PASS"
