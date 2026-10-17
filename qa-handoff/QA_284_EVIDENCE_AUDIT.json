@@ -1,0 +1,133 @@
+{
+  "block": "2-8-284",
+  "status": "COMPLETE/CLEAN within Chromium/mock scope after preserved QA-only syntax failure",
+  "reported_at_kst": "2026-10-17T13:55:35.678+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "run": {
+    "id": 39002978396,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39002978396",
+    "status": "completed",
+    "conclusion": "success",
+    "attempt": 1,
+    "jobs": 20,
+    "passed": 20
+  },
+  "soak": {
+    "rounds": 8,
+    "suites": 184,
+    "actual_seconds": 1269,
+    "fail": 0
+  },
+  "new_independent": {
+    "name": "QA_284_SUBSTITUTE_HOLIDAY_ROSTER_ORACLE",
+    "pass": 50694,
+    "fail": 0,
+    "contexts": 6,
+    "holidays": 11,
+    "roster_variations": 96,
+    "scenarios_each_context": 1056,
+    "assertions": "independent recipient membership by active_from/active_to across previous and substitute holiday; QA group rotation 4x8; 240/90/330-minute payments, preserved recipient group when IDs equal and segmented when changed; 6 browser/timezone contexts"
+  },
+  "integrated_independent": [
+    {
+      "name": "QA284_SUBSTITUTE_HOLIDAY_ROSTER_ORACLE_SUMMARY",
+      "pass": 50694,
+      "fail": 0
+    },
+    {
+      "name": "QA283_SHIFT_HOLIDAY_ORACLE_SUMMARY",
+      "pass": 57222,
+      "fail": 0
+    },
+    {
+      "name": "QA282_FINGERPRINT_TIMESTAMP_MATRIX_SUMMARY",
+      "pass": 988956,
+      "fail": 0
+    },
+    {
+      "name": "QA280_LONGSERVICE_BAND_BOUNDARY_SUMMARY",
+      "pass": 1734246,
+      "fail": 0
+    },
+    {
+      "name": "QA279_LONGSERVICE_EXCLUSION_MATRIX_SUMMARY",
+      "pass": 636354,
+      "fail": 0
+    },
+    {
+      "name": "QA278_FINGERPRINT_RPC_ROW_MATRIX_SUMMARY",
+      "pass": 245406,
+      "fail": 0
+    },
+    {
+      "name": "QA277_FINGERPRINT_BADGE_MATRIX_SUMMARY",
+      "pass": 205884,
+      "fail": 0
+    },
+    {
+      "name": "QA276_MODAL_PRIVACY_FOCUS_SUMMARY",
+      "pass": 1326,
+      "fail": 0
+    },
+    {
+      "name": "QA275_VIEWER_SYNC_MATRIX_SUMMARY",
+      "pass": 10518,
+      "fail": 0
+    },
+    {
+      "name": "QA274_FINGERPRINT_HINT_MATRIX_SUMMARY",
+      "pass": 5850,
+      "fail": 0
+    },
+    {
+      "name": "QA273_REAL_PICKER_LIFECYCLE_SUMMARY",
+      "pass": 180,
+      "fail": 0
+    },
+    {
+      "name": "QA272_RPC_BOUNDARY_SUMMARY",
+      "pass": 498,
+      "fail": 0
+    },
+    {
+      "name": "QA271_CROSS_TAB_SESSION_SUMMARY",
+      "pass": 168,
+      "fail": 0
+    },
+    {
+      "name": "QA281_EXCLUSION_PERMUTATION_FUZZ_SUMMARY",
+      "pass": 658206,
+      "fail": 0
+    }
+  ],
+  "preflight": {
+    "pass": 16,
+    "fail": 0
+  },
+  "cross_tab": {
+    "pass": 168,
+    "fail": 0,
+    "contexts": 6
+  },
+  "first_attempt_red": {
+    "run_id": 39002924389,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39002924389",
+    "conclusion": "failure",
+    "failed_jobs": [
+      "independent",
+      "substitute-roster-oracle"
+    ],
+    "skipped_job": "cross-tab",
+    "error": "QA test SyntaxError: Unexpected token 'finally' from missing closing brace",
+    "fix_commit": "2c5effa126453e338d918735d1af0bd6b5959f41",
+    "product_defect": false,
+    "raw_failures_preserved": "qa-handoff/QA_284_INITIAL_QA_FAILURE.json"
+  },
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "legacy_QA_exceptions_preserved": "265 raw SESSION_KEY/tombstone, 270 picker initial RED, 273 two-tab harness cancellation, 276 preflight/modal oracle RED and cross-tab timeout, 282 initial cross-tab navigation context red, 284 first QA-harness SyntaxError red; none retroactively rewritten",
+  "untested_scope": "Production Supabase/RLS multiuser authenticated, physical Android/iOS camera/picker, persistent BFCache, production DB backup restore not directly verified; Chromium PC/mobile emulation with mock RPC only"
+}
