@@ -1,0 +1,31 @@
+{
+  "block": "2-8-282",
+  "classification": "QA navigation-race transient after independent reproduction; no confirmed product defect",
+  "first_run": {
+    "id": 38996713788,
+    "failed_job_id": 117291243894,
+    "initial_failed_attempt": "1",
+    "reason": "page.evaluate execution context destroyed during navigation in tab B; line 47, initial 149 PASS / 1 FAIL, 5/6 contexts"
+  },
+  "fresh_chrome_recovery": {
+    "run_id": 38997014183,
+    "job_id": 117291691765,
+    "status": "success",
+    "first": {
+      "pass": 174,
+      "fail": 0,
+      "contexts": 6
+    },
+    "second": {
+      "pass": 174,
+      "fail": 0,
+      "contexts": 6
+    },
+    "bounded_navigation_retry_logging": true
+  },
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "rule": "Initial red must remain in QA_282_CROSS_TAB_INITIAL_FAILURE.json and GitHub workflow attempt history. Any eventual green must not be described as no failure ever occurred.",
+  "original_job_retry": "pending main pipeline completion",
+  "official_completed": "2-8-281",
+  "new_confirmed_product_defects_from_this_incident": 0
+}
