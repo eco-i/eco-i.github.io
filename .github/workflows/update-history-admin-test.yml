@@ -36,7 +36,7 @@ jobs:
             const snippet=html.slice(html.indexOf('let updateHistoryOverrides=new Map();'),html.indexOf('function syncVersionFooter(){'));
             assert.ok(snippet.startsWith('let updateHistoryOverrides'));
             const style=html.slice(html.indexOf('<style>')+7,html.indexOf('</style>'));
-            const helper=String.raw\`
+            const helper=String.raw`
               window.TEST_ADMIN=false;
               window.TEST_READ_FAILURE=false;
               window.TEST_ROWS={};
@@ -73,7 +73,7 @@ jobs:
                 }
                 throw Error('unexpected RPC '+name);
               }
-            \`;
+            `;
             const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']});
             for(const [width,dark] of [[390,false],[1300,false],[390,true]]){
               const page=await browser.newPage({viewport:{width,height:800}});
