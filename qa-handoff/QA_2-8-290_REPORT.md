@@ -28,3 +28,7 @@
 - 공식 검수 종료 2026-10-17T18:15:28.555+09:00 KST, High/깊이8/실제20분 초과.
 - 최종 봉인본 `qa-handoff/index.final-round-2.html` 및 `qa-handoff/QA_290_FINAL_EXIT_DECISION.json`.
 - 배포는 승인하지 않음. 재개가 필요하면 별도 실제 실환경 검증 업무로 진행. ZIP 파일 사용하지 않음.
+
+## 최종 종료 봉인검사
+- [2-8-290 최종 GitHub Chrome 검사](https://github.com/eco-i/eco-i.github.io/actions/runs/39020447385): **14 PASS / 0 FAIL**, 제품 소스 4개 SHA/바이트, 종료 상태와 매니페스트, JS 구문, 실 Chromium 3개 화면 폭 확인.
+- **2차 브라우저·모의 RPC 자동화 종합검수 종료 확정. 291 없음.** 실제 운영 배포 승인 보류 및 실환경 필수 체크리스트 유지.
