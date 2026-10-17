@@ -8,4 +8,4 @@
 - 이전 265/270/273/276 QA 오류 이력도 유지. 운영 main `5c9529069a4728e72b960c61a44e8045eacc0ca0` 불변, SQL/APP_VERSION/운영 배포 변경 없음.
 - 운영 Supabase/RLS 다중사용자 직접인증, 실기 Android/iOS 기본 사진 picker/카메라, 지속 BFCache, 운영 백업·복원 미검증.
 - 283도 High·깊이8·실제 20분 이상·20분 내 KST 중간 보고·새 독립 검사·발견 기술오류 즉시 수정 및 회귀, GitHub 직접 연결, ZIP 금지, SQL/운영 main/APP_VERSION/배포 임의 변경 금지, 채팅 로그 간결히.
-- `QA_282_POST_PROMOTE.cjs` 및 `.github/workflows/qa-282-final.yml`로 283 시작본 인계 14항목 Chrome 검증 대기.
+- [283 인계검사 14 PASS / 0 FAIL](https://github.com/eco-i/eco-i.github.io/actions/runs/38998301895) 완료. `QA_282_POST_PROMOTE.cjs` 및 `qa-282-final.yml` 기록 보존.

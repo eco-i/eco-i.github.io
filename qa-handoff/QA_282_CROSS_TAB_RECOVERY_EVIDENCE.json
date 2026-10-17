@@ -25,7 +25,13 @@
   },
   "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
   "rule": "Initial red must remain in QA_282_CROSS_TAB_INITIAL_FAILURE.json and GitHub workflow attempt history. Any eventual green must not be described as no failure ever occurred.",
-  "original_job_retry": "pending main pipeline completion",
+  "original_job_retry": "Attempt 2 original QA_271_CROSS_TAB_SESSION.cjs 168 PASS / 0 FAIL, six contexts; first attempt 149 PASS / 1 FAIL preserved",
   "official_completed": "2-8-281",
-  "new_confirmed_product_defects_from_this_incident": 0
+  "new_confirmed_product_defects_from_this_incident": 0,
+  "original_job_retry_success": true,
+  "handoff_check": {
+    "pass": 14,
+    "fail": 0,
+    "run_id": 38998301895
+  }
 }

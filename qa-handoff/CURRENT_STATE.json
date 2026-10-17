@@ -15,14 +15,16 @@
   "latest_manifest_path": "qa-handoff/QA_2-8-282_SHA_MANIFEST.json",
   "latest_evidence_path": "qa-handoff/QA_282_EVIDENCE_AUDIT.json",
   "start_here_path": "qa-handoff/START_HERE_NEW_CHAT.md",
-  "updated_kst": "2026-10-17T12:18:46.401+09:00",
+  "updated_kst": "2026-10-17T12:19:52.220+09:00",
   "last_min_20_minutes_confirmed": true,
   "new_defects_last_block": 0,
   "model_mode": "High",
   "environment_limits": "운영 Supabase/RLS 실제 인증 다중 사용자, 물리 Android/iOS 기본 사진 선택·카메라, 지속 BFCache, 운영 DB 백업·복원 직접 미검증. Chromium PC/모바일 에뮬레이션 및 모의 RPC 범위 한정. 265의 raw SESSION_KEY 직접삭제 후 로그아웃 tombstone 누락 간헐 QA 실패, 270 초기 picker RED, 273 초기 2탭 picker 하네스 취소, 276 초기 preflight 참조 오류·모달 오라클 78 RED·초회 cross-tab 제한시간 취소 후 회복 기록 모두 보존. 소급 성공 처리나 이력 삭제 금지. 282 최초 cross-tab 탐색은 페이지 네비게이션으로 page.evaluate context destroyed QA 경합 RED 1회 발생 후 독립 2회 및 원본 재실행 통과; 최초 실패 이력 보존.",
   "last_handoff_check": {
-    "status": "PENDING",
-    "required_pass": 14,
-    "fail": null
+    "status": "SUCCESS",
+    "pass": 14,
+    "fail": 0,
+    "run_id": 38998301895,
+    "checked_kst": "2026-10-17T12:19:52.220+09:00"
   }
 }

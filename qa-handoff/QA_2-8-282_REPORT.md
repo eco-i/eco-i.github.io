@@ -18,3 +18,7 @@
 - 운영 main `5c9529069a4728e72b960c61a44e8045eacc0ca0` 유지, `APP_VERSION` `ver20260927-0944` 유지, SQL 변경·운영 배포 없음.
 - 미검증: 운영 Supabase/RLS 실제 인증 다중사용자, 물리 Android/iOS 사진선택·카메라, 장시간 BFCache, 운영 DB 백업·복원. Chrome/모의 RPC 범위의 CLEAN 이외 확대 주장 금지.
 - 공식 GitHub 기록 시각 KST: 2026-10-17T12:18:46.401+09:00. 다음 283에도 High·깊이8·블록별 실제 20분+·20분 이내 KST 보고·독립검사 추가·실패 이력 보존·ZIP 금지 및 main/SQL/버전/배포 보호.
+
+## 283 시작본 최종 인계 검사
+- [282 post-promote GitHub Actions](https://github.com/eco-i/eco-i.github.io/actions/runs/38998301895) **14 PASS / 0 FAIL**, 실제 Chromium PC·모바일 360/390/1280px 부팅, 4개 제품 HTML SHA·바이트 무결성, 282 공식 상태·SHA 매니페스트, 두 JavaScript 구문을 재확인.
+- 완료 확인 2026-10-17T12:19:52.220+09:00 KST. 최초 282 cross-tab 탐색 QA RED 기록 및 과거 265/270/273/276 예외 유지.
