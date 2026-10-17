@@ -1,24 +1,14 @@
 {
   "block": "2-8-289",
-  "status": "WIP",
-  "official_last_completed": "2-8-288",
-  "official_next": "2-8-289",
-  "official_cumulative_defects": 540,
-  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
-  "source_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
-  "main_run_id": 39015881283,
-  "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39015881283",
-  "novel": {
-    "name": "QA_289_OVERTIME_RPC_CONTRACT_ORACLE",
-    "pass": 122670,
-    "fail": 0,
-    "contexts": 6,
-    "cases": 4380
-  },
-  "soak": "ACTIVE; REQUIRE >=1200 ACTUAL SECONDS AND 25/25 SUCCESS",
-  "prior_QA_failures": "265,270,273,276,282,284 preserved",
-  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
-  "app_version": "ver20260927-0944",
-  "sql_changed": false,
-  "deployed": false
+  "original_status": "WIP until soak final",
+  "current_status": "COMPLETE/PROMOTED",
+  "run": 39015881283,
+  "actual_seconds": 1250,
+  "rounds": 8,
+  "suites": 184,
+  "independent_pass": 122670,
+  "independent_fail": 0,
+  "last_completed": "2-8-289",
+  "next": "2-8-290",
+  "new_confirmed_defects": 0
 }
