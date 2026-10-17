@@ -9,4 +9,4 @@
 - 265/270/273/276/282/284 초기 QA RED 이력 원본 **보존**, 소급 성공 또는 기록 삭제 금지.
 - 운영 main `5c9529069a4728e72b960c61a44e8045eacc0ca0` 불변, APP_VERSION `ver20260927-0944`, SQL 변경 없음, 운영 배포 없음. 실제 Supabase/RLS 인증·물리 폰 picker/카메라·지속 BFCache·운영 DB 복원 미검증.
 - 287부터도 High·깊이 8·20분 이상 실제 검수·20분 이내 KST 진행보고·독립검사 추가·결함 즉시 수정 및 회귀, GitHub 직접연결, ZIP 제안 금지, 운영 배포/버전/SQL/main 임의 변경 금지.
-- `QA_286_POST_PROMOTE.cjs` 및 `.github/workflows/qa-286-final.yml`로 287 시작본 14항목 Chrome/무결성 인계검사 **대기**.
+- [287 인계검사 14 PASS / 0 FAIL](https://github.com/eco-i/eco-i.github.io/actions/runs/39010949184) 완료. `QA_286_POST_PROMOTE.cjs` 및 `qa-286-final.yml` 결과 보존.
