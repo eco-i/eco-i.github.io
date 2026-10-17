@@ -1,0 +1,31 @@
+name: QA 2-8-282 cross-tab failure root-cause regression
+on:
+  push:
+    branches: [qa-2-8]
+    paths:
+      - ".github/workflows/qa-282-cross-tab-lifecycle.yml"
+      - "qa-handoff/QA_282_CROSS_TAB_LIFECYCLE.cjs"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  two-tab-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/qa282tab --no-audit --no-fund playwright-core@1.55.1
+      - name: Two sequential full real Chromium six-context cross-tab runs with bounded navigation-only retry
+        shell: bash
+        env:
+          NODE_PATH: /tmp/qa282tab/node_modules
+        run: |
+          set -euo pipefail
+          for round in 1 2; do
+            echo "QA282_CROSS_TAB_RECOVERY_BEGIN round=$round"
+            node qa-handoff/QA_282_CROSS_TAB_LIFECYCLE.cjs
+            echo "QA282_CROSS_TAB_RECOVERY_PASS round=$round"
+          done
