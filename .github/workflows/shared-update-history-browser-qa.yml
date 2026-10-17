@@ -1,0 +1,95 @@
+name: Shared update history UI role and browser test
+on:
+  push:
+    branches: [feature-shared-update-history-admin-20261018]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/update-history-browser-qa --no-audit --no-fund playwright-core@1.55.1
+      - name: Parse original site and test shared admin UI in Chromium
+        env:
+          NODE_PATH: /tmp/update-history-browser-qa/node_modules
+        shell: bash
+        run: |
+          node <<'NODE'
+          const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+          const {chromium}=require('playwright-core');
+          (async()=>{
+            const html=fs.readFileSync('index.html','utf8');
+            const scripts=[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+            let parsed=0;
+            for(const s of scripts){if(/\bsrc\s*=/.test(s[1]))continue;new vm.Script(s[2]);parsed++;}
+            assert.ok(parsed>=2,'full page scripts parse');
+            assert.ok(html.includes("'admin_save_update_history_override_v1',"),'session guarded mutation registered');
+            assert.ok(html.includes("id=\"updateHistoryReloadBtn\""));
+            assert.ok(html.includes("id=\"updateHistorySyncStatus\""));
+            assert.ok(html.includes("const APP_VERSION = 'ver20261017-2320'"),'no unapproved release/version change');
+            const histStart=html.indexOf('const UPDATE_HISTORY = [');
+            const history=html.slice(histStart,html.indexOf('];',histStart)+2);
+            const codeStart=html.indexOf('let updateHistoryOverrides=new Map();');
+            const codeEnd=html.indexOf('function syncVersionFooter(){',codeStart);
+            assert.ok(histStart>0&&codeStart>0&&codeEnd>codeStart);
+            const businessLogic=html.slice(codeStart,codeEnd);
+            const css=html.slice(html.indexOf('<style>')+7,html.indexOf('</style>'));
+            const stub=[
+              "let state={sessionToken:'test-session',me:{employee_id:2,is_admin:false}};",
+              "let sessionContextEpoch=1;",
+              "const READONLY_RPC_TIMEOUT_MS=10000,MUTATION_RPC_TIMEOUT_MS=30000;",
+              "let adminUnlocked=false,lastToast='';",
+              "const rows=new Map();",
+              "function $(id){return document.getElementById(id)}",
+              "function configured(){return true}",
+              "function activeAdminMode(){return !!state.me?.is_admin&&adminUnlocked}",
+              "function pageLifecycleWriteFreshnessReady(){return true}",
+              "function escapeHtml(s=''){return String(s).replace(/[&<>'\\\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',\"'\":'&#39;','\\\"':'&quot;'}[c]));}",
+              "function openBackdrop(id){$(id).classList.add('open')}",
+              "function showToast(s){lastToast=s}",
+              "function userSafeServiceError(e,f){return f}",
+              "function errorText(e){return String(e?.message||e)}",
+              "function confirmMutationWithSessionGuard(){return true}",
+              "function strictVoidMutationResultRpc(s){if(s!==null)throw Error('INVALID_RESPONSE')}",
+              "function sharedSessionContextCurrent(id,token,{epoch}={}){return token===state.sessionToken&&epoch===sessionContextEpoch}",
+              "async function rpc(name,payload){if(name==='list_update_history_overrides_v1'){return [...rows.entries()].map(([version,v])=>({version,...structuredClone(v)}))}if(name==='admin_save_update_history_override_v1'){if(!state.me.is_admin||!adminUnlocked)throw Error('NO_PERMISSION');const cur=rows.get(payload.p_version);if((cur?.revision||0)!==payload.p_expected_revision)throw Error('STALE_UPDATE_HISTORY');rows.set(payload.p_version,{items:payload.p_items.slice(),deleted:payload.p_deleted,revision:(cur?.revision||0)+1});return null}throw Error('UNEXPECTED_RPC:'+name)}"
+            ].join('\n');
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']});
+            for(const width of [390,1365]){
+              const page=await browser.newPage({viewport:{width,height:900}});
+              await page.setContent('<!doctype html><html lang="ko"><head><style>'+css+'</style></head><body><div id="updateHistoryBackdrop"><div class="modal"><div id="updateHistorySyncStatus"></div><button id="updateHistoryReloadBtn">새로고침</button><div id="updateHistoryBody"></div></div></div></body></html>');
+              await page.addScriptTag({content:stub+'\n'+history+'\n'+businessLogic+"\n$('updateHistoryBody').addEventListener('click',onUpdateHistoryAction);"});
+              await page.evaluate('loadSharedUpdateHistory()');
+              assert.equal(await page.locator('[data-history-action]').count(),0,'ordinary staff see read-only UI');
+              await page.evaluate('state.me={employee_id:1,is_admin:true};adminUnlocked=true;renderUpdateHistory();');
+              assert.ok(await page.locator('[data-history-action="edit"]').count()>=1,'admin sees edit buttons');
+              await page.locator('[data-history-action="edit"]').first().click();
+              await page.locator('#updateHistoryEditorText').fill('관리자가 바꾼 설명\n두 번째 줄');
+              await page.locator('[data-history-action="save"]').first().click();
+              await page.waitForFunction("updateHistoryEffectiveEntries()[0].items[0]==='관리자가 바꾼 설명'");
+              await page.evaluate('state.me={employee_id:2,is_admin:false};adminUnlocked=false;');
+              await page.evaluate('loadSharedUpdateHistory()');
+              assert.equal(await page.locator('[data-history-action]').count(),0,'staff cannot modify shared override');
+              assert.ok((await page.locator('#updateHistoryBody').textContent()).includes('관리자가 바꾼 설명'),'staff sees shared edited value');
+              await page.evaluate('state.me={employee_id:1,is_admin:true};adminUnlocked=true;renderUpdateHistory();');
+              await page.locator('[data-history-action="delete"]').first().click();
+              await page.waitForFunction('updateHistoryEffectiveEntries().length===UPDATE_HISTORY.length-1');
+              await page.evaluate('state.me={employee_id:2,is_admin:false};adminUnlocked=false;');
+              await page.evaluate('loadSharedUpdateHistory()');
+              assert.equal(await page.locator('.update-history-item').count(),14,'staff sees shared deletion tombstone');
+              await page.evaluate("UPDATE_HISTORY.unshift({version:'ver20261018-0020',date:'2026.10.18',items:['배포하면서 자동으로 추가된 항목']});renderUpdateHistory();");
+              assert.equal(await page.locator('.update-history-item').count(),15,'a new release appears even without DB seeding');
+              assert.ok((await page.locator('#updateHistoryBody').textContent()).includes('배포하면서 자동으로 추가된 항목'));
+              console.log('PASS',width,'staff readonly / admin edit / shared delete / auto release');
+              await page.close();
+            }
+            await browser.close();
+            console.log('UPDATE_HISTORY_BROWSER_PASS');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
