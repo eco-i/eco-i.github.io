@@ -230,6 +230,20 @@
   .update-history-items{margin:0;padding-left:18px;color:#4b5563;font-size:calc(11.5px * var(--text-scale,1));line-height:1.6}
   .update-history-items li+li{margin-top:2px}
   .update-history-empty{padding:22px 8px;text-align:center;color:#9ca3af;font-size:calc(12px * var(--text-scale,1))}
+  .update-history-sync{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:10px;color:#64748b;font-size:calc(10px * var(--text-scale,1));line-height:1.4}
+  .update-history-sync button{flex:0 0 auto;padding:7px 9px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc;color:#334155;font-size:calc(10px * var(--text-scale,1));font-weight:850}
+  .update-history-sync button:disabled{opacity:.45}
+  .update-history-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:8px}
+  .update-history-actions button{min-height:31px;padding:6px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc;color:#1e293b;font-size:calc(11px * var(--text-scale,1));font-weight:900}
+  .update-history-actions .update-history-remove-btn{background:#fff1f2;border-color:#fecdd3;color:#be123c}
+  .update-history-editor{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .update-history-editor label{font-weight:900;font-size:calc(11px * var(--text-scale,1));color:#334155}
+  .update-history-edit-input{min-height:90px;resize:vertical;padding:10px 11px;border-radius:10px;border:1px solid #94a3b8;background:#fff;color:#111827;font:inherit;font-size:calc(12px * var(--text-scale,1));line-height:1.5}
+  .update-history-editor-help{font-size:calc(10px * var(--text-scale,1));color:#64748b}
+  html[data-theme="dark"] .update-history-editor label,html[data-theme="dark"] .update-history-sync{color:#cbd5e1}
+  html[data-theme="dark"] .update-history-actions button,html[data-theme="dark"] .update-history-sync button{background:#263449;color:#e2e8f0;border-color:#64748b}
+  html[data-theme="dark"] .update-history-actions .update-history-remove-btn{background:#3b1d29;color:#fda4af;border-color:#7f1d3f}
+
   .backdrop{position:fixed;inset:0;z-index:1000;background:rgba(17,24,39,.46);display:none;align-items:flex-end;justify-content:center;padding:10px}
   /* 날짜 상세창만 높이와 무관하게 기존 최대높이 창의 상단 위치에 맞춰 고정 */
   #detailBackdrop{align-items:flex-start;padding-top:calc(10dvh - 10px)}
@@ -1691,7 +1705,8 @@
 <div id="updateHistoryBackdrop" class="backdrop" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="updateHistoryTitle">
     <div class="modal-head"><div id="updateHistoryTitle" class="modal-title">업데이트 내역</div><button class="close-btn" data-close="updateHistory" type="button" aria-label="닫기">×</button></div>
-    <div class="update-history-intro">사이트에 반영된 주요 변경사항을 최신 순서로 보여줍니다.</div>
+    <div class="update-history-intro">사이트에 반영된 주요 변경사항을 최신 순서로 보여줍니다. 관리자만 수정·삭제할 수 있습니다.</div>
+    <div class="update-history-sync"><span id="updateHistorySyncStatus" role="status" aria-live="polite"></span><button id="updateHistoryReloadBtn" type="button">다시 불러오기</button></div>
     <div id="updateHistoryBody" class="update-history-list"></div>
   </div>
 </div>
@@ -3048,22 +3063,149 @@ function formatDateKR(key){ const {y,m,d}=parseDateKey(key); const w=['일','월
 function escapeHtml(s=''){ return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 function timeShort(v){ return v ? String(v).slice(0,5) : ''; }
 
-function renderUpdateHistory(){
-  const body=$('updateHistoryBody');
-  if(!body) return;
-  if(!UPDATE_HISTORY.length){
-    body.innerHTML='<div class="update-history-empty">등록된 업데이트 내역이 없습니다.</div>';
-    return;
+
+let updateHistoryOverrides=new Map();
+let updateHistorySharedLoaded=false;
+let updateHistoryLoading=false;
+let updateHistoryBusy=false;
+let updateHistoryEditingVersion='';
+let updateHistoryStatus='';
+let updateHistoryLoadSerial=0;
+
+function updateHistoryEntry(version){
+  return UPDATE_HISTORY.find(entry=>entry.version===version)||null;
+}
+function updateHistoryCanManage(){
+  return !!state.me&&configured()&&updateHistorySharedLoaded&&!updateHistoryLoading&&!updateHistoryBusy&&activeAdminMode()&&pageLifecycleWriteFreshnessReady();
+}
+function updateHistoryValidateOverrides(rows){
+  if(!Array.isArray(rows)||rows.length>1000)throw new Error('INVALID_UPDATE_HISTORY_RESPONSE');
+  const result=new Map(),seen=new Set();
+  for(const row of rows){
+    if(!row||typeof row!=='object'||typeof row.version!=='string'||!/^ver[0-9]{8}-[0-9]{4}$/.test(row.version)||seen.has(row.version)||typeof row.deleted!=='boolean'||!Number.isSafeInteger(row.revision)||row.revision<1||!Array.isArray(row.items))throw new Error('INVALID_UPDATE_HISTORY_RESPONSE');
+    seen.add(row.version);
+    if(row.items.length>12||row.items.some(item=>typeof item!=='string'||!item.trim()||item.length>200))throw new Error('INVALID_UPDATE_HISTORY_RESPONSE');
+    // A future version may be in the DB before an older client refreshes.
+    if(updateHistoryEntry(row.version))result.set(row.version,{items:row.items.slice(),deleted:row.deleted,revision:row.revision});
   }
-  body.innerHTML=UPDATE_HISTORY.map(entry=>{
+  return result;
+}
+function updateHistoryEffectiveEntries(){
+  return UPDATE_HISTORY.filter(entry=>!updateHistoryOverrides.get(entry.version)?.deleted).map(entry=>{
+    const saved=updateHistoryOverrides.get(entry.version);
+    return {...entry,items:saved&&!saved.deleted?saved.items:entry.items};
+  });
+}
+function renderUpdateHistory(){
+  const body=$('updateHistoryBody'),status=$('updateHistorySyncStatus'),reload=$('updateHistoryReloadBtn');
+  if(!body)return;
+  if(status)status.textContent=updateHistoryLoading?'모든 직원에게 보여줄 최신 업데이트 내역을 확인하는 중입니다…':updateHistoryStatus;
+  if(reload)reload.disabled=updateHistoryLoading||updateHistoryBusy||!state.me;
+  const admin=updateHistoryCanManage(),entries=updateHistoryEffectiveEntries();
+  if(updateHistoryEditingVersion&&!entries.some(entry=>entry.version===updateHistoryEditingVersion))updateHistoryEditingVersion='';
+  if(!entries.length){body.innerHTML='<div class="update-history-empty">표시할 업데이트 내역이 없습니다.</div>';return;}
+  body.innerHTML=entries.map(entry=>{
     const items=Array.isArray(entry.items)?entry.items:[];
     const list=items.length?`<ul class="update-history-items">${items.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ul>`:'<div class="update-history-empty">세부 내역이 없습니다.</div>';
-    return `<section class="update-history-item"><div class="update-history-head"><span class="update-history-version">${escapeHtml(entry.version||'')}</span><span class="update-history-date">${escapeHtml(entry.date||'')}</span></div>${list}</section>`;
+    const version=escapeHtml(entry.version||''),date=escapeHtml(entry.date||'');
+    let actions='';
+    if(admin&&updateHistoryEditingVersion===entry.version){
+      actions=`<div class="update-history-editor"><label for="updateHistoryEditorText">변경사항 설명 (줄마다 한 항목)</label><textarea id="updateHistoryEditorText" class="update-history-edit-input" maxlength="2800" rows="4">${escapeHtml(items.join('\n'))}</textarea><div class="update-history-editor-help">최대 12줄 · 한 줄 200자까지 · 모든 직원에게 동일 적용</div><div class="update-history-actions"><button type="button" data-history-action="save" data-history-version="${version}">저장</button><button type="button" data-history-action="cancel" data-history-version="${version}">취소</button></div></div>`;
+    }else if(admin){
+      actions=`<div class="update-history-actions"><button type="button" data-history-action="edit" data-history-version="${version}">수정</button><button type="button" class="update-history-remove-btn" data-history-action="delete" data-history-version="${version}">삭제</button></div>`;
+    }
+    return `<section class="update-history-item"><div class="update-history-head"><span class="update-history-version">${version}</span><span class="update-history-date">${date}</span></div>${list}${actions}</section>`;
   }).join('');
 }
-function openUpdateHistory(){
+async function loadSharedUpdateHistory(){
+  const token=String(state.sessionToken||''),epoch=sessionContextEpoch,seq=++updateHistoryLoadSerial;
+  updateHistoryLoading=true;updateHistorySharedLoaded=false;updateHistoryEditingVersion='';
+  updateHistoryStatus='';renderUpdateHistory();
+  if(!state.me||!token||!configured()){
+    updateHistoryOverrides=new Map();
+    updateHistoryLoading=false;updateHistoryStatus='공유 업데이트 내역은 로그인 후 확인할 수 있습니다.';renderUpdateHistory();return false;
+  }
+  try{
+    const rows=await rpc('list_update_history_overrides_v1',{p_token:token},{timeoutMs:READONLY_RPC_TIMEOUT_MS});
+    if(seq!==updateHistoryLoadSerial||epoch!==sessionContextEpoch||token!==state.sessionToken)return false;
+    updateHistoryOverrides=updateHistoryValidateOverrides(rows);
+    updateHistorySharedLoaded=true;
+    updateHistoryStatus='공유 업데이트 내역이 최신 상태입니다.';
+    return true;
+  }catch(e){
+    if(seq!==updateHistoryLoadSerial||epoch!==sessionContextEpoch||token!==state.sessionToken)return false;
+    updateHistoryOverrides=new Map();
+    updateHistoryStatus='공유 내역을 확인하지 못해 기본 기록만 표시합니다. 수정·삭제는 잠겼습니다.';
+    return false;
+  }finally{
+    if(seq===updateHistoryLoadSerial){
+      updateHistoryLoading=false;
+      renderUpdateHistory();
+    }
+  }
+}
+function updateHistoryStartEdit(version){
+  if(!updateHistoryCanManage()||!updateHistoryEntry(version))return;
+  updateHistoryEditingVersion=version;renderUpdateHistory();
+  $('updateHistoryEditorText')?.focus();
+}
+function updateHistoryCancelEdit(){
+  updateHistoryEditingVersion='';renderUpdateHistory();
+}
+async function submitUpdateHistoryChange(version,deleted){
+  if(!updateHistoryCanManage()||!updateHistoryEntry(version))return;
+  const old=updateHistoryOverrides.get(version),expected=old?.revision||0;
+  let items=[];
+  if(!deleted){
+    if(updateHistoryEditingVersion!==version)return;
+    const textarea=$('updateHistoryEditorText');
+    if(!textarea)return;
+    items=textarea.value.split(/\r?\n/).map(item=>item.trim()).filter(Boolean);
+    if(!items.length||items.length>12||items.some(item=>item.length>200)){
+      updateHistoryStatus='변경사항을 1~12줄, 줄마다 200자 이내로 입력해 주세요.';renderUpdateHistory();return;
+    }
+  }else{
+    if(!confirmMutationWithSessionGuard(`${version} 업데이트 내역을 모든 직원의 화면에서 삭제할까요?`))return;
+  }
+  const token=state.sessionToken,actor=Number(state.me.employee_id),epoch=sessionContextEpoch;
+  updateHistoryBusy=true;updateHistoryStatus='서버에 변경사항을 적용하는 중입니다…';
   renderUpdateHistory();
+  try{
+    const returned=await rpc('admin_save_update_history_override_v1',{p_token:token,p_version:version,p_items:items,p_deleted:!!deleted,p_expected_revision:expected},{timeoutMs:MUTATION_RPC_TIMEOUT_MS});
+    strictVoidMutationResultRpc(returned,'INVALID_UPDATE_HISTORY_MUTATION_RESPONSE');
+    if(!sharedSessionContextCurrent(actor,token,{epoch}))return;
+    updateHistoryEditingVersion='';
+    const synced=await loadSharedUpdateHistory();
+    if(synced)showToast(deleted?'업데이트 내역을 모든 직원 화면에서 삭제했습니다.':'업데이트 내역을 모든 직원에게 적용했습니다.');
+    else showToast('서버 응답 이후 내역을 재조회하지 못했습니다. 새로고침 후 확인해 주세요.','info');
+  }catch(e){
+    if(!sharedSessionContextCurrent(actor,token,{epoch}))return;
+    if(/STALE_UPDATE_HISTORY/i.test(errorText(e))){
+      await loadSharedUpdateHistory();
+      updateHistoryStatus='다른 관리자가 먼저 변경했습니다. 최신 내역을 확인한 뒤 다시 수정해 주세요.';
+    }else{
+      updateHistoryStatus=userSafeServiceError(e,'저장 결과를 확인하지 못했습니다. 다시 불러오기로 최신 내역을 확인해 주세요.');
+    }
+    showToast(updateHistoryStatus,'info');
+  }finally{
+    if(epoch===sessionContextEpoch&&token===state.sessionToken){
+      updateHistoryBusy=false;
+      renderUpdateHistory();
+    }
+  }
+}
+function onUpdateHistoryAction(e){
+  const btn=e.target.closest('button[data-history-action]');
+  if(!btn||!$('updateHistoryBody')?.contains(btn))return;
+  const action=btn.dataset.historyAction,version=btn.dataset.historyVersion;
+  if(action==='edit')updateHistoryStartEdit(version);
+  else if(action==='cancel')updateHistoryCancelEdit();
+  else if(action==='save')void submitUpdateHistoryChange(version,false);
+  else if(action==='delete')void submitUpdateHistoryChange(version,true);
+}
+function openUpdateHistory(){
   openBackdrop('updateHistoryBackdrop');
+  void loadSharedUpdateHistory();
 }
 function syncVersionFooter(){
   const btn=$('versionHistoryBtn');
@@ -3112,6 +3254,7 @@ function guardSensitiveDataRpcSession(name,payload={}){
 const SESSION_GUARDED_MUTATION_RPCS=new Set([
   'save_my_long_service_profile_v2','save_my_long_service_profile','save_my_overtime_day_v2','save_my_overtime_entry_v2','save_my_overtime_day','save_my_overtime_entry','admin_set_holiday_work_month_confirmation',
   'save_my_fingerprint_photo','delete_my_fingerprint_photo','set_my_fingerprint_confirmed','save_my_annual_leave_setting_v2','save_my_annual_leave_setting',
+  'admin_save_update_history_override_v1',
   'save_my_memo_v2','delete_my_memo_v2','delete_my_memos_v2','save_my_memo','delete_my_memo','set_my_memo_dday','delete_my_memos','save_company_event_v4','delete_company_event_v4','save_company_event_v3','delete_company_event_v3',
   'admin_save_holiday_work_personnel_v2','save_my_holiday_work_personnel_v2','admin_delete_holiday_work_personnel_v2','delete_my_holiday_work_personnel_v2',
   'admin_save_holiday_work_personnel_v1','save_my_holiday_work_personnel_v1','admin_delete_holiday_work_personnel_v1','delete_my_holiday_work_personnel_v1',
@@ -7350,6 +7493,7 @@ function closeBackdrop(id,force=false){
   if(dataManagementBusy&&!force&&(id==='myDataBackdrop'||id==='dataManageBackdrop'))return false;
   if(!force&&backdropOperationPending(id))return false;
   if(id==='initialPinBackdrop'&&state.initialPinRequired&&!force)return false;
+  if(id==='updateHistoryBackdrop'&&updateHistoryBusy&&!force)return false;
   if(id==='detailBackdrop'&&!force&&!detailCanDiscard())return false;
   if(id==='formBackdrop'&&!force&&!attendanceFormCanDiscard())return false;
   if(id==='personnelBatchBackdrop'&&!force&&!personnelEditorCanDiscard())return false;
@@ -7528,7 +7672,7 @@ function appHasPendingOperation({includeSessionRestore=true,includeFingerprintPi
   // 세션 복원은 자동업데이트/공유세션 reload와는 겹치면 안 되지만, 사용자 데이터 저장 작업은 아니다.
   // native 사진 picker도 앱 내부 기준으로는 진행 중 작업이므로 화면이동/새로고침/로그아웃과 겹치지 않게 한다.
   // 단, beforeunload에서는 OS picker 자체 때문에 '저장되지 않을 수 있음' 경고를 띄우지 않도록 별도로 제외할 수 있다.
-  return !!((includeSessionRestore&&sessionRestoreInFlight)||(includeFingerprintPicker&&fingerprintPickerFlowActive)||(includeDataRestorePicker&&dataRestorePickerFlowActive)||dataManagementBusy||loginPending||overtimeDaySavePending||overtimeConfirmPending||overtimeListPendingIds.size||fingerprintPhotoPending||fingerprintConfirmPending||memoSavePending||memoDeletePendingDates.size||memoBulkDeletePending||memoDdayPendingDates.size||holidayWorkSavePendingKeys.size||holidayWorkDeletePendingKeys.size||annualLeaveSavePending||longServiceSavePending||attendanceSavePending||attendanceDeletePendingIds.size||companyEventSavePending||companyEventDeletePendingIds.size||employeeActionSavePending||employeeAccountSavePending||personnelBatchSavePending||personnelBatchCancelPendingIds.size||personnelSnapshotRestorePending||resetCurrentPinsPending||holidayWorkEligibilityPendingIds.size||selfPinChangePending);
+  return !!((includeSessionRestore&&sessionRestoreInFlight)||(includeFingerprintPicker&&fingerprintPickerFlowActive)||(includeDataRestorePicker&&dataRestorePickerFlowActive)||dataManagementBusy||loginPending||overtimeDaySavePending||overtimeConfirmPending||overtimeListPendingIds.size||fingerprintPhotoPending||fingerprintConfirmPending||memoSavePending||memoDeletePendingDates.size||memoBulkDeletePending||memoDdayPendingDates.size||holidayWorkSavePendingKeys.size||holidayWorkDeletePendingKeys.size||annualLeaveSavePending||longServiceSavePending||attendanceSavePending||attendanceDeletePendingIds.size||companyEventSavePending||companyEventDeletePendingIds.size||updateHistoryBusy||employeeActionSavePending||employeeAccountSavePending||personnelBatchSavePending||personnelBatchCancelPendingIds.size||personnelSnapshotRestorePending||resetCurrentPinsPending||holidayWorkEligibilityPendingIds.size||selfPinChangePending);
 }
 function confirmLeaveDirtySettings(label='현재 입력'){
   if(!settingsHaveUnsavedChanges())return true;
@@ -11446,6 +11590,8 @@ function wire(){
     else if(!e.shiftKey&&active===last){e.preventDefault();first.focus();}
   });
   $('versionHistoryBtn').addEventListener('click',openUpdateHistory);
+  $('updateHistoryReloadBtn').addEventListener('click',()=>{if(!updateHistoryBusy)void loadSharedUpdateHistory();});
+  $('updateHistoryBody').addEventListener('click',onUpdateHistoryAction);
   $('adminToolsToggle').addEventListener('click',toggleAdminTools);
   $('companyEventsBanner').addEventListener('click',openCompanyEvents);
   $('companyEventsManageBtn').addEventListener('click',openCompanyEventManage);
