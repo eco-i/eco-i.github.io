@@ -134,5 +134,13 @@
   "new_product_defects": 0,
   "cumulative_product_defects": 540,
   "legacy_QA_failures_preserved": "265 logout tombstone, 270 picker initial RED, 273 two-tab harness cancellation, 276 preflight/modal and cross-tab timeout, 282 navigation-context first RED, 284 initial QA script SyntaxError RED. Preserve logs and never retroactively reclassify.",
-  "untested_scope": "Production authenticated Supabase/RLS multiple real users, physical Android/iOS native camera/photo picker, persistent BFCache and production database backup/restore unverified."
+  "untested_scope": "Production authenticated Supabase/RLS multiple real users, physical Android/iOS native camera/photo picker, persistent BFCache and production database backup/restore unverified.",
+  "post_promote": {
+    "status": "SUCCESS",
+    "run_id": 39015373395,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39015373395",
+    "pass": 14,
+    "fail": 0,
+    "checked_kst": "2026-10-17T16:55:25.305+09:00"
+  }
 }
