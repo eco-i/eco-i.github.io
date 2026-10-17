@@ -1,0 +1,196 @@
+{
+  "block": "2-8-282",
+  "status": "COMPLETE",
+  "model_mode": "High",
+  "qa_depth": 8,
+  "completed_kst": "2026-10-17T12:18:46.401+09:00",
+  "actual_seconds": 1239,
+  "soak_seconds": 1239,
+  "soak_rounds": 8,
+  "soak_suite_groups": 184,
+  "timestamp_matrix_pass": 988956,
+  "timestamp_matrix_fail": 0,
+  "timestamp_matrix_contexts": 6,
+  "timestamp_matrix_dates": 730,
+  "timestamp_matrix_timezone_offsets": 7,
+  "timestamp_matrix_fraction_profiles": 5,
+  "exclusion_permutation_pass": 658206,
+  "exclusion_permutation_fail": 0,
+  "longservice_band_pass": 1734246,
+  "longservice_band_fail": 0,
+  "longservice_exclusion_pass": 636354,
+  "longservice_exclusion_fail": 0,
+  "fingerprint_rpc_row_pass": 245406,
+  "fingerprint_rpc_row_fail": 0,
+  "fingerprint_badge_pass": 205884,
+  "fingerprint_badge_fail": 0,
+  "modal_privacy_pass": 1326,
+  "modal_privacy_fail": 0,
+  "viewer_sync_pass": 10518,
+  "viewer_sync_fail": 0,
+  "fingerprint_hint_pass": 5850,
+  "fingerprint_hint_fail": 0,
+  "picker_lifecycle_pass": 180,
+  "picker_lifecycle_fail": 0,
+  "rpc_boundary_pass": 498,
+  "rpc_boundary_fail": 0,
+  "cross_tab_pass": 168,
+  "cross_tab_fail": 0,
+  "preflight_pass": 16,
+  "preflight_fail": 0,
+  "initial_QA_cross_tab_red": {
+    "run_id": 38996713788,
+    "attempt": 1,
+    "pass": 149,
+    "fail": 1,
+    "contexts": 5,
+    "reason": "page.evaluate navigation context destroyed",
+    "preserved_path": "qa-handoff/QA_282_CROSS_TAB_INITIAL_FAILURE.json"
+  },
+  "cross_tab_second_attempt": {
+    "attempt": 2,
+    "pass": 168,
+    "fail": 0
+  },
+  "supplemental_cross_tab_recovery": {
+    "run_id": 38997014183,
+    "two_repetitions": 2,
+    "passes": [
+      174,
+      174
+    ],
+    "fails": [
+      0,
+      0
+    ],
+    "contexts": 6
+  },
+  "new_confirmed_product_defects": 0,
+  "cumulative_defects": 540,
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-282.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-282.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-283.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "runs": {
+    "main": 38996713788,
+    "recovery": 38997014183,
+    "main_attempt": 2
+  },
+  "jobs": {
+    "cross-tab": {
+      "id": 117295103454,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "longservice-band": {
+      "id": 117295104079,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "integrity": {
+      "id": 117295104781,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "rpc-boundary": {
+      "id": 117295120084,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "viewer-sync": {
+      "id": 117295123013,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "depth-eight": {
+      "id": 117295123069,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "independent": {
+      "id": 117295123271,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "longservice-exclusion": {
+      "id": 117295123389,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "full": {
+      "id": 117295123920,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "modal-privacy": {
+      "id": 117295124592,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "rpc-row-matrix": {
+      "id": 117295126096,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "fingerprint-hint": {
+      "id": 117295126313,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "backend": {
+      "id": 117295126844,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "frontend": {
+      "id": 117295130321,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "badge-calendar": {
+      "id": 117295131526,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "timestamp-matrix": {
+      "id": 117295131823,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "exclusion-permutation": {
+      "id": 117295133218,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "picker-lifecycle": {
+      "id": 117295134537,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "prior_QA_exception_records_preserved": true
+}

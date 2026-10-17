@@ -1,0 +1,84 @@
+{
+  "block": "2-8-282",
+  "status": "COMPLETE/CLEAN in tested Chromium/mock scope after explicitly preserved QA transient failure",
+  "reported_at_kst": "2026-10-17T12:18:46.401+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "run": {
+    "id": 38996713788,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38996713788",
+    "status": "completed",
+    "conclusion": "success",
+    "attempt": 2,
+    "jobs": 18,
+    "passed": 18
+  },
+  "soak": {
+    "rounds": 8,
+    "suites": 184,
+    "actual_seconds": 1239,
+    "fail": 0
+  },
+  "new_independent": {
+    "name": "QA_282_FINGERPRINT_TIMESTAMP_MATRIX",
+    "pass": 988956,
+    "fail": 0,
+    "contexts": 6,
+    "dates": 730,
+    "offsets": 7,
+    "precision_cases": 5,
+    "assertions": "strictly independent UTC microsecond canonical oracle; timezone offsets -12 to +14; fractional trailing zero equivalence; stale optimistic mutation rejection; valid offset ingestion and malformed strict RPC examples"
+  },
+  "reused_prior_independent": {
+    "exclusion_permutation_pass": 658206,
+    "longservice_band_pass": 1734246,
+    "longservice_exclusion_pass": 636354,
+    "fingerprint_rpc_row_pass": 245406,
+    "fingerprint_badge_pass": 205884,
+    "modal_privacy_pass": 1326,
+    "viewer_sync_pass": 10518,
+    "fingerprint_hint_pass": 5850,
+    "picker_lifecycle_pass": 180,
+    "rpc_boundary_pass": 498,
+    "cross_tab_pass": 168
+  },
+  "preflight": {
+    "pass": 16,
+    "fail": 0
+  },
+  "first_QA_failure": {
+    "run_id": 38996713788,
+    "attempt": 1,
+    "job_name": "cross-tab",
+    "pass": 149,
+    "fail": 1,
+    "contexts": 5,
+    "classification": "QA tab-navigation lifecycle race, not confirmed product defect",
+    "preserved": "qa-handoff/QA_282_CROSS_TAB_INITIAL_FAILURE.json"
+  },
+  "recovery": {
+    "main_attempt": 2,
+    "original_test_pass": 168,
+    "original_test_fail": 0,
+    "additional_run_id": 38997014183,
+    "additional_results": [
+      {
+        "pass": 174,
+        "fail": 0,
+        "contexts": 6
+      },
+      {
+        "pass": 174,
+        "fail": 0,
+        "contexts": 6
+      }
+    ],
+    "preserved": "qa-handoff/QA_282_CROSS_TAB_RECOVERY_EVIDENCE.json"
+  },
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "known_legacy_QA_exceptions": "265 raw SESSION_KEY/tombstone; 270 initial picker RED; 273 two-tab harness cancellation; 276 preflight and modal oracle RED and cross-tab timeout; 282 initial cross-tab navigation-context RED. Preserve all, no retroactive erasure.",
+  "untested_scope": "Production Supabase/RLS multi-user authentication, physical Android/iOS camera/picker, durable BFCache, production backup/restore directly unverified; Chromium simulated PC/mobile with mock RPC only."
+}
