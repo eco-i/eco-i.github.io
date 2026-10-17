@@ -9,4 +9,4 @@
 - 과거 QA RED 265/270/273/276/282/284 **보존**, 소급 PASS·삭제 금지. 운영 main `5c9529069a4728e72b960c61a44e8045eacc0ca0` 불변, APP_VERSION `ver20260927-0944`, SQL 변경·운영배포 없음.
 - 실제 운영 Supabase/RLS 다중 인증·물리 Android/iOS 기본 camera/file picker·지속 BFCache·DB 복원 직접 미검증.
 - 290도 High·깊이8·실제20분 이상·20분 이내 KST 진행보고·신규 독립검사·발견한 제품 결함 즉시 수정/회귀·GitHub 직접작업, ZIP 제안 금지, main/SQL/APP_VERSION/운영배포 무단 변경 금지.
-- `QA_289_POST_PROMOTE.cjs` 및 `.github/workflows/qa-289-final.yml`로 290 시작본 14항목 Chromium/무결성 인계검사 대기.
+- [290 시작본 인계검사 14 PASS / 0 FAIL](https://github.com/eco-i/eco-i.github.io/actions/runs/39017334548) 완료. `QA_289_POST_PROMOTE.cjs`와 `qa-289-final.yml` 결과 보존.

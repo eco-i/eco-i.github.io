@@ -17,3 +17,7 @@
 - `index.html`, 289 시작/작업본, **290 시작본** 모두 1,175,136 bytes, SHA-256 `19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af`, Git blob `7077d4c27abf1b847471e32f462df0efd7cbd08f` 완전 동일.
 - 운영 main SHA `5c9529069a4728e72b960c61a44e8045eacc0ca0` 그대로, APP_VERSION `ver20260927-0944`, SQL 변경/운영 배포 없음.
 - 공식 기록 KST 2026-10-17T17:25:43.066+09:00. 다음 290도 High·깊이8·실제20분 이상·20분 이내 진행보고·독립검사 추가·제품 결함 즉시 수정/회귀·GitHub 직접연결·ZIP 금지·main/SQL/버전/운영배포 임의 변경 금지.
+
+## 290 시작본 최종 인계검사
+- [289 후속 GitHub Actions](https://github.com/eco-i/eco-i.github.io/actions/runs/39017334548) **14 PASS / 0 FAIL**, 제품 4개 파일 SHA-256·바이트 크기, 289 공식 state/manifest, JavaScript 문법 및 실제 Chromium PC·모바일 360/390/1280px 부팅 검증.
+- 2026-10-17T17:26:41.030+09:00 KST 최종 확인, 265/270/273/276/282/284 이전 RED 이력 보존.
