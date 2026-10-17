@@ -1,0 +1,75 @@
+name: Memo calendar borders regression
+on:
+  push:
+    branches: [fix-memo-borders-20261017]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  computed-borders:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/memo-borders-test --no-audit --no-fund playwright-core@1.55.1
+      - name: Verify surgical CSS changes and real Chromium computed borders
+        env:
+          NODE_PATH: /tmp/memo-borders-test/node_modules
+        shell: bash
+        run: |
+          node <<'NODE'
+          const assert=require('node:assert/strict');
+          const fs=require('node:fs');
+          const cp=require('node:child_process');
+          const vm=require('node:vm');
+          const {chromium}=require('playwright-core');
+          (async()=>{
+            const html=fs.readFileSync('index.html','utf8');
+            const baseline=cp.execFileSync('git',['show','5946841fa4f0fea668d7ebe26a6a196e32938c4f:index.html'],{encoding:'utf8',maxBuffer:5e6});
+            const extractCss=x=>{const a=x.indexOf('<style>'),b=x.indexOf('</style>',a);assert.ok(a>=0&&b>a);return x.slice(a+7,b);};
+            assert.equal(html.slice(html.indexOf('</style>')),baseline.slice(baseline.indexOf('</style>')),'all HTML/JS code remains unchanged');
+            const expected=[
+              ['border:1px solid #cbd5e1;font-size:calc(8px * var(--text-scale,1))','border:1.5px solid #334155;font-size:calc(8px * var(--text-scale,1))'],
+              ['box-shadow:0 1px 3px rgba(0,0,0,.06)}\n  .memo-preview','box-shadow:0 1px 3px rgba(0,0,0,.12)}\n  .memo-preview'],
+              ['border:1px solid #e2e8f0;font-size:calc(7px * var(--text-scale,1))','border:1.5px solid #64748b;font-size:calc(7px * var(--text-scale,1))'],
+              ['text-align:left}\n  /* 개인 지문','text-align:left;box-shadow:0 1px 3px rgba(15,23,42,.10)}\n  /* 개인 지문'],
+              ['html[data-theme="dark"] .memo-mark{background:#263449;color:#f8fafc;border-color:#475569}','html[data-theme="dark"] .memo-mark{background:#263449;color:#f8fafc;border-color:#94a3b8}'],
+              ['html[data-theme="dark"] .memo-preview{background:#1f2937;color:#f8fafc;border-color:#475569}','html[data-theme="dark"] .memo-preview{background:#1f2937;color:#f8fafc;border-color:#94a3b8}']
+            ];
+            let rebuilt=extractCss(baseline);
+            for(const [before,after] of expected){
+              assert.equal(rebuilt.split(before).length-1,1,'single targeted edit: '+before);
+              rebuilt=rebuilt.replace(before,after);
+            }
+            assert.equal(rebuilt,extractCss(html),'only intended four CSS rules changed');
+            const scripts=[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+            let parsed=0;
+            for(const match of scripts){if(/\bsrc\s*=/.test(match[1]))continue;new vm.Script(match[2]);parsed++;}
+            assert.ok(parsed>=2,'inline application scripts parse');
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']});
+            for(const width of [390,1365]){
+              const page=await browser.newPage({viewport:{width,height:850}});
+              for(const dark of [false,true]){
+                await page.setContent('<!doctype html><html '+(dark?'data-theme="dark"':'')+'><head><style>'+extractCss(html)+'</style></head><body><button class="memo-list-btn">메모 목록</button><span class="memo-mark">✎</span><div class="memo-preview">테두리로 강조한 내 메모 내용</div></body></html>');
+                const styles=await page.evaluate(()=>Object.fromEntries(['.memo-mark','.memo-preview','.memo-list-btn'].map(selector=>{const s=getComputedStyle(document.querySelector(selector));return [selector,{border:s.borderTopWidth,borderColor:s.borderTopColor,color:s.color,background:s.backgroundColor}]})));
+                const borderMark=dark?'rgb(148, 163, 184)':'rgb(51, 65, 85)';
+                const borderPreview=dark?'rgb(148, 163, 184)':'rgb(100, 116, 139)';
+                assert.equal(styles['.memo-mark'].border,'1.5px');
+                assert.equal(styles['.memo-preview'].border,'1.5px');
+                assert.equal(styles['.memo-mark'].borderColor,borderMark);
+                assert.equal(styles['.memo-preview'].borderColor,borderPreview);
+                assert.equal(styles['.memo-mark'].color,dark?'rgb(248, 250, 252)':'rgb(17, 24, 39)');
+                assert.equal(styles['.memo-preview'].color,dark?'rgb(248, 250, 252)':'rgb(17, 24, 39)');
+                console.log('PASS:',width,dark?'dark':'light',JSON.stringify(styles));
+              }
+              await page.close();
+            }
+            await browser.close();
+            console.log('MEMO_BORDER_QA_PASS: isolated CSS and desktop/mobile light/dark borders; all JS unchanged');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
