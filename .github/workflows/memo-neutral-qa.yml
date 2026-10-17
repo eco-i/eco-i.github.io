@@ -1,0 +1,57 @@
+name: Memo neutral colors browser regression
+on:
+  push:
+    branches: [fix-memo-neutral-colors-20261017]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  memo-colors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/memo-neutral-qa --no-audit --no-fund playwright-core@1.55.1
+      - name: Browser computed colors on desktop and mobile; source isolation
+        env:
+          NODE_PATH: /tmp/memo-neutral-qa/node_modules
+        shell: bash
+        run: |
+          node <<'NODE'
+          const assert=require('node:assert/strict');
+          const fs=require('node:fs');
+          const cp=require('node:child_process');
+          const vm=require('node:vm');
+          const {chromium}=require('playwright-core');
+          (async()=>{
+            const html=fs.readFileSync('index.html','utf8');
+            const baseline=cp.execFileSync('git',['show','76b6dfdce8a8949fec4124b49cf4635b6d59d1d5:index.html'],{encoding:'utf8',maxBuffer:5e6});
+            const style=(s)=>{const m=s.match(/<style>([\s\S]*?)<\/style>/);assert.ok(m);return m[1];};
+            assert.equal(html.slice(html.indexOf('</style>')),baseline.slice(baseline.indexOf('</style>')),'No JS/HTML logic changed');
+            const scripts=[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+            let parsed=0;for(const m of scripts){if(/\bsrc\s*=/.test(m[1]))continue;new vm.Script(m[2]);parsed++;}
+            assert.ok(parsed>=2,'inline JS syntax valid');
+            assert.ok(html.includes('ver20261017-2249'),'staging keeps production version');
+            const css=style(html);
+            for(const x of ['.memo-list-btn','.memo-mark','.memo-preview'])assert.ok(css.includes(x));
+            const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox']});
+            for(const width of [390,1365]){
+              const page=await browser.newPage({viewport:{width,height:840},deviceScaleFactor:1});
+              for(const dark of [false,true]){
+                await page.setContent('<!doctype html><html '+(dark?'data-theme="dark"':'')+'><head><style>'+css+'</style></head><body><button class="memo-list-btn">메모 목록</button><span class="memo-mark">✎</span><div class="memo-preview">작성한 메모 내용</div></body></html>');
+                const v=await page.evaluate(()=>Object.fromEntries(['.memo-list-btn','.memo-mark','.memo-preview'].map(sel=>[sel,(()=>{const e=document.querySelector(sel),c=getComputedStyle(e);return {text:c.color,bg:c.backgroundColor,border:c.borderColor};})()])));
+                const expected=dark?'rgb(248, 250, 252)':'rgb(17, 24, 39)';
+                for(const [sel,c] of Object.entries(v)){assert.equal(c.text,expected,sel+' @ '+width+'px '+(dark?'dark':'light'));assert.notEqual(c.bg,'rgba(0, 0, 0, 0)');}
+                console.log('PASS',width,dark?'dark':'light',JSON.stringify(v));
+              }
+              await page.close();
+            }
+            await browser.close();
+            console.log('MEMO_NEUTRAL_QA_PASS: styles only, no code/SQL behavior changes; overtime remains unmodified');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
