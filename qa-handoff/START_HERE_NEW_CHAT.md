@@ -8,4 +8,4 @@
 - **운영 배포는 승인 안 됨:** 실제 Supabase Auth/RLS, 실물 Android/iOS 카메라/파일선택, 실제 탭간 토큰/로그아웃, staging DB 백업/복원, 모바일 BFCache 점검 필요. `QA_290_POST_QA_REALWORLD_CHECKLIST.md` 준수.
 - 과거 QA RED 265/270/273/276/282/284 원본 이력 유지, 소급 Green 절대 금지.
 - main `5c9529069a4728e72b960c61a44e8045eacc0ca0`, APP_VERSION `ver20260927-0944`, SQL 변경 없음·운영배포 없음. ZIP 금지.
-- `QA_290_POST_PROMOTE.cjs`와 `.github/workflows/qa-290-final.yml` 14항목 final SHA/Chrome 봉인검사 대기.
+- [최종 봉인검사 14 PASS / 0 FAIL](https://github.com/eco-i/eco-i.github.io/actions/runs/39020447385) 완료. **2차 자동화·Chromium 검수 종료, 291 없음.**
