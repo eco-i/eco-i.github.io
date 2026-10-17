@@ -1,0 +1,24 @@
+{
+  "block": "2-8-288",
+  "status": "WIP",
+  "official_last_completed": "2-8-287",
+  "official_next": "2-8-288",
+  "official_cumulative_defects": 540,
+  "baseline_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "baseline_git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "main_run_id": 39013935140,
+  "main_run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39013935140",
+  "new_independent": {
+    "name": "QA_288_HOLIDAY_WORK_RPC_ORACLE",
+    "pass": 96384,
+    "fail": 0,
+    "contexts": 6,
+    "cases": 4380
+  },
+  "soak_status": "WIP; require actual >=1200 seconds and all 24 GitHub Actions jobs success",
+  "legacy_qa_failures": "265,270,273,276,282,284 preserved",
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false
+}
