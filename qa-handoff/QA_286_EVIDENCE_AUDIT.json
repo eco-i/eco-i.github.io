@@ -1,0 +1,129 @@
+{
+  "block": "2-8-286",
+  "status": "COMPLETE/CLEAN (verified Chromium/mobile emulation and mock RPC scope only)",
+  "reported_at_kst": "2026-10-17T15:43:02.382+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "run": {
+    "id": 39009514749,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39009514749",
+    "status": "completed",
+    "conclusion": "success",
+    "attempt": 1,
+    "jobs": 22,
+    "passed": 22
+  },
+  "soak": {
+    "rounds": 10,
+    "suites": 230,
+    "actual_seconds": 1249,
+    "fail": 0
+  },
+  "new_independent": {
+    "name": "QA_286_ABSENCE_COVERAGE_ORACLE",
+    "pass": 1007406,
+    "fail": 0,
+    "contexts": 6,
+    "days": 730,
+    "groups": 5,
+    "scenario_count": 240900,
+    "assertions": "Independent union of schedule work-time and overlapping attendance windows: all-day, split-day, split overnight night-shift, duplicate intervals, no-op, different employee IDs; validate status available/partial/full, counted rows and fullAbsentIds"
+  },
+  "integrated_independent": [
+    {
+      "name": "QA286_ABSENCE_COVERAGE_ORACLE_SUMMARY",
+      "pass": 1007406,
+      "fail": 0
+    },
+    {
+      "name": "QA285_ANNUAL_LEAVE_WORKTIME_ORACLE_SUMMARY",
+      "pass": 111042,
+      "fail": 0
+    },
+    {
+      "name": "QA284_SUBSTITUTE_HOLIDAY_ROSTER_ORACLE_SUMMARY",
+      "pass": 50694,
+      "fail": 0
+    },
+    {
+      "name": "QA283_SHIFT_HOLIDAY_ORACLE_SUMMARY",
+      "pass": 57222,
+      "fail": 0
+    },
+    {
+      "name": "QA282_FINGERPRINT_TIMESTAMP_MATRIX_SUMMARY",
+      "pass": 988956,
+      "fail": 0
+    },
+    {
+      "name": "QA280_LONGSERVICE_BAND_BOUNDARY_SUMMARY",
+      "pass": 1734246,
+      "fail": 0
+    },
+    {
+      "name": "QA279_LONGSERVICE_EXCLUSION_MATRIX_SUMMARY",
+      "pass": 636354,
+      "fail": 0
+    },
+    {
+      "name": "QA278_FINGERPRINT_RPC_ROW_MATRIX_SUMMARY",
+      "pass": 245406,
+      "fail": 0
+    },
+    {
+      "name": "QA277_FINGERPRINT_BADGE_MATRIX_SUMMARY",
+      "pass": 205884,
+      "fail": 0
+    },
+    {
+      "name": "QA276_MODAL_PRIVACY_FOCUS_SUMMARY",
+      "pass": 1326,
+      "fail": 0
+    },
+    {
+      "name": "QA275_VIEWER_SYNC_MATRIX_SUMMARY",
+      "pass": 10518,
+      "fail": 0
+    },
+    {
+      "name": "QA274_FINGERPRINT_HINT_MATRIX_SUMMARY",
+      "pass": 5850,
+      "fail": 0
+    },
+    {
+      "name": "QA273_REAL_PICKER_LIFECYCLE_SUMMARY",
+      "pass": 180,
+      "fail": 0
+    },
+    {
+      "name": "QA272_RPC_BOUNDARY_SUMMARY",
+      "pass": 498,
+      "fail": 0
+    },
+    {
+      "name": "QA271_CROSS_TAB_SESSION_SUMMARY",
+      "pass": 168,
+      "fail": 0
+    },
+    {
+      "name": "QA281_EXCLUSION_PERMUTATION_FUZZ_SUMMARY",
+      "pass": 658206,
+      "fail": 0
+    }
+  ],
+  "preflight": {
+    "pass": 16,
+    "fail": 0
+  },
+  "cross_tab": {
+    "pass": 168,
+    "fail": 0,
+    "contexts": 6
+  },
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "new_product_defects": 0,
+  "cumulative_product_defects": 540,
+  "legacy_qa_failures_preserved": "265 SESSION_KEY logout tombstone, 270 initial picker RED, 273 two-tab harness cancellation, 276 preflight/modal oracle RED + cross-tab timeout, 282 cross-tab navigation context RED, 284 first QA syntax RED. No erasure or retroactive pass.",
+  "untested_scope": "Production multiuser Supabase/RLS authenticated, physical Android/iOS picker/camera, persistent BFCache, real production DB backup/restore not directly tested."
+}
