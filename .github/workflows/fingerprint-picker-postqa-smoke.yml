@@ -1,0 +1,92 @@
+name: Fingerprint picker native lifecycle regression (post QA)
+on:
+  push:
+    branches: [fix-android-fingerprint-picker-20261017]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-picker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify JS syntax, minimal surgical patch and picker foreground safety
+        shell: bash
+        run: |
+          node <<'NODE'
+          const assert=require('node:assert/strict');
+          const fs=require('node:fs');
+          const vm=require('node:vm');
+          const cp=require('node:child_process');
+          const html=fs.readFileSync('index.html','utf8');
+          const before=cp.execFileSync('git',['show','c0648ca5f284b3f274218ac883028cf1ba3ee6d6:index.html'],{encoding:'utf8',maxBuffer:5e6});
+          const patches=[
+            ["if(!loginPending&&!sessionRestoreInFlight)invalidatePageLifecycleFreshnessFlags();\n      // 네이티브 카메라",
+            "if(!loginPending&&!sessionRestoreInFlight&&!fingerprintPickerFlowActive&&!fingerprintPickerContext)invalidatePageLifecycleFreshnessFlags();\n      // 네이티브 카메라"],
+            ["fingerprintPageLifecycleEpoch++;\n      markFingerprintBackgroundResume();\n      invalidatePageLifecycleReadLoads();\n      // 지문 사진을 열어 둔",
+            "fingerprintPageLifecycleEpoch++;\n      markFingerprintBackgroundResume();\n      // OS native picker의 visibilitychange는 일반 백그라운드 이동과 다르다.\n      // 파일 선택 문맥이 살아있는 동안만 기존 정상 read/freshness를 보존한다.\n      // 파일 선택을 마친 뒤 handleFingerprintPhotoInput의 authoritative personnel/holiday\n      // 확인 및 지연된 realtime catch-up을 통해 서버 최신 상태를 확인한다.\n      if(fingerprintPickerFlowActive||fingerprintPickerContext)realtimeNeedsCatchup=true;\n      else invalidatePageLifecycleReadLoads();\n      // 지문 사진을 열어 둔"],
+            ["window.addEventListener('pagehide',()=>{\n    fingerprintPageLifecycleEpoch++;\n    invalidatePageLifecycleReadLoads();\n    markFingerprintBackgroundResume();",
+            "window.addEventListener('pagehide',()=>{\n    fingerprintPageLifecycleEpoch++;\n    // Android/PWA 네이티브 파일 선택기의 가짜 pagehide에서 readiness 잠금을\n    // 걸면 OS에서 사진을 골라도 쓰기 전에 보류되고 전체 화면이 '불러오는 중'에 고착된다.\n    // 실제 네비게이션은 재부팅되므로 일반 pagehide 경로만 read 상태를 폐기한다.\n    if(fingerprintPickerFlowActive||fingerprintPickerContext)realtimeNeedsCatchup=true;\n    else invalidatePageLifecycleReadLoads();\n    markFingerprintBackgroundResume();"]
+          ];
+          let expected=before;
+          for(const [a,b] of patches){
+            assert.equal(expected.split(a).length-1,1,'one and only one expected change');
+            expected=expected.replace(a,b);
+          }
+          assert.equal(html,expected,'no unrelated product changes');
+          const scripts=[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+          let parsed=0;
+          for(const m of scripts){if(/\bsrc\s*=/.test(m[1]))continue;new vm.Script(m[2]);parsed++;}
+          assert.ok(parsed>=2,'all inline scripts parse');
+          const start=html.indexOf('  function resumeFingerprintForegroundOnce(){');
+          const end=html.indexOf("  document.addEventListener('visibilitychange',()=>{",start);
+          assert.ok(start>0&&end>start);
+          const fn=html.slice(start,end);
+          function foreground(picker){
+            let invalidations=0,catchups=0;
+            const context={
+              document:{hidden:false},
+              fingerprintForegroundResumeEpoch:1,fingerprintForegroundResumeHandledEpoch:0,
+              checkForAppUpdate(){},reconcileSharedSessionIfNeeded(){return false},
+              state:{me:{employee_id:1},initialPinRequired:false,sessionToken:'abc'},
+              loginPending:false,sessionRestoreInFlight:false,
+              fingerprintPickerFlowActive:picker,fingerprintPickerContext:picker?{}:null,dataRestorePickerFlowActive:false,
+              realtimeNeedsCatchup:false,
+              invalidatePageLifecycleFreshnessFlags(){invalidations++},
+              requestRealtimeCatchup(){catchups++},realtimeChannel:true
+            };
+            vm.runInNewContext(fn+'\nresumeFingerprintForegroundOnce();',context);
+            return {invalidations,catchups,deferred:context.realtimeNeedsCatchup};
+          }
+          assert.deepEqual(foreground(true),{invalidations:0,catchups:0,deferred:true},'native picker may not reset verified snapshot');
+          assert.deepEqual(foreground(false),{invalidations:1,catchups:1,deferred:false},'normal foreground keeps full refresh');
+          const visibilityBody=html.slice(end,html.indexOf("  window.addEventListener('focus'",end));
+          function hide(picker){
+            let invalidations=0;
+            const listeners={},ctx={
+              document:{hidden:true,addEventListener(n,cb){listeners[n]=cb}},
+              fingerprintPageLifecycleEpoch:0,
+              markFingerprintBackgroundResume(){},
+              invalidatePageLifecycleReadLoads(){invalidations++},
+              fingerprintPickerFlowActive:picker,fingerprintPickerContext:picker?{}:null,
+              realtimeNeedsCatchup:false,
+              $(id){return null}
+            };
+            vm.runInNewContext(visibilityBody,ctx);
+            listeners.visibilitychange();
+            return {invalidations,deferred:ctx.realtimeNeedsCatchup,epoch:ctx.fingerprintPageLifecycleEpoch};
+          }
+          assert.deepEqual(hide(true),{invalidations:0,deferred:true,epoch:1},'native picker hidden must preserve verified read state');
+          assert.deepEqual(hide(false),{invalidations:1,deferred:false,epoch:1},'ordinary background must invalidate');
+          assert.ok(html.includes("rpc('save_my_fingerprint_photo'"),'server upload path retained');
+          assert.ok(html.includes('refreshFingerprintWriteContextIfDeferred(actor,token,contextEpoch)'),'authoritative personnel/holiday checks preserved');
+          assert.ok(html.includes("fingerprintCurrentSharedSessionMismatch()"),'cross-tab security check retained');
+          assert.ok(html.includes('p_expected_updated_at:expectedUpdatedAt'),'optimistic concurrency retained');
+          console.log('PASS: source-equivalence, inline JS parse, picker/non-picker foreground+background, server authorization checks');
+          NODE
