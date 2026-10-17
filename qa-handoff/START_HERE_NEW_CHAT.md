@@ -9,4 +9,4 @@
 - 265/270/273/276/282/284 최초 QA 실패 로그/증거 원본 보존 및 소급 PASS/삭제 절대 금지. 운영 main `5c9529069a4728e72b960c61a44e8045eacc0ca0`, APP_VERSION `ver20260927-0944`, SQL 변경/운영 배포 없음.
 - 운영 Supabase/RLS 실제 다중사용자, 물리 Android/iOS 기본 카메라·파일 picker, 지속 BFCache, 운영 DB 복원 등 미검증.
 - 288도 High·깊이8·실제20분 이상·20분 내 KST 진행보고·새 독립검사·결함 즉시 수정/회귀·GitHub 직접연결·ZIP 제안 금지, 운영 main/SQL/APP_VERSION/배포 임의 변경 금지.
-- `QA_287_POST_PROMOTE.cjs` 및 `.github/workflows/qa-287-final.yml`을 이용한 288 시작본 14항목 Chromium/무결성 최종인계 검사 대기.
+- [288 인계검사 14 PASS / 0 FAIL](https://github.com/eco-i/eco-i.github.io/actions/runs/39012983546) 완료. `QA_287_POST_PROMOTE.cjs`와 `qa-287-final.yml` 기록 보존.
