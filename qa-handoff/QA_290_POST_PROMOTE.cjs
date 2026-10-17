@@ -7,9 +7,9 @@ let pass=0,fail=0,issues=[];const ck=(n,b)=>{if(b)pass++;else{fail++;issues.push
 for(const p of paths)ck('same SHA '+p,sha(p)===h&&fs.statSync(p).size===1175136);
 const j=JSON.parse(fs.readFileSync('qa-handoff/CURRENT_STATE.json','utf8'));
 const m=JSON.parse(fs.readFileSync('qa-handoff/QA_2-8-290_SHA_MANIFEST.json','utf8'));
-ck('complete289',j.last_completed_block==='2-8-290'&&j.next_block===null&&j.cumulative_defects===540);
+ck('complete290',j.last_completed_block==='2-8-290'&&j.next_block===null&&j.qa_round_2_status==='TESTED_SCOPE_COMPLETE'&&j.production_release_status==='NOT_APPROVED_PENDING_REAL_WORLD_SMOKE'&&j.cumulative_defects===540);
 ck('source290',j.baseline_path===paths[3]&&j.official_sha256===h);
-ck('manifest',m.status==='COMPLETE'&&m.actual_seconds>=1200&&m.exit_readiness_pass===343&&m.overtime_rpc_pass>100000&&m.holiday_work_rpc_pass===96384&&m.personnel_timeline_pass>100000&&m.absence_coverage_pass>100000&&m.annual_worktime_pass===111042&&m.substitute_roster_pass>50000&&m.shift_holiday_oracle_pass===57222&&m.timestamp_matrix_pass>100000&&m.exclusion_permutation_pass===658206&&m.longservice_band_pass===1734246&&m.longservice_exclusion_pass===636354&&m.files[paths[3]].sha256===h);
+ck('manifest',m.status==='COMPLETE'&&m.actual_seconds>=1200&&m.exit_readiness_pass===343&&m.exit_readiness_fail===0&&m.closure_status==='TESTED_SCOPE_COMPLETE'&&m.production_release_status==='NOT_APPROVED_PENDING_REAL_WORLD_SMOKE'&&m.overtime_rpc_pass>100000&&m.holiday_work_rpc_pass===96384&&m.personnel_timeline_pass>100000&&m.absence_coverage_pass>100000&&m.annual_worktime_pass===111042&&m.substitute_roster_pass>50000&&m.shift_holiday_oracle_pass===57222&&m.timestamp_matrix_pass>100000&&m.exclusion_permutation_pass===658206&&m.longservice_band_pass===1734246&&m.longservice_exclusion_pass===636354&&m.files[paths[3]].sha256===h);
 ck('operational constraint',!j.deployed&&!j.sql_changed&&j.app_version==='ver20260927-0944');
 const html=fs.readFileSync(paths[3],'utf8');
 const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).filter(x=>x.trim());
