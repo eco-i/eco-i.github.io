@@ -1,0 +1,27 @@
+{
+  "block": "2-8-288",
+  "source_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "main_run_id": 39013935140,
+  "run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39013935140",
+  "new_test": "QA_288_HOLIDAY_WORK_RPC_ORACLE.cjs",
+  "new_test_pass": 96384,
+  "new_test_fail": 0,
+  "new_test_contexts": 6,
+  "new_test_cases": 4380,
+  "coverage": "2026-27 730 days; holidayNetMinutes 4h break threshold, HH:MM and fractional seconds input normalization, duplicate id/day rejection, bound employee/date, malformed timestamps, corrupted net minutes, forced employee id, other user isolation",
+  "preflight": {
+    "pass": 16,
+    "fail": 0
+  },
+  "integrated_independent": {
+    "suite_groups": 18,
+    "all_fail": 0,
+    "status": "SUCCESS"
+  },
+  "soak": "ACTIVE; not COMPLETE until >=1200 real seconds",
+  "official_last_completed": "2-8-287",
+  "next": "2-8-288",
+  "product_changed": false,
+  "main_deployed": false,
+  "prior_qa_failed_runs_preserved": true
+}
