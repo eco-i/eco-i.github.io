@@ -18,3 +18,7 @@
 - 운영 main SHA `5c9529069a4728e72b960c61a44e8045eacc0ca0` 불변, APP_VERSION `ver20260927-0944`, SQL 변경·운영 배포 없음.
 - 운영 Supabase/RLS 인증 다중 사용자, 물리 Android/iOS 기본 카메라·파일 선택, 지속 BFCache, 운영 DB 백업·복원 직접 미검증. CLEAN은 Chrome PC/모바일 에뮬레이션·모의 RPC 범위에만 해당.
 - 공식 기록 2026-10-17T13:55:35.678+09:00 KST. 다음 285도 High·깊이8·블록마다 실제20분 이상·20분 내 진행보고·새 독립 검사·기술 결함 즉시 수정/회귀·GitHub 직접 작업·ZIP 금지·main/SQL/APP_VERSION/배포 임의 변경 금지.
+
+## 285 시작본 최종 인계검사
+- [284 post-promote GitHub Actions](https://github.com/eco-i/eco-i.github.io/actions/runs/39004388509) **14 PASS / 0 FAIL**: 4개 제품 HTML의 SHA·실제 byte 길이, 284 공식 상태·SHA manifest, 스크립트 구문, Chromium PC/모바일 360/390/1280px 실제 부팅을 검사함.
+- 결과 확인 2026-10-17T13:56:56.143+09:00 KST. 284 첫 QA 구문 실패 및 265/270/273/276/282 과거 RED 이력 보존.

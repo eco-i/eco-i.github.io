@@ -9,4 +9,4 @@
 - 과거 QA 실패 이력 **265/270/273/276/282/284** 소급 수정/삭제 금지. 운영 main `5c9529069a4728e72b960c61a44e8045eacc0ca0` 불변, APP_VERSION `ver20260927-0944`, SQL 변경·운영 배포 없음.
 - 운영 Supabase/RLS 실제 인증 다중사용자, 물리 Android/iOS 기본 picker·카메라, 지속 BFCache, 운영 DB 백업·복원 직접 미검증.
 - 다음에도 High·깊이8·실제20분 이상·20분 내 KST 진행보고·신규 독립검사, 기술 제품 결함 즉시 수정/회귀, GitHub 직접 작업·ZIP 금지, main/SQL/버전/배포 임의 변경 금지.
-- `QA_284_POST_PROMOTE.cjs`와 `qa-284-final.yml` 통한 285 시작본 최종 14항목 Chromium 인계검사 대기.
+- [285 인계검사 14 PASS / 0 FAIL](https://github.com/eco-i/eco-i.github.io/actions/runs/39004388509) 완료, `QA_284_POST_PROMOTE.cjs`와 `qa-284-final.yml` 실행 기록 보존.
