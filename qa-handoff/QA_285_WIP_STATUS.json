@@ -1,0 +1,23 @@
+{
+  "block": "2-8-285",
+  "status": "WIP",
+  "official_last_completed": "2-8-284",
+  "official_next": "2-8-285",
+  "official_cumulative_defects": 540,
+  "baseline_git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+  "baseline_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "main_run_id": 39005214654,
+  "main_run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39005214654",
+  "independent": {
+    "name": "QA_285_ANNUAL_LEAVE_WORKTIME_ORACLE",
+    "pass": 111042,
+    "fail": 0,
+    "contexts": 6
+  },
+  "soak": "IN PROGRESS; must confirm >=1200 actual seconds 8x23 and 21/21 final jobs before promotion",
+  "prior_failures": "265,270,273,276,282,284 initial QA errors retained",
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false
+}
