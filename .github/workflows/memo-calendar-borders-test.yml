@@ -34,9 +34,9 @@ jobs:
             const extractCss=x=>{const a=x.indexOf('<style>'),b=x.indexOf('</style>',a);assert.ok(a>=0&&b>a);return x.slice(a+7,b);};
             assert.equal(html.slice(html.indexOf('</style>')),baseline.slice(baseline.indexOf('</style>')),'all HTML/JS code remains unchanged');
             const expected=[
-              ['border:1px solid #cbd5e1;font-size:calc(8px * var(--text-scale,1))','border:1.5px solid #334155;font-size:calc(8px * var(--text-scale,1))'],
+              ['border:1px solid #cbd5e1;font-size:calc(8px * var(--text-scale,1))','border:2px solid #334155;font-size:calc(8px * var(--text-scale,1))'],
               ['box-shadow:0 1px 3px rgba(0,0,0,.06)}\n  .memo-preview','box-shadow:0 1px 3px rgba(0,0,0,.12)}\n  .memo-preview'],
-              ['border:1px solid #e2e8f0;font-size:calc(7px * var(--text-scale,1))','border:1.5px solid #64748b;font-size:calc(7px * var(--text-scale,1))'],
+              ['border:1px solid #e2e8f0;font-size:calc(7px * var(--text-scale,1))','border:2px solid #64748b;font-size:calc(7px * var(--text-scale,1))'],
               ['text-align:left}\n  /* 개인 지문','text-align:left;box-shadow:0 1px 3px rgba(15,23,42,.10)}\n  /* 개인 지문'],
               ['html[data-theme="dark"] .memo-mark{background:#263449;color:#f8fafc;border-color:#475569}','html[data-theme="dark"] .memo-mark{background:#263449;color:#f8fafc;border-color:#94a3b8}'],
               ['html[data-theme="dark"] .memo-preview{background:#1f2937;color:#f8fafc;border-color:#475569}','html[data-theme="dark"] .memo-preview{background:#1f2937;color:#f8fafc;border-color:#94a3b8}']
@@ -59,8 +59,8 @@ jobs:
                 const styles=await page.evaluate(()=>Object.fromEntries(['.memo-mark','.memo-preview','.memo-list-btn'].map(selector=>{const s=getComputedStyle(document.querySelector(selector));return [selector,{border:s.borderTopWidth,borderColor:s.borderTopColor,color:s.color,background:s.backgroundColor}]})));
                 const borderMark=dark?'rgb(148, 163, 184)':'rgb(51, 65, 85)';
                 const borderPreview=dark?'rgb(148, 163, 184)':'rgb(100, 116, 139)';
-                assert.equal(styles['.memo-mark'].border,'1.5px');
-                assert.equal(styles['.memo-preview'].border,'1.5px');
+                assert.equal(styles['.memo-mark'].border,'2px');
+                assert.equal(styles['.memo-preview'].border,'2px');
                 assert.equal(styles['.memo-mark'].borderColor,borderMark);
                 assert.equal(styles['.memo-preview'].borderColor,borderPreview);
                 assert.equal(styles['.memo-mark'].color,dark?'rgb(248, 250, 252)':'rgb(17, 24, 39)');
