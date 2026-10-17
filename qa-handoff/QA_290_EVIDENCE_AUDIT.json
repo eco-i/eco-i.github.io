@@ -1,0 +1,197 @@
+{
+  "block": "2-8-290",
+  "status": "FINAL EXIT APPROVED FOR TESTED SCOPE; PRODUCTION DEPLOY NOT APPROVED",
+  "reported_at_kst": "2026-10-17T18:15:28.555+09:00",
+  "repository": "eco-i/eco-i.github.io",
+  "branch": "qa-2-8",
+  "run": {
+    "id": 39018929968,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39018929968",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": 26,
+    "passed": 26
+  },
+  "soak": {
+    "rounds": 8,
+    "suites": 184,
+    "actual_seconds": 1265,
+    "fail": 0
+  },
+  "exit_audit": {
+    "pass": 343,
+    "fail": 0,
+    "history_clean": 31,
+    "contexts": 6,
+    "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+    "coverageAreas": 8,
+    "criticalRiskFlags": [
+      "live-auth-RLS-multiuser",
+      "physical-Android-iOS-native-picker",
+      "real-token-cross-tab-logout",
+      "real-staging-backup-restore",
+      "mobile-BFCache"
+    ],
+    "issues": [],
+    "runErrors": []
+  },
+  "integrated_independent": [
+    {
+      "name": "QA290_EXIT_READINESS_AUDIT_SUMMARY",
+      "pass": 343,
+      "fail": 0
+    },
+    {
+      "name": "QA289_OVERTIME_RPC_CONTRACT_ORACLE_SUMMARY",
+      "pass": 122670,
+      "fail": 0
+    },
+    {
+      "name": "QA288_HOLIDAY_WORK_RPC_ORACLE_SUMMARY",
+      "pass": 96384,
+      "fail": 0
+    },
+    {
+      "name": "QA287_PERSONNEL_TIMELINE_ORACLE_SUMMARY",
+      "pass": 1261446,
+      "fail": 0
+    },
+    {
+      "name": "QA286_ABSENCE_COVERAGE_ORACLE_SUMMARY",
+      "pass": 1007406,
+      "fail": 0
+    },
+    {
+      "name": "QA285_ANNUAL_LEAVE_WORKTIME_ORACLE_SUMMARY",
+      "pass": 111042,
+      "fail": 0
+    },
+    {
+      "name": "QA284_SUBSTITUTE_HOLIDAY_ROSTER_ORACLE_SUMMARY",
+      "pass": 50694,
+      "fail": 0
+    },
+    {
+      "name": "QA283_SHIFT_HOLIDAY_ORACLE_SUMMARY",
+      "pass": 57222,
+      "fail": 0
+    },
+    {
+      "name": "QA282_FINGERPRINT_TIMESTAMP_MATRIX_SUMMARY",
+      "pass": 988956,
+      "fail": 0
+    },
+    {
+      "name": "QA280_LONGSERVICE_BAND_BOUNDARY_SUMMARY",
+      "pass": 1734246,
+      "fail": 0
+    },
+    {
+      "name": "QA279_LONGSERVICE_EXCLUSION_MATRIX_SUMMARY",
+      "pass": 636354,
+      "fail": 0
+    },
+    {
+      "name": "QA278_FINGERPRINT_RPC_ROW_MATRIX_SUMMARY",
+      "pass": 245406,
+      "fail": 0
+    },
+    {
+      "name": "QA277_FINGERPRINT_BADGE_MATRIX_SUMMARY",
+      "pass": 205884,
+      "fail": 0
+    },
+    {
+      "name": "QA276_MODAL_PRIVACY_FOCUS_SUMMARY",
+      "pass": 1326,
+      "fail": 0
+    },
+    {
+      "name": "QA275_VIEWER_SYNC_MATRIX_SUMMARY",
+      "pass": 10518,
+      "fail": 0
+    },
+    {
+      "name": "QA274_FINGERPRINT_HINT_MATRIX_SUMMARY",
+      "pass": 5850,
+      "fail": 0
+    },
+    {
+      "name": "QA273_REAL_PICKER_LIFECYCLE_SUMMARY",
+      "pass": 180,
+      "fail": 0
+    },
+    {
+      "name": "QA272_RPC_BOUNDARY_SUMMARY",
+      "pass": 498,
+      "fail": 0
+    },
+    {
+      "name": "QA271_CROSS_TAB_SESSION_SUMMARY",
+      "pass": 168,
+      "fail": 0
+    },
+    {
+      "name": "QA281_EXCLUSION_PERMUTATION_FUZZ_SUMMARY",
+      "pass": 658206,
+      "fail": 0
+    }
+  ],
+  "preflight": {
+    "pass": 16,
+    "fail": 0
+  },
+  "cross_tab": {
+    "pass": 168,
+    "fail": 0,
+    "contexts": 6
+  },
+  "history": {
+    "last_product_defect_block": "2-8-258",
+    "clean_first": "2-8-259",
+    "clean_last": "2-8-290",
+    "clean_total": 32,
+    "records_audited_259_through_289": 31,
+    "canonical_cumulative_defects": 540
+  },
+  "risks_unverified": [
+    {
+      "key": "live-auth-RLS-multiuser",
+      "status": "NOT_TESTED",
+      "remedy": "Real Supabase Auth/RLS with separate test admin and employee accounts; verify cross-user photo, attendance, leave isolation"
+    },
+    {
+      "key": "physical-Android-iOS-native-picker",
+      "status": "NOT_TESTED",
+      "remedy": "Real Android Chrome/iOS Safari camera and My Files photo flow, cancel/re-entry, compression, background recovery"
+    },
+    {
+      "key": "real-token-cross-tab-logout",
+      "status": "NOT_TESTED",
+      "remedy": "Real network logout during upload/restore preview; preserve abnormal raw localStorage direct-delete boundary risk"
+    },
+    {
+      "key": "real-staging-backup-restore",
+      "status": "NOT_TESTED",
+      "remedy": "Perform full backup/restore roundtrip only in staging isolated DB; never perform destructive production restore"
+    },
+    {
+      "key": "mobile-BFCache",
+      "status": "NOT_TESTED",
+      "remedy": "Real device BFCache/re-open after pause, stale token and viewer content safety"
+    }
+  ],
+  "original_QA_failures_preserved": [
+    265,
+    270,
+    273,
+    276,
+    282,
+    284
+  ],
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "production_deployed": false,
+  "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af"
+}

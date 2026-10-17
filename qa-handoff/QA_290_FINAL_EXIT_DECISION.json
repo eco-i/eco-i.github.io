@@ -1,0 +1,73 @@
+{
+  "project": "근무모아",
+  "block": "2-8-290",
+  "decision": "AUTOMATED_QA_EXIT_APPROVED",
+  "qa_round_2_status": "TESTED_SCOPE_COMPLETE",
+  "production_release": "NOT_APPROVED_PENDING_REAL_WORLD_SMOKE",
+  "judged_at_kst": "2026-10-17T18:15:28.555+09:00",
+  "scope": "Chromium desktop/mobile emulation, mocked RPC/DB, tests in GitHub Actions only",
+  "qa_depth": 8,
+  "mode": "High",
+  "baseline_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "consecutive_clean_from": "2-8-259",
+  "consecutive_clean_through": "2-8-290",
+  "consecutive_clean_count": 32,
+  "last_confirmed_product_defect_block": "2-8-258",
+  "cumulative_product_defects": 540,
+  "new_product_defects_in_290": 0,
+  "evidence": {
+    "run_id": 39018929968,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39018929968",
+    "jobs_passed": 26,
+    "job_failures": 0,
+    "actual_seconds": 1265,
+    "soak_rounds": 8,
+    "soak_suite_groups": 184,
+    "exit_audit_pass": 343,
+    "exit_audit_fail": 0,
+    "historical_reports_checked": 31,
+    "core_coverage_areas": 8,
+    "chrome_contexts": 6,
+    "independent_regression_groups": 20,
+    "preflight_pass": 16,
+    "cross_tab_pass": 168,
+    "post_promote_check": "PENDING 14 assertions"
+  },
+  "risks_unverified": [
+    {
+      "key": "live-auth-RLS-multiuser",
+      "status": "NOT_TESTED",
+      "remedy": "Real Supabase Auth/RLS with separate test admin and employee accounts; verify cross-user photo, attendance, leave isolation"
+    },
+    {
+      "key": "physical-Android-iOS-native-picker",
+      "status": "NOT_TESTED",
+      "remedy": "Real Android Chrome/iOS Safari camera and My Files photo flow, cancel/re-entry, compression, background recovery"
+    },
+    {
+      "key": "real-token-cross-tab-logout",
+      "status": "NOT_TESTED",
+      "remedy": "Real network logout during upload/restore preview; preserve abnormal raw localStorage direct-delete boundary risk"
+    },
+    {
+      "key": "real-staging-backup-restore",
+      "status": "NOT_TESTED",
+      "remedy": "Perform full backup/restore roundtrip only in staging isolated DB; never perform destructive production restore"
+    },
+    {
+      "key": "mobile-BFCache",
+      "status": "NOT_TESTED",
+      "remedy": "Real device BFCache/re-open after pause, stale token and viewer content safety"
+    }
+  ],
+  "remaining_action": "Do not start 2-8-291 automatically. Complete separate real-device/live Auth and staged DB checklist before any production deployment.",
+  "qa_first_run_failures_historically_preserved": [
+    265,
+    270,
+    273,
+    276,
+    282,
+    284
+  ],
+  "note": "540 is the canonical accumulated historical product-defect count per official reports; this closure audit confirms 31 consecutive zero-new-defect manifests and current regressions, not an independent manual reconstruction of every past defect. Simulated QA success does not certify production."
+}

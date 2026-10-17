@@ -1,0 +1,233 @@
+{
+  "block": "2-8-290",
+  "status": "COMPLETE",
+  "model_mode": "High",
+  "qa_depth": 8,
+  "closure_status": "TESTED_SCOPE_COMPLETE",
+  "production_release_status": "NOT_APPROVED_PENDING_REAL_WORLD_SMOKE",
+  "completed_kst": "2026-10-17T18:15:28.555+09:00",
+  "actual_seconds": 1265,
+  "soak_seconds": 1265,
+  "soak_rounds": 8,
+  "soak_suite_groups": 184,
+  "exit_readiness_pass": 343,
+  "exit_readiness_fail": 0,
+  "exit_readiness_clean_history": 31,
+  "exit_readiness_coverage_areas": 8,
+  "exit_readiness_contexts": 6,
+  "exit_readiness_risks": [
+    "live-auth-RLS-multiuser",
+    "physical-Android-iOS-native-picker",
+    "real-token-cross-tab-logout",
+    "real-staging-backup-restore",
+    "mobile-BFCache"
+  ],
+  "consecutive_clean_blocks": 32,
+  "overtime_rpc_pass": 122670,
+  "overtime_rpc_fail": 0,
+  "holiday_work_rpc_pass": 96384,
+  "holiday_work_rpc_fail": 0,
+  "personnel_timeline_pass": 1261446,
+  "personnel_timeline_fail": 0,
+  "absence_coverage_pass": 1007406,
+  "absence_coverage_fail": 0,
+  "annual_worktime_pass": 111042,
+  "annual_worktime_fail": 0,
+  "substitute_roster_pass": 50694,
+  "substitute_roster_fail": 0,
+  "shift_holiday_oracle_pass": 57222,
+  "shift_holiday_oracle_fail": 0,
+  "timestamp_matrix_pass": 988956,
+  "timestamp_matrix_fail": 0,
+  "exclusion_permutation_pass": 658206,
+  "exclusion_permutation_fail": 0,
+  "longservice_band_pass": 1734246,
+  "longservice_band_fail": 0,
+  "longservice_exclusion_pass": 636354,
+  "longservice_exclusion_fail": 0,
+  "fingerprint_rpc_row_pass": 245406,
+  "fingerprint_rpc_row_fail": 0,
+  "fingerprint_badge_pass": 205884,
+  "fingerprint_badge_fail": 0,
+  "modal_privacy_pass": 1326,
+  "modal_privacy_fail": 0,
+  "viewer_sync_pass": 10518,
+  "viewer_sync_fail": 0,
+  "fingerprint_hint_pass": 5850,
+  "fingerprint_hint_fail": 0,
+  "picker_lifecycle_pass": 180,
+  "picker_lifecycle_fail": 0,
+  "rpc_boundary_pass": 498,
+  "rpc_boundary_fail": 0,
+  "cross_tab_pass": 168,
+  "cross_tab_fail": 0,
+  "preflight_pass": 16,
+  "preflight_fail": 0,
+  "new_confirmed_product_defects": 0,
+  "cumulative_defects": 540,
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "main_unchanged": true,
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "files": {
+    "index.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.before-2-8-290.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.working-2-8-290.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    },
+    "qa-handoff/index.final-round-2.html": {
+      "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+      "git_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
+      "bytes": 1175136
+    }
+  },
+  "runs": {
+    "main": 39018929968,
+    "attempt": 1
+  },
+  "jobs": {
+    "rpc-boundary": {
+      "id": 117356654264,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "backend": {
+      "id": 117356654329,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "longservice-exclusion": {
+      "id": 117356654342,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "depth-eight": {
+      "id": 117356654363,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "fingerprint-hint": {
+      "id": 117356654378,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "full": {
+      "id": 117356654379,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "independent": {
+      "id": 117356654407,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "picker-lifecycle": {
+      "id": 117356654408,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "frontend": {
+      "id": 117356654409,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "integrity": {
+      "id": 117356654459,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "timestamp-matrix": {
+      "id": 117356654468,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "absence-coverage-oracle": {
+      "id": 117356654471,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "shift-holiday-oracle": {
+      "id": 117356654490,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "annual-leave-oracle": {
+      "id": 117356654493,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "modal-privacy": {
+      "id": 117356654495,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "badge-calendar": {
+      "id": 117356654521,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "viewer-sync": {
+      "id": 117356654522,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "exclusion-permutation": {
+      "id": 117356654528,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "longservice-band": {
+      "id": 117356654550,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "substitute-roster-oracle": {
+      "id": 117356654551,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "exit-readiness-audit": {
+      "id": 117356654558,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "rpc-row-matrix": {
+      "id": 117356654569,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "holiday-work-rpc-oracle": {
+      "id": 117356654580,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "overtime-rpc-oracle": {
+      "id": 117356654585,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "personnel-timeline-oracle": {
+      "id": 117356654587,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "cross-tab": {
+      "id": 117357787401,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "prior_QA_exception_records_preserved": true
+}

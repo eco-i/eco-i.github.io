@@ -1,39 +1,14 @@
 {
   "block": "2-8-290",
-  "purpose": "second-round final exit review",
-  "status": "WIP - NOT OFFICIALLY CLOSED",
-  "official_last_completed": "2-8-289",
-  "official_next": "2-8-290",
-  "official_cumulative_defects": 540,
-  "baseline_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
-  "baseline_blob": "7077d4c27abf1b847471e32f462df0efd7cbd08f",
-  "run_id": 39018929968,
-  "run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39018929968",
-  "new_independent": {
-    "name": "QA_290_EXIT_READINESS_AUDIT",
-    "pass": 343,
-    "fail": 0,
-    "history_clean": 31,
-    "contexts": 6,
-    "coverage_areas": 8
-  },
-  "integrated_independent_suite_groups": {
-    "count": 20,
-    "fail": 0,
-    "status": "SUCCESS"
-  },
-  "first_25_jobs_success": true,
-  "twenty_min_soak_status": "RUNNING: do not close before >=1200 measured seconds",
-  "release_status": "NOT_APPROVED_PENDING_REAL_WORLD_SMOKE",
-  "risks": [
-    "live Supabase Auth/RLS multi-user",
-    "physical Android/iOS native camera/file selector",
-    "auth logout cross-tab real network",
-    "staging DB backup/restore",
-    "mobile BFCache"
-  ],
-  "legacy_QA_failure_runs": "265 270 273 276 282 284 retained",
-  "sql_changed": false,
-  "deployed": false,
-  "app_version": "ver20260927-0944"
+  "original_status": "WIP before actual 20min",
+  "current_status": "FINAL EXIT APPROVED FOR TESTED SCOPE",
+  "run": 39018929968,
+  "seconds": 1265,
+  "rounds": 8,
+  "suites": 184,
+  "exit_readiness_pass": 343,
+  "integrated_groups": 20,
+  "round_2_status": "TESTED_SCOPE_COMPLETE",
+  "production_release": "NOT_APPROVED_PENDING_REAL_WORLD_SMOKE",
+  "remaining_block": null
 }
