@@ -3101,6 +3101,12 @@ function renderUpdateHistory(){
   if(!body)return;
   if(status)status.textContent=updateHistoryLoading?'모든 직원에게 보여줄 최신 업데이트 내역을 확인하는 중입니다…':updateHistoryStatus;
   if(reload)reload.disabled=updateHistoryLoading||updateHistoryBusy||!state.me;
+  // Do not resurrect a shared tombstone using the immutable HTML defaults
+  // when SQL is unavailable or a signed-in user's read fails.
+  if(configured()&&state.me&&!updateHistorySharedLoaded){
+    body.innerHTML='<div class="update-history-empty">'+(updateHistoryLoading?'공유 업데이트 내역 확인 중…':'공유 업데이트 내역을 확인할 수 없습니다. 다시 불러오기를 눌러 주세요.')+'</div>';
+    return;
+  }
   const admin=updateHistoryCanManage(),entries=updateHistoryEffectiveEntries();
   if(updateHistoryEditingVersion&&!entries.some(entry=>entry.version===updateHistoryEditingVersion))updateHistoryEditingVersion='';
   if(!entries.length){body.innerHTML='<div class="update-history-empty">표시할 업데이트 내역이 없습니다.</div>';return;}
@@ -3135,7 +3141,7 @@ async function loadSharedUpdateHistory(){
   }catch(e){
     if(seq!==updateHistoryLoadSerial||epoch!==sessionContextEpoch||token!==state.sessionToken)return false;
     updateHistoryOverrides=new Map();
-    updateHistoryStatus='공유 내역을 확인하지 못해 기본 기록만 표시합니다. 수정·삭제는 잠겼습니다.';
+    updateHistoryStatus='공유 내역을 확인하지 못했습니다. 서버 연결을 확인하고 다시 불러와 주세요. 수정·삭제는 잠겼습니다.';
     return false;
   }finally{
     if(seq===updateHistoryLoadSerial){
