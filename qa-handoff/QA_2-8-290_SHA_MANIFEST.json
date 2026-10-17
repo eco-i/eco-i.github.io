@@ -229,5 +229,11 @@
       "conclusion": "success"
     }
   },
-  "prior_QA_exception_records_preserved": true
+  "prior_QA_exception_records_preserved": true,
+  "post_promote": {
+    "status": "SUCCESS",
+    "run_id": 39020447385,
+    "pass": 14,
+    "fail": 0
+  }
 }
