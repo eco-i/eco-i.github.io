@@ -117,7 +117,7 @@ jobs:
               await page.evaluate(()=>{window.TEST_READ_FAILURE=true;openUpdateHistory();});
               await page.waitForFunction(()=>document.getElementById('updateHistoryStatus').textContent.includes('불러오지 못했습니다'));
               assert.equal(await page.locator('[data-update-history-action]').count(),0,'stale server read disables writes');
-              const color=await page.locator('.update-history-status').evaluate(x=>getComputedStyle(x).color);
+              const color=await page.locator('#updateHistoryStatus').evaluate(x=>getComputedStyle(x).color);
               assert.ok(color.startsWith('rgb('));
               console.log('PASS real Chromium',width,dark?'dark':'light','read/update/delete, ACL, XSS, fallback');
               await page.close();
