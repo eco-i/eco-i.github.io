@@ -1,0 +1,26 @@
+{
+  "block": "2-8-282",
+  "status": "WIP",
+  "official_last_completed": "2-8-281",
+  "official_next": "2-8-282",
+  "cumulative_defects": 540,
+  "sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "run_id": 38996713788,
+  "run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/38996713788",
+  "new_test": {
+    "path": "qa-handoff/QA_282_FINGERPRINT_TIMESTAMP_MATRIX.cjs",
+    "pass": 988956,
+    "fail": 0,
+    "contexts": 6
+  },
+  "preflight": {
+    "pass": 16,
+    "fail": 0
+  },
+  "soak": "IN PROGRESS; DO NOT PROMOTE BEFORE ACTUAL >= 1200s AND 18/18 JOB SUCCESS",
+  "prior_qa_failure_records": "265,270,273,276 preserved",
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false
+}
