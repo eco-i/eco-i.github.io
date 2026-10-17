@@ -71,7 +71,7 @@ try{
        if(!parts.length)continue;
        const same=parts.every(p=>p.ids===parts[0].ids);
        if(same){expected.push({group,minutes:parts.reduce((n,p)=>n+p.minutes,0),detail:parts[0].names+' · '+parts.map(p=>p.label).join(' + ')});combined++}
-       else{for(const p of parts){expected.push({group,minutes:p.minutes,detail:p.names+' · '+p.label});segmented++}
+       else{for(const p of parts){expected.push({group,minutes:p.minutes,detail:p.names+' · '+p.label});segmented++}}
       }
       state.employees=roster;
       const got=substituteHolidayCompensationForDate(holiday);
