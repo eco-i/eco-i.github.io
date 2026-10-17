@@ -1,0 +1,27 @@
+{
+  "block": "2-8-282",
+  "type": "QA_INITIAL_FAILURE_PRESERVED",
+  "workflow_run_id": 38996713788,
+  "workflow_job_id": 117291243894,
+  "workflow_job": "cross-tab",
+  "first_attempt": {
+    "conclusion": "failure",
+    "summary": {
+      "pass": 149,
+      "fail": 1,
+      "contexts": 5,
+      "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af"
+    },
+    "scope": {
+      "tz": "Asia/Seoul",
+      "mobile": false
+    },
+    "error": "page.evaluate: Execution context was destroyed, most likely because of a navigation",
+    "qa_file": "qa-handoff/QA_271_CROSS_TAB_SESSION.cjs",
+    "line": 47
+  },
+  "classification": "INVESTIGATING: browser navigation race vs product regression; not added to confirmed product defect count until reproduced",
+  "recovery": "QA_282_CROSS_TAB_LIFECYCLE.cjs scoped navigation-only retry and two full six-profile reproductions, plus original workflow job retry; original failure may not be erased",
+  "existing_failures_preserved": "265/270/273/276 unchanged",
+  "official_last_completed": "2-8-281"
+}
