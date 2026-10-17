@@ -10,4 +10,4 @@
 - 운영 main SHA `5c9529069a4728e72b960c61a44e8045eacc0ca0` 유지, APP_VERSION `ver20260927-0944`, SQL 변경·운영 배포 없음.
 - 운영 Supabase/RLS 실제 인증 다중 사용자, 물리 Android/iOS 카메라·기본 picker, 지속 BFCache, 운영 DB 백업·복원 직접 미검증.
 - 284도 High·깊이8·실제20분 이상·20분 내 KST 보고·신규 독립 검증, 발견 기술 결함 즉시 수정/회귀, GitHub 직접 연결, ZIP 금지, main/SQL/APP_VERSION/운영 배포 임의 변경 금지, 채팅 로그 요약.
-- `QA_283_POST_PROMOTE.cjs` 및 `.github/workflows/qa-283-final.yml`로 284 시작본 후속 인계 14항목 Chrome 검사 대기.
+- [284 인계검증 14 PASS / 0 FAIL](https://github.com/eco-i/eco-i.github.io/actions/runs/39000034727) 완료. `QA_283_POST_PROMOTE.cjs`와 `qa-283-final.yml` 결과 보존.

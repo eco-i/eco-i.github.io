@@ -53,5 +53,13 @@
   "new_product_defects": 0,
   "cumulative_product_defects": 540,
   "known_legacy_QA_exceptions": "265 raw SESSION_KEY/tombstone, 270 picker initial RED, 273 two-tab harness cancellation, 276 preflight/modal oracle RED and cross-tab timeout, 282 initial second-tab navigation-context QA RED after which recovery passed; all retained and not retroactively erased",
-  "untested_scope": "Production Supabase/RLS authenticated multi-user, physical Android/iOS gallery/camera, durable BFCache and production DB backup/restore are not directly tested; limited to Chromium PC/mobile emulation with mock RPC."
+  "untested_scope": "Production Supabase/RLS authenticated multi-user, physical Android/iOS gallery/camera, durable BFCache and production DB backup/restore are not directly tested; limited to Chromium PC/mobile emulation with mock RPC.",
+  "post_promote": {
+    "status": "SUCCESS",
+    "run_id": 39000034727,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39000034727",
+    "pass": 14,
+    "fail": 0,
+    "checked_kst": "2026-10-17T12:46:50.282+09:00"
+  }
 }
