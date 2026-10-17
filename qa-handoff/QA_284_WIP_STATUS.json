@@ -1,0 +1,28 @@
+{
+  "block": "2-8-284",
+  "status": "WIP after initial QA harness fix",
+  "official_last_completed": "2-8-283",
+  "official_next": "2-8-284",
+  "official_cumulative_defects": 540,
+  "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "new_independent": {
+    "name": "QA_284_SUBSTITUTE_HOLIDAY_ROSTER_ORACLE",
+    "pass": 50694,
+    "fail": 0,
+    "contexts": 6,
+    "holiday_dates": 11,
+    "roster_combinations_per_date": 96
+  },
+  "initial_red_run_id": 39002924389,
+  "initial_red_reason": "SyntaxError unexpected token finally in QA-only test script; independent + substitute-roster-oracle failed, dependent cross-tab skipped",
+  "initial_red_saved": "qa-handoff/QA_284_INITIAL_QA_FAILURE.json",
+  "fix_commit": "2c5effa126453e338d918735d1af0bd6b5959f41",
+  "clean_run_id": 39002978396,
+  "clean_run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39002978396",
+  "soak_condition": "PENDING >=1200 seconds; no official promotion before all 20 jobs successful",
+  "main_sha": "5c9529069a4728e72b960c61a44e8045eacc0ca0",
+  "app_version": "ver20260927-0944",
+  "sql_changed": false,
+  "deployed": false,
+  "qa_legacy_failures": "265,270,273,276,282,284 first harness failure preserved"
+}
