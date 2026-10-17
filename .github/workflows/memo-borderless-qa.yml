@@ -1,0 +1,63 @@
+name: Memo pencil and preview borderless regression
+on:
+  push:
+    branches: [fix-memo-borderless-20261017]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  borderless-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/memo-borderless-qa --no-audit --no-fund playwright-core@1.55.1
+      - name: Validate exact CSS patch, unchanged scripts and computed borderless memo UI
+        env:
+          NODE_PATH: /tmp/memo-borderless-qa/node_modules
+        shell: bash
+        run: |
+          node <<'NODE'
+          const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),cp=require('node:child_process');
+          const {chromium}=require('playwright-core');
+          (async()=>{
+            const html=fs.readFileSync('index.html','utf8');
+            const base=cp.execFileSync('git',['show','4d012088f3f936a541743a1ce2e64beefb299e3b:index.html'],{encoding:'utf8',maxBuffer:5000000});
+            const style=s=>{const a=s.indexOf('<style>'),b=s.indexOf('</style>',a);assert.ok(a>0&&b>a);return s.slice(a+7,b)};
+            assert.equal(html.slice(html.indexOf('</style>')),base.slice(base.indexOf('</style>')),'non-CSS content unchanged');
+            const changes=[
+              ['border:2px solid #334155;font-size:calc(8px * var(--text-scale,1))','border:none;font-size:calc(8px * var(--text-scale,1))'],
+              ['box-shadow:0 1px 3px rgba(0,0,0,.12)}\n  .memo-preview','box-shadow:none}\n  .memo-preview'],
+              ['border:2px solid #64748b;font-size:calc(7px * var(--text-scale,1))','border:none;font-size:calc(7px * var(--text-scale,1))'],
+              ['text-align:left;box-shadow:0 1px 3px rgba(15,23,42,.10)}','text-align:left;box-shadow:none}'],
+              ['html[data-theme="dark"] .memo-mark{background:#263449;color:#f8fafc;border-color:#94a3b8}','html[data-theme="dark"] .memo-mark{background:#263449;color:#f8fafc}'],
+              ['html[data-theme="dark"] .memo-preview{background:#1f2937;color:#f8fafc;border-color:#94a3b8}','html[data-theme="dark"] .memo-preview{background:#1f2937;color:#f8fafc}']
+            ];
+            let expected=style(base);
+            for(const [a,b] of changes){assert.equal(expected.split(a).length-1,1,'unique original CSS selector');expected=expected.replace(a,b);}
+            assert.equal(style(html),expected,'only intended CSS selectors differ');
+            const scripts=[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+            let count=0;for(const m of scripts){if(/\bsrc\s*=/.test(m[1]))continue;new vm.Script(m[2]);count++;}
+            assert.ok(count>=2);
+            const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']});
+            for(const width of [390,1365]){
+              const page=await browser.newPage({viewport:{width,height:900}});
+              for(const dark of [false,true]){
+                await page.setContent('<!doctype html><html '+(dark?'data-theme="dark"':'')+'><head><style>'+style(html)+'</style></head><body><button class="memo-list-btn">메모 목록</button><div class="day-cell"><span class="memo-mark">✎</span><div class="memo-preview">여권 만료</div></div><span class="overtime-planned">조출 1:00</span></body></html>');
+                const result=await page.evaluate(()=>Object.fromEntries(['.memo-mark','.memo-preview','.memo-list-btn'].map(k=>{const e=document.querySelector(k),s=getComputedStyle(e);return [k,{borderWidth:s.borderTopWidth,borderStyle:s.borderTopStyle,shadow:s.boxShadow,color:s.color,background:s.backgroundColor}]})));
+                for(const key of ['.memo-mark','.memo-preview']){assert.equal(result[key].borderWidth,'0px',key);assert.equal(result[key].borderStyle,'none',key);assert.equal(result[key].shadow,'none',key);assert.equal(result[key].color,dark?'rgb(248, 250, 252)':'rgb(17, 24, 39)',key);}
+                assert.notEqual(result['.memo-mark'].background,'rgba(0, 0, 0, 0)');
+                assert.notEqual(result['.memo-preview'].background,'rgba(0, 0, 0, 0)');
+                console.log('PASS',width,dark?'dark':'light',JSON.stringify(result));
+              }
+              await page.close();
+            }
+            await browser.close();
+            console.log('MEMO_BORDERLESS_PASS');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
