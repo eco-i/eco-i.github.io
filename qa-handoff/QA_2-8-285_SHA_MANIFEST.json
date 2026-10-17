@@ -184,5 +184,13 @@
       "conclusion": "success"
     }
   },
-  "prior_QA_exception_records_preserved": true
+  "prior_QA_exception_records_preserved": true,
+  "post_promote": {
+    "status": "SUCCESS",
+    "run_id": 39006591036,
+    "url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39006591036",
+    "pass": 14,
+    "fail": 0,
+    "checked_kst": "2026-10-17T14:32:40.110+09:00"
+  }
 }
