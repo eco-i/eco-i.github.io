@@ -193,5 +193,11 @@
   "app_version": "ver20260927-0944",
   "sql_changed": false,
   "production_deployed": false,
-  "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af"
+  "product_sha256": "19ac9dea9a31e976018232fd7731f12c032318db435e110fe520a475248e18af",
+  "post_promote": {
+    "status": "SUCCESS",
+    "run_id": 39020447385,
+    "pass": 14,
+    "fail": 0
+  }
 }
