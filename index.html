@@ -946,6 +946,7 @@
     .calendar-toolbar .month-title{font-size:min(calc(18px * var(--text-scale,1)),24px);white-space:nowrap;padding-inline:2px}
   }
 </style>
+<link rel="stylesheet" href="site-update-history.css?v=shared20261018">
 </head>
 <body>
 
@@ -1708,6 +1709,7 @@
 
 <div id="loadingCover" class="loading-cover"><div class="spinner"></div></div>
 
+<script src="site-update-history.js?v=shared20261018"></script>
 <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0" onload="if(typeof startRealtime==='function')startRealtime()"></script>
 <script>
 'use strict';
@@ -3062,8 +3064,12 @@ function renderUpdateHistory(){
   }).join('');
 }
 function openUpdateHistory(){
-  renderUpdateHistory();
   openBackdrop('updateHistoryBackdrop');
+  if(window.siteUpdateHistory&&typeof window.siteUpdateHistory.open==='function'){
+    void window.siteUpdateHistory.open();
+  }else{
+    $('updateHistoryBody').textContent='업데이트 내역 연결을 확인해 주세요.';
+  }
 }
 function syncVersionFooter(){
   const btn=$('versionHistoryBtn');
