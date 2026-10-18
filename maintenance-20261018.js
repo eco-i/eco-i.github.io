@@ -1,10 +1,10 @@
 /* 근무모아 정비기간 편성: 별도 파일로 격리, 기존 8일 주기/데이터 불변 */
 'use strict';
-let maintenanceSchedule={revision:0,data:{periods:[],overrides:[],holidays:[]}};
+let maintenanceSchedule={revision:0,data:{periods:[],overrides:[],holidays:[],excludedHolidays:[]}};
 let maintenanceReady=null,maintenanceLoadSeq=0,maintenanceDraft=null,maintenanceDraftBaseline=null,maintenanceEditorPeriodId='',maintenanceSavePending=false,maintenancePeriodSequence=0;
 const maintenanceGroups=['A','B','C','D'];
 const maintenanceShifts=['주2','주','야','휴','비'];
-const maintenanceEmpty=()=>({periods:[],overrides:[],holidays:[]});
+const maintenanceEmpty=()=>({periods:[],overrides:[],holidays:[],excludedHolidays:[]});
 const maintenanceClone=x=>JSON.parse(JSON.stringify(x));
 function maintenanceISODate(key){
  if(typeof key!=='string'||!/^20(2[6-9]|3[0-5])-\d{2}-\d{2}$/.test(key))return false;
@@ -19,9 +19,15 @@ function maintenanceBase(group,key){
 function maintenanceHolidayName(key,data=maintenanceSchedule.data){
  return (data?.holidays||[]).find(h=>h.date===key)?.title||'';
 }
+function maintenanceOriginalHolidayName(key){return HOLIDAYS[key]||FUTURE_HOLIDAYS[key]||'';}
+function maintenanceExcludedHoliday(key,data=maintenanceSchedule.data){
+ return (data?.excludedHolidays||[]).includes(key);
+}
 function maintenanceDayHoliday(key,data=maintenanceSchedule.data){
  const weekday=new Date(key+'T00:00:00Z').getUTCDay();
- return weekday===0||weekday===6||!!HOLIDAYS[key]||!!FUTURE_HOLIDAYS[key]||/^\d{4}-02-12$/.test(key)||!!maintenanceHolidayName(key,data);
+ return weekday===0||weekday===6||/^\d{4}-02-12$/.test(key)
+  ||!!maintenanceHolidayName(key,data)
+  ||(!!maintenanceOriginalHolidayName(key)&&!maintenanceExcludedHoliday(key,data));
 }
 function maintenancePeriodOn(key,data=maintenanceSchedule.data){
  return (data?.periods||[]).find(p=>key>=p.start&&key<=p.end)||null;
@@ -46,8 +52,8 @@ function maintenanceComputedShift(group,key,data=maintenanceSchedule.data){
 }
 function maintenanceShiftForGroup(group,key){return maintenanceComputedShift(group,key);}
 function maintenanceValidate(data){
- if(!data||!['periods','overrides','holidays'].every(k=>Array.isArray(data[k])))return '편성 데이터가 올바르지 않습니다.';
- if(data.periods.length>32||data.overrides.length>5000||data.holidays.length>100)return '등록 가능한 최대 건수를 초과했습니다.';
+ if(!data||!['periods','overrides','holidays','excludedHolidays'].every(k=>Array.isArray(data[k])))return '편성 데이터가 올바르지 않습니다.';
+ if(data.periods.length>32||data.overrides.length>5000||data.holidays.length>100||data.excludedHolidays.length>250)return '등록 가능한 최대 건수를 초과했습니다.';
  const ids=new Set(),slots=new Set(),holidays=new Set();
  for(const p of data.periods){
   if(!/^[a-zA-Z0-9_-]{1,40}$/.test(p.id||'')||ids.has(p.id)||!String(p.label||'').trim()||String(p.label||'').trim().length>60||!maintenanceISODate(p.start)||!maintenanceISODate(p.end)||maintenanceDayDiff(p.start,p.end)<0||maintenanceDayDiff(p.start,p.end)>60)return '기간명·시작일·종료일(최대 61일)을 확인해 주세요.';
@@ -63,11 +69,20 @@ function maintenanceValidate(data){
   if(!maintenanceISODate(h.date)||!String(h.title||'').trim()||String(h.title||'').trim().length>40||holidays.has(h.date))return '추가 공휴일의 날짜·이름 또는 중복을 확인해 주세요.';
   holidays.add(h.date);
  }
+ const excluded=new Set();
+ for(const key of data.excludedHolidays){
+  if(!maintenanceISODate(key)||!maintenanceOriginalHolidayName(key)||/^\d{4}-02-12$/.test(key)
+    ||(key>='2026-10-01'&&key<='2026-10-15')||holidays.has(key)||excluded.has(key))
+   return '기존 공휴일 변경 날짜가 올바르지 않거나 중복되었습니다. 2월 12일·2026년 10월 특별 편성은 보호됩니다.';
+  excluded.add(key);
+ }
  return '';
 }
 function maintenanceStrictResponse(res){
  if(!res||typeof res!=='object'||!Number.isSafeInteger(Number(res.revision))||Number(res.revision)<0)throw Error('INVALID_MAINTENANCE_RESPONSE');
- const data=res.data,error=maintenanceValidate(data);if(error)throw Error('INVALID_MAINTENANCE_RESPONSE: '+error);
+ const data=res.data&&typeof res.data==='object'&&!Array.isArray(res.data)
+  ?{...res.data,excludedHolidays:res.data.excludedHolidays===undefined?[]:res.data.excludedHolidays}:res.data;
+ const error=maintenanceValidate(data);if(error)throw Error('INVALID_MAINTENANCE_RESPONSE: '+error);
  return {revision:Number(res.revision),data:maintenanceClone(data)};
 }
 async function loadMaintenanceSchedule(){
@@ -128,6 +143,21 @@ function maintenanceRender(){
   $('maintenancePreview').innerHTML='<table class="maintenance-table"><thead><tr><th>날짜</th>'+maintenanceGroups.map(g=>'<th>'+g+'조</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>';
  }else $('maintenancePreview').innerHTML='';
  $('maintenanceHolidayList').innerHTML=maintenanceDraft.holidays.length?maintenanceDraft.holidays.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(h=>'<div class="maintenance-line"><span>'+escapeHtml(h.date)+' · '+escapeHtml(h.title)+'</span><button type="button" data-mt-remove-holiday="'+escapeHtml(h.date)+'" class="maintenance-remove">삭제</button></div>').join(''):'<span class="employee-help">추가로 지정된 임시공휴일이 없습니다.</span>';
+ const chosen=$('maintenanceExistingHolidayDate').value,original=maintenanceOriginalHolidayName(chosen),isExcluded=maintenanceExcludedHoliday(chosen,maintenanceDraft);
+ const protectedDay=/^\d{4}-02-12$/.test(chosen)||(chosen>='2026-10-01'&&chosen<='2026-10-15');
+ const notice=$('maintenanceExistingHolidayNotice');
+ notice.textContent=!chosen?'변경할 기존 공휴일 날짜를 선택해 주세요.'
+  :!maintenanceISODate(chosen)?'2026~2035년 안에서 올바른 날짜를 선택해 주세요.'
+  :protectedDay?'이 날짜는 창립기념일 또는 보호 중인 2026년 10월 특별 편성과 겹쳐 변경할 수 없습니다.'
+  :!original?'이 날짜는 기존 공휴일 목록에 없습니다. 새 휴일 등록은 ④에서 할 수 있어요.'
+  :isExcluded?'현재 '+original+'을(를) 근무일로 변경하도록 설정했습니다. 아래 목록에서 복원할 수 있어요.'
+  :original+' · 기존 공휴일입니다. 근무일로 변경할 수 있습니다.';
+ const weekday=maintenanceISODate(chosen)?new Date(chosen+'T00:00:00Z').getUTCDay():null;
+ if(original&&(weekday===0||weekday===6))notice.textContent+=' 단, 토·일요일 자체는 계속 휴무입니다.';
+ $('maintenanceExcludeHolidayBtn').disabled=maintenanceSavePending||!maintenanceISODate(chosen)||!original||protectedDay||isExcluded||maintenanceDraft.holidays.some(h=>h.date===chosen);
+ $('maintenanceExcludedHolidayList').innerHTML=maintenanceDraft.excludedHolidays.length?
+  maintenanceDraft.excludedHolidays.slice().sort().map(date=>'<div class="maintenance-line"><span>'+escapeHtml(date)+' · '+escapeHtml(maintenanceOriginalHolidayName(date))+' → 근무일 전환</span><button type="button" data-mt-restore-holiday="'+escapeHtml(date)+'" class="maintenance-remove">공휴일로 복원</button></div>').join(''):
+  '<span class="employee-help">근무일로 변경한 기존 공휴일이 없습니다.</span>';
  const btn=$('maintenanceSaveBtn');btn.disabled=maintenanceSavePending||!activeAdminMode()||!configured()||maintenanceReady!==true||stale||!!good||!maintenanceDirty();
  $('maintenanceReloadBtn').disabled=maintenanceSavePending;
 }
@@ -164,6 +194,13 @@ function maintenanceAddHoliday(){
  const error=maintenanceValidate(next);if(error){$('maintenanceStatus').textContent=error;return;}
  maintenanceDraft=next;maintenanceRender();$('maintenanceHolidayDate').value='';$('maintenanceHolidayName').value='';
 }
+function maintenanceExcludeHoliday(){
+ if(!maintenanceDraft)return;
+ const key=$('maintenanceExistingHolidayDate').value;
+ const next=maintenanceClone(maintenanceDraft);next.excludedHolidays.push(key);
+ const error=maintenanceValidate(next);if(error){$('maintenanceStatus').textContent=error;return;}
+ maintenanceDraft=next;maintenanceRender();
+}
 function maintenanceSetOverride(day,group,shift){
  if(!maintenanceDraft||!maintenanceGroups.includes(group)||!maintenanceISODate(day)|| (shift&&!maintenanceShifts.includes(shift)))return;
  maintenanceDraft.overrides=maintenanceDraft.overrides.filter(o=>!(o.date===day&&o.group===group));
@@ -183,7 +220,7 @@ async function maintenanceSave(){
  const msg=maintenanceValidate(maintenanceDraft);if(msg){$('maintenanceStatus').textContent=msg;return;}
  if(maintenanceDraftBaseline?.revision!==maintenanceSchedule.revision){$('maintenanceStatus').textContent='최신 편성 정보를 다시 불러와 주세요.';return;}
  if(!maintenanceDirty())return;
- if(maintenanceDraft.periods.some(p=>p.start<=todayKey())||maintenanceDraft.holidays.some(h=>h.date<=todayKey())){
+ if(maintenanceDraft.periods.some(p=>p.start<=todayKey())||maintenanceDraft.holidays.some(h=>h.date<=todayKey())||[...new Set([...maintenanceDraft.excludedHolidays,...(maintenanceDraftBaseline?.excludedHolidays||[])])].some(k=>k<=todayKey()&&maintenanceExcludedHoliday(k,maintenanceDraft)!==maintenanceExcludedHoliday(k,maintenanceDraftBaseline)){
    if(!confirmMutationWithSessionGuard('과거 날짜의 편성이 달라지면 연차·초과근무 계산 결과가 변할 수 있습니다. 기존 근태 기록은 삭제되지 않습니다. 계속 저장할까요?'))return;
  }
  const token=state.sessionToken,actor=Number(state.me.employee_id),epoch=sessionContextEpoch;
@@ -196,7 +233,7 @@ async function maintenanceSave(){
   maintenanceDraft=maintenanceClone(result.data);maintenanceDraftBaseline={...maintenanceClone(result.data),revision:result.revision};
   maintenanceRender();closeBackdrop('maintenanceBackdrop',true);
   renderCalendar();rerenderOpenDetailUnlessDirty();
-  showToast('✓ 정비기간과 조별 근무표를 모든 직원에게 저장했습니다.','success');
+  showToast('✓ 정비기간·조별 근무표·공휴일 변경을 전체 직원에게 저장했습니다.','success');
   realtimeNeedsCatchup=true;scheduleRealtimeRefresh(400);
  }catch(e){
   if(sharedSessionContextCurrent(actor,token,{epoch})){
@@ -209,6 +246,8 @@ function maintenanceWire(){
  $('maintenanceManageBtn').addEventListener('click',maintenanceOpen);
  $('maintenanceAddBtn').addEventListener('click',maintenanceAddPeriod);
  $('maintenanceHolidayAddBtn').addEventListener('click',maintenanceAddHoliday);
+ $('maintenanceExcludeHolidayBtn').addEventListener('click',maintenanceExcludeHoliday);
+ $('maintenanceExistingHolidayDate').addEventListener('change',maintenanceRender);
  $('maintenanceEditBtn').addEventListener('click',maintenanceEditPeriod);
  $('maintenanceSaveBtn').addEventListener('click',maintenanceSave);
  $('maintenanceReloadBtn').addEventListener('click',()=>{
@@ -233,5 +272,9 @@ function maintenanceWire(){
  $('maintenanceHolidayList').addEventListener('click',e=>{
   const b=e.target.closest('[data-mt-remove-holiday]');
   if(b&&maintenanceDraft){maintenanceDraft.holidays=maintenanceDraft.holidays.filter(h=>h.date!==b.dataset.mtRemoveHoliday);maintenanceRender();}
+ });
+ $('maintenanceExcludedHolidayList').addEventListener('click',e=>{
+  const b=e.target.closest('[data-mt-restore-holiday]');
+  if(b&&maintenanceDraft){maintenanceDraft.excludedHolidays=maintenanceDraft.excludedHolidays.filter(k=>k!==b.dataset.mtRestoreHoliday);maintenanceRender();}
  });
 }
