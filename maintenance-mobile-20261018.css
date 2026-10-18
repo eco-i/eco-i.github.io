@@ -57,3 +57,17 @@
   }
   #maintenanceBackdrop #maintenanceHolidayList { margin-top: 16px; }
 }
+
+/* 기존 공휴일 변경·복원: 작은 휴대폰에서도 컨트롤과 텍스트 겹침 방지 */
+#maintenanceBackdrop .maintenance-holiday-exclude input{min-width:0;width:100%}
+#maintenanceBackdrop #maintenanceExistingHolidayNotice{margin-top:10px;word-break:keep-all;overflow-wrap:break-word}
+#maintenanceBackdrop #maintenanceExcludedHolidayList{display:flow-root;margin-top:12px}
+#maintenanceBackdrop #maintenanceExcludedHolidayList .maintenance-line span{min-width:0;flex:1;overflow-wrap:anywhere;word-break:keep-all}
+#maintenanceBackdrop #maintenanceExcludedHolidayList .maintenance-line button{flex:0 0 auto;white-space:normal;word-break:keep-all}
+@media(max-width:600px){
+ #maintenanceBackdrop .maintenance-holiday-exclude{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+ #maintenanceBackdrop .maintenance-holiday-exclude label{min-width:0}
+ #maintenanceBackdrop .maintenance-holiday-exclude button{min-width:0;width:100%;min-height:44px}
+ #maintenanceBackdrop #maintenanceExcludedHolidayList .maintenance-line{flex-wrap:wrap;gap:8px}
+ #maintenanceBackdrop #maintenanceExcludedHolidayList .maintenance-line button{width:100%}
+}
