@@ -220,7 +220,9 @@ async function maintenanceSave(){
  const msg=maintenanceValidate(maintenanceDraft);if(msg){$('maintenanceStatus').textContent=msg;return;}
  if(maintenanceDraftBaseline?.revision!==maintenanceSchedule.revision){$('maintenanceStatus').textContent='최신 편성 정보를 다시 불러와 주세요.';return;}
  if(!maintenanceDirty())return;
- if(maintenanceDraft.periods.some(p=>p.start<=todayKey())||maintenanceDraft.holidays.some(h=>h.date<=todayKey())||[...new Set([...maintenanceDraft.excludedHolidays,...(maintenanceDraftBaseline?.excludedHolidays||[])])].some(k=>k<=todayKey()&&maintenanceExcludedHoliday(k,maintenanceDraft)!==maintenanceExcludedHoliday(k,maintenanceDraftBaseline)){
+ const pastHolidayChange=[...new Set([...maintenanceDraft.excludedHolidays,...(maintenanceDraftBaseline?.excludedHolidays||[])])]
+  .some(key=>key<=todayKey()&&maintenanceExcludedHoliday(key,maintenanceDraft)!==maintenanceExcludedHoliday(key,maintenanceDraftBaseline));
+ if(maintenanceDraft.periods.some(p=>p.start<=todayKey())||maintenanceDraft.holidays.some(h=>h.date<=todayKey())||pastHolidayChange){
    if(!confirmMutationWithSessionGuard('과거 날짜의 편성이 달라지면 연차·초과근무 계산 결과가 변할 수 있습니다. 기존 근태 기록은 삭제되지 않습니다. 계속 저장할까요?'))return;
  }
  const token=state.sessionToken,actor=Number(state.me.employee_id),epoch=sessionContextEpoch;
