@@ -1195,7 +1195,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261018-1200 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261018-2041 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1721,8 +1721,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20261018-1200';
+const APP_VERSION = 'ver20261018-2041';
 const UPDATE_HISTORY = [
+  {version:'ver20261018-2041',date:'2026.10.18',items:['매년 2월 12일 공단 창립기념일을 휴일로 표시','일근자 휴무·연차·휴일근무 판정에 창립기념일 반영','토·일요일과 겹쳐도 별도 대체휴일 없음']},
   {version:'ver20261018-1200',date:'2026.10.18',items:['업데이트 내역을 모든 직원에게 동일하게 표시','관리자 전용 업데이트 내역 수정·삭제 기능 추가','변경 내용 저장과 수정 충돌 방지 기능 개선']},
   {version:'ver20261017-2320',date:'2026.10.17',items:['달력 메모 연필 및 메모 내용 테두리·그림자 제거']},
   {version:'ver20261017-2311',date:'2026.10.17',items:['달력 메모 연필·메모 내용 테두리 강조 및 가독성 개선']},
@@ -1799,6 +1800,12 @@ const HOLIDAYS = {
   '2027-09-15':'추석','2027-09-16':'연휴','2027-10-03':'개천절','2027-10-04':'대체공휴일',
   '2027-10-09':'한글날','2027-10-11':'대체공휴일','2027-12-25':'성탄절','2027-12-27':'대체공휴일'
 };
+
+// 공단 창립기념일은 매년 2/12 사내 지정휴일. 주말과 겹쳐도 대체휴일 없음.
+// 일반 공휴일 목록과 별도로 계산해 연도가 추가되어도 자동 적용한다.
+function holidayNameOn(key){
+  return /^\d{4}-02-12$/.test(String(key||''))?'공단 창립기념일':(HOLIDAYS[key]||'');
+}
 
 // 한국천문연구원 월력요항 기준 24절기(한국 표준시 날짜)
 const SOLAR_TERMS = {
@@ -4260,7 +4267,7 @@ function toggleAnnualLeaveRule(){ toggleSimpleSection('annualLeaveRuleBody','ann
 
 function isHolidayWorkDayKey(key){
   const {y,m,d}=parseDateKey(key),wd=new Date(y,m,d).getDay();
-  return wd===0 || wd===6 || !!HOLIDAYS[key];
+  return wd===0 || wd===6 || !!holidayNameOn(key);
 }
 function holidayWorkFor(employeeId,key){ return state.holidayWorks.find(r=>Number(r.employee_id)===Number(employeeId)&&r.work_date===key)||null; }
 function holidayWorkForMe(key){ return state.me?holidayWorkFor(state.me.employee_id,key):null; }
@@ -7124,7 +7131,7 @@ function substituteHolidayCompHours(minutes){
   return `${Number.isInteger(n/60)?n/60:(n/60).toFixed(1)}시간`;
 }
 function shiftForGroup(group,y,m,d){
-  const key=dateKey(y,m,d),weekday=new Date(y,m,d).getDay(),isHoliday=!!HOLIDAYS[key];
+  const key=dateKey(y,m,d),weekday=new Date(y,m,d).getDay(),isHoliday=!!holidayNameOn(key);
   if(group==='DAY')return (weekday===0||weekday===6||isHoliday)?'휴':'일근';
   if(!SHIFT_PATTERNS[group])return '';
   if(key>='2026-10-01'&&key<='2026-10-15'){
@@ -7178,7 +7185,7 @@ function renderSubstituteHolidayCompensation(){
   const holidayKeys=[];
   for(let d=1;d<=dim;d++){
     const key=dateKey(state.year,state.month,d);
-    if(HOLIDAYS[key]==='대체공휴일') holidayKeys.push(key);
+    if(holidayNameOn(key)==='대체공휴일') holidayKeys.push(key);
   }
   if(!holidayKeys.length){ card.classList.add('hidden'); list.innerHTML=''; return; }
   list.innerHTML=holidayKeys.map(key=>{
@@ -7212,7 +7219,7 @@ function renderCalendar(){
     for(let offset=0;offset<7;offset++){
       const day=weekDays[offset];
       if(!day){html+='<div class="day-cell blank"></div>';continue;}
-      const {d,key}=day,wd=new Date(state.year,state.month,d).getDay(); const holiday=HOLIDAYS[key]||'';
+      const {d,key}=day,wd=new Date(state.year,state.month,d).getDay(); const holiday=holidayNameOn(key)||'';
       const term=state.view==='mine'?(SOLAR_TERMS[key]||''):''; const mineRecords=state.view==='mine'?myRecordsForDate(key):[]; const mineRecordCount=mineRecords.length; const memo=state.view==='mine'?memoForDate(key):null; const memoPreviewVisible=!!(memo&&state.memoDisplay); const hasOvertime=state.view==='mine'&&overtimeRowsForDate(key).length>0; const fingerprintMark=state.view==='mine'?fingerprintCalendarMarkup(key):''; const hasFingerprint=!!fingerprintMark;
       const cls=['day-cell',wd===0?'sun':'',wd===6?'sat':'',holiday?'holiday':'',today===key?'today':'',term?'has-term':'',mineRecordCount?'has-attendance':'',memoPreviewVisible?'has-memo-preview':'',hasOvertime?'has-overtime':'',hasFingerprint?'has-fingerprint':''].filter(Boolean).join(' ');
       let body='';
@@ -8728,7 +8735,7 @@ function renderAttendanceDatePicker(){
     if(d<1||d>days){ html+='<div class="date-picker-cell blank" aria-hidden="true"></div>'; continue; }
     const key=dateKey(attendanceDatePickerYear,attendanceDatePickerMonth,d);
     const wd=new Date(attendanceDatePickerYear,attendanceDatePickerMonth,d).getDay();
-    const holiday=HOLIDAYS[key]||''; const term=SOLAR_TERMS[key]||'';
+    const holiday=holidayNameOn(key)||''; const term=SOLAR_TERMS[key]||'';
     const disabled=key<`${MIN_YEAR}-01-01`||key>`${MAX_YEAR}-12-31`||key<minDate;
     const inRange=state.dateMode==='range'&&startKey&&endKey&&key>=startKey&&key<=endKey;
     const cls=['date-picker-cell',wd===0?'sun':'',wd===6?'sat':'',holiday?'holiday':'',key===selected?'selected':'',key===todayKeyValue?'today':'',inRange?'range':'',key===startKey&&state.dateMode==='range'?'range-start':'',key===endKey&&state.dateMode==='range'?'range-end':'',disabled?'disabled':''].filter(Boolean).join(' ');
