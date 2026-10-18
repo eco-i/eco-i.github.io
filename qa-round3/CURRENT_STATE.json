@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-4",
-  "next_block": "3-8-5",
-  "latest_report": "qa-round3/QA_3-8-4_REPORT.md",
+  "last_completed_block": "3-8-5",
+  "next_block": "3-8-6",
+  "latest_report": "qa-round3/QA_3-8-5_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 1,
+  "round3_new_product_defects": 3,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,24 +22,39 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "SCOPED_CLEAN_PREVIOUS_FIX_STAGED_NOT_DEPLOYED",
+  "latest_status": "ISSUES_FOUND_QA_FIXES_STAGED_NOT_DEPLOYED",
   "pending_manual_tests": [
     "real Android and PC UI layout and touch flows",
     "non-admin active session access and personnel permission",
     "cross-device concurrency and Realtime network delays",
     "full user workflow for holiday + annual leave and maintenance"
   ],
-  "next_scope": "3-8-5: Attendance and annual leave day/hour calculations integrated with maintenance auto schedules, statutory/temporary holidays and Feb 12 anniversary, existing 2026/27 retention",
-  "updated_kst": "2026-10-19T05:12:09+09:00",
+  "next_scope": "3-8-6: Cross-check holiday/maintenance admin management with historical attendance, annual leave, holiday work, staff permissions and multi-tab CAS; cover concurrency and UI where possible",
+  "updated_kst": "2026-10-19T05:40:51+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
-      "title": "Memo 2036 date accepted by server RPC despite UI ceiling",
       "severity": "low",
-      "verified": "production transaction rolled back",
-      "fix_branch": "qa-3-8",
+      "title": "2036 personal memo storage accepted by server",
       "fix_file": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
-      "production_applied": false
+      "production_applied": false,
+      "qa_rollback_verified": true
+    },
+    {
+      "id": "3-8-5-001",
+      "severity": "high",
+      "title": "Changing a holiday with existing holiday-work entries creates history consistency conflict",
+      "fix_file": "qa-round3/fixes/QA_3-8-5_holiday_work_history_guard.sql",
+      "production_applied": false,
+      "qa_rollback_verified": true
+    },
+    {
+      "id": "3-8-5-002",
+      "severity": "medium",
+      "title": "Maintenance save errors immediately overwritten by final render",
+      "fix_file": "maintenance-20261018.js",
+      "production_applied": false,
+      "qa_isolated_function_verified": true
     }
   ],
   "round3_completed_tests": {
@@ -58,12 +73,25 @@
       "temp_date_guard_allowed": 5,
       "temp_date_guard_blocked": 3,
       "confirmed_new_defects": 1
+    },
+    "block_5": {
+      "annual_leave_shift_assertions": 36526,
+      "annual_leave_shift_failed": 0,
+      "holiday_override_js_crosscases": 15,
+      "holiday_override_js_failures": 0,
+      "backend_holiday_override_restore_rollback": true,
+      "verified_defects": 2,
+      "qa_server_patch_transactional_tests": true,
+      "qa_client_error_messages": 3,
+      "real_user_data_changed": false
     }
   },
   "pending_qa_fixes": [
-    "3-8-2-001 memo/D-day 2026-2035 SQL validated with production transactional rollback; fix staged on qa branch only; production not deployed."
+    "3-8-2-001: memo/D-day server date guard SQL validated only via rollback, not deployed",
+    "3-8-5-001: holiday history conflict server guard SQL validated only via rollback, not deployed; concurrency not fully verified",
+    "3-8-5-002: preserve maintenance save failure messages in QA asset, not deployed"
   ],
-  "round3_new_product_defects_this_block": 0,
+  "round3_new_product_defects_this_block": 2,
   "memo_fix_regression": {
     "branch": "qa-3-8",
     "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
