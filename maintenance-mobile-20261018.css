@@ -1,0 +1,59 @@
+/* 근무모아 대정비 관리자 창: 모바일 한글 줄바꿈·입력·버튼 겹침 보정.
+   다른 팝업과 근태 계산에는 영향을 주지 않도록 #maintenanceBackdrop 범위로 한정. */
+#maintenanceBackdrop .maintenance-help,
+#maintenanceBackdrop .maintenance-section h3,
+#maintenanceBackdrop .maintenance-line,
+#maintenanceBackdrop .maintenance-status {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+#maintenanceBackdrop .maintenance-section,
+#maintenanceBackdrop .maintenance-form-row label { min-width: 0; }
+#maintenanceBackdrop .maintenance-form-row input,
+#maintenanceBackdrop .maintenance-form-row select { box-sizing: border-box; max-width: 100%; min-width: 0; }
+#maintenanceBackdrop #maintenanceHolidayList { display: flow-root; clear: both; margin-top: 14px; }
+#maintenanceBackdrop #maintenanceHolidayList .employee-help { display: block; margin: 0; word-break: keep-all; overflow-wrap: break-word; }
+#maintenanceBackdrop .maintenance-actions button {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  white-space: normal;
+  line-height: 1.4;
+}
+@media (max-width: 600px) {
+  #maintenanceBackdrop .modal { width: calc(100vw - 16px); max-width: none; max-height: 94dvh; overflow-x: hidden; overflow-y: auto; }
+  #maintenanceBackdrop .maintenance-form-row.maintenance-period-create,
+  #maintenanceBackdrop .maintenance-form-row.maintenance-period-edit,
+  #maintenanceBackdrop .maintenance-form-row.maintenance-holiday-create {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-items: stretch;
+  }
+  #maintenanceBackdrop .maintenance-period-create > label:first-child,
+  #maintenanceBackdrop .maintenance-period-edit > label:first-child { grid-column: 1 / -1; }
+  #maintenanceBackdrop .maintenance-period-create > button,
+  #maintenanceBackdrop .maintenance-period-edit > button,
+  #maintenanceBackdrop .maintenance-holiday-create > button {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
+  #maintenanceBackdrop .maintenance-form-row label { flex: none; min-width: 0; }
+  #maintenanceBackdrop .maintenance-form-row input { width: 100%; }
+  #maintenanceBackdrop .maintenance-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+    margin-top: 14px;
+  }
+  #maintenanceBackdrop .maintenance-actions button {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 11px 12px;
+    font-size: calc(13px * var(--text-scale, 1));
+  }
+  #maintenanceBackdrop #maintenanceHolidayList { margin-top: 16px; }
+}
