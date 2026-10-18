@@ -1,0 +1,11 @@
+.history-admin-actions,.history-editor-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.history-action{width:auto;min-height:34px;border:1px solid var(--line);border-radius:9px;padding:6px 12px;background:var(--card);color:var(--text);font-size:calc(12px * var(--text-scale,1));font-weight:800}
+.history-action:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.history-action.history-danger{color:#b91c1c;background:#fff1f2;border-color:#fecdd3}
+.history-action.history-save{background:var(--blue);color:white;border-color:var(--blue)}
+.history-editor{margin-top:10px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg)}
+.history-editor label{display:block;margin:10px 0 5px;font-size:calc(12px * var(--text-scale,1));font-weight:800}
+.history-editor input,.history-editor textarea{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--text);padding:10px;line-height:1.4}
+.history-editor textarea{resize:vertical;min-height:116px}
+.history-editor-notice{font-size:calc(11px * var(--text-scale,1));color:var(--muted);line-height:1.5}
+.history-retry{display:block;margin:10px auto}
