@@ -1227,7 +1227,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261018-2256 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261018-2313 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1743,6 +1743,12 @@
    <div class="maintenance-form-row maintenance-holiday-create"><label>휴일 날짜<input id="maintenanceHolidayDate" type="date" min="2026-01-01" max="2035-12-31"></label><label>휴일 명칭<input id="maintenanceHolidayName" maxlength="40" placeholder="임시공휴일"></label><button id="maintenanceHolidayAddBtn" type="button">휴일 추가</button></div>
    <div id="maintenanceHolidayList"></div>
   </div>
+  <div class="maintenance-section"><h3>⑤ 기존 공휴일 변경·복원</h3>
+   <p class="maintenance-help">법령·정부 발표로 기존 공휴일이 근무일로 변경되었을 때만 사용하세요. 공휴일 날짜를 선택해 근무일로 변경하거나 이전 설정을 복원할 수 있습니다. <b>기존 공휴일 원본은 삭제하지 않으며 토·일요일 및 매년 2월 12일 창립기념일은 그대로 휴무</b>입니다. 2026년 10월 1~15일 특별 편성도 보호됩니다.</p>
+   <div class="maintenance-form-row maintenance-holiday-exclude"><label>변경할 공휴일 날짜<input id="maintenanceExistingHolidayDate" type="date" min="2026-01-01" max="2035-12-31"></label><button id="maintenanceExcludeHolidayBtn" type="button">선택 날짜 근무일로 변경</button></div>
+   <p id="maintenanceExistingHolidayNotice" class="maintenance-help" role="status" aria-live="polite">변경할 기존 공휴일 날짜를 선택해 주세요.</p>
+   <div id="maintenanceExcludedHolidayList"></div>
+  </div>
   <div id="maintenanceStatus" class="maintenance-status" role="status" aria-live="polite"></div>
   <p class="maintenance-help">저장하면 전 직원 근무표와 초과근무·연차 계산에 반영됩니다. 수동수정은 자동편성보다 우선하며, 수정을 없애도 기본 8일 주기는 그대로 유지됩니다. 과거 날짜 편성을 바꾸면 기존 근태의 계산 결과가 달라질 수 있습니다.</p>
   <div class="maintenance-actions"><button id="maintenanceReloadBtn" type="button">최신 설정 다시 불러오기</button><button id="maintenanceSaveBtn" type="button" class="primary">전체 근무표 저장</button></div>
@@ -1783,8 +1789,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20261018-2256';
+const APP_VERSION = 'ver20261018-2313';
 const UPDATE_HISTORY = [
+  {version:'ver20261018-2313',date:'2026.10.18',items:['관리자용 기존 공휴일 근무일 변경·공휴일 복원 기능 추가','공휴일 변경을 전 직원 근무표·연차·휴일근무·대정비 계산에 반영','원본 공휴일과 주말·창립기념일·2026년 10월 특별 편성 보호']},
   {version:'ver20261018-2256',date:'2026.10.18',items:['대정비 관리자 화면의 모바일 한글 줄바꿈·입력칸·버튼 겹침 개선','모바일 최신 설정 다시 불러오기·전체 근무표 저장 버튼을 한 줄씩 배치','근태·연차·휴근·사내일정·인사 관련 서버 저장 날짜를 2035년까지 일치']},
   {version:'ver20261018-2230',date:'2026.10.18',items:['달력·연차·초과근무·사내일정·인사발령 사용연도 2035년까지 확장','2028~2035년 설날·추석·부처님오신날과 대체공휴일 예정 정보 보완','정비기간 등록·조별 근무표 수정·임시공휴일 관리 연도 제한 확장']},
   {version:'ver20261018-2150',date:'2026.10.18',items:['관리자용 상·하반기 정비기간 등록·변경과 4개 조 자동편성 기능 추가','정비 마지막 날 야간근무·휴무 보장·주말 및 공휴일 적용','조별·날짜별 수동 편성 및 임시공휴일 추가, 연차·초과근무 자동 연동']},
@@ -1870,7 +1877,9 @@ const HOLIDAYS = {
 // 공단 창립기념일은 매년 2/12 사내 지정휴일. 주말과 겹쳐도 대체휴일 없음.
 // 일반 공휴일 목록과 별도로 계산해 연도가 추가되어도 자동 적용한다.
 function holidayNameOn(key){
-  return /^\d{4}-02-12$/.test(String(key||''))?'공단 창립기념일':(HOLIDAYS[key]||maintenanceHolidayName(key)||FUTURE_HOLIDAYS[key]||'');
+  if(/^\d{4}-02-12$/.test(String(key||'')))return '공단 창립기념일';
+  if(maintenanceExcludedHoliday(key))return '';
+  return HOLIDAYS[key]||maintenanceHolidayName(key)||FUTURE_HOLIDAYS[key]||'';
 }
 
 // 한국천문연구원 월력요항 기준 24절기(한국 표준시 날짜)
