@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-3",
-  "next_block": "3-8-4",
-  "latest_report": "qa-round3/QA_3-8-3_REPORT.md",
+  "last_completed_block": "3-8-4",
+  "next_block": "3-8-5",
+  "latest_report": "qa-round3/QA_3-8-4_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 1,
@@ -22,16 +22,15 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_PASSED_PREVIOUS_ISSUE_STAGED_NOT_DEPLOYED",
+  "latest_status": "SCOPED_CLEAN_PREVIOUS_FIX_STAGED_NOT_DEPLOYED",
   "pending_manual_tests": [
-    "live mobile and PC layouts",
-    "admin/member real session permissions",
-    "overtime save-delete and refresh",
-    "real browser integration and cross-device",
-    "transactional boundaries of additional changes"
+    "real Android and PC UI layout and touch flows",
+    "non-admin active session access and personnel permission",
+    "cross-device concurrency and Realtime network delays",
+    "full user workflow for holiday + annual leave and maintenance"
   ],
-  "next_scope": "3-8-4: overtime save/delete, early/late completed check, month/year boundary, personnel context and concurrency/CAS regressions",
-  "updated_kst": "2026-10-19T00:35:17+09:00",
+  "next_scope": "3-8-5: Attendance and annual leave day/hour calculations integrated with maintenance auto schedules, statutory/temporary holidays and Feb 12 anniversary, existing 2026/27 retention",
+  "updated_kst": "2026-10-19T05:12:09+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -83,5 +82,26 @@
     "company_event_2036_blocked": true,
     "holidaywork_2035_save": true,
     "holidaywork_2036_blocked": true
+  },
+  "overtime_regression": {
+    "server_rollback": true,
+    "steps": [
+      "early/late insert",
+      "idempotent resave",
+      "early completed toggle preserves late",
+      "day and entry stale-CAS rejected",
+      "early-only delete",
+      "both delete",
+      "invalid minutes rejected",
+      "2036 blocked"
+    ],
+    "baseline_month_group_cases": 480,
+    "maintenance_month_group_cases": 384,
+    "maintenance_shift_case_assertions": 11688,
+    "day_worker_capacity_cases": 8,
+    "strict_rpc_row_validation_cases": 11,
+    "invalid_session_denied_cases": 2,
+    "year_month_isolation_checked": true,
+    "production_data_changed": false
   }
 }
