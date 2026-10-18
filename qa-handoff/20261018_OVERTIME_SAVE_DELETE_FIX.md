@@ -17,7 +17,8 @@
 - APP_VERSION·버전 표시·version.json·업데이트 기록 통일.
 
 ## 검증 / 잔여
-- HTML 내부 스크립트 파싱 검증 및 정적 라우팅 검증. DB 함수 signature, 권한, 유효/무효 토큰, 정상 등록/수정/삭제/완료· stale 충돌을 실제 SQL로 점검할 것.
+- 완료: HTML 내부 스크립트 2개 JavaScript 구문 파싱 성공. 서버 함수 2개 생성/서명/SECURITY DEFINER/anon·authenticated EXECUTE 확인.
+- 완료: 무효 세션 테스트에서 SESSION_EXPIRED 확인. 유효 계정 임시 세션을 DB 트랜잭션 안에 생성해 신규 조출 60분 등록, 동일 레코드 완료 체크, 구 버전 스냅샷의 완료 변경 및 날짜 삭제 충돌 차단, 정확한 최신 스냅샷으로 날짜 삭제, 빈 날짜 0분 재저장 검사에 모두 통과. 전체 시험 ROLLBACK; 실데이터 보존.
 - 실제 사용자 기기의 저장·삭제 E2E 및 월간 합계·새로고침 복구, 기존 초과근무 레코드 안전성은 배포 후 검증이 추가로 필요.
 - 백업: backup-main-before-overtime-rpc-repair-20261018.
 - 정비기간 관리 기능은 이번 변경에 포함하지 않음.
