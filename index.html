@@ -977,6 +977,7 @@
 </style>
 
 <link rel="stylesheet" href="site-update-history.css?v=shared20261018">
+<link rel="stylesheet" href="maintenance-mobile-20261018.css?v=ver20261018-2256">
 </head>
 <body>
 
@@ -1226,7 +1227,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261018-2230 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261018-2256 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1725,12 +1726,12 @@
   <div class="modal-head"><div id="maintenanceManageTitle" class="modal-title">대정비 근무표 관리</div><button class="close-btn" data-close="maintenance" type="button" aria-label="닫기">×</button></div>
   <p class="maintenance-help">관리자 전용 · 저장 전 자동편성과 수정 내역을 확인하세요. <b>정비기간을 등록해도 기존 근태·연차·초과근무 기록은 변경하거나 삭제하지 않습니다.</b> 2026년 10/1~15 특별 편성은 잠겨 있습니다.</p>
   <div class="maintenance-section"><h3>① 정비기간 추가</h3>
-   <div class="maintenance-form-row"><label>기간 이름<input id="maintenanceLabel" maxlength="60" placeholder="예: 2027 상반기 대정비"></label><label>시작일<input id="maintenanceStart" type="date" min="2026-01-01" max="2035-12-31"></label><label>마지막 날<input id="maintenanceEnd" type="date" min="2026-01-01" max="2035-12-31"></label><button id="maintenanceAddBtn" type="button">기간 추가</button></div>
+   <div class="maintenance-form-row maintenance-period-create"><label>기간 이름<input id="maintenanceLabel" maxlength="60" placeholder="예: 2027 상반기 대정비"></label><label>시작일<input id="maintenanceStart" type="date" min="2026-01-01" max="2035-12-31"></label><label>마지막 날<input id="maintenanceEnd" type="date" min="2026-01-01" max="2035-12-31"></label><button id="maintenanceAddBtn" type="button">기간 추가</button></div>
    <div id="maintenancePeriodList"></div>
   </div>
   <div class="maintenance-section"><h3>② 기간 정보 변경</h3>
    <div class="maintenance-form-row"><label>선택한 기간<select id="maintenancePeriodSelect"></select></label></div>
-   <div class="maintenance-form-row hidden" id="maintenanceEditForm"><label>기간 이름<input id="maintenanceEditLabel" maxlength="60"></label><label>시작일<input id="maintenanceEditStart" type="date" min="2026-01-01" max="2035-12-31"></label><label>마지막 날<input id="maintenanceEditEnd" type="date" min="2026-01-01" max="2035-12-31"></label><button id="maintenanceEditBtn" type="button">기간 변경</button></div>
+   <div class="maintenance-form-row maintenance-period-edit hidden" id="maintenanceEditForm"><label>기간 이름<input id="maintenanceEditLabel" maxlength="60"></label><label>시작일<input id="maintenanceEditStart" type="date" min="2026-01-01" max="2035-12-31"></label><label>마지막 날<input id="maintenanceEditEnd" type="date" min="2026-01-01" max="2035-12-31"></label><button id="maintenanceEditBtn" type="button">기간 변경</button></div>
   </div>
   <div class="maintenance-section"><h3>③ 조별 자동편성 미리보기·수동 수정</h3>
    <p class="maintenance-help">원래 8일 주기를 유지해 계산합니다. 마지막 날 야간 우선 적용, 주·야 종료 뒤 연속 휴무 보장, 주말·빨간날 휴무가 적용됩니다. <b>보라색 테두리는 관리자가 직접 수정한 날짜</b>입니다. 자동으로 되돌리려면 '자동'을 선택하세요.</p>
@@ -1739,7 +1740,7 @@
   </div>
   <div class="maintenance-section"><h3>④ 정부 지정 임시공휴일 등 추가 휴일</h3>
    <p class="maintenance-help">공식 발표로 확정된 날만 입력하세요. 토·일요일·기존 공휴일·2월 12일 창립기념일은 이미 휴일로 처리됩니다. 추가 휴일은 일근자·정비 근무표에 모두 적용하며 자동으로 인터넷에서 수집하지는 않습니다.</p>
-   <div class="maintenance-form-row"><label>휴일 날짜<input id="maintenanceHolidayDate" type="date" min="2026-01-01" max="2035-12-31"></label><label>휴일 명칭<input id="maintenanceHolidayName" maxlength="40" placeholder="임시공휴일"></label><button id="maintenanceHolidayAddBtn" type="button">휴일 추가</button></div>
+   <div class="maintenance-form-row maintenance-holiday-create"><label>휴일 날짜<input id="maintenanceHolidayDate" type="date" min="2026-01-01" max="2035-12-31"></label><label>휴일 명칭<input id="maintenanceHolidayName" maxlength="40" placeholder="임시공휴일"></label><button id="maintenanceHolidayAddBtn" type="button">휴일 추가</button></div>
    <div id="maintenanceHolidayList"></div>
   </div>
   <div id="maintenanceStatus" class="maintenance-status" role="status" aria-live="polite"></div>
@@ -1782,8 +1783,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20261018-2230';
+const APP_VERSION = 'ver20261018-2256';
 const UPDATE_HISTORY = [
+  {version:'ver20261018-2256',date:'2026.10.18',items:['대정비 관리자 화면의 모바일 한글 줄바꿈·입력칸·버튼 겹침 개선','모바일 최신 설정 다시 불러오기·전체 근무표 저장 버튼을 한 줄씩 배치','근태·연차·휴근·사내일정·인사 관련 서버 저장 날짜를 2035년까지 일치']},
   {version:'ver20261018-2230',date:'2026.10.18',items:['달력·연차·초과근무·사내일정·인사발령 사용연도 2035년까지 확장','2028~2035년 설날·추석·부처님오신날과 대체공휴일 예정 정보 보완','정비기간 등록·조별 근무표 수정·임시공휴일 관리 연도 제한 확장']},
   {version:'ver20261018-2150',date:'2026.10.18',items:['관리자용 상·하반기 정비기간 등록·변경과 4개 조 자동편성 기능 추가','정비 마지막 날 야간근무·휴무 보장·주말 및 공휴일 적용','조별·날짜별 수동 편성 및 임시공휴일 추가, 연차·초과근무 자동 연동']},
   {version:'ver20261018-2100',date:'2026.10.18',items:['초과근무 조출·야근 저장 및 삭제 오류 수정','초과근무 목록 완료 체크 서버 연동 복구','저장 실패 안내와 미저장 상태 표시 개선']},
