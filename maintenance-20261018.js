@@ -1,0 +1,237 @@
+/* 근무모아 정비기간 편성: 별도 파일로 격리, 기존 8일 주기/데이터 불변 */
+'use strict';
+let maintenanceSchedule={revision:0,data:{periods:[],overrides:[],holidays:[]}};
+let maintenanceReady=null,maintenanceLoadSeq=0,maintenanceDraft=null,maintenanceDraftBaseline=null,maintenanceEditorPeriodId='',maintenanceSavePending=false,maintenancePeriodSequence=0;
+const maintenanceGroups=['A','B','C','D'];
+const maintenanceShifts=['주2','주','야','휴','비'];
+const maintenanceEmpty=()=>({periods:[],overrides:[],holidays:[]});
+const maintenanceClone=x=>JSON.parse(JSON.stringify(x));
+function maintenanceISODate(key){
+ if(typeof key!=='string'||!/^20(26|27)-\d{2}-\d{2}$/.test(key))return false;
+ const d=new Date(key+'T00:00:00Z');return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===key;
+}
+function maintenanceDayDiff(from,to){return Math.round((new Date(to+'T00:00:00Z')-new Date(from+'T00:00:00Z'))/86400000);}
+function maintenanceBase(group,key){
+ const p=parseDateKey(key),arr=SHIFT_PATTERNS[group];if(!p||!arr)return '';
+ const diff=Math.round((Date.UTC(p.y,p.m,p.d)-SHIFT_ANCHOR_UTC)/86400000);
+ return arr[((diff%8)+8)%8];
+}
+function maintenanceHolidayName(key,data=maintenanceSchedule.data){
+ return (data?.holidays||[]).find(h=>h.date===key)?.title||'';
+}
+function maintenanceDayHoliday(key,data=maintenanceSchedule.data){
+ const weekday=new Date(key+'T00:00:00Z').getUTCDay();
+ return weekday===0||weekday===6||!!HOLIDAYS[key]||/^\d{4}-02-12$/.test(key)||!!maintenanceHolidayName(key,data);
+}
+function maintenancePeriodOn(key,data=maintenanceSchedule.data){
+ return (data?.periods||[]).find(p=>key>=p.start&&key<=p.end)||null;
+}
+function maintenanceStartRestDays(group,start){
+ const p1=addDaysKey(start,-1),p2=addDaysKey(start,-2),p3=addDaysKey(start,-3);
+ const v1=maintenanceBase(group,p1),v2=maintenanceBase(group,p2),v3=maintenanceBase(group,p3);
+ if((v1==='주'||v1==='야')&&v2===v1)return 2;
+ if(v1==='야')return 1;
+ if((v2==='주'||v2==='야')&&v3===v2)return 1;
+ return 0;
+}
+function maintenanceComputedShift(group,key,data=maintenanceSchedule.data){
+ if(!maintenanceGroups.includes(group)||!maintenanceISODate(key))return null;
+ const period=maintenancePeriodOn(key,data);if(!period)return null;
+ const manual=(data.overrides||[]).find(o=>o.date===key&&o.group===group);
+ if(manual)return manual.shift;
+ if(key===period.end&&maintenanceBase(group,key)==='야')return '야';
+ if(maintenanceDayDiff(period.start,key)<maintenanceStartRestDays(group,period.start))return '휴';
+ if(maintenanceDayHoliday(key,data))return '휴';
+ return '주2';
+}
+function maintenanceShiftForGroup(group,key){return maintenanceComputedShift(group,key);}
+function maintenanceValidate(data){
+ if(!data||!['periods','overrides','holidays'].every(k=>Array.isArray(data[k])))return '편성 데이터가 올바르지 않습니다.';
+ if(data.periods.length>16||data.overrides.length>1500||data.holidays.length>100)return '등록 가능한 최대 건수를 초과했습니다.';
+ const ids=new Set(),slots=new Set(),holidays=new Set();
+ for(const p of data.periods){
+  if(!/^[a-zA-Z0-9_-]{1,40}$/.test(p.id||'')||ids.has(p.id)||!String(p.label||'').trim()||String(p.label||'').trim().length>60||!maintenanceISODate(p.start)||!maintenanceISODate(p.end)||maintenanceDayDiff(p.start,p.end)<0||maintenanceDayDiff(p.start,p.end)>60)return '기간명·시작일·종료일(최대 61일)을 확인해 주세요.';
+  if(p.start<='2026-10-15'&&p.end>='2026-10-01')return '2026년 10월 1~15일의 기존 특별 편성은 보호 중입니다.';
+  if(data.periods.some(v=>v!==p&&v.start<=p.end&&v.end>=p.start))return '정비기간이 서로 겹칠 수 없습니다.';
+  ids.add(p.id);
+ }
+ for(const o of data.overrides){
+  if(!maintenanceISODate(o.date)||!maintenanceGroups.includes(o.group)||!maintenanceShifts.includes(o.shift)||slots.has(o.group+':'+o.date)||!maintenancePeriodOn(o.date,data))return '조별 수동 수정에 중복되거나 기간 밖인 날짜가 있습니다.';
+  slots.add(o.group+':'+o.date);
+ }
+ for(const h of data.holidays){
+  if(!maintenanceISODate(h.date)||!String(h.title||'').trim()||String(h.title||'').trim().length>40||holidays.has(h.date))return '추가 공휴일의 날짜·이름 또는 중복을 확인해 주세요.';
+  holidays.add(h.date);
+ }
+ return '';
+}
+function maintenanceStrictResponse(res){
+ if(!res||typeof res!=='object'||!Number.isSafeInteger(Number(res.revision))||Number(res.revision)<0)throw Error('INVALID_MAINTENANCE_RESPONSE');
+ const data=res.data,error=maintenanceValidate(data);if(error)throw Error('INVALID_MAINTENANCE_RESPONSE: '+error);
+ return {revision:Number(res.revision),data:maintenanceClone(data)};
+}
+async function loadMaintenanceSchedule(){
+ const seq=++maintenanceLoadSeq;
+ if(!state.me){maintenanceSchedule={revision:0,data:maintenanceEmpty()};maintenanceReady=null;return false;}
+ const actor=Number(state.me.employee_id),token=state.sessionToken,epoch=sessionContextEpoch;
+ const current=()=>seq===maintenanceLoadSeq&&sharedSessionContextCurrent(actor,token,{epoch});
+ if(!configured()){if(!current())return false;maintenanceReady=true;return true;}
+ maintenanceReady=null;
+ try{
+  const fresh=maintenanceStrictResponse(await rpc('get_maintenance_schedule',{p_token:token},{timeoutMs:READONLY_RPC_TIMEOUT_MS}));
+  if(!current())return false;
+  maintenanceSchedule=fresh;maintenanceReady=true;
+  if($('maintenanceBackdrop')?.classList.contains('open')&&maintenanceDraft)maintenanceRender();
+  return true;
+ }catch(e){
+  if(!current())return false;
+  if(isConfirmedSessionExpired(e))throw e;
+  maintenanceReady=false;
+  if($('maintenanceBackdrop')?.classList.contains('open')&&maintenanceDraft)maintenanceRender();
+  return false;
+ }
+}
+function maintenanceReset(){
+ ++maintenanceLoadSeq;maintenanceSchedule={revision:0,data:maintenanceEmpty()};maintenanceReady=null;
+ maintenanceDraft=null;maintenanceDraftBaseline=null;maintenanceEditorPeriodId='';maintenanceSavePending=false;
+}
+function maintenanceDirty(){if(!maintenanceDraft||!maintenanceDraftBaseline)return false;const {revision,...original}=maintenanceDraftBaseline;return JSON.stringify(maintenanceDraft)!==JSON.stringify(original);}
+function maintenanceCanDiscard(){return !maintenanceDirty()||confirmMutationWithSessionGuard('저장하지 않은 정비 근무표 변경이 있습니다. 닫을까요?',{allowDeferred:true});}
+function maintenanceRender(){
+ const root=$('maintenanceBackdrop');if(!root||!maintenanceDraft)return;
+ const good=maintenanceValidate(maintenanceDraft),stale=maintenanceDraftBaseline?.revision!==maintenanceSchedule.revision;
+ const periods=maintenanceDraft.periods.slice().sort((a,b)=>a.start.localeCompare(b.start));
+ if(!periods.some(p=>p.id===maintenanceEditorPeriodId))maintenanceEditorPeriodId=periods[0]?.id||'';
+ const current=periods.find(p=>p.id===maintenanceEditorPeriodId)||null;
+ $('maintenanceStatus').textContent=maintenanceReady===false?'서버 조회 실패 · 저장 불가':stale?'다른 관리자/탭에서 변경됨 · 최신 내용을 다시 열어 주세요':good||'변경 전 미리보기를 확인한 후 저장해 주세요.';
+ $('maintenancePeriodList').innerHTML=periods.length?periods.map(p=>
+  '<div class="maintenance-line"><button type="button" data-mt-select="'+escapeHtml(p.id)+'" class="'+(p.id===maintenanceEditorPeriodId?'maintenance-selected':'')+'">'+escapeHtml(p.label)+' · '+p.start+' ~ '+p.end+'</button><button type="button" data-mt-remove="'+escapeHtml(p.id)+'" class="maintenance-remove">삭제</button></div>'
+ ).join(''):'<div class="employee-empty">등록된 정비기간이 없습니다. 기존 2026년 10월 특별 편성은 그대로 유지됩니다.</div>';
+ $('maintenancePeriodSelect').innerHTML=periods.map(p=>'<option value="'+escapeHtml(p.id)+'">'+escapeHtml(p.label)+' ('+p.start+'~'+p.end+')</option>').join('');
+ $('maintenancePeriodSelect').value=maintenanceEditorPeriodId;
+ $('maintenancePreviewTitle').textContent=current?current.label+' · '+current.start+' ~ '+current.end:'정비기간을 추가하면 조별 미리보기가 표시됩니다.';
+ $('maintenanceEditForm').classList.toggle('hidden',!current);
+ if(current){$('maintenanceEditLabel').value=current.label;$('maintenanceEditStart').value=current.start;$('maintenanceEditEnd').value=current.end;}
+ if(current){
+  let rows='';
+  for(let i=0,n=maintenanceDayDiff(current.start,current.end);i<=n;i++){
+   const day=addDaysKey(current.start,i),wd=new Date(day+'T00:00:00Z').getUTCDay(),holiday=maintenanceDayHoliday(day,maintenanceDraft);
+   rows+='<tr><td>'+day.slice(5)+'<small>'+(holiday?' · 휴일':'')+'</small></td>';
+   for(const group of maintenanceGroups){
+    const calc=maintenanceComputedShift(group,day,{...maintenanceDraft,overrides:maintenanceDraft.overrides.filter(x=>!(x.date===day&&x.group===group))});
+    const override=maintenanceDraft.overrides.find(x=>x.date===day&&x.group===group);
+    rows+='<td><select aria-label="'+day+' '+group+'조 근무" data-mt-day="'+day+'" data-mt-group="'+group+'" class="'+(override?'maintenance-overridden':'')+'">'+
+      '<option value="">자동 '+escapeHtml(calc||'')+'</option>'+maintenanceShifts.map(s=>'<option value="'+s+'"'+(override?.shift===s?' selected':'')+'>'+s+'</option>').join('')+'</select></td>';
+   }
+   rows+='</tr>';
+  }
+  $('maintenancePreview').innerHTML='<table class="maintenance-table"><thead><tr><th>날짜</th>'+maintenanceGroups.map(g=>'<th>'+g+'조</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>';
+ }else $('maintenancePreview').innerHTML='';
+ $('maintenanceHolidayList').innerHTML=maintenanceDraft.holidays.length?maintenanceDraft.holidays.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(h=>'<div class="maintenance-line"><span>'+escapeHtml(h.date)+' · '+escapeHtml(h.title)+'</span><button type="button" data-mt-remove-holiday="'+escapeHtml(h.date)+'" class="maintenance-remove">삭제</button></div>').join(''):'<span class="employee-help">추가로 지정된 임시공휴일이 없습니다.</span>';
+ const btn=$('maintenanceSaveBtn');btn.disabled=maintenanceSavePending||!activeAdminMode()||!configured()||maintenanceReady!==true||stale||!!good||!maintenanceDirty();
+ $('maintenanceReloadBtn').disabled=maintenanceSavePending;
+}
+function maintenanceOpen(){
+ if(!activeAdminMode()||!configured()){showToast('관리자 권한과 서버 연결을 확인해 주세요.','info');return;}
+ if(maintenanceReady!==true){showToast('근무편성 최신 정보를 불러온 뒤 다시 시도해 주세요.','info');return;}
+ maintenanceDraft=maintenanceClone(maintenanceSchedule.data);maintenanceDraftBaseline={...maintenanceClone(maintenanceSchedule.data),revision:maintenanceSchedule.revision};
+ maintenanceEditorPeriodId=maintenanceDraft.periods[0]?.id||'';
+ maintenanceRender();openBackdrop('maintenanceBackdrop');
+}
+function maintenanceAddPeriod(){
+ if(!maintenanceDraft)return;
+ const label=$('maintenanceLabel').value.trim(),start=$('maintenanceStart').value,end=$('maintenanceEnd').value;
+ if(!label||!maintenanceISODate(start)||!maintenanceISODate(end)){showToast('정비명과 시작·종료 날짜를 입력해 주세요.','info');return;}
+ const id='p'+Date.now().toString(36)+(++maintenancePeriodSequence).toString(36);
+ const next=maintenanceClone(maintenanceDraft);next.periods.push({id,label,start,end});
+ const error=maintenanceValidate(next);if(error){$('maintenanceStatus').textContent=error;return;}
+ maintenanceDraft=next;maintenanceEditorPeriodId=id;maintenanceRender();
+ $('maintenanceLabel').value='';$('maintenanceStart').value='';$('maintenanceEnd').value='';
+}
+function maintenanceEditPeriod(){
+ if(!maintenanceDraft||!maintenanceEditorPeriodId)return;
+ const old=maintenanceDraft.periods.find(p=>p.id===maintenanceEditorPeriodId);if(!old)return;
+ const next=maintenanceClone(maintenanceDraft),p=next.periods.find(p=>p.id===maintenanceEditorPeriodId);
+ p.label=$('maintenanceEditLabel').value.trim();p.start=$('maintenanceEditStart').value;p.end=$('maintenanceEditEnd').value;
+ // 변경된 범위 밖의 기존 수동편성은 자동 제거하지 않고 사용자에게 점검을 요구한다.
+ const error=maintenanceValidate(next);if(error){$('maintenanceStatus').textContent=error;return;}
+ maintenanceDraft=next;maintenanceRender();
+}
+function maintenanceAddHoliday(){
+ if(!maintenanceDraft)return;
+ const date=$('maintenanceHolidayDate').value,title=$('maintenanceHolidayName').value.trim();
+ const next=maintenanceClone(maintenanceDraft);next.holidays.push({date,title});
+ const error=maintenanceValidate(next);if(error){$('maintenanceStatus').textContent=error;return;}
+ maintenanceDraft=next;maintenanceRender();$('maintenanceHolidayDate').value='';$('maintenanceHolidayName').value='';
+}
+function maintenanceSetOverride(day,group,shift){
+ if(!maintenanceDraft||!maintenanceGroups.includes(group)||!maintenanceISODate(day)|| (shift&&!maintenanceShifts.includes(shift)))return;
+ maintenanceDraft.overrides=maintenanceDraft.overrides.filter(o=>!(o.date===day&&o.group===group));
+ if(shift)maintenanceDraft.overrides.push({date:day,group,shift});
+ maintenanceRender();
+}
+async function maintenanceReloadEditor(){
+ if(maintenanceSavePending)return;
+ const ok=await loadMaintenanceSchedule();
+ if(ok!==true){showToast('서버에서 최신 정비 설정을 불러오지 못했습니다.','error');return;}
+ maintenanceDraft=maintenanceClone(maintenanceSchedule.data);
+ maintenanceDraftBaseline={...maintenanceClone(maintenanceSchedule.data),revision:maintenanceSchedule.revision};
+ maintenanceEditorPeriodId=maintenanceDraft.periods[0]?.id||'';maintenanceRender();
+}
+async function maintenanceSave(){
+ if(maintenanceSavePending||!maintenanceDraft||!activeAdminMode()||maintenanceReady!==true)return;
+ const msg=maintenanceValidate(maintenanceDraft);if(msg){$('maintenanceStatus').textContent=msg;return;}
+ if(maintenanceDraftBaseline?.revision!==maintenanceSchedule.revision){$('maintenanceStatus').textContent='최신 편성 정보를 다시 불러와 주세요.';return;}
+ if(!maintenanceDirty())return;
+ if(maintenanceDraft.periods.some(p=>p.start<=todayKey())||maintenanceDraft.holidays.some(h=>h.date<=todayKey())){
+   if(!confirmMutationWithSessionGuard('과거 날짜의 편성이 달라지면 연차·초과근무 계산 결과가 변할 수 있습니다. 기존 근태 기록은 삭제되지 않습니다. 계속 저장할까요?'))return;
+ }
+ const token=state.sessionToken,actor=Number(state.me.employee_id),epoch=sessionContextEpoch;
+ const saved=maintenanceClone(maintenanceDraft),expected=maintenanceDraftBaseline.revision;
+ maintenanceSavePending=true;maintenanceRender();
+ try{
+  const result=maintenanceStrictResponse(await rpc('admin_save_maintenance_schedule',{p_token:token,p_expected_revision:expected,p_data:saved}));
+  if(!sharedSessionContextCurrent(actor,token,{epoch}))return;
+  maintenanceSchedule=result;maintenanceReady=true;
+  maintenanceDraft=maintenanceClone(result.data);maintenanceDraftBaseline={...maintenanceClone(result.data),revision:result.revision};
+  maintenanceRender();closeBackdrop('maintenanceBackdrop',true);
+  renderCalendar();rerenderOpenDetailUnlessDirty();
+  showToast('✓ 정비기간과 조별 근무표를 모든 직원에게 저장했습니다.','success');
+  realtimeNeedsCatchup=true;scheduleRealtimeRefresh(400);
+ }catch(e){
+  if(sharedSessionContextCurrent(actor,token,{epoch})){
+   const str=String(e?.message||'');
+   $('maintenanceStatus').textContent=str.includes('STALE_MAINTENANCE_SCHEDULE')?'다른 관리자 또는 탭에서 먼저 수정했습니다. 최신 정보를 다시 불러와 주세요.':userSafeServiceError(e,'정비 근무표 저장에 실패했습니다. 다시 시도해 주세요.');
+  }
+ }finally{maintenanceSavePending=false;if(maintenanceDraft&&$('maintenanceBackdrop')?.classList.contains('open'))maintenanceRender();}
+}
+function maintenanceWire(){
+ $('maintenanceManageBtn').addEventListener('click',maintenanceOpen);
+ $('maintenanceAddBtn').addEventListener('click',maintenanceAddPeriod);
+ $('maintenanceHolidayAddBtn').addEventListener('click',maintenanceAddHoliday);
+ $('maintenanceEditBtn').addEventListener('click',maintenanceEditPeriod);
+ $('maintenanceSaveBtn').addEventListener('click',maintenanceSave);
+ $('maintenanceReloadBtn').addEventListener('click',()=>{
+  if(maintenanceDirty()&&!confirmMutationWithSessionGuard('작성 중인 정비 설정을 버리고 서버의 최신값을 불러올까요?'))return;
+  void maintenanceReloadEditor();
+ });
+ $('maintenancePeriodSelect').addEventListener('change',e=>{maintenanceEditorPeriodId=e.target.value;maintenanceRender();});
+ $('maintenancePeriodList').addEventListener('click',e=>{
+  const select=e.target.closest('[data-mt-select]'),remove=e.target.closest('[data-mt-remove]');
+  if(select){maintenanceEditorPeriodId=select.dataset.mtSelect;maintenanceRender();}
+  if(remove&&maintenanceDraft){
+    const id=remove.dataset.mtRemove,period=maintenanceDraft.periods.find(x=>x.id===id);if(!period)return;
+    if(!confirmMutationWithSessionGuard(period.label+' 정비기간과 해당 날짜의 수동 편성을 삭제할까요?'))return;
+    maintenanceDraft.periods=maintenanceDraft.periods.filter(x=>x.id!==id);
+    maintenanceDraft.overrides=maintenanceDraft.overrides.filter(o=>o.date<period.start||o.date>period.end);
+    maintenanceRender();
+  }
+ });
+ $('maintenancePreview').addEventListener('change',e=>{
+  const select=e.target.closest('[data-mt-day][data-mt-group]');if(select)maintenanceSetOverride(select.dataset.mtDay,select.dataset.mtGroup,select.value);
+ });
+ $('maintenanceHolidayList').addEventListener('click',e=>{
+  const b=e.target.closest('[data-mt-remove-holiday]');
+  if(b&&maintenanceDraft){maintenanceDraft.holidays=maintenanceDraft.holidays.filter(h=>h.date!==b.dataset.mtRemoveHoliday);maintenanceRender();}
+ });
+}

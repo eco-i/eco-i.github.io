@@ -946,6 +946,36 @@
     .calendar-toolbar .month-title{font-size:min(calc(18px * var(--text-scale,1)),24px);white-space:nowrap;padding-inline:2px}
   }
 </style>
+<style id="maintenanceFeatureStyles">
+ #maintenanceBackdrop .modal{width:min(920px,96vw);max-width:920px;max-height:92vh;overflow:auto}
+ .maintenance-section{padding:11px 0;border-bottom:1px solid var(--border-color,#e2e8f0)}
+ .maintenance-section h3{font-size:.9rem;margin:0 0 8px;font-weight:800}
+ .maintenance-form-row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+ .maintenance-form-row label{display:flex;flex-direction:column;gap:3px;font-size:.78rem;font-weight:700;min-width:110px;flex:1}
+ .maintenance-form-row input{width:100%;min-width:0;padding:9px;border:1px solid #cbd5e1;border-radius:9px;color:inherit;background:var(--card-bg,#fff)}
+ .maintenance-form-row button,.maintenance-actions button{padding:9px 12px;border-radius:9px;border:1px solid #94a3b8;background:var(--card-bg,#fff);color:inherit;font-weight:800}
+ .maintenance-form-row button.primary,.maintenance-actions button.primary{background:#2563eb;border-color:#2563eb;color:#fff}
+ .maintenance-form-row button:disabled,.maintenance-actions button:disabled{opacity:.45}
+ .maintenance-line{display:flex;align-items:center;gap:7px;justify-content:space-between;margin:5px 0;padding:7px;border:1px solid #cbd5e1;border-radius:10px}
+ .maintenance-line button{border:1px solid #cbd5e1;background:transparent;border-radius:7px;padding:6px 9px;color:inherit;text-align:left}
+ .maintenance-line button:first-child{flex:1}
+ .maintenance-line .maintenance-selected{font-weight:900;border-color:#2563eb}
+ .maintenance-line .maintenance-remove{color:#b91c1c;flex:0 0 auto}
+ .maintenance-table-wrap{overflow:auto;max-height:340px;border:1px solid #cbd5e1;border-radius:10px}
+ .maintenance-table{width:100%;border-collapse:collapse;font-size:.74rem;min-width:430px}
+ .maintenance-table th{position:sticky;top:0;z-index:1;background:var(--card-bg,#fff)}
+ .maintenance-table th,.maintenance-table td{border-bottom:1px solid #e2e8f0;padding:5px;text-align:center}
+ .maintenance-table td:first-child{text-align:left;white-space:nowrap}
+ .maintenance-table small{font-size:.65rem;color:#b91c1c}
+ .maintenance-table select{width:100%;min-width:65px;border:1px solid #cbd5e1;background:var(--card-bg,#fff);color:inherit;border-radius:7px;padding:7px 2px;font-size:.74rem}
+ .maintenance-table select.maintenance-overridden{border:2px solid #7c3aed;font-weight:850}
+ .maintenance-help{font-size:.75rem;line-height:1.6;color:var(--muted,#64748b);margin:4px 0 8px}
+ .maintenance-status{min-height:20px;color:#b91c1c;font-size:.79rem;font-weight:750}
+ .maintenance-actions{display:flex;gap:8px;justify-content:end;margin-top:12px}
+ .maintenance-date-badge{font-size:.65rem;font-weight:800;color:#6d28d9}
+ @media(max-width:600px){.maintenance-form-row label{flex-basis:42%}.maintenance-form-row button{flex:1}.maintenance-table-wrap{max-height:290px}}
+</style>
+
 <link rel="stylesheet" href="site-update-history.css?v=shared20261018">
 </head>
 <body>
@@ -996,7 +1026,7 @@
     </div>
   </div>
 
-  <div id="adminActionGroup" class="admin-action-group admin-top-group collapsed"><button id="employeeManageBtn" class="manage-btn">직원 관리</button><button id="auditBtn" class="audit-btn">최근 변경</button><button id="capacityBtn" class="capacity-btn">용량 관리</button><button id="dataManageBtn" class="data-manage-btn">데이터 관리</button></div>
+  <div id="adminActionGroup" class="admin-action-group admin-top-group collapsed"><button id="employeeManageBtn" class="manage-btn">직원 관리</button><button id="auditBtn" class="audit-btn">최근 변경</button><button id="capacityBtn" class="capacity-btn">용량 관리</button><button id="dataManageBtn" class="data-manage-btn">데이터 관리</button><button id="maintenanceManageBtn" class="manage-btn" type="button">정비기간 관리</button></div>
 
   <div class="tabbar" role="navigation" aria-label="근무 화면 선택">
     <button class="tab active" data-view="mine" aria-current="page">내 근무표</button>
@@ -1195,7 +1225,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261018-2100 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261018-2150 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1689,6 +1719,34 @@
   </div>
 </div>
 
+<div id="maintenanceBackdrop" class="backdrop" aria-hidden="true">
+ <div class="modal" role="dialog" aria-modal="true" aria-labelledby="maintenanceManageTitle">
+  <div class="modal-head"><div id="maintenanceManageTitle" class="modal-title">대정비 근무표 관리</div><button class="close-btn" data-close="maintenance" type="button" aria-label="닫기">×</button></div>
+  <p class="maintenance-help">관리자 전용 · 저장 전 자동편성과 수정 내역을 확인하세요. <b>정비기간을 등록해도 기존 근태·연차·초과근무 기록은 변경하거나 삭제하지 않습니다.</b> 2026년 10/1~15 특별 편성은 잠겨 있습니다.</p>
+  <div class="maintenance-section"><h3>① 정비기간 추가</h3>
+   <div class="maintenance-form-row"><label>기간 이름<input id="maintenanceLabel" maxlength="60" placeholder="예: 2027 상반기 대정비"></label><label>시작일<input id="maintenanceStart" type="date" min="2026-01-01" max="2027-12-31"></label><label>마지막 날<input id="maintenanceEnd" type="date" min="2026-01-01" max="2027-12-31"></label><button id="maintenanceAddBtn" type="button">기간 추가</button></div>
+   <div id="maintenancePeriodList"></div>
+  </div>
+  <div class="maintenance-section"><h3>② 기간 정보 변경</h3>
+   <div class="maintenance-form-row"><label>선택한 기간<select id="maintenancePeriodSelect"></select></label></div>
+   <div class="maintenance-form-row hidden" id="maintenanceEditForm"><label>기간 이름<input id="maintenanceEditLabel" maxlength="60"></label><label>시작일<input id="maintenanceEditStart" type="date" min="2026-01-01" max="2027-12-31"></label><label>마지막 날<input id="maintenanceEditEnd" type="date" min="2026-01-01" max="2027-12-31"></label><button id="maintenanceEditBtn" type="button">기간 변경</button></div>
+  </div>
+  <div class="maintenance-section"><h3>③ 조별 자동편성 미리보기·수동 수정</h3>
+   <p class="maintenance-help">원래 8일 주기를 유지해 계산합니다. 마지막 날 야간 우선 적용, 주·야 종료 뒤 연속 휴무 보장, 주말·빨간날 휴무가 적용됩니다. <b>보라색 테두리는 관리자가 직접 수정한 날짜</b>입니다. 자동으로 되돌리려면 '자동'을 선택하세요.</p>
+   <p id="maintenancePreviewTitle" class="maintenance-help"></p>
+   <div id="maintenancePreview" class="maintenance-table-wrap"></div>
+  </div>
+  <div class="maintenance-section"><h3>④ 정부 지정 임시공휴일 등 추가 휴일</h3>
+   <p class="maintenance-help">공식 발표로 확정된 날만 입력하세요. 토·일요일·기존 공휴일·2월 12일 창립기념일은 이미 휴일로 처리됩니다. 추가 휴일은 일근자·정비 근무표에 모두 적용하며 자동으로 인터넷에서 수집하지는 않습니다.</p>
+   <div class="maintenance-form-row"><label>휴일 날짜<input id="maintenanceHolidayDate" type="date" min="2026-01-01" max="2027-12-31"></label><label>휴일 명칭<input id="maintenanceHolidayName" maxlength="40" placeholder="임시공휴일"></label><button id="maintenanceHolidayAddBtn" type="button">휴일 추가</button></div>
+   <div id="maintenanceHolidayList"></div>
+  </div>
+  <div id="maintenanceStatus" class="maintenance-status" role="status" aria-live="polite"></div>
+  <p class="maintenance-help">저장하면 전 직원 근무표와 초과근무·연차 계산에 반영됩니다. 수동수정은 자동편성보다 우선하며, 수정을 없애도 기본 8일 주기는 그대로 유지됩니다. 과거 날짜 편성을 바꾸면 기존 근태의 계산 결과가 달라질 수 있습니다.</p>
+  <div class="maintenance-actions"><button id="maintenanceReloadBtn" type="button">최신 설정 다시 불러오기</button><button id="maintenanceSaveBtn" type="button" class="primary">전체 근무표 저장</button></div>
+ </div>
+</div>
+
 <div id="updateHistoryBackdrop" class="backdrop" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="updateHistoryTitle">
     <div class="modal-head"><div id="updateHistoryTitle" class="modal-title">업데이트 내역</div><button class="close-btn" data-close="updateHistory" type="button" aria-label="닫기">×</button></div>
@@ -1710,6 +1768,7 @@
 <div id="loadingCover" class="loading-cover"><div class="spinner"></div></div>
 
 <script src="site-update-history.js?v=shared20261018"></script>
+<script src="maintenance-20261018.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0" onload="if(typeof startRealtime==='function')startRealtime()"></script>
 <script>
 'use strict';
@@ -1721,8 +1780,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20261018-2100';
+const APP_VERSION = 'ver20261018-2150';
 const UPDATE_HISTORY = [
+  {version:'ver20261018-2150',date:'2026.10.18',items:['관리자용 상·하반기 정비기간 등록·변경과 4개 조 자동편성 기능 추가','정비 마지막 날 야간근무·휴무 보장·주말 및 공휴일 적용','조별·날짜별 수동 편성 및 임시공휴일 추가, 연차·초과근무 자동 연동']},
   {version:'ver20261018-2100',date:'2026.10.18',items:['초과근무 조출·야근 저장 및 삭제 오류 수정','초과근무 목록 완료 체크 서버 연동 복구','저장 실패 안내와 미저장 상태 표시 개선']},
   {version:'ver20261018-2041',date:'2026.10.18',items:['매년 2월 12일 공단 창립기념일을 휴일로 표시','일근자 휴무·연차·휴일근무 판정에 창립기념일 반영','토·일요일과 겹쳐도 별도 대체휴일 없음']},
   {version:'ver20261018-1200',date:'2026.10.18',items:['업데이트 내역을 모든 직원에게 동일하게 표시','관리자 전용 업데이트 내역 수정·삭제 기능 추가','변경 내용 저장과 수정 충돌 방지 기능 개선']},
@@ -1805,7 +1865,7 @@ const HOLIDAYS = {
 // 공단 창립기념일은 매년 2/12 사내 지정휴일. 주말과 겹쳐도 대체휴일 없음.
 // 일반 공휴일 목록과 별도로 계산해 연도가 추가되어도 자동 적용한다.
 function holidayNameOn(key){
-  return /^\d{4}-02-12$/.test(String(key||''))?'공단 창립기념일':(HOLIDAYS[key]||'');
+  return /^\d{4}-02-12$/.test(String(key||''))?'공단 창립기념일':(HOLIDAYS[key]||maintenanceHolidayName(key)||'');
 }
 
 // 한국천문연구원 월력요항 기준 24절기(한국 표준시 날짜)
@@ -3125,6 +3185,7 @@ function guardSensitiveDataRpcSession(name,payload={}){
   }
 }
 const SESSION_GUARDED_MUTATION_RPCS=new Set([
+  'admin_save_maintenance_schedule',
   'save_my_long_service_profile_v2','save_my_long_service_profile','save_my_overtime_day_v2','save_my_overtime_entry_v2','save_my_overtime_day','save_my_overtime_entry','admin_set_holiday_work_month_confirmation',
   'save_my_fingerprint_photo','delete_my_fingerprint_photo','set_my_fingerprint_confirmed','save_my_annual_leave_setting_v2','save_my_annual_leave_setting',
   'save_my_memo_v2','delete_my_memo_v2','delete_my_memos_v2','save_my_memo','delete_my_memo','set_my_memo_dday','delete_my_memos','save_company_event_v4','delete_company_event_v4','save_company_event_v3','delete_company_event_v3',
@@ -3538,7 +3599,7 @@ function renderLastSyncTime(){
 }
 function markSuccessfulSync(){lastSuccessfulSyncAt=new Date();if(configured()&&$('statusLine'))$('statusLine').textContent='';renderLastSyncTime();}
 function coreMonthSyncHealthy(){
-  return !configured()||(state.accountStatusBackendReady===true&&state.attendanceAnnualLeaveBackendReady===true&&state.personnelBackendReady===true&&state.holidayWorkEligibilityReady===true&&state.holidayWorkBackendReady===true&&state.overtimeBackendReady===true&&state.overtimeConfirmBackendReady===true&&state.fingerprintBackendReady===true&&state.memoBackendReady===true&&state.memoDdayBackendReady===true);
+  return !configured()||(maintenanceReady===true&&state.accountStatusBackendReady===true&&state.attendanceAnnualLeaveBackendReady===true&&state.personnelBackendReady===true&&state.holidayWorkEligibilityReady===true&&state.holidayWorkBackendReady===true&&state.overtimeBackendReady===true&&state.overtimeConfirmBackendReady===true&&state.fingerprintBackendReady===true&&state.memoBackendReady===true&&state.memoDdayBackendReady===true);
 }
 function currentViewSyncHealthy(){
   if(!coreMonthSyncHealthy())return false;
@@ -5722,7 +5783,7 @@ function applyAccountModeUI({preserveOpenDetail=false}={}){
     setAdminToolsExpanded(false);
     // 관리자 PIN/복원/감사 등 민감·비편집 팝업은 권한 상실 즉시 닫되,
     // 비민감한 계정상태/인사발령 편집 초안은 아래 전용 동기화에서 잠금 상태로 보존한다.
-    ['employeeManageBackdrop','employeeActionBackdrop','employeeSuccessBackdrop','personnelSnapshotRestoreBackdrop','resetPinsBackdrop','resetPinsSuccessBackdrop','auditBackdrop','capacityBackdrop','dataManageBackdrop'].forEach(id=>{if($(id)?.classList.contains('open'))closeBackdrop(id,true);});
+    ['employeeManageBackdrop','employeeActionBackdrop','employeeSuccessBackdrop','personnelSnapshotRestoreBackdrop','resetPinsBackdrop','resetPinsSuccessBackdrop','auditBackdrop','capacityBackdrop','dataManageBackdrop','maintenanceBackdrop'].forEach(id=>{if($(id)?.classList.contains('open'))closeBackdrop(id,true);});
     clearAdminSensitiveRenderedState();
   }
   syncEmployeeAccountPermissionsPreservingDraft();
@@ -6706,6 +6767,7 @@ async function loadMonthData(silent=false,markSync=false){
   if(!silent) $('statusLine').textContent='불러오는 중…';
   try{
     const {from,to}=monthBounds(requestYear,requestMonth);
+    const maintenanceSynced=await loadMaintenanceSchedule();if(!stillCurrent())return false;
     let data;
     if(!configured()) data=localRecords().filter(r=>r.start_date<=to && r.end_date>=from);
     else data=await listAttendanceWithAnnualLeave(from,to,token,{trackSyncHealth:true,isCurrent:stillCurrent});
@@ -6722,7 +6784,7 @@ async function loadMonthData(silent=false,markSync=false){
     const ddaySynced=await loadMemoDdays(); if(!stillCurrent())return false;
     // 시각 갱신은 이 로더를 호출한 상위 동기화 작업에서 담당한다.
     // 그래야 같은 새로고침 주기의 사내일정/전용화면 실패 전에 시각이 먼저 갱신되지 않는다.
-    const healthy=holidaySynced!==false&&overtimeSynced!==false&&fingerprintSynced!==false&&memoSynced!==false&&ddaySynced!==false&&coreMonthSyncHealthy();
+    const healthy=maintenanceSynced!==false&&holidaySynced!==false&&overtimeSynced!==false&&fingerprintSynced!==false&&memoSynced!==false&&ddaySynced!==false&&coreMonthSyncHealthy();
     $('statusLine').textContent=configured()?(healthy?'':'일부 데이터를 불러오지 못했습니다. 새로고침해 주세요.'):'테스트 모드 · 이 기기에만 저장';
     if(markSync&&healthy&&!['leave','longservice'].includes(state.view)&&currentViewSyncHealthy())markSuccessfulSync();
     return healthy;
@@ -6928,7 +6990,7 @@ async function logout(callServer=true){
   if(logoutToken&&storageGet(localStorage,SESSION_KEY)===logoutToken){
     storageSet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY,logoutToken);
   }
-  state.sessionToken='';const sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken);state.me=null;state.initialPinRequired=false;state.accountStatusBackendReady=null;state.accountStatusPersonnelAuthoritative=null;state.employees=[];state.holidayWorkEligibilityReady=null;state.attendance=[];attendanceMonthContextKey='';state.attendanceAnnualLeaveBackendReady=null;state.holidayWorks=[];state.holidayWorkBackendReady=null;state.overtimeEntries=[];state.overtimeBackendReady=null;state.overtimeConfirmations=[];state.overtimeConfirmBackendReady=null;state.fingerprintRecords=[];state.fingerprintBackendReady=null;state.memos=[];state.memoBackendReady=null;state.memoDdays=[];state.memoDdayBackendReady=null;memoDdayPendingDates.clear();state.companyEvents=[];state.companyEventBackendReady=null;state.annualLeaveSettings=null;state.annualLeaveEntries=[];state.annualLeaveBackendReady=null;state.annualLeaveYear=null;state.annualLeaveFormDirty=false;state.longServiceProfile=null;state.longServiceExclusions=[];state.longServiceEntries=[];state.longServiceBackendReady=null;state.longServiceFormDirty=false;state.personnelAssignments=[];state.personnelAccountEvents=[];state.personnelSnapshots=[];state.personnelBackendReady=null;state.personnelSnapshotBackendReady=null;state.view='mine';
+  state.sessionToken='';maintenanceReset();const sharedLogoutCleanup=safelyClearStoredLoginSession(logoutToken);state.me=null;state.initialPinRequired=false;state.accountStatusBackendReady=null;state.accountStatusPersonnelAuthoritative=null;state.employees=[];state.holidayWorkEligibilityReady=null;state.attendance=[];attendanceMonthContextKey='';state.attendanceAnnualLeaveBackendReady=null;state.holidayWorks=[];state.holidayWorkBackendReady=null;state.overtimeEntries=[];state.overtimeBackendReady=null;state.overtimeConfirmations=[];state.overtimeConfirmBackendReady=null;state.fingerprintRecords=[];state.fingerprintBackendReady=null;state.memos=[];state.memoBackendReady=null;state.memoDdays=[];state.memoDdayBackendReady=null;memoDdayPendingDates.clear();state.companyEvents=[];state.companyEventBackendReady=null;state.annualLeaveSettings=null;state.annualLeaveEntries=[];state.annualLeaveBackendReady=null;state.annualLeaveYear=null;state.annualLeaveFormDirty=false;state.longServiceProfile=null;state.longServiceExclusions=[];state.longServiceEntries=[];state.longServiceBackendReady=null;state.longServiceFormDirty=false;state.personnelAssignments=[];state.personnelAccountEvents=[];state.personnelSnapshots=[];state.personnelBackendReady=null;state.personnelSnapshotBackendReady=null;state.view='mine';
   overtimeListRows=[];overtimeListBackendReady=null;overtimeListContextKey='';overtimeListTargetEmployeeId=null;
   holidayWorkListRows=[];holidayWorkListBackendReady=null;holidayWorkListContextKey='';holidayWorkPastExpanded=false;holidayWorkListEditReturnMode=null;
   memoListRows=[];memoListBackendReady=null;memoSelectedDates.clear();memoDeleteMode=false;
@@ -7135,6 +7197,8 @@ function shiftForGroup(group,y,m,d){
   const key=dateKey(y,m,d),weekday=new Date(y,m,d).getDay(),isHoliday=!!holidayNameOn(key);
   if(group==='DAY')return (weekday===0||weekday===6||isHoliday)?'휴':'일근';
   if(!SHIFT_PATTERNS[group])return '';
+  const configuredShift=maintenanceShiftForGroup(group,key);
+  if(configuredShift!==null)return configuredShift;
   if(key>='2026-10-01'&&key<='2026-10-15'){
     if(isHoliday||weekday===0||weekday===6)return '휴';
     if(group==='C'&&key==='2026-10-15')return '야';
@@ -7232,9 +7296,10 @@ function renderCalendar(){
         const names=state.absenceReflect?availableEmployees(key):scheduledEmployees(key);
         body=names.length?`<div class="availability">${names.map(e=>`<span class="name ${state.absenceReflect?availabilityNameClass(e,key):scheduledNameClass(e,key)}">${employeeCategoryOn(e,key)==='팀장'?'★ ':''}${escapeHtml(availabilityDisplayName(e,key))}</span>`).join('')}</div>`:'<div class="availability empty">-</div>';
       }
-      const memoMark=memo?'<span class="memo-mark" title="개인 메모 있음" aria-label="개인 메모 있음">✎</span>':'';
+      const maintenanceMark=maintenancePeriodOn(key)?'<span class="maintenance-date-badge" title="대정비기간">정비</span>':'';
+       const memoMark=memo?'<span class="memo-mark" title="개인 메모 있음" aria-label="개인 메모 있음">✎</span>':'';
       const memoPreview=memoPreviewVisible?`<div class="memo-preview" title="${escapeHtml(memo.memo_text)}">${escapeHtml(memo.memo_text)}</div>`:'';
-      html+=`<button type="button" class="${cls}" data-date="${key}"><div class="day-head"><span class="day-num">${d}</span>${memoMark}${holiday?`<span class="holiday-mini">${escapeHtml(holiday)}</span>`:''}</div>${fingerprintMark?`<div class="fingerprint-marker-row">${fingerprintMark}</div>`:''}${body}${memoPreview}${term?`<span class="calendar-term-mini">${escapeHtml(term)}</span>`:''}</button>`;
+      html+=`<button type="button" class="${cls}" data-date="${key}"><div class="day-head"><span class="day-num">${d}</span>${memoMark}${holiday?`<span class="holiday-mini">${escapeHtml(holiday)}</span>`:''}${maintenanceMark}</div>${fingerprintMark?`<div class="fingerprint-marker-row">${fingerprintMark}</div>`:''}${body}${memoPreview}${term?`<span class="calendar-term-mini">${escapeHtml(term)}</span>`:''}</button>`;
     }
     html+=overlay.html+'</div>';
   }
@@ -7345,6 +7410,7 @@ function clearSensitiveInputValues({preserveDataRestorePin=false}={}){
   });
 }
 function backdropOperationPending(id){
+  if(id==='maintenanceBackdrop')return maintenanceSavePending;
   if(id==='detailBackdrop')return overtimeDaySavePending||memoSavePending||memoDeletePendingDates.size>0||holidayWorkSavePendingKeys.size>0||holidayWorkDeletePendingKeys.size>0||fingerprintPhotoPending||fingerprintConfirmPending||fingerprintViewPending;
   if(id==='formBackdrop'||id==='attendanceListBackdrop'||id==='allAttendanceListBackdrop')return attendanceSavePending||attendanceDeletePendingIds.size>0;
   if(id==='memoListBackdrop')return memoBulkDeletePending||memoDdayPendingDates.size>0;
@@ -7365,11 +7431,13 @@ function closeBackdrop(id,force=false){
   if(dataManagementBusy&&!force&&(id==='myDataBackdrop'||id==='dataManageBackdrop'))return false;
   if(!force&&backdropOperationPending(id))return false;
   if(id==='initialPinBackdrop'&&state.initialPinRequired&&!force)return false;
+  if(id==='maintenanceBackdrop'&&!force&&!maintenanceCanDiscard())return false;
   if(id==='detailBackdrop'&&!force&&!detailCanDiscard())return false;
   if(id==='formBackdrop'&&!force&&!attendanceFormCanDiscard())return false;
   if(id==='personnelBatchBackdrop'&&!force&&!personnelEditorCanDiscard())return false;
   if(id==='employeeAccountBackdrop'&&!force&&!employeeAccountCanDiscard())return false;
   if(id==='companyEventManageBackdrop'&&!force&&!companyEventManageCanDiscard())return false;
+  if(id==='maintenanceBackdrop'){maintenanceDraft=null;maintenanceDraftBaseline=null;maintenanceEditorPeriodId='';}
   if(id==='detailBackdrop'){ holidayWorkListEditContext=false; holidayWorkListEditTargetEmployeeId=null; holidayWorkDetailTargetEmployeeId=null; holidayWorkListEditReturnMode=null; detailDraftBaseline={key:null,holiday:null,overtime:null,memo:null}; detailRecordBaseline={key:null,holiday:null,overtime:null,memo:null}; updateDetailDirtyIndicators(); }
   if(id==='formBackdrop'){ attendanceFormRosterContext=null; attendanceFormOpenedAsAdmin=false; attendanceFormInitial=null; attendanceFormSourceSnapshot=null; setAttendanceFormViewOnly(false); if($('targetEmployee')) $('targetEmployee').disabled=false; }
   if(id==='personnelBatchBackdrop'){
@@ -7418,6 +7486,7 @@ function closeBackdrop(id,force=false){
   return true;
 }
 function closeAll(){
+  maintenanceDraft=null;maintenanceDraftBaseline=null;maintenanceEditorPeriodId='';
   clearFingerprintPhotoEphemera();
   clearDataRestoreEphemera();
   clearAllBackdropSensitiveInputs();
@@ -7531,7 +7600,7 @@ function transientSensitiveFormHasUnsavedChanges(){
   if($('dataManageBackdrop')?.classList.contains('open')&&pendingAdminDataRestore)return true;
   return false;
 }
-function appHasBusinessUnsavedChanges(){return detailHasUnsavedChanges()||attendanceFormDirty()||personnelEditorDirty()||employeeAccountDirty()||settingsHaveUnsavedChanges()||companyEventEditorDirty();}
+function appHasBusinessUnsavedChanges(){return detailHasUnsavedChanges()||attendanceFormDirty()||personnelEditorDirty()||employeeAccountDirty()||settingsHaveUnsavedChanges()||companyEventEditorDirty()||maintenanceDirty();}
 function adminDeferredDraftHasUnsavedChanges(){
   if(!state.me)return false;
   const actor=Number(state.me.employee_id),key=state.selectedDate,target=key?holidayWorkTargetEmployee(key):null,flags=detailDirtyFlags();
@@ -7543,7 +7612,7 @@ function appHasPendingOperation({includeSessionRestore=true,includeFingerprintPi
   // 세션 복원은 자동업데이트/공유세션 reload와는 겹치면 안 되지만, 사용자 데이터 저장 작업은 아니다.
   // native 사진 picker도 앱 내부 기준으로는 진행 중 작업이므로 화면이동/새로고침/로그아웃과 겹치지 않게 한다.
   // 단, beforeunload에서는 OS picker 자체 때문에 '저장되지 않을 수 있음' 경고를 띄우지 않도록 별도로 제외할 수 있다.
-  return !!((includeSessionRestore&&sessionRestoreInFlight)||(includeFingerprintPicker&&fingerprintPickerFlowActive)||(includeDataRestorePicker&&dataRestorePickerFlowActive)||dataManagementBusy||loginPending||overtimeDaySavePending||overtimeConfirmPending||overtimeListPendingIds.size||fingerprintPhotoPending||fingerprintConfirmPending||memoSavePending||memoDeletePendingDates.size||memoBulkDeletePending||memoDdayPendingDates.size||holidayWorkSavePendingKeys.size||holidayWorkDeletePendingKeys.size||annualLeaveSavePending||longServiceSavePending||attendanceSavePending||attendanceDeletePendingIds.size||companyEventSavePending||companyEventDeletePendingIds.size||employeeActionSavePending||employeeAccountSavePending||personnelBatchSavePending||personnelBatchCancelPendingIds.size||personnelSnapshotRestorePending||resetCurrentPinsPending||holidayWorkEligibilityPendingIds.size||selfPinChangePending);
+  return !!((includeSessionRestore&&sessionRestoreInFlight)||(includeFingerprintPicker&&fingerprintPickerFlowActive)||(includeDataRestorePicker&&dataRestorePickerFlowActive)||dataManagementBusy||loginPending||maintenanceSavePending||overtimeDaySavePending||overtimeConfirmPending||overtimeListPendingIds.size||fingerprintPhotoPending||fingerprintConfirmPending||memoSavePending||memoDeletePendingDates.size||memoBulkDeletePending||memoDdayPendingDates.size||holidayWorkSavePendingKeys.size||holidayWorkDeletePendingKeys.size||annualLeaveSavePending||longServiceSavePending||attendanceSavePending||attendanceDeletePendingIds.size||companyEventSavePending||companyEventDeletePendingIds.size||employeeActionSavePending||employeeAccountSavePending||personnelBatchSavePending||personnelBatchCancelPendingIds.size||personnelSnapshotRestorePending||resetCurrentPinsPending||holidayWorkEligibilityPendingIds.size||selfPinChangePending);
 }
 function confirmLeaveDirtySettings(label='현재 입력'){
   if(!settingsHaveUnsavedChanges())return true;
@@ -11828,7 +11897,7 @@ function wire(){
       }catch(e){}
     }
   }
-  cleanupVersionQuery();restoreTheme();restoreTextSizeLevel();setupLoginPersistenceUI();syncVersionFooter();wire();wireDataManagement();toggleAdminPinField();startVersionWatcher();
+  cleanupVersionQuery();restoreTheme();restoreTextSizeLevel();setupLoginPersistenceUI();syncVersionFooter();wire();wireDataManagement();maintenanceWire();toggleAdminPinField();startVersionWatcher();
   await restoreSession();
 })();
 </script>
