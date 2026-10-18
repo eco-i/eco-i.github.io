@@ -66,6 +66,11 @@
   }
   function currentRecord(version){return records && records.find(function(x){return x.version===version;});}
   async function mutate(action,version){
+    // Register write RPCs with the existing per-session mutation fences before calling rpc().
+    if(typeof SESSION_GUARDED_MUTATION_RPCS!=='undefined'){
+      SESSION_GUARDED_MUTATION_RPCS.add('admin_edit_site_update_history_v1');
+      SESSION_GUARDED_MUTATION_RPCS.add('admin_delete_site_update_history_v1');
+    }
     if(busy || !canEdit() || !sessionReady())return;
     var r=currentRecord(version);if(!r)return;
     var body=el('updateHistoryBody');if(!body)return;
@@ -87,7 +92,7 @@
     try{
       var fn=action==='delete'?'admin_delete_site_update_history_v1':'admin_edit_site_update_history_v1';
       await rpc(fn,payload);
-      if(payload.p_token!==state.sessionToken)return;
+      if(payload.p_token!==state.sessionToken || !canEdit())return;
       editingVersion='';
       if(typeof showToast==='function')showToast(action==='delete'?'업데이트 내역을 삭제했습니다.':'업데이트 내역을 수정했습니다.','success');
     }catch(e){
