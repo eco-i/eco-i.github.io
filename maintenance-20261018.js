@@ -228,6 +228,7 @@ async function maintenanceSave(){
  const token=state.sessionToken,actor=Number(state.me.employee_id),epoch=sessionContextEpoch;
  const saved=maintenanceClone(maintenanceDraft),expected=maintenanceDraftBaseline.revision;
  maintenanceSavePending=true;maintenanceRender();
+ let saveErrorMessage='';
  try{
   const result=maintenanceStrictResponse(await rpc('admin_save_maintenance_schedule',{p_token:token,p_expected_revision:expected,p_data:saved}));
   if(!sharedSessionContextCurrent(actor,token,{epoch}))return;
@@ -240,9 +241,19 @@ async function maintenanceSave(){
  }catch(e){
   if(sharedSessionContextCurrent(actor,token,{epoch})){
    const str=String(e?.message||'');
-   $('maintenanceStatus').textContent=str.includes('STALE_MAINTENANCE_SCHEDULE')?'다른 관리자 또는 탭에서 먼저 수정했습니다. 최신 정보를 다시 불러와 주세요.':userSafeServiceError(e,'정비 근무표 저장에 실패했습니다. 다시 시도해 주세요.');
+   saveErrorMessage=str.includes('HOLIDAY_WORK_HISTORY_CONFLICT')
+    ?'이 날짜에 등록된 휴일근무 기록이 있어 근무일로 변경하거나 추가 휴일을 삭제할 수 없습니다. 기존 휴일근무 기록을 먼저 확인해 주세요.'
+    :str.includes('STALE_MAINTENANCE_SCHEDULE')
+     ?'다른 관리자 또는 탭에서 먼저 수정했습니다. 최신 정보를 다시 불러와 주세요.'
+     :userSafeServiceError(e,'정비 근무표 저장에 실패했습니다. 다시 시도해 주세요.');
   }
- }finally{maintenanceSavePending=false;if(maintenanceDraft&&$('maintenanceBackdrop')?.classList.contains('open'))maintenanceRender();}
+ }finally{
+  maintenanceSavePending=false;
+  if(maintenanceDraft&&$('maintenanceBackdrop')?.classList.contains('open')){
+   maintenanceRender();
+   if(saveErrorMessage)$('maintenanceStatus').textContent=saveErrorMessage;
+  }
+ }
 }
 function maintenanceWire(){
  $('maintenanceManageBtn').addEventListener('click',maintenanceOpen);
