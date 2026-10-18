@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-5",
-  "next_block": "3-8-6",
-  "latest_report": "qa-round3/QA_3-8-5_REPORT.md",
+  "last_completed_block": "3-8-6",
+  "next_block": "3-8-7",
+  "latest_report": "qa-round3/QA_3-8-6_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 3,
@@ -22,15 +22,15 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "ISSUES_FOUND_QA_FIXES_STAGED_NOT_DEPLOYED",
+  "latest_status": "SCOPED_PASS_WITH_THREE_UNDEPLOYED_QA_FIXES",
   "pending_manual_tests": [
-    "real Android and PC UI layout and touch flows",
-    "non-admin active session access and personnel permission",
-    "cross-device concurrency and Realtime network delays",
-    "full user workflow for holiday + annual leave and maintenance"
+    "real non-admin user account access and permissions",
+    "two real concurrent sessions for maintenance vs holiday work RPCs",
+    "real mobile/desktop browser maintenance error messages",
+    "end-user backup/restore concurrency and retry"
   ],
-  "next_scope": "3-8-6: Cross-check holiday/maintenance admin management with historical attendance, annual leave, holiday work, staff permissions and multi-tab CAS; cover concurrency and UI where possible",
-  "updated_kst": "2026-10-19T05:40:51+09:00",
+  "next_scope": "3-8-7: update history admin edit/delete permissions and all-staff visibility, role & UI regressions and mobile layout",
+  "updated_kst": "2026-10-19T05:55:14+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -46,7 +46,10 @@
       "title": "Changing a holiday with existing holiday-work entries creates history consistency conflict",
       "fix_file": "qa-round3/fixes/QA_3-8-5_holiday_work_history_guard.sql",
       "production_applied": false,
-      "qa_rollback_verified": true
+      "qa_rollback_verified": true,
+      "augmented_fix_file": "qa-round3/fixes/QA_3-8-6_holiday_work_serialization.sql",
+      "concurrent_real_sessions_verified": false,
+      "qa_three_rpc_rollback_pass": true
     },
     {
       "id": "3-8-5-002",
@@ -84,14 +87,30 @@
       "qa_server_patch_transactional_tests": true,
       "qa_client_error_messages": 3,
       "real_user_data_changed": false
+    },
+    "block_6": {
+      "maintenance_validate_js_cases": 17,
+      "maintenance_validate_js_failed": 0,
+      "three_rpc_lock_order_staged": true,
+      "three_rpc_sql_rollback_test_pass": true,
+      "admin_unauthorized_session_rejected": true,
+      "protected_2026_10_and_feb12": true,
+      "maintenance_stale_revision_rejected": true,
+      "holiday_work_history_reclassification_and_restore_pass": true,
+      "custom_holiday_remove_preserves_history": true,
+      "real_concurrency_verified": false,
+      "real_nonadmin_session_verified": false,
+      "new_confirmed_product_defects": 0,
+      "main_changed": false,
+      "production_db_permanent_changes": false
     }
   },
   "pending_qa_fixes": [
-    "3-8-2-001: memo/D-day server date guard SQL validated only via rollback, not deployed",
-    "3-8-5-001: holiday history conflict server guard SQL validated only via rollback, not deployed; concurrency not fully verified",
-    "3-8-5-002: preserve maintenance save failure messages in QA asset, not deployed"
+    "3-8-2-001: memo/D-day year guard SQL rollback-tested in QA; not deployed",
+    "3-8-5-001: revised 3-RPC holiday work/history locking SQL in qa-round3/fixes/QA_3-8-6_holiday_work_serialization.sql; rollback-tested sequentially, real concurrent client test pending; not deployed",
+    "3-8-5-002: maintenance save error status persisted by QA JS, browser UI test pending; not deployed"
   ],
-  "round3_new_product_defects_this_block": 2,
+  "round3_new_product_defects_this_block": 0,
   "memo_fix_regression": {
     "branch": "qa-3-8",
     "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
