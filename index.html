@@ -1204,6 +1204,7 @@
       <button id="nextMonth" class="nav-btn">다음달</button>
     </div>
 
+    <div id="futureHolidayNotice" class="hidden" style="font-size:.74rem;line-height:1.55;color:var(--muted,#64748b);padding:6px 10px 1px">※ 2028~2035년 음력·대체공휴일은 현행 규정에 따른 예정일이며, 향후 정부 확정·법 개정·선거일·임시공휴일에 따라 달라질 수 있습니다. 관리자가 확정된 추가 휴일을 등록할 수 있습니다.</div>
     <div id="overtimeSummary" class="overtime-summary hidden">
       <button id="overtimeSummaryMain" class="overtime-summary-main" type="button" aria-label="월 초과근무 계획 및 완료 목록 열기">
         <span class="overtime-summary-title">초과근무</span>
@@ -1225,7 +1226,7 @@
       <div id="substituteHolidayCompList" class="substitute-holiday-comp-list"></div>
     </div>
   </section>
-  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261018-2150 · 업데이트 내역</button>
+  <button id="versionHistoryBtn" class="version version-btn" type="button" aria-haspopup="dialog" aria-controls="updateHistoryBackdrop">ver20261018-2230 · 업데이트 내역</button>
   </div>
   </div>
 </main>
@@ -1503,7 +1504,7 @@
   <div class="modal personnel-batch-editor-modal">
     <div class="modal-head"><div id="personnelBatchTitle" class="modal-title">인사발령 등록</div><button class="close-btn" data-close="personnelBatch" type="button" aria-label="닫기">×</button></div>
     <div id="personnelBatchModeNotice" class="personnel-section-help"></div>
-    <div class="field"><label for="personnelEffectiveDate">적용일</label><input id="personnelEffectiveDate" type="date" min="2026-01-01" max="2027-12-31"></div>
+    <div class="field"><label for="personnelEffectiveDate">적용일</label><input id="personnelEffectiveDate" type="date" min="2026-01-01" max="2035-12-31"></div>
     <div class="field"><label for="personnelBatchNote">발령 메모 <span class="optional-label">선택</span></label><input id="personnelBatchNote" maxlength="120" placeholder="예: 2027년 1월 정기인사"></div>
     <div class="personnel-editor-actions"><button id="addExistingPersonnelItemBtn" class="secondary" type="button">＋ 기존 직원 변동</button><button id="addNewPersonnelItemBtn" class="secondary" type="button">＋ 신규입사·사내전입</button></div>
     <div id="personnelBatchItems" class="personnel-batch-items"></div>
@@ -1530,7 +1531,7 @@
     <div class="modal-head"><div class="modal-title">계정 상태 변경</div><button class="close-btn" data-close="employeeAccount" type="button" aria-label="닫기">×</button></div>
     <div id="employeeAccountInfo" class="personnel-section-help"></div>
     <div class="field"><label for="employeeAccountStatus">계정 상태</label><select id="employeeAccountStatus"><option value="active">사용</option><option value="readonly">조회전용</option><option value="disabled">비활성</option></select></div>
-    <div class="field"><label for="employeeAccountEffectiveDate">적용일</label><input id="employeeAccountEffectiveDate" type="date" min="2026-01-01" max="2027-12-31"></div>
+    <div class="field"><label for="employeeAccountEffectiveDate">적용일</label><input id="employeeAccountEffectiveDate" type="date" min="2026-01-01" max="2035-12-31"></div>
     <div class="field"><label for="employeeAccountNote">메모 <span class="optional-label">선택</span></label><input id="employeeAccountNote" maxlength="120" placeholder="예: 전입 전 계정 조기 활성화"></div>
     <div id="employeeAccountWarning" class="warning-box hidden"></div>
     <div id="employeeAccountError" class="form-error"></div>
@@ -1567,7 +1568,7 @@
     <div id="employeeCategoryField" class="field"><label for="employeeCategory">근무구분</label><select id="employeeCategory"><option>팀장</option><option>일근(사무)</option><option>일근(현장)</option><option>A조</option><option>B조</option><option>C조</option><option>D조</option></select></div>
     <div id="employeePinField" class="field"><label id="employeePinLabel" for="employeePin">로그인 비밀번호</label><input id="employeePin" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password" placeholder="4자리"></div>
     <div id="employeeAdminPinField" class="field hidden"><label for="employeeAdminPin">관리자 2차 비밀번호</label><input id="employeeAdminPin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="4자리"></div>
-    <div id="employeeEffectiveDateField" class="field"><label for="employeeEffectiveDate">적용일</label><input id="employeeEffectiveDate" type="date" min="2026-01-01" max="2027-12-31"></div>
+    <div id="employeeEffectiveDateField" class="field"><label for="employeeEffectiveDate">적용일</label><input id="employeeEffectiveDate" type="date" min="2026-01-01" max="2035-12-31"></div>
     <div id="employeeActionNote" class="warning-box hidden"></div>
     <div id="employeeActionError" class="form-error"></div>
     <button id="saveEmployeeActionBtn" class="primary">저장</button>
@@ -1724,12 +1725,12 @@
   <div class="modal-head"><div id="maintenanceManageTitle" class="modal-title">대정비 근무표 관리</div><button class="close-btn" data-close="maintenance" type="button" aria-label="닫기">×</button></div>
   <p class="maintenance-help">관리자 전용 · 저장 전 자동편성과 수정 내역을 확인하세요. <b>정비기간을 등록해도 기존 근태·연차·초과근무 기록은 변경하거나 삭제하지 않습니다.</b> 2026년 10/1~15 특별 편성은 잠겨 있습니다.</p>
   <div class="maintenance-section"><h3>① 정비기간 추가</h3>
-   <div class="maintenance-form-row"><label>기간 이름<input id="maintenanceLabel" maxlength="60" placeholder="예: 2027 상반기 대정비"></label><label>시작일<input id="maintenanceStart" type="date" min="2026-01-01" max="2027-12-31"></label><label>마지막 날<input id="maintenanceEnd" type="date" min="2026-01-01" max="2027-12-31"></label><button id="maintenanceAddBtn" type="button">기간 추가</button></div>
+   <div class="maintenance-form-row"><label>기간 이름<input id="maintenanceLabel" maxlength="60" placeholder="예: 2027 상반기 대정비"></label><label>시작일<input id="maintenanceStart" type="date" min="2026-01-01" max="2035-12-31"></label><label>마지막 날<input id="maintenanceEnd" type="date" min="2026-01-01" max="2035-12-31"></label><button id="maintenanceAddBtn" type="button">기간 추가</button></div>
    <div id="maintenancePeriodList"></div>
   </div>
   <div class="maintenance-section"><h3>② 기간 정보 변경</h3>
    <div class="maintenance-form-row"><label>선택한 기간<select id="maintenancePeriodSelect"></select></label></div>
-   <div class="maintenance-form-row hidden" id="maintenanceEditForm"><label>기간 이름<input id="maintenanceEditLabel" maxlength="60"></label><label>시작일<input id="maintenanceEditStart" type="date" min="2026-01-01" max="2027-12-31"></label><label>마지막 날<input id="maintenanceEditEnd" type="date" min="2026-01-01" max="2027-12-31"></label><button id="maintenanceEditBtn" type="button">기간 변경</button></div>
+   <div class="maintenance-form-row hidden" id="maintenanceEditForm"><label>기간 이름<input id="maintenanceEditLabel" maxlength="60"></label><label>시작일<input id="maintenanceEditStart" type="date" min="2026-01-01" max="2035-12-31"></label><label>마지막 날<input id="maintenanceEditEnd" type="date" min="2026-01-01" max="2035-12-31"></label><button id="maintenanceEditBtn" type="button">기간 변경</button></div>
   </div>
   <div class="maintenance-section"><h3>③ 조별 자동편성 미리보기·수동 수정</h3>
    <p class="maintenance-help">원래 8일 주기를 유지해 계산합니다. 마지막 날 야간 우선 적용, 주·야 종료 뒤 연속 휴무 보장, 주말·빨간날 휴무가 적용됩니다. <b>보라색 테두리는 관리자가 직접 수정한 날짜</b>입니다. 자동으로 되돌리려면 '자동'을 선택하세요.</p>
@@ -1738,7 +1739,7 @@
   </div>
   <div class="maintenance-section"><h3>④ 정부 지정 임시공휴일 등 추가 휴일</h3>
    <p class="maintenance-help">공식 발표로 확정된 날만 입력하세요. 토·일요일·기존 공휴일·2월 12일 창립기념일은 이미 휴일로 처리됩니다. 추가 휴일은 일근자·정비 근무표에 모두 적용하며 자동으로 인터넷에서 수집하지는 않습니다.</p>
-   <div class="maintenance-form-row"><label>휴일 날짜<input id="maintenanceHolidayDate" type="date" min="2026-01-01" max="2027-12-31"></label><label>휴일 명칭<input id="maintenanceHolidayName" maxlength="40" placeholder="임시공휴일"></label><button id="maintenanceHolidayAddBtn" type="button">휴일 추가</button></div>
+   <div class="maintenance-form-row"><label>휴일 날짜<input id="maintenanceHolidayDate" type="date" min="2026-01-01" max="2035-12-31"></label><label>휴일 명칭<input id="maintenanceHolidayName" maxlength="40" placeholder="임시공휴일"></label><button id="maintenanceHolidayAddBtn" type="button">휴일 추가</button></div>
    <div id="maintenanceHolidayList"></div>
   </div>
   <div id="maintenanceStatus" class="maintenance-status" role="status" aria-live="polite"></div>
@@ -1768,6 +1769,7 @@
 <div id="loadingCover" class="loading-cover"><div class="spinner"></div></div>
 
 <script src="site-update-history.js?v=shared20261018"></script>
+<script src="future-holidays-2028-2035.js"></script>
 <script src="maintenance-20261018.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0" onload="if(typeof startRealtime==='function')startRealtime()"></script>
 <script>
@@ -1780,8 +1782,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20261018-2150';
+const APP_VERSION = 'ver20261018-2230';
 const UPDATE_HISTORY = [
+  {version:'ver20261018-2230',date:'2026.10.18',items:['달력·연차·초과근무·사내일정·인사발령 사용연도 2035년까지 확장','2028~2035년 설날·추석·부처님오신날과 대체공휴일 예정 정보 보완','정비기간 등록·조별 근무표 수정·임시공휴일 관리 연도 제한 확장']},
   {version:'ver20261018-2150',date:'2026.10.18',items:['관리자용 상·하반기 정비기간 등록·변경과 4개 조 자동편성 기능 추가','정비 마지막 날 야간근무·휴무 보장·주말 및 공휴일 적용','조별·날짜별 수동 편성 및 임시공휴일 추가, 연차·초과근무 자동 연동']},
   {version:'ver20261018-2100',date:'2026.10.18',items:['초과근무 조출·야근 저장 및 삭제 오류 수정','초과근무 목록 완료 체크 서버 연동 복구','저장 실패 안내와 미저장 상태 표시 개선']},
   {version:'ver20261018-2041',date:'2026.10.18',items:['매년 2월 12일 공단 창립기념일을 휴일로 표시','일근자 휴무·연차·휴일근무 판정에 창립기념일 반영','토·일요일과 겹쳐도 별도 대체휴일 없음']},
@@ -1811,7 +1814,7 @@ const FINGERPRINT_WRITE_RPC_TIMEOUT_MS = MUTATION_RPC_TIMEOUT_MS; // 지문 사�
 const SESSION_RETRY_DELAYS_MS = [3000,5000,8000,15000,30000]; // 일시적 서버 지연 시 로그인 상태를 보존한 채 재확인
 
 const MIN_YEAR = 2026;
-const MAX_YEAR = 2027;
+const MAX_YEAR = 2035;
 const SESSION_KEY = 'staffAttendance_session_v1';
 const ADMIN_UNLOCK_KEY = 'staffAttendance_admin2_ok_v1';
 const PC_REMEMBER_KEY = 'staffAttendance_pcRemember_v1';
@@ -1865,7 +1868,7 @@ const HOLIDAYS = {
 // 공단 창립기념일은 매년 2/12 사내 지정휴일. 주말과 겹쳐도 대체휴일 없음.
 // 일반 공휴일 목록과 별도로 계산해 연도가 추가되어도 자동 적용한다.
 function holidayNameOn(key){
-  return /^\d{4}-02-12$/.test(String(key||''))?'공단 창립기념일':(HOLIDAYS[key]||maintenanceHolidayName(key)||'');
+  return /^\d{4}-02-12$/.test(String(key||''))?'공단 창립기념일':(HOLIDAYS[key]||maintenanceHolidayName(key)||FUTURE_HOLIDAYS[key]||'');
 }
 
 // 한국천문연구원 월력요항 기준 24절기(한국 표준시 날짜)
@@ -5988,7 +5991,7 @@ async function loadHolidayWorks(){
     return true;
   }catch(e){
     if(!stillCurrent())return false;
-    // 휴근은 2026~2027 전체 범위를 한 번에 읽으므로 일시 조회 실패만으로 마지막 정상 기록을
+    // 휴근은 2026~2035 전체 범위를 한 번에 읽으므로 일시 조회 실패만으로 마지막 정상 기록을
     // '삭제된 것처럼' 비우지 않는다. 화면에는 실패 상태를 남기되 마지막 정상 데이터는 보존한다.
     state.holidayWorks=before;state.holidayWorkBackendReady=false;return false;
   }
@@ -7266,6 +7269,7 @@ function renderCalendar(){
   if(state.refreshing)return;
   renderOvertimeSummary();
   $('monthTitle').textContent=`${state.year}년 ${state.month+1}월`;
+  $('futureHolidayNotice')?.classList.toggle('hidden',state.year<2028);
   $('prevMonth').disabled=(state.year===MIN_YEAR&&state.month===0); $('nextMonth').disabled=(state.year===MAX_YEAR&&state.month===11);
   const first=new Date(state.year,state.month,1).getDay(); const dim=daysInMonth(state.year,state.month); const total=Math.ceil((first+dim)/7)*7;
   const companyEvents=normalizeCompanyEventRows(state.companyEvents);

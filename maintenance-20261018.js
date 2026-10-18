@@ -7,7 +7,7 @@ const maintenanceShifts=['주2','주','야','휴','비'];
 const maintenanceEmpty=()=>({periods:[],overrides:[],holidays:[]});
 const maintenanceClone=x=>JSON.parse(JSON.stringify(x));
 function maintenanceISODate(key){
- if(typeof key!=='string'||!/^20(26|27)-\d{2}-\d{2}$/.test(key))return false;
+ if(typeof key!=='string'||!/^20(2[6-9]|3[0-5])-\d{2}-\d{2}$/.test(key))return false;
  const d=new Date(key+'T00:00:00Z');return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===key;
 }
 function maintenanceDayDiff(from,to){return Math.round((new Date(to+'T00:00:00Z')-new Date(from+'T00:00:00Z'))/86400000);}
@@ -21,7 +21,7 @@ function maintenanceHolidayName(key,data=maintenanceSchedule.data){
 }
 function maintenanceDayHoliday(key,data=maintenanceSchedule.data){
  const weekday=new Date(key+'T00:00:00Z').getUTCDay();
- return weekday===0||weekday===6||!!HOLIDAYS[key]||/^\d{4}-02-12$/.test(key)||!!maintenanceHolidayName(key,data);
+ return weekday===0||weekday===6||!!HOLIDAYS[key]||!!FUTURE_HOLIDAYS[key]||/^\d{4}-02-12$/.test(key)||!!maintenanceHolidayName(key,data);
 }
 function maintenancePeriodOn(key,data=maintenanceSchedule.data){
  return (data?.periods||[]).find(p=>key>=p.start&&key<=p.end)||null;
@@ -47,7 +47,7 @@ function maintenanceComputedShift(group,key,data=maintenanceSchedule.data){
 function maintenanceShiftForGroup(group,key){return maintenanceComputedShift(group,key);}
 function maintenanceValidate(data){
  if(!data||!['periods','overrides','holidays'].every(k=>Array.isArray(data[k])))return '편성 데이터가 올바르지 않습니다.';
- if(data.periods.length>16||data.overrides.length>1500||data.holidays.length>100)return '등록 가능한 최대 건수를 초과했습니다.';
+ if(data.periods.length>32||data.overrides.length>5000||data.holidays.length>100)return '등록 가능한 최대 건수를 초과했습니다.';
  const ids=new Set(),slots=new Set(),holidays=new Set();
  for(const p of data.periods){
   if(!/^[a-zA-Z0-9_-]{1,40}$/.test(p.id||'')||ids.has(p.id)||!String(p.label||'').trim()||String(p.label||'').trim().length>60||!maintenanceISODate(p.start)||!maintenanceISODate(p.end)||maintenanceDayDiff(p.start,p.end)<0||maintenanceDayDiff(p.start,p.end)>60)return '기간명·시작일·종료일(최대 61일)을 확인해 주세요.';
