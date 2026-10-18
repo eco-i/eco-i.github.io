@@ -132,20 +132,7 @@ begin
 
  for v_h in select value from jsonb_array_elements(p_data->'excludedHolidays') loop
    if jsonb_typeof(v_h)<>'string'
-      or (v_h #>> '{}') !~ '^20(2[6-9]|3[0-5])-[0-9]{2}-[0-9]{2}
- if v_current.revision<>p_expected_revision then raise exception 'STALE_MAINTENANCE_SCHEDULE'; end if;
- update public.maintenance_schedule_state
- set revision=revision+1,data=p_data,updated_at=now(),updated_by=v_actor where id=1;
- insert into public.audit_logs(actor_employee_id,target_employee_id,action_type,summary)
- values(v_actor,v_actor,'대정비 근무표 설정',
-   '정비기간 '||jsonb_array_length(p_data->'periods')||'건 · 조별 수정 '||
-   jsonb_array_length(p_data->'overrides')||'건 · 추가 휴일 '||
-   jsonb_array_length(p_data->'holidays')||'건 · 변경 전 개정 '||v_current.revision);
- if to_regprocedure('public._personnel_signal()') is not null then perform public._personnel_signal(); end if;
- return jsonb_build_object('revision',v_current.revision+1,'data',p_data);
-end;
-$function$
-
+      or (v_h #>> '{}') !~ '^20(2[6-9]|3[0-5])-[0-9]{2}-[0-9]{2}$'
    then raise exception 'INVALID_EXCLUDED_HOLIDAY'; end if;
    begin v_day:=(v_h #>> '{}')::date;
    exception when others then raise exception 'INVALID_EXCLUDED_HOLIDAY'; end;
