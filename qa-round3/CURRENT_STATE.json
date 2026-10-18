@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-6",
-  "next_block": "3-8-7",
-  "latest_report": "qa-round3/QA_3-8-6_REPORT.md",
+  "last_completed_block": "3-8-7",
+  "next_block": "3-8-8",
+  "latest_report": "qa-round3/QA_3-8-7_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 3,
@@ -22,15 +22,15 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "SCOPED_PASS_WITH_THREE_UNDEPLOYED_QA_FIXES",
+  "latest_status": "SCOPED_CLEAN_THREE_QA_FIXES_PENDING",
   "pending_manual_tests": [
-    "real non-admin user account access and permissions",
-    "two real concurrent sessions for maintenance vs holiday work RPCs",
-    "real mobile/desktop browser maintenance error messages",
-    "end-user backup/restore concurrency and retry"
+    "real non-admin active account history list/auth validation",
+    "real mobile and desktop full-app visual interaction",
+    "real two-session maintenance/holiday-work overlap",
+    "end-to-end multi-device history edit/delete propagation"
   ],
-  "next_scope": "3-8-7: update history admin edit/delete permissions and all-staff visibility, role & UI regressions and mobile layout",
-  "updated_kst": "2026-10-19T05:55:14+09:00",
+  "next_scope": "3-8-8: responsive UI/real Chromium integration of eight feature changes and maintenance modal; no main deployment, protect data",
+  "updated_kst": "2026-10-19T06:08:48+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -103,6 +103,27 @@
       "new_confirmed_product_defects": 0,
       "main_changed": false,
       "production_db_permanent_changes": false
+    },
+    "block_7": {
+      "history_existing_rows": 22,
+      "history_published": 20,
+      "history_deleted": 2,
+      "server_rpc_success_softdelete_tombstone_cases": 10,
+      "server_rpc_invalid_session_cases": 3,
+      "server_rpc_bad_input_cases": 6,
+      "frontend_mock_checks": 12,
+      "frontend_static_checks": 11,
+      "chromium_isolated_viewport_widths": [
+        320,
+        360,
+        390,
+        430,
+        768,
+        1280
+      ],
+      "isolated_layout_overflows": 0,
+      "new_product_defects": 0,
+      "production_data_changes": false
     }
   },
   "pending_qa_fixes": [
