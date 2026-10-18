@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-2",
-  "next_block": "3-8-3",
-  "latest_report": "qa-round3/QA_3-8-2_REPORT.md",
+  "last_completed_block": "3-8-3",
+  "next_block": "3-8-4",
+  "latest_report": "qa-round3/QA_3-8-3_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 1,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "ISSUE_FOUND_FIX_STAGED_NOT_DEPLOYED",
+  "latest_status": "BLOCK_PASSED_PREVIOUS_ISSUE_STAGED_NOT_DEPLOYED",
   "pending_manual_tests": [
     "live mobile and PC layouts",
     "admin/member real session permissions",
@@ -30,8 +30,8 @@
     "real browser integration and cross-device",
     "transactional boundaries of additional changes"
   ],
-  "next_scope": "Audit memo 2035 SQL patch impacts (record edits, D-day, history, backup/restore), then continue annual leave/OT/holiday work/personnel boundary integration; do not deploy without approval.",
-  "updated_kst": "2026-10-19T00:14:03+09:00",
+  "next_scope": "3-8-4: overtime save/delete, early/late completed check, month/year boundary, personnel context and concurrency/CAS regressions",
+  "updated_kst": "2026-10-19T00:35:17+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -62,6 +62,26 @@
     }
   },
   "pending_qa_fixes": [
-    "3-8-2-001 SQL patch staged in qa branch, not executed on production"
-  ]
+    "3-8-2-001 memo/D-day 2026-2035 SQL validated with production transactional rollback; fix staged on qa branch only; production not deployed."
+  ],
+  "round3_new_product_defects_this_block": 0,
+  "memo_fix_regression": {
+    "branch": "qa-3-8",
+    "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
+    "compiled_with_constraints_in_rollback": true,
+    "eligible_session_2035_memo_save_delete": true,
+    "dday_enable_disable": true,
+    "date_outside_2026_2035_denied": true,
+    "personal_backup_restore_roundtrip": true,
+    "backup_out_of_range_atomic_rollback": true,
+    "production_applied": false
+  },
+  "other_crosschecks": {
+    "annual_leave_2035_save": true,
+    "annual_leave_2036_blocked": true,
+    "overtime_2036_blocked": true,
+    "company_event_2036_blocked": true,
+    "holidaywork_2035_save": true,
+    "holidaywork_2036_blocked": true
+  }
 }
