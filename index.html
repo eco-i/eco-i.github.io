@@ -5502,6 +5502,8 @@ async function restoreSession(isRetry=false){
       const emp=localEmployees().find(e=>e.id===Number(m[1])&&employeeCanLoginLocal(e,todayKey()));if(!emp)throw new Error('local_expired');
       if(!tokenStillCurrent())return;
       if(!await ensureAdminUnlockForRestoreWithScope(emp.is_admin,restoreToken))throw new Error('admin_locked');
+      // Unlock can await a contested browser lock. Never apply an old identity after another login or PIN-security epoch takes ownership.
+      if(!tokenStillCurrent())return;
       await enterApp({employee_id:emp.id,display_name:emp.display_name,category:emp.category,is_admin:emp.is_admin});
     }else{
       const mustChangeInitial=await initialPinStatus(restoreToken);
@@ -5519,6 +5521,8 @@ async function restoreSession(isRetry=false){
       if(Array.isArray(data)&&data.length===0)throw new Error('SESSION_INVALID_CONFIRMED');
       const me=strictEmployeeIdentityRpcRow(data);
       if(!await ensureAdminUnlockForRestoreWithScope(me.is_admin,restoreToken))throw new Error('admin_locked');
+      // A new tab/session can take over while administrator unlock waits; guard both app entry and forced PIN gate.
+      if(!tokenStillCurrent())return;
       if(mustChangeInitial) enterInitialPinGate(me); else await enterApp(me);
     }
     if(!tokenStillCurrent())return;

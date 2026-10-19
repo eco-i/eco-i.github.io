@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-29",
-  "next_block": "3-8-30",
-  "latest_report": "qa-round3/QA_3-8-29_REPORT.md",
+  "last_completed_block": "3-8-30",
+  "next_block": "3-8-31",
+  "latest_report": "qa-round3/QA_3-8-30_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 18,
+  "round3_new_product_defects": 19,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_29_SCOPED_CLEAN_88_VALID_CHECKS_ZERO_NEW_DEFECTS_NO_CODE_CHANGE",
+  "latest_status": "BLOCK_30_HIGH_DEFECT_ONE_FIXED_QA_102_VALID_REGRESSIONS_PASS_NO_MAIN_DB_CHANGE",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -57,10 +57,12 @@
     "3-8-28: post-mutation session handoff real authenticated browser and 2-user holiday-work concurrency needs QA-only isolated database; never production",
     "3-8-28: real Android/iOS PIN/admin-role accessibility and Realtime pending overlap not covered by function mocks",
     "3-8-29: actual authenticated QA-only annual/long-service mutation timeout after server commit, 2-session authority handoff, PIN change and Realtime interplay remain unverified",
-    "3-8-29: full logged-in Chromium and mobile nested backdrop focus/PIN voice accessibility need real-browser QA validation"
+    "3-8-29: full logged-in Chromium and mobile nested backdrop focus/PIN voice accessibility need real-browser QA validation",
+    "3-8-30: real QA-only 2-tab Web Locks administrator unlock in-flight and login/PIN gate handoff with separate QA accounts",
+    "3-8-30: real logged-in Chromium and Android/iOS screen reader nested modal focus and PIN change RPC race, no employee database tests"
   ],
-  "next_scope": "3-8-30: isolated restoreSession vs PIN gate and administrator privilege handoff, changeOwnPin delayed response and Realtime ownership, nested modal focus, QA-only; main and production employee DB untouched",
-  "updated_kst": "2026-10-19T20:59:27+09:00",
+  "next_scope": "3-8-31 QA-only: ensureAdminUnlockForRestore internal token storage and Web Locks ownership, enterApp bootstrap session/role handoff, PIN modal delayed focus/close; full logged-in browser and separate QA DB pending",
+  "updated_kst": "2026-10-19T21:17:51+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -276,6 +278,18 @@
       "qa_candidate_race_mock_pass": 14,
       "server_mutation_success_verified": false,
       "production_applied": false
+    },
+    {
+      "id": "3-8-30-001",
+      "severity": "high",
+      "title": "Stale restoreSession unlock response can enter old employee app or forced PIN gate after new session takes ownership",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-30-001_RESTORE_UNLOCK_STALE_SESSION_ENTRY.md",
+      "qa_html_blob": "8645c90182b9160951dde13e7249ca92dc43e373",
+      "original_isolated_async_reproductions": 9,
+      "qa_fixed_restore_mock_pass": 15,
+      "production_applied": false,
+      "real_full_app_browser_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -633,6 +647,19 @@
       "real_db_rows_read_or_written": false,
       "production_main_modified": false,
       "qa_index_html_changed": false
+    },
+    "block_30": {
+      "original_restore_race_defect_scenarios_reproduced": 9,
+      "qa_fixed_restore_session_actual_function_scenarios_pass": 15,
+      "change_own_pin_actual_function_scenarios_pass": 26,
+      "modal_accessibility_stack_actual_function_mock_pass": 20,
+      "source_integrity_syntax_diff_pass": 41,
+      "total_valid_pass": 102,
+      "new_confirmed_product_defects": 1,
+      "main_modified": false,
+      "qa_only_html_fix": true,
+      "real_db_read_or_mutated": false,
+      "real_full_browser_verified": false
     }
   },
   "pending_qa_fixes": [
