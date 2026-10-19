@@ -1,14 +1,13 @@
-# 근무모아 3차·깊이8 공식 인수인계
+# 근무모아 3차·깊이8 최신 공식 인수인계
 
-- **공식 3-8-17 완료 / 다음 3-8-18**. 17에서 신규 제품 결함 1종 확인·QA 전용 수정, 전체 CLEAN 아님.
-- 저장소 eco-i/eco-i.github.io / QA qa-3-8 / 운영 main. 새로운 채팅은 CURRENT_STATE.json / QA_3-8-17_REPORT.md를 GitHub에서 직접 확인.
-- **3차 누적 신규 결함 11종** (직전 10 + 이번 3-8-17-001). 2차 과거 결함 540종 별도. QA 수정 모두 운영 미배포.
-- 운영 main 기준 SHA 6c784210e048426f18a486d5602652626d97574d, APP_VERSION ver20261018-2313. 운영 SQL·실제 직원 DB 쓰기 금지, 실제 변경 0건.
-- **3-8-17-001(MEDIUM):** 감사로그 첫 50건 뒤 offset 페이징 중 로그 삽입 → 중복 오류로 더보기 중단; 로그 삭제 → 중간 행 조용히 누락. 실제 QA 원본 audit 함수와 120건 가짜 RPC 데이터로 각각 재현.
-- QA `index.html`의 `loadAuditPage`만 수정: 마지막 표시 ID와 다음 응답 첫 행을 겹쳐 확인, 밀림 시 이전 펼친 깊이+50건을 처음부터 다시 읽어 정상 완료시에만 교체, 내부 페이지도 anchor 체크·최대 2회 시도. SQL/근태/달력/관리자 권한/모바일 CSS 무변경.
-- 코드 커밋 **cbf2f50c978cdf34db1b948c4f8359adcdcb38f1**, 최신 QA HTML blob **778529b59b550ee1f3bf4e8e3b0ea27463427276**. 이전 d6f86884edd51e0fd064adfacf54e35783bb4819은 16 완료본으로 최신 아님.
-- 검증: 실제 함수 분리 mock/정적 **22+160+18=200/200 PASS**. 1000건 보관 경계, 보조 Realtime catch-up, 오래된 세션 read 거부, preserveDepth, 내장 JS 2개 파싱, DOM ID 486개 중 중복 0 확인.
-- 주의: 모의시험이지 실 Supabase/Android/iOS/Chromium 전체 로그인 E2E 아님. 실제 `list_recent_audit_page` RPC가 overlap용 `p_limit=52`를 수용하는지 실서버 검증 미완료(기존 51). 서버 함수 정의는 현재 저장소 migrations 16개에서 확인되지 않음.
-- index.html 1MB 초과해 fetch_file 결과가 빈 문자열일 수 있으므로 위 SHA를 fetch_blob으로 직접 조회. 상세: qa-round3/QA_3-8-17_REPORT.md 및 qa-round3/issues/3-8-17-001_AUDIT_OFFSET_PAGE_DRIFT.md
-- **다음 3-8-18:** 감사 RPC 52건 계약 확인 가능한 읽기 검증, 지연 Realtime·팝업 세션 권한·다중 화면, 실제 UI/모바일 가능한 범위 검수. 운영 main 배포/실제 직원 DB 변경 금지.
-- 사용자 우선: 연결 끊김·무응답·대화 길이 최소화, 중간 보고 짧게, 상세 GitHub, ZIP·수동 업로드 요구 금지.
+- **3-8-18 공식 완료 / 다음 3-8-19**. 18은 **범위 한정 CLEAN**(신규 확정 제품 결함 0), 전체 사이트·실기기 CLEAN 아님.
+- GitHub eco-i/eco-i.github.io / QA qa-3-8 / 운영 main. 새 채팅 시작 시 qa-round3/CURRENT_STATE.json 및 qa-round3/QA_3-8-18_REPORT.md 직접 읽기.
+- **3차 신규 누적 결함 11종**, 2차 과거 이력 540종 별도. 기존 11종 QA 수정안 운영 미배포.
+- 운영 main SHA 6c784210e048426f18a486d5602652626d97574d, APP_VERSION ver20261018-2313. 실제 직원 DB 기록·SQL/운영 배포 변경 0건.
+- **18 핵심 증거:** 실제 Supabase SongdoFood 프로젝트에서 SQL `pg_proc` 메타데이터를 READ ONLY 조회, `list_recent_audit_page`의 `p_limit`은 기본 50, 상한 100. QA의 요청 **52건은 함수 정의상 유효**. `perform _require_admin(p_token)` 인증 및 `created_at DESC,id DESC` 정렬 확인. `pg_trigger`로 감사로그 최다 1000개 유지 시 오래된 행만 잘리는 현재 서버 방식 확인. 상수식 SELECT 52 확인.
+- **보안 경계:** 실제 인증된 관리자 `list_recent_audit_page(p_limit=52)` 호출은 하지 않았고, 실제 직원·감사행 SELECT나 DB DML 쓰기 전혀 없음. 함수 카탈로그/상수만 확인했으므로 실제 RPC end-to-end PASS로 적지 말 것.
+- **18 검수:** QA 원본 GitHub 코드 추출 정상 서버모델 mock **162/162 PASS**, 보류 응답·세션/관리자 권한·Realtime **16/16 PASS**, JS 2개 구문/DOM 486 고유 ID/모바일·접근성 정적 **30/30 PASS**, 정상 흐름 합계 **208/208**.
+- **극단 조건 주의:** 별도 300개 공격적 합성 시나리오 중 10개는 '최신 머리 행 삭제+새 행 삽입으로 앞부분 행 수가 같은' 조합의 오래된 앞부분 표시를 보여 줌. 현재 DB 자동 정리는 1000개 초과의 **최오래된** 행만 지우므로 현재 제품의 정상 흐름 확정 결함으로 분류하지 않음. DB 원자 스냅샷 보증이 아니라는 한계는 보고서에 명시.
+- QA 최신 `index.html` blob **778529b59b550ee1f3bf4e8e3b0ea27463427276** 유지, 이번 블록 기능 코드 수정 없음. 파일 1 MB를 초과하므로 `fetch_file` 빈 본문 시 `fetch_blob`으로 열기.
+- **다음 3-8-19:** 실제 관리 권한 계정으로 52건 RPC를 검수용 데이터로 안전하게 확인할 수 있는 범위, 관리자 다중 창 전환·Realtime, 전체 브라우저/모바일 가능 범위. QA 브랜치만 변경, main/직원 DB 쓰기 금지.
+- 사용자는 연결 끊김·무응답 최소화와 채팅길이 절약 최우선. 중간보고 간결히, 상세 파일은 GitHub에, ZIP·수동 업로드 요구 없음.
