@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-16",
-  "next_block": "3-8-17",
-  "latest_report": "qa-round3/QA_3-8-16_REPORT.md",
+  "last_completed_block": "3-8-17",
+  "next_block": "3-8-18",
+  "latest_report": "qa-round3/QA_3-8-17_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 10,
+  "round3_new_product_defects": 11,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_16_AUDIT_REFRESH_BUSY_CONTROL_FIXED_QA_ONLY_TEN_UNDEPLOYED_DEFECTS",
+  "latest_status": "BLOCK_17_AUDIT_OFFSET_PAGINATION_DRIFT_FIXED_QA_ONLY_ELEVEN_UNDEPLOYED_DEFECTS",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -33,10 +33,11 @@
     "real two-admin login/session save completion cross-over with network delay",
     "real concurrent maintenance RPC read/write responses and cross-tab revision propagation",
     "real audit log popup close/reopen during slow live audit RPC and three-way concurrent audit view refresh",
-    "3-8-16 audit refresh and more controls in real full-app Chromium/physical mobile under slow live RPC"
+    "3-8-16 audit refresh and more controls in real full-app Chromium/physical mobile under slow live RPC",
+    "3-8-17 QA audit anchor pagination actual Supabase read-only RPC acceptance of p_limit=52 and fully rendered logged-in mobile/desktop integration"
   ],
-  "next_scope": "3-8-17: audit offset pagination drift when new audit rows arrive between pages, realtime refresh and list ownership, permission/session and mobile actual-browser integration as feasible; QA branch only; no production main deployment or employee DB writes",
-  "updated_kst": "2026-10-19T13:45:44.944+09:00",
+  "next_scope": "3-8-18: verify read-only Supabase audit RPC page limit 52 contract if safe, pagination anchor fallback and live permission/session transitions, refresh lifecycle, actual full-app/mobile Chromium integration as possible; QA-only no main deployment or real employee DB mutation",
+  "updated_kst": "2026-10-19T14:00:57+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -146,6 +147,20 @@
       "original_main_like_qa_reproduced": true,
       "qa_source_mock_and_static_checks_pass": 61,
       "real_full_app_chromium_verified": false
+    },
+    {
+      "id": "3-8-17-001",
+      "severity": "medium",
+      "title": "Audit offset pagination drifts under insertions/deletions and silently skips or rejects audit rows",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-17-001_AUDIT_OFFSET_PAGE_DRIFT.md",
+      "qa_fix_commit": "cbf2f50c978cdf34db1b948c4f8359adcdcb38f1",
+      "qa_html_blob": "778529b59b550ee1f3bf4e8e3b0ea27463427276",
+      "production_applied": false,
+      "original_qa_source_mock_insert_and_delete_reproduced": true,
+      "qa_source_mock_static_checks_pass": 200,
+      "real_full_app_chromium_verified": false,
+      "real_supabase_rpc_page_limit_52_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -371,6 +386,28 @@
       "production_main_modified": false,
       "production_database_mutated": false,
       "new_confirmed_product_defects": 1
+    },
+    "block_17": {
+      "original_insert_causes_duplicate_error_reproduced": true,
+      "original_delete_causes_silent_gap_reproduced": true,
+      "original_source_and_fixed_mock_tests_pass": 22,
+      "synthetic_insert_delete_pagination_permutations_pass": 160,
+      "retention_preserveDepth_session_realtime_static_regressions_pass": 18,
+      "total_source_mock_static_assertions_pass": 200,
+      "retention_limit_verified_in_mock": 1000,
+      "html_inline_js_parse_pass": 2,
+      "html_static_dom_id_count": 486,
+      "html_duplicate_static_dom_ids": 0,
+      "audit_page_overlap_fetch_limit": 52,
+      "real_rpc_limit_contract_verified": false,
+      "qa_fix_commit": "cbf2f50c978cdf34db1b948c4f8359adcdcb38f1",
+      "qa_html_blob": "778529b59b550ee1f3bf4e8e3b0ea27463427276",
+      "real_full_app_chromium_verified": false,
+      "real_android_ios_verified": false,
+      "real_supabase_parallel_sessions_verified": false,
+      "production_main_modified": false,
+      "production_db_mutated": false,
+      "new_confirmed_product_defects": 1
     }
   },
   "pending_qa_fixes": [
@@ -384,7 +421,8 @@
     "3-8-12-001: superseded manual maintenance reload must use successful newer read instead of false server error; QA JS mock 8/8 PASS; not deployed",
     "QA follow-up (not new defect): prior 3-8-11 stale-read accepted newer cache returns true so monthly sync does not falsely fail; not deployed",
     "3-8-15-001: audit popup reopened while old fetch is pending must invalidate old request generation and fetch again; QA-only index.html commit 194f9d45c118165e4129788150155a099f57130a, 8 audit scenarios PASS; not deployed",
-    "3-8-16-001: audit refresh disabled while auditLoading, same state as load more; 61 isolated real-function/mock/static checks PASS; QA index.html only, not deployed"
+    "3-8-16-001: audit refresh disabled while auditLoading, same state as load more; 61 isolated real-function/mock/static checks PASS; QA index.html only, not deployed",
+    "3-8-17-001: audit pagination anchor overlap and bounded fresh-snapshot adoption on offset drift; 200 V8 mock/static assertions PASS; real RPC 52-limit integration pending, QA only not deployed"
   ],
   "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
