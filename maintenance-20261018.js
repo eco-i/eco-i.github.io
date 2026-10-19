@@ -97,9 +97,11 @@ async function loadMaintenanceSchedule(){
   if(!current())return false;
   // Never roll back an already saved or newer revision with a delayed/replica-stale read.
   if(fresh.revision<maintenanceSchedule.revision){
+   // The confirmed local revision is newer than this stale read; retain it as a valid snapshot.
+   // Returning false would mark the entire month refresh failed despite healthy cached data.
    maintenanceReady=true;
    if($('maintenanceBackdrop')?.classList.contains('open')&&maintenanceDraft)maintenanceRender();
-   return false;
+   return true;
   }
   maintenanceSchedule=fresh;maintenanceReady=true;
   if($('maintenanceBackdrop')?.classList.contains('open')&&maintenanceDraft)maintenanceRender();
