@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-28",
-  "next_block": "3-8-29",
-  "latest_report": "qa-round3/QA_3-8-28_REPORT.md",
+  "last_completed_block": "3-8-29",
+  "next_block": "3-8-30",
+  "latest_report": "qa-round3/QA_3-8-29_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 18,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_28_SCOPED_CLEAN_88_CHECKS_ZERO_NEW_DEFECTS_NO_CODE_CHANGE",
+  "latest_status": "BLOCK_29_SCOPED_CLEAN_88_VALID_CHECKS_ZERO_NEW_DEFECTS_NO_CODE_CHANGE",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -55,10 +55,12 @@
     "3-8-27: actual authenticated QA environment two-session holiday work/personnel changes and post-await server CAS acceptance, production DB never accessed",
     "3-8-27: full-app browser nested modal fieldset/disabled focus integration, physical Android/iOS screen reader and role downgrade pending",
     "3-8-28: post-mutation session handoff real authenticated browser and 2-user holiday-work concurrency needs QA-only isolated database; never production",
-    "3-8-28: real Android/iOS PIN/admin-role accessibility and Realtime pending overlap not covered by function mocks"
+    "3-8-28: real Android/iOS PIN/admin-role accessibility and Realtime pending overlap not covered by function mocks",
+    "3-8-29: actual authenticated QA-only annual/long-service mutation timeout after server commit, 2-session authority handoff, PIN change and Realtime interplay remain unverified",
+    "3-8-29: full logged-in Chromium and mobile nested backdrop focus/PIN voice accessibility need real-browser QA validation"
   ],
-  "next_scope": "3-8-29: PIN/session role handoff stale-async ownership and pending/Reatime arbitration, actual annual/long-service saves after RPC with uncertain response and draft preservation, nested backdrop focus; isolated QA only; real employee database and main untouched",
-  "updated_kst": "2026-10-19T20:13:01.232+09:00",
+  "next_scope": "3-8-30: isolated restoreSession vs PIN gate and administrator privilege handoff, changeOwnPin delayed response and Realtime ownership, nested modal focus, QA-only; main and production employee DB untouched",
+  "updated_kst": "2026-10-19T20:59:27+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -618,6 +620,19 @@
       "production_main_modified": false,
       "production_database_mutated": false,
       "new_confirmed_product_defects": 0
+    },
+    "block_29": {
+      "annual_save_actual_function_synthetic_cases_pass": 14,
+      "long_service_save_actual_function_synthetic_cases_pass": 14,
+      "pin_gate_recheck_actual_function_cases_pass": 9,
+      "initial_pin_delayed_notice_actual_function_cases_pass": 7,
+      "source_and_syntax_valid_checks_pass": 44,
+      "total_valid_checks_pass": 88,
+      "new_confirmed_product_defects": 0,
+      "fixture_false_positive_excluded": true,
+      "real_db_rows_read_or_written": false,
+      "production_main_modified": false,
+      "qa_index_html_changed": false
     }
   },
   "pending_qa_fixes": [
