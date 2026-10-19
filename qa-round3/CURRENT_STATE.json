@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-10",
-  "next_block": "3-8-11",
-  "latest_report": "qa-round3/QA_3-8-10_REPORT.md",
+  "last_completed_block": "3-8-11",
+  "next_block": "3-8-12",
+  "latest_report": "qa-round3/QA_3-8-11_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 6,
+  "round3_new_product_defects": 7,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_10_SCOPED_QA_VERIFIED_SIX_DEFECTS_UNDEPLOYED",
+  "latest_status": "BLOCK_11_QA_REVISION_ORDER_GUARD_PASS_SEVEN_FIXES_PENDING",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -30,10 +30,11 @@
     "end-to-end multi-device history edit/delete propagation",
     "3-8-8 full Chromium HTML/CSS administrator maintenance modal in-flight save/edit lock and release",
     "real full-app Chromium with production-equivalent HTML/CSS and connected admin/employee sessions",
-    "real two-admin login/session save completion cross-over with network delay"
+    "real two-admin login/session save completion cross-over with network delay",
+    "real concurrent maintenance RPC read/write responses and cross-tab revision propagation"
   ],
-  "next_scope": "3-8-11: async maintenance revision/realtime, login restoration and multi-tab/session lifespan, offline retry and stale responses, holiday-work / leave / overtime intersections; real mobile/full app and concurrent DB sessions still pending; no main release or production DB writes",
-  "updated_kst": "2026-10-19T11:10:15+09:00",
+  "next_scope": "3-8-12: save/read response revision monotonicity with calendar/leave/overtime/holiday-work interop, simultaneous refresh, session restore/login transitions, real mobile/full Chromium where feasible; no main deployment or production DB mutations",
+  "updated_kst": "2026-10-19T11:53:01+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -96,6 +97,17 @@
       "qa_two_session_mock_reproduced": true,
       "qa_three_session_permutations_pass": 48,
       "real_concurrent_sessions_verified": false
+    },
+    {
+      "id": "3-8-11-001",
+      "severity": "high",
+      "title": "Overlapping maintenance reads/write responses roll the client-side schedule revision back to older state",
+      "fix_file": "maintenance-20261018.js",
+      "issue_file": "qa-round3/issues/3-8-11-001_STALE_MAINTENANCE_REVISION.md",
+      "qa_fix_commit": "cbf1cf9ef224d3af5c67e1647a0b1e76181cb3cc",
+      "production_applied": false,
+      "qa_mock_regressions_pass": 13,
+      "real_concurrent_session_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -222,6 +234,21 @@
       "real_two_independent_db_sessions_verified": false,
       "production_main_modified": false,
       "production_db_mutated": false
+    },
+    "block_11": {
+      "stale_get_after_successful_save_reproduced": true,
+      "older_save_response_after_newer_read_reproduced": true,
+      "qa_revision_monotonic_guard": true,
+      "qa_read_write_completion_order_cases_pass": 6,
+      "qa_stale_read_error_replica_cases_pass": 3,
+      "previous_session_save_lock_assertions_pass": 3,
+      "previous_reload_editor_edit_preservation_assertions_pass": 1,
+      "total_explicit_regression_cases_pass": 13,
+      "overaggressive_candidate_load_cancel_regression_detected_and_repaired": true,
+      "real_db_parallel_connections_verified": false,
+      "full_app_chromium_verified": false,
+      "production_main_modified": false,
+      "production_database_mutated": false
     }
   },
   "pending_qa_fixes": [
@@ -230,7 +257,8 @@
     "3-8-5-002: maintenance save error status persisted by QA JS, browser UI test pending; not deployed",
     "3-8-8-001: in-flight maintenance editor mutation/close lock in qa-3-8/maintenance-20261018.js, V8 fake DOM regression PASS, full real browser integration pending; not deployed",
     "3-8-9-001: maintenanceReloadEditor in-flight edit snapshot guard (qa-3-8 JS), 5 delayed RPC mock tests PASS, production not deployed",
-    "3-8-10-001: maintenanceSaveSeq per-login save-finally ownership guard; A->B mock late RPC and 3-session 48-order regression PASS, production not deployed"
+    "3-8-10-001: maintenanceSaveSeq per-login save-finally ownership guard; A->B mock late RPC and 3-session 48-order regression PASS, production not deployed",
+    "3-8-11-001: maintenance load/save monotonic revision reconciliation in qa-3-8/maintenance-20261018.js; delayed RPC tests 13 PASS; not deployed"
   ],
   "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
