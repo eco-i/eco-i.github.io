@@ -1,13 +1,13 @@
 # 근무모아 3차·깊이8 최신 공식 인수인계
 
-- **3-8-15 공식 완료 / 다음 3-8-16**. 검수한 범위 신규 제품 결함 1종, 전체 CLEAN 아님.
-- GitHub `eco-i/eco-i.github.io`, 검수 `qa-3-8`, 운영 `main`. 다음 채팅 시작 시 `qa-round3/CURRENT_STATE.json` 및 `qa-round3/QA_3-8-15_REPORT.md` 직접 확인.
-- 운영 기준 `main` SHA `6c784210e048426f18a486d5602652626d97574d`, APP_VERSION `ver20261018-2313`. 2차 최종 2-8-290, 과거 누적 결함 540종.
-- **3차 신규 누적 9종**: 이전 8종 + 이번 `3-8-15-001`. 모든 QA 수정안 운영 미배포. 운영 SQL·직원 DB 기록 변경하지 않음.
-- 이번 신규 결함 `3-8-15-001`: 감사로그 팝업을 조회 도중 닫았다 다시 열어도 `auditLoading` 때문에 두 번째 조회가 시작되지 않고 첫 조회의 늦은 결과만 보이는 문제. **운영 main 원본의 실제 `openAudit/loadAuditPage`와 지연 mock RPC로 재현**. 감사로그 팝업은 read-loading 중 `closeBackdrop`이 막지 않음.
-- QA **`index.html`만 수정**: 새로 열 때 이전 감사 조회 `auditPageLoadSeq` 무효화, `auditLoading` 해제 후 최신 `loadAuditPage(true)` 시작. commit `194f9d45c118165e4129788150155a099f57130a`, QA HTML blob `76be467649cbe398198282639f93328dd6c1df9a`. 이전 고정 HTML blob `5553a1d319e3ab7ff4dd6bb8ee7d995657112698`은 **이제 QA 최신 기준 아님**(운영 main의 현재 blob으로만 참조).
-- 검증: 감사로그 재열기 응답 순서·실패·세션·Realtime **8/8**, 일반·전체 근태 목록 지연 응답 **10/10**, 수정한 QA HTML의 inline JS 구문 **2/2**, 486개의 정적 ID 중 중복 0, QA 정비 JS 요소 ID 26건 누락 0, 모바일 정비 CSS 25규칙 전부 팝업 한정·미디어쿼리·44/46px 최소 크기 정적 확인.
-- **미검증**: 운영 동등 실제 Chromium 전체 로그인/팝업 UI, Android/iOS 실기기, 진짜 관리자 권한/실 Supabase 경합. 모의 응답을 실사용 E2E와 혼동 금지.
-- `index.html` 크기 1MB를 넘으므로 `fetch_file` 본문은 비어 나올 수 있음. **최신 QA blob `76be467649cbe398198282639f93328dd6c1df9a`를 `fetch_blob`으로 열기.** JS 격리 시험은 functions.exec에서 가능.
-- **다음 3-8-16**: 감사로그 ‘더보기/새로고침’ 경쟁·열기/닫기, 실시간 catch-up과 보조 목록 결합, 모바일 팝업 포커스/월 경계 검수. 운영 배포·직원 기록 변경 금지.
-- 사용자 우선: 연결 끊김·무응답 최소화, 20초 안팎 간결한 중간보고, 상세 GitHub, ZIP 요구 금지.
+- **3-8-16 공식 완료 / 다음 3-8-17.** 이번 블록 신규 결함 1종, 전체 CLEAN 아님.
+- GitHub eco-i/eco-i.github.io / QA qa-3-8 / 운영 main. 새 채팅은 CURRENT_STATE.json 및 QA_3-8-16_REPORT.md 직접 확인.
+- **3차 신규 누적 10종**(직전 9 + 3-8-16-001). 2차 과거 결함 540종 별도. 모두 QA 후보 미배포.
+- 운영 main SHA 6c784210e048426f18a486d5602652626d97574d, 운영 APP_VERSION ver20261018-2313 고정. 실제 직원 DB/운영 SQL/운영 main 변경 0건.
+- 이번 신규 3-8-16-001: 감사로그 조회 중 더보기는 disabled, 새로고침은 여전히 클릭 가능하지만 loadAuditPage의 auditLoading 조기 반환 때문에 새 요청이 조용히 무시되는 결함. GitHub 원본 실제 함수 + 지연 RPC mock으로 재현.
+- QA index.html에서 updateAuditControls가 refreshAuditBtn도 로딩 동안 disabled하고 진행 라벨 표시. 커밋 59b2e003627c8b9575bd548f505e83ce986d7ab4, 최신 QA HTML blob d6f86884edd51e0fd064adfacf54e35783bb4819. 이전 blob 76be467649cbe398198282639f93328dd6c1df9a는 지금 최신 아님.
+- 감사 조회/재열기/Realtime/HTML 정적 20, 근태 보조 목록 비동기 12, 2026-2035 월 이동/세션 경계 13, 모의 모달 포커스/정적 접근성 16 = **61/61** 검사 통과. 내장 JS 2개 구문 성공, 정적 HTML ID 486개 중 중복 0.
+- **한계:** 실제 운영 동등 Chromium 전체 앱 관리자 로그인/모바일 포커스/진짜 Supabase 병렬 요청/실 직원 DB는 확인하지 않았다. V8 실제 함수 추출 + 지연 mock RPC/DOM과 정적 검사를 실사용 E2E로 표기하지 말 것.
+- index.html은 1MB를 초과해 fetch_file 본문이 비어 있을 수 있다. fetch_blob으로 위 최신 QA HTML blob 조회. 3-8-16 report/issues는 qa-round3/ 하위 저장.
+- **다음 3-8-17:** 감사 offset 페이징 중 신규 로그 생성에 따른 페이지 밀림/중복, Realtime 읽기 경합·보조 팝업 소유권/권한, 모바일 통합 가능한 범위. QA-only, 운영 main 및 직원 DB 변경 금지.
+- 사용자 우선: 연결 끊김·무응답·대화 길이 최소화. 중간보고 짧게, 상세 GitHub. ZIP 업로드 요구하지 말 것.
