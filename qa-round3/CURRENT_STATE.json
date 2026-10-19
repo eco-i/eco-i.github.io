@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-19",
-  "next_block": "3-8-20",
-  "latest_report": "qa-round3/QA_3-8-19_REPORT.md",
+  "last_completed_block": "3-8-20",
+  "next_block": "3-8-21",
+  "latest_report": "qa-round3/QA_3-8-20_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 11,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_19_SCOPED_CLEAN_AUDIT_AUTH_RPC_52_EXPLAIN_AND_90_SOURCE_MOCK_CHECKS",
+  "latest_status": "BLOCK_20_SCOPED_CLEAN_127_ISOLATED_SOURCE_MOCK_AND_STATIC_CHECKS",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -38,10 +38,12 @@
     "3-8-18: actual authenticated admin list_recent_audit_page p_limit=52 REST RPC end-to-end not executed (function SQL contract verified read-only only)",
     "3-8-18: balanced deletion/reinsertion in audit log prefix outside current automatic oldest-only retention policy; evaluate if manual deletion capability introduced",
     "3-8-19 real authenticated QA/nonstaff list_recent_audit_page p_limit=52 PostgREST response still untested (EXPLAIN only; no actual staff/audit rows accessed)",
-    "3-8-19 full Chromium site+mobile modal and cross-device logged-in active admin permission handoff still untested; isolated source/mock checks only"
+    "3-8-19 full Chromium site+mobile modal and cross-device logged-in active admin permission handoff still untested; isolated source/mock checks only",
+    "3-8-20 nested mobile date-picker and modal focus in physical device / full-app browser remains unverified",
+    "3-8-20 holiday-work and leave/long-service races with real Supabase multi-session requests remain unverified"
   ],
-  "next_scope": "3-8-20: mobile/modal layered accessibility and freshness, holiday/leave secondary list asynchronous request ownership and latest-day transitions; QA only, main and production employee database untouched",
-  "updated_kst": "2026-10-19T15:54:41+09:00",
+  "next_scope": "3-8-21: date picker and nested modal accessibility focus boundaries; holiday-work edit and delete asynchronous ownership; annual/long-service post-save Realtime refresh interactions; QA only, main and real employee DB unchanged",
+  "updated_kst": "2026-10-19T16:41:07+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -456,6 +458,23 @@
       "real_supabase_parallel_authenticated_sessions_verified": false,
       "production_main_modified": false,
       "production_db_mutated": false,
+      "new_confirmed_product_defects": 0
+    },
+    "block_20": {
+      "holiday_work_list_role_scope_handoff_mock_pass": 8,
+      "annual_leave_year_response_race_mock_pass": 8,
+      "long_service_draft_and_session_mock_pass": 8,
+      "nested_modal_focus_fake_dom_pass": 19,
+      "annual_longservice_usage_refresh_dirty_mock_pass": 11,
+      "pending_operation_dialog_guard_pass": 49,
+      "html_script_dom_mobile_static_pass": 24,
+      "scoped_assertions_pass": 127,
+      "qa_html_blob_unchanged": "778529b59b550ee1f3bf4e8e3b0ea27463427276",
+      "real_full_app_chromium_verified": false,
+      "real_android_ios_verified": false,
+      "real_supabase_concurrent_accounts_verified": false,
+      "production_main_modified": false,
+      "production_database_mutated": false,
       "new_confirmed_product_defects": 0
     }
   },
