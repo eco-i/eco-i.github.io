@@ -1,10 +1,11 @@
 # 근무모아 3차·깊이8 공식 인수인계
 
-- **3-8-30 공식 완료: HIGH 결함 1종 발견·QA 코드 수정·격리 회귀 102/102 PASS. 다음 3-8-31.** 3차 신규 누적 **19종**(2차 역사적 540종 별도).
-- GitHub `eco-i/eco-i.github.io`; QA 브랜치 `qa-3-8`; 운영 `main`. 새 채팅에서 `qa-round3/CURRENT_STATE.json`, `START_HERE_NEW_CHAT.md`, `qa-round3/QA_3-8-30_REPORT.md` 순서로 직접 읽을 것.
-- **제품 결함 `3-8-30-001` HIGH:** `restoreSession()`의 관리자 unlock 비동기 대기 직후 current token/epoch 재검사가 없어 오래된 직원의 앱 진입/초기 PIN 게이트 실행 가능. 실제 원본 함수 격리에서 이전 계정이 잠금대기 중 새 로그인으로 바뀌는 **9가지 경합 재현**. 별도 이슈 `qa-round3/issues/3-8-30-001_RESTORE_UNLOCK_STALE_SESSION_ENTRY.md`.
-- QA `index.html` blob `8645c90182b9160951dde13e7249ca92dc43e373` (이전 `d3e535031861bfdd372fc0b8d1f24ef6070cccdf`): 로컬/서버 restore 양쪽 `ensureAdminUnlockForRestoreWithScope` await 성공 직후 `if(!tokenStillCurrent())return;` 총 2곳 추가. **버전 `ver20261018-2313` 변경 없음.**
-- 수정본 **102/102 유효 검사 PASS**: restore 함수 15 + PIN 변경 함수 26 + 모달 스택 20 + 정적/구문/diff 41. 이 수치는 실제 인증 서버/전체 앱 브라우저 검증이 아님.
-- **운영 `main` 기준 SHA `6c784210e048426f18a486d5602652626d97574d` 보호**. 실제 직원 DB 읽기·쓰기, SQL 적용, 운영 배포 **0건**. GitHub QA 브랜치만 보고서/이슈/기준본 수정.
-- 다음 **3-8-31:** 관리자 unlock 내부 토큰 저장/Browser Web Lock 경합, `enterApp` 부트스트랩 세션 소유권, PIN 팝업 지연 닫기/focus, 관리자 권한 복구 경계. 실서버·물리 모바일은 QA 전용 환경 없으므로 미검증 표시.
-- 진행 보고 짧게, 연결 안정성 우선, 채팅 용량 최소화, ZIP 불요.
+- **공식 3-8-31 완료: 신규 2종(MEDIUM 1, LOW 1) QA 수정·격리 회귀 105/105 PASS. 다음 3-8-32.** 3차 누적 **21종**(2차 과거 540종 별도). 전체 앱 CLEAN 아님.
+- 저장소 `eco-i/eco-i.github.io`; QA `qa-3-8`, 운영 `main`. 다음 채팅에서는 `qa-round3/CURRENT_STATE.json`, `START_HERE_NEW_CHAT.md`, `QA_3-8-31_REPORT.md` 직접 확인.
+- **31-001 MEDIUM:** 관리자 unlock Web Lock 대기 이후 구 계정의 인증정리 콜백이 새 로그인 탭의 관리자 표시를 지울 수 있음. `ensureAdminUnlockForRestoreWithScope`의 lock callback 내부까지 token/epoch 및 storage mismatch 소유권 검사 추가.
+- **31-002 LOW:** `openSelfPin` 50ms/`enterInitialPinGate` 40ms 자체 초점 타이머가 상단 모달을 무시하고 숨겨진 PIN 창으로 포커스 탈취. 상단 확인, 수동 PIN 입력 필드 포커스 보존, 최초 PIN 입력/변경 버튼 자동 포커스 유지.
+- 기존 **3-8-30-001** `restoreSession` 2개 가드 그대로 유지. QA 최신 `index.html` blob **`a6cc643cc1c7a39c0afdfa8b1790e116d324ff03`**, APP_VERSION **ver20261018-2313 유지**.
+- 실 검증 범위: 관리자 unlock·스토리지 모의 8, `restoreSession` 15, `enterApp` 14, PIN 포커스 18, 정적/구문/무결성 50 = **105/105 PASS**. 원본 결함 재현과 fixture 보정 실패는 집계 제외.
+- 운영 `main` 기준 HEAD `6c784210e048426f18a486d5602652626d97574d` 무변경. 실제 직원/근태 DB 읽기·쓰기, SQL 적용, 운영 배포 **0건**. 실제 앱 Chromium 로그인 E2E, Web Locks 브라우저/2계정, Android/iOS/TalkBack/VoiceOver는 별도 격리 QA 환경 필요.
+- **다음 3-8-32:** 관리자 표식 삭제 다른 호출 경로, 같은 토큰 재로그인/로그아웃 tombstone, PIN/Realtime/모달 전환 추가 격리 검수.
+- 짧은 사용자 보고·채팅 용량 절약·연결 안정성·QA 전용 GitHub 파일 기록·ZIP 불요.

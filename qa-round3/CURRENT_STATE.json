@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-30",
-  "next_block": "3-8-31",
-  "latest_report": "qa-round3/QA_3-8-30_REPORT.md",
+  "last_completed_block": "3-8-31",
+  "next_block": "3-8-32",
+  "latest_report": "qa-round3/QA_3-8-31_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 19,
+  "round3_new_product_defects": 21,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_30_HIGH_DEFECT_ONE_FIXED_QA_102_VALID_REGRESSIONS_PASS_NO_MAIN_DB_CHANGE",
+  "latest_status": "BLOCK_31_TWO_NEW_DEFECTS_MEDIUM_LOW_FIXED_QA_105_VALID_REGRESSIONS_PASS_NO_MAIN_DB_CHANGE",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -59,10 +59,12 @@
     "3-8-29: actual authenticated QA-only annual/long-service mutation timeout after server commit, 2-session authority handoff, PIN change and Realtime interplay remain unverified",
     "3-8-29: full logged-in Chromium and mobile nested backdrop focus/PIN voice accessibility need real-browser QA validation",
     "3-8-30: real QA-only 2-tab Web Locks administrator unlock in-flight and login/PIN gate handoff with separate QA accounts",
-    "3-8-30: real logged-in Chromium and Android/iOS screen reader nested modal focus and PIN change RPC race, no employee database tests"
+    "3-8-30: real logged-in Chromium and Android/iOS screen reader nested modal focus and PIN change RPC race, no employee database tests",
+    "3-8-31: actual two-tab Web Locks pending administrator unlock after new login, with separate QA accounts and no production employees",
+    "3-8-31: real full-app Chrome/Android/iOS nested PIN popups delayed autofocus and screen reader focus return after role handoff"
   ],
-  "next_scope": "3-8-31 QA-only: ensureAdminUnlockForRestore internal token storage and Web Locks ownership, enterApp bootstrap session/role handoff, PIN modal delayed focus/close; full logged-in browser and separate QA DB pending",
-  "updated_kst": "2026-10-19T21:17:51+09:00",
+  "next_scope": "3-8-32: QA-only delayed browser Web Locks and admin unlock cleanup across other call sites, same-token re-login and logout tombstone, PIN modal/Realtime race. Isolated QA only; main/employee DB untouched",
+  "updated_kst": "2026-10-19T21:50:05+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -290,6 +292,28 @@
       "qa_fixed_restore_mock_pass": 15,
       "production_applied": false,
       "real_full_app_browser_verified": false
+    },
+    {
+      "id": "3-8-31-001",
+      "severity": "medium",
+      "title": "Delayed administrator unlock restore can clear a newer tab's secondary authorization marker before stale restore caller discards result",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-31-001_STALE_ADMIN_UNLOCK_STORAGE_SIDE_EFFECT.md",
+      "qa_html_blob": "a6cc643cc1c7a39c0afdfa8b1790e116d324ff03",
+      "qa_unlock_storage_mock_pass": 8,
+      "production_applied": false,
+      "real_two_tab_browser_verified": false
+    },
+    {
+      "id": "3-8-31-002",
+      "severity": "low",
+      "title": "Delayed initial/self PIN focus callbacks can steal focus from higher modal or manually focused input",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-31-002_PIN_DELAYED_FOCUS_MODAL_STACK.md",
+      "qa_html_blob": "a6cc643cc1c7a39c0afdfa8b1790e116d324ff03",
+      "qa_focus_mock_pass": 18,
+      "production_applied": false,
+      "real_mobile_screenreader_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -660,6 +684,18 @@
       "qa_only_html_fix": true,
       "real_db_read_or_mutated": false,
       "real_full_browser_verified": false
+    },
+    "block_31": {
+      "admin_unlock_actual_source_storage_race_pass": 8,
+      "prior_restore_session_actual_source_regression_pass": 15,
+      "enter_app_actual_source_mock_pass": 14,
+      "pin_modal_delayed_focus_actual_source_mock_pass": 18,
+      "source_js_syntax_integrity_pass": 50,
+      "total_valid_tests_pass": 105,
+      "new_product_defects": 2,
+      "production_main_modified": false,
+      "real_db_rows_read_or_written": false,
+      "real_full_app_browser_verified": false
     }
   },
   "pending_qa_fixes": [

@@ -2356,8 +2356,13 @@ function ensureAdminUnlockForRestore(isAdmin,token){
 // PC's sessionStorage-only restore never edits shared session state and must
 // remain valid in browsers with no Web Locks support.
 async function ensureAdminUnlockForRestoreWithScope(isAdmin,token){
-  if(!MOBILE_SESSION_DEVICE&&!sessionIsPersistent(token))return ensureAdminUnlockForRestore(isAdmin,token);
-  return await withBrowserSharedSessionLock(()=>ensureAdminUnlockForRestore(isAdmin,token));
+  // A browser lock may be granted after a different login (or PIN-security epoch) takes ownership.
+  // Fence the storage side effect inside the acquired lock, not only after the caller awaits it.
+  const restoreToken=String(token||''),restoreEpoch=sessionContextEpoch;
+  const stillOwned=()=>!!restoreToken&&state.sessionToken===restoreToken&&sessionContextEpoch===restoreEpoch&&!fingerprintCurrentSharedSessionMismatch();
+  if(!stillOwned())return false;
+  if(!MOBILE_SESSION_DEVICE&&!sessionIsPersistent(restoreToken))return ensureAdminUnlockForRestore(isAdmin,restoreToken);
+  return await withBrowserSharedSessionLock(()=>stillOwned()?ensureAdminUnlockForRestore(isAdmin,restoreToken):false);
 }
 function migrateLegacySessionForDevice(){
   if(MOBILE_SESSION_DEVICE){
@@ -5633,7 +5638,10 @@ function enterInitialPinGate(me){
   closeAll();
   openBackdrop('initialPinBackdrop');
   const focusActor=Number(state.me.employee_id),focusToken=state.sessionToken,focusEpoch=sessionContextEpoch;
-  setTimeout(()=>{if(state.initialPinRequired&&sharedSessionContextCurrent(focusActor,focusToken,{allowInitialPin:true,epoch:focusEpoch})&&$('initialPinBackdrop')?.classList.contains('open'))$('initialPinChangeBtn')?.focus();},40);
+  setTimeout(()=>{
+    const backdrop=$('initialPinBackdrop');
+    if(state.initialPinRequired&&sharedSessionContextCurrent(focusActor,focusToken,{allowInitialPin:true,epoch:focusEpoch})&&backdrop?.classList.contains('open')&&topOpenBackdrop()===backdrop&&document.activeElement!==$('initialPinChangeBtn'))$('initialPinChangeBtn')?.focus();
+  },40);
   return true;
 }
 async function recheckInitialPinGate(){
@@ -11322,7 +11330,10 @@ function openSelfPin(prefillCurrent=''){
   $('selfPinCurrent').value=prefillCurrent; $('selfPinNew').value=''; $('selfPinConfirm').value=''; $('selfPinError').textContent='';
   openBackdrop('selfPinBackdrop');
   const focusActor=Number(state.me.employee_id),focusToken=state.sessionToken,focusEpoch=sessionContextEpoch;
-  setTimeout(()=>{if(sharedSessionContextCurrent(focusActor,focusToken,{allowInitialPin:true,epoch:focusEpoch})&&$('selfPinBackdrop')?.classList.contains('open'))$('selfPinCurrent')?.focus();},50);
+  setTimeout(()=>{
+    const backdrop=$('selfPinBackdrop');
+    if(sharedSessionContextCurrent(focusActor,focusToken,{allowInitialPin:true,epoch:focusEpoch})&&backdrop?.classList.contains('open')&&topOpenBackdrop()===backdrop&&!(backdrop.contains(document.activeElement)&&focusTargetUsable(document.activeElement)&&/^(INPUT|TEXTAREA|SELECT)$/.test(String(document.activeElement?.tagName||''))))$('selfPinCurrent')?.focus();
+  },50);
 }
 async function changeOwnPin(){
   if(!state.me||selfPinChangePending)return;
