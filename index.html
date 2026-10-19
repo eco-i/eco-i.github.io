@@ -2023,8 +2023,15 @@ function clearSharedAdminUnlockIfToken(token,{requireSessionMismatch=false}={}){
 function scheduleSharedAdminUnlockCleanup(token,{requireSessionMismatch=false}={}){
   token=String(token||'');if(!token)return;
   const started=sharedSessionMutexNow(),deadlineMs=SHARED_SESSION_MUTEX_TTL_MS+500;
+  const ownerEpoch=sessionContextEpoch,ownerLoginAttempt=loginAttemptSeq;
+  // A local preview login can reuse the exact same token after logout. An old delayed cleanup
+  // must not erase the newly granted secondary authorization of that later login.
+  const reusedByNewLocalSession=()=>String(state.sessionToken||'')===token&&(sessionContextEpoch!==ownerEpoch||loginAttemptSeq!==ownerLoginAttempt);
   const retry=async()=>{
-    if(await withBrowserSharedSessionLock(()=>clearSharedAdminUnlockIfToken(token,{requireSessionMismatch})))return;
+    if(reusedByNewLocalSession())return;
+    // Repeat the generation check while holding the shared Web Lock, not only before its await.
+    if(await withBrowserSharedSessionLock(()=>reusedByNewLocalSession()?true:clearSharedAdminUnlockIfToken(token,{requireSessionMismatch})))return;
+    if(reusedByNewLocalSession())return;
     const elapsed=sharedSessionMutexNow()-started;
     if(!Number.isFinite(elapsed)||elapsed>=deadlineMs)return;
     setTimeout(retry,80);
@@ -2140,10 +2147,10 @@ function clearAdminUnlockForSession(token,persistent){
     // 현재 shared session이 여전히 A일 때만 공유 unlock을 정리하고, 현재 탭의 레거시 표식은 별도로 제거한다.
     const current=String(token||'');
     const run=withSharedSessionMutex(()=>{
-      if(current&&storageGet(localStorage,SESSION_KEY)===current)storageRemove(localStorage,ADMIN_UNLOCK_KEY);
+      if(current&&storageGet(localStorage,SESSION_KEY)===current&&storageGet(localStorage,ADMIN_UNLOCK_KEY)===current)storageRemove(localStorage,ADMIN_UNLOCK_KEY);
       return true;
     });
-    storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
+    if(storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===String(token||''))storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
     return run.locked;
   }
   if(persistent){
@@ -2151,10 +2158,10 @@ function clearAdminUnlockForSession(token,persistent){
       if(!clearSharedAdminUnlockIfToken(token))scheduleSharedAdminUnlockCleanup(token);
     }else clearAdminUnlock();
     // 현재 탭이 임시 관리자 세션에서 영구 로그인으로 전환되는 경우 탭 전용 표식도 제거한다.
-    storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
+    if(storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===String(token||''))storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
   }else{
     // PC 임시 로그인은 탭 전용이다. 다른 탭이 사용 중인 영구 관리자 해제 표식은 건드리지 않는다.
-    storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
+    if(storageGet(sessionStorage,ADMIN_UNLOCK_KEY)===String(token||''))storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
   }
 }
 function storeAdminUnlock(token,persistent){
@@ -2323,7 +2330,11 @@ function revokeAdminUnlockForToken(token){
   if(String(deferredAdminDraftUnlockProofToken||'')===token)clearDeferredAdminDraftUnlockProof();
   const persistent=MOBILE_SESSION_DEVICE?true:sessionIsPersistent(token);
   if(!MOBILE_SESSION_DEVICE&&!persistent)clearAdminUnlockForSession(token,false);
-  else void withBrowserSharedSessionLock(()=>clearAdminUnlockForSession(token,persistent));
+  else {
+    // Deferred browser locks must not revoke a newer login, even if another account appears before lock grant.
+    const revokeEpoch=sessionContextEpoch;
+    void withBrowserSharedSessionLock(()=>state.sessionToken===token&&sessionContextEpoch===revokeEpoch&&!fingerprintCurrentSharedSessionMismatch()?clearAdminUnlockForSession(token,persistent):false);
+  }
   // shared mutex를 잠깐 얻지 못했더라도 권한 박탈 전의 관리자 2차 인증 표식이 같은 token에 남지 않게
   // token 조건부 cleanup을 예약한다. 새 로그인은 새 token을 쓰므로 뒤늦은 cleanup이 새 관리자 세션을 지우지 않는다.
   if(storageGet(localStorage,ADMIN_UNLOCK_KEY)===token)scheduleSharedAdminUnlockCleanup(token);
@@ -5423,7 +5434,9 @@ async function login(){
         await safelyClearStoredLoginSession(localLoginToken);if(state.sessionToken===localLoginToken)state.sessionToken='';
         throw new Error('SESSION_STORAGE_WRITE_FAILED');
       }
-      if(!emp.is_admin) await withBrowserSharedSessionLock(()=>clearAdminUnlockForSession(state.sessionToken,persistSession));
+      if(!emp.is_admin) await withBrowserSharedSessionLock(()=>attempt===loginAttemptSeq&&state.sessionToken===localLoginToken&&!fingerprintCurrentSharedSessionMismatch()?clearAdminUnlockForSession(localLoginToken,persistSession):false);
+      // The queued admin-cleanup lock can finish after a newer login owns this tab.
+      if(attempt!==loginAttemptSeq||state.sessionToken!==localLoginToken||fingerprintCurrentSharedSessionMismatch())return;
       clearLoginSecretInputs();
       await enterApp({employee_id:emp.id,display_name:emp.display_name,category:emp.category,is_admin:emp.is_admin});
     }else{
@@ -5446,7 +5459,9 @@ async function login(){
         try{await rpc('logout_employee',{p_token:failedToken},{timeoutMs:SESSION_CHECK_TIMEOUT_MS,keepalive:true});}catch(_){}
         throw new Error('SESSION_STORAGE_WRITE_FAILED');
       }
-      if(!loginRow.is_admin) await withBrowserSharedSessionLock(()=>clearAdminUnlockForSession(state.sessionToken,persistSession));
+      if(!loginRow.is_admin) await withBrowserSharedSessionLock(()=>attempt===loginAttemptSeq&&state.sessionToken===loginToken&&!fingerprintCurrentSharedSessionMismatch()?clearAdminUnlockForSession(loginToken,persistSession):false);
+      // The token captured for login must still own this tab after an awaited lock.
+      if(attempt!==loginAttemptSeq||state.sessionToken!==loginToken||fingerprintCurrentSharedSessionMismatch())return;
       // 인증이 끝난 비밀번호/관리자 2차 비밀번호를 숨겨진 로그인 DOM에 남겨두지 않는다.
       // 이후 초기 PIN 확인이나 앱 데이터 로딩이 지연·실패해 재연결 화면으로 가더라도 민감값은 즉시 폐기한다.
       clearLoginSecretInputs();

@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-31",
-  "next_block": "3-8-32",
-  "latest_report": "qa-round3/QA_3-8-31_REPORT.md",
+  "last_completed_block": "3-8-32",
+  "next_block": "3-8-33",
+  "latest_report": "qa-round3/QA_3-8-32_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 21,
+  "round3_new_product_defects": 24,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_31_TWO_NEW_DEFECTS_MEDIUM_LOW_FIXED_QA_105_VALID_REGRESSIONS_PASS_NO_MAIN_DB_CHANGE",
+  "latest_status": "BLOCK_32_THREE_NEW_DEFECTS_HIGH_MEDIUM_LOW_FIXED_QA_136_VALID_CHECKS_PASS_NO_MAIN_DB_CHANGE",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -61,10 +61,13 @@
     "3-8-30: real QA-only 2-tab Web Locks administrator unlock in-flight and login/PIN gate handoff with separate QA accounts",
     "3-8-30: real logged-in Chromium and Android/iOS screen reader nested modal focus and PIN change RPC race, no employee database tests",
     "3-8-31: actual two-tab Web Locks pending administrator unlock after new login, with separate QA accounts and no production employees",
-    "3-8-31: real full-app Chrome/Android/iOS nested PIN popups delayed autofocus and screen reader focus return after role handoff"
+    "3-8-31: real full-app Chrome/Android/iOS nested PIN popups delayed autofocus and screen reader focus return after role handoff",
+    "3-8-32: isolated QA multi-tab real browser Web Locks pending nonadmin login cleanup versus freshly authenticated admin",
+    "3-8-32: local preview same-token logout/relogin plus pending auth-cleanup timer, actual Chrome/Android PWA",
+    "3-8-32: independent QA Supabase realtime/initial PIN/role-lowering concurrent transitions; do not touch employee records"
   ],
-  "next_scope": "3-8-32: QA-only delayed browser Web Locks and admin unlock cleanup across other call sites, same-token re-login and logout tombstone, PIN modal/Realtime race. Isolated QA only; main/employee DB untouched",
-  "updated_kst": "2026-10-19T21:50:05+09:00",
+  "next_scope": "3-8-33 QA-only: queued shared session cleanup and logout tombstones, storage scope transitions on mobile/PC, initial PIN versus Realtime channel overlap, session restoration race. No production data.",
+  "updated_kst": "2026-10-19T22:16:35+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -314,6 +317,39 @@
       "qa_focus_mock_pass": 18,
       "production_applied": false,
       "real_mobile_screenreader_verified": false
+    },
+    {
+      "id": "3-8-32-001",
+      "severity": "high",
+      "title": "Delayed non-admin login cleanup clears a newer admin unlock and can re-enter old local identity",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-32-001_DELAYED_NONADMIN_LOGIN_CLEARS_NEW_AUTH.md",
+      "qa_html_blob": "8d1793491a2ff6447011fde1b3db8eae05d05830",
+      "production_applied": false,
+      "isolated_mock_verified": true,
+      "real_server_e2e_verified": false
+    },
+    {
+      "id": "3-8-32-002",
+      "severity": "medium",
+      "title": "Deferred administrator privilege revocation can erase a newer user's tab admin marker",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-32-002_DEFERRED_REVOKE_AUTH_MARKER.md",
+      "qa_html_blob": "8d1793491a2ff6447011fde1b3db8eae05d05830",
+      "production_applied": false,
+      "isolated_mock_verified": true,
+      "real_server_e2e_verified": false
+    },
+    {
+      "id": "3-8-32-003",
+      "severity": "low",
+      "title": "Old delayed admin cleanup retry can clear freshly reauthorized same-token local session",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-32-003_SAME_TOKEN_DELAYED_CLEANUP_REAUTH.md",
+      "qa_html_blob": "8d1793491a2ff6447011fde1b3db8eae05d05830",
+      "production_applied": false,
+      "isolated_mock_verified": true,
+      "real_server_e2e_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -696,6 +732,21 @@
       "production_main_modified": false,
       "real_db_rows_read_or_written": false,
       "real_full_app_browser_verified": false
+    },
+    "block_32": {
+      "actual_login_queued_lock": 10,
+      "admin_revoke_scope": 12,
+      "same_token_delayed_admin_cleanup": 7,
+      "logout_session_mismatch_admin_cleanup": 6,
+      "realtime_refresh_delayed_scenarios": 14,
+      "pin_modal_focus_regressions": 8,
+      "static_js_source_integrity": 64,
+      "restore_session_regression": 15,
+      "total_valid_pass": 136,
+      "new_product_defects": 3,
+      "production_main_modified": false,
+      "production_database_accessed": false,
+      "real_authenticated_full_app_tested": false
     }
   },
   "pending_qa_fixes": [
