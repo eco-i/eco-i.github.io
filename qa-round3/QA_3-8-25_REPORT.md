@@ -12,7 +12,7 @@
 2. **열기 지연 콜백**: 원본 실제 `openBackdrop`·`focusTopBackdrop` 함수에서 사용자가 같은 흐름에 팝업 내부 두 번째·세 번째 입력칸으로 이동한 뒤 타이머가 첫 요소로 초점을 되돌리는 현상 재현. 복수 팝업·닫자마자 재열기까지 원본/후보 15개 시나리오 비교(원본 9/15, 후보 15/15).
 3. **닫기 지연 콜백**: 이전 팝업의 닫기 타이머가 현재 최상위 팝업 내부에 정상 설정된 포커스를 첫 요소로 변경하는 경로 재현. 후보에서는 최상단 내부의 **유효한** 현재 포커스 보존.
 4. **QA 고립 변경 및 재현 회귀**: `qa-3-8/index.html`의 지연 열기/닫기 콜백 가드 각 1곳만 변경(+244자). 새 blob을 다시 직접 읽어 실제 QA 함수 모의 DOM 28/28, 별도 팝업 pending·body unlock·중복 열기 3/3 — 팝업 **31/31 PASS**.
-5. **휴근·인사·세션 보호**: `saveSelectedHolidayWork` 실제 소스와 가짜 RPC로 종일 근태 충돌 안내/취소·사전조회 실패 시 fail-closed·인사/권한/세션/화면 비활성 경계·다른 창의 행 변경 CAS·관리자 expected ID/time 전달·RPC 실패/응답 불확실·중복 잠금·저장 성공 등 **15/15 PASS**. 실제 직원 휴근 데이터 조회/수정 없음.
+5. **휴근·인사·세션 보호**: `saveSelectedHolidayWork` 실제 소스와 가짜 RPC로 종일 근태 충돌 안내/취소·사전조회 실패 시 fail-closed·인사/권한/세션/화면 비활성 경계·다른 창의 행 변경 CAS·관리자 expected ID/time 전달·RPC 실패/응답 불확실·저장 성공 등 **15/15 PASS**. 실제 직원 휴근 데이터 조회/수정 없음.
 6. **연차/장기재직 화면 재조회**: 실제 `loadAnnualLeaveData`, `loadLongServiceData` 함수와 mock RPC로 각 6종, 총 **12/12 PASS**. 연차 같은 연도 일시 장애에는 마지막 정상값 유지, 다른 연도 장애 시 이전 연도 내용 제거, 장기재직 재조회 실패 마지막 정상값·dirty 제외기간 보존, 세션 전환 중 오래된 응답 무시 확인. 초기 fixture 자체에서 상태 참조 잘못된 1건은 수정 후 재실행해 유효 시험만 산입.
 7. **키보드 및 정적**: 실제 `document.addEventListener('keydown')` 핸들러 Tab/Shift+Tab/Escape·pending 닫기 거부 14/14 PASS. 코드 변경 2곳만 바이트 역대조, JS inline 2개 파싱, HTML 고유 ID 488, PIN/편집 lock, 이전 포커스 가드, 인사·휴근 CAS, 연차/장기재직 저장·오류 처리 정적 보호 **32/32 PASS**.
 8. **저장·안전 확인**: QA 수정 결과 GitHub 기록. 운영 `main`과 직원 DB에 접속·쓰기·배포 없음. 실제 전체 로그인 앱 Chromium, Android/iOS, TalkBack/VoiceOver, 권한/PIN 실세션 교체 및 실제 Supabase 동시 쓰기 테스트는 아직 수행하지 못함.
