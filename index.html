@@ -8869,9 +8869,17 @@ function renderAttendanceDatePicker(){
     const aria=[key,holiday,term,shift].filter(Boolean).join(' ');
     html+=`<button type="button" class="${cls}" data-picker-date="${key}" ${disabled?'disabled':''} aria-label="${escapeHtml(aria)}"><div class="date-picker-dayhead"><span class="date-picker-daynum">${d}</span>${holiday?`<span class="date-picker-holiday">${escapeHtml(holiday)}</span>`:''}</div>${body}${term?`<span class="date-picker-term">${escapeHtml(term)}</span>`:''}</button>`;
   }
-  $('datePickerGrid').innerHTML=html;
+  const grid=$('datePickerGrid');
+  // 날짜 버튼 교체 시 키보드 포커스를 선택 가능 날짜 또는 월 이동 버튼으로 복원한다.
+  const focusKey=grid.contains(document.activeElement)?String(document.activeElement?.closest?.('[data-picker-date]')?.dataset?.pickerDate||''):'';
+  grid.innerHTML=html;
   $('datePickerPrev').disabled=attendanceDatePickerYear===MIN_YEAR&&attendanceDatePickerMonth===0;
   $('datePickerNext').disabled=attendanceDatePickerYear===MAX_YEAR&&attendanceDatePickerMonth===11;
+  if(focusKey&&$('datePickerBackdrop')?.classList.contains('open')){
+    const available=[...grid.querySelectorAll('button[data-picker-date]:not([disabled])')];
+    const next=available.find(el=>el.dataset.pickerDate===focusKey)||available.find(el=>el.dataset.pickerDate>focusKey)||available.at(-1)||[$('datePickerNext'),$('datePickerPrev')].find(el=>el&&!el.disabled);
+    next?.focus({preventScroll:true});
+  }
 }
 function openAttendanceDatePicker(targetId){
   attendanceDatePickerTarget=targetId==='endDate'?'endDate':'startDate';
