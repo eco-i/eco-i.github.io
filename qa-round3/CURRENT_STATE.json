@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-17",
-  "next_block": "3-8-18",
-  "latest_report": "qa-round3/QA_3-8-17_REPORT.md",
+  "last_completed_block": "3-8-18",
+  "next_block": "3-8-19",
+  "latest_report": "qa-round3/QA_3-8-18_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 11,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_17_AUDIT_OFFSET_PAGINATION_DRIFT_FIXED_QA_ONLY_ELEVEN_UNDEPLOYED_DEFECTS",
+  "latest_status": "BLOCK_18_SCOPED_CLEAN_SUPABASE_AUDIT_RPC_52_CONTRACT_READONLY_CONFIRMED",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -34,10 +34,12 @@
     "real concurrent maintenance RPC read/write responses and cross-tab revision propagation",
     "real audit log popup close/reopen during slow live audit RPC and three-way concurrent audit view refresh",
     "3-8-16 audit refresh and more controls in real full-app Chromium/physical mobile under slow live RPC",
-    "3-8-17 QA audit anchor pagination actual Supabase read-only RPC acceptance of p_limit=52 and fully rendered logged-in mobile/desktop integration"
+    "3-8-17 QA audit anchor pagination actual Supabase read-only RPC acceptance of p_limit=52 and fully rendered logged-in mobile/desktop integration",
+    "3-8-18: actual authenticated admin list_recent_audit_page p_limit=52 REST RPC end-to-end not executed (function SQL contract verified read-only only)",
+    "3-8-18: balanced deletion/reinsertion in audit log prefix outside current automatic oldest-only retention policy; evaluate if manual deletion capability introduced"
   ],
-  "next_scope": "3-8-18: verify read-only Supabase audit RPC page limit 52 contract if safe, pagination anchor fallback and live permission/session transitions, refresh lifecycle, actual full-app/mobile Chromium integration as possible; QA-only no main deployment or real employee DB mutation",
-  "updated_kst": "2026-10-19T14:00:57+09:00",
+  "next_scope": "3-8-19: audit real authenticated RPC 52 integration only if safe with QA/nonstaff data; multi-window admin permission/session handoff, realtime catch-up, mobile full-app browser integration feasible; no production main or real employee DB writes",
+  "updated_kst": "2026-10-19T14:24:13+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -408,6 +410,32 @@
       "production_main_modified": false,
       "production_db_mutated": false,
       "new_confirmed_product_defects": 1
+    },
+    "block_18": {
+      "read_only_live_supabase_catalog_inspection": true,
+      "server_audit_function_exists": true,
+      "server_audit_max_limit": 100,
+      "server_audit_52_allowed_by_definition": true,
+      "safe_sql_constant_select_52": true,
+      "server_audit_admin_guard_present": true,
+      "server_audit_sort": "created_at DESC, id DESC",
+      "server_audit_offset_max": 1000,
+      "server_audit_trim_trigger_1000_verified": true,
+      "valid_insert_prune_mock_cases_pass": 162,
+      "async_session_admin_realtime_mock_cases_pass": 16,
+      "static_dom_js_boundary_checks_pass": 30,
+      "scoped_normal_flow_checks_pass": 208,
+      "additional_adversarial_synthetic_combinations": 300,
+      "adversarial_balanced_front_replacement_results_with_stale_prefix": 10,
+      "adversarial_balanced_front_replacement_confirmed_product_defect": false,
+      "real_authenticated_rpc_invoked": false,
+      "production_or_real_employee_table_rows_read": false,
+      "real_full_app_chromium_verified": false,
+      "real_android_ios_verified": false,
+      "production_main_modified": false,
+      "production_database_mutated": false,
+      "new_confirmed_product_defects": 0,
+      "qa_html_blob_unchanged": "778529b59b550ee1f3bf4e8e3b0ea27463427276"
     }
   },
   "pending_qa_fixes": [
@@ -424,7 +452,7 @@
     "3-8-16-001: audit refresh disabled while auditLoading, same state as load more; 61 isolated real-function/mock/static checks PASS; QA index.html only, not deployed",
     "3-8-17-001: audit pagination anchor overlap and bounded fresh-snapshot adoption on offset drift; 200 V8 mock/static assertions PASS; real RPC 52-limit integration pending, QA only not deployed"
   ],
-  "round3_new_product_defects_this_block": 1,
+  "round3_new_product_defects_this_block": 0,
   "memo_fix_regression": {
     "branch": "qa-3-8",
     "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
