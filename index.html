@@ -5303,6 +5303,13 @@ async function loadAuditPage(reset=false,{preserveDepth=false,silent=false}={}){
 }
 async function openAudit(){
   if(!activeAdminMode())return;
+  // A previous open can still be fetching when this popup is closed and reopened.
+  // Give the new opening its own read generation; do not reuse the previous stale snapshot.
+  if(auditLoading){
+    ++auditPageLoadSeq;
+    auditLoading=false;
+    updateAuditControls();
+  }
   openBackdrop('auditBackdrop');
   await loadAuditPage(true);
 }
