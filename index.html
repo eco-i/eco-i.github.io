@@ -7441,7 +7441,7 @@ function openBackdrop(id){
   el.setAttribute('aria-hidden','false');
   document.body.classList.add('modal-open');
   if(!alreadyOpen)setTimeout(()=>{focusTopBackdrop(el);syncBackdropAccessibilityStack();},0);
-  else syncBackdropAccessibilityStack();
+  else{syncBackdropAccessibilityStack();if(!el.contains(document.activeElement))focusTopBackdrop(el);}
 }
 const BACKDROP_SENSITIVE_INPUT_IDS=Object.freeze({
   employeeActionBackdrop:['employeePin','employeeAdminPin'],
@@ -7519,6 +7519,10 @@ function closeBackdrop(id,force=false){
   el.style.zIndex='';
   syncBackdropAccessibilityStack();
   const returnFocus=backdropReturnFocus.get(id); backdropReturnFocus.delete(id);
+  // 부모가 먼저 닫힐 때 자식 팝업의 복귀 초점을 닫힌 부모 대신 상위 호출 위치로 승계한다.
+  for(const [otherId,otherReturnFocus] of backdropReturnFocus){
+    if(otherId!==id&&otherReturnFocus&&el.contains(otherReturnFocus))backdropReturnFocus.set(otherId,returnFocus);
+  }
   const openBackdropAfterClose=topOpenBackdrop();
   if(!openBackdropAfterClose){
     document.body.classList.remove('modal-open');
