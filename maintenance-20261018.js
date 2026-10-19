@@ -1,7 +1,7 @@
 /* 근무모아 정비기간 편성: 별도 파일로 격리, 기존 8일 주기/데이터 불변 */
 'use strict';
 let maintenanceSchedule={revision:0,data:{periods:[],overrides:[],holidays:[],excludedHolidays:[]}};
-let maintenanceReady=null,maintenanceLoadSeq=0,maintenanceDraft=null,maintenanceDraftBaseline=null,maintenanceEditorPeriodId='',maintenanceSavePending=false,maintenancePeriodSequence=0;
+let maintenanceReady=null,maintenanceLoadSeq=0,maintenanceDraft=null,maintenanceDraftBaseline=null,maintenanceEditorPeriodId='',maintenanceSavePending=false,maintenancePeriodSequence=0,maintenanceSaveSeq=0;
 const maintenanceGroups=['A','B','C','D'];
 const maintenanceShifts=['주2','주','야','휴','비'];
 const maintenanceEmpty=()=>({periods:[],overrides:[],holidays:[],excludedHolidays:[]});
@@ -107,7 +107,7 @@ async function loadMaintenanceSchedule(){
  }
 }
 function maintenanceReset(){
- ++maintenanceLoadSeq;maintenanceSchedule={revision:0,data:maintenanceEmpty()};maintenanceReady=null;
+ ++maintenanceLoadSeq;++maintenanceSaveSeq;maintenanceSchedule={revision:0,data:maintenanceEmpty()};maintenanceReady=null;
  maintenanceDraft=null;maintenanceDraftBaseline=null;maintenanceEditorPeriodId='';maintenanceSavePending=false;
 }
 function maintenanceDirty(){if(!maintenanceDraft||!maintenanceDraftBaseline)return false;const {revision,...original}=maintenanceDraftBaseline;return JSON.stringify(maintenanceDraft)!==JSON.stringify(original);}
@@ -242,6 +242,7 @@ async function maintenanceSave(){
  }
  const token=state.sessionToken,actor=Number(state.me.employee_id),epoch=sessionContextEpoch;
  const saved=maintenanceClone(maintenanceDraft),expected=maintenanceDraftBaseline.revision;
+ const saveSeq=++maintenanceSaveSeq;
  maintenanceSavePending=true;maintenanceRender();
  let saveErrorMessage='';
  try{
@@ -263,10 +264,13 @@ async function maintenanceSave(){
      :userSafeServiceError(e,'정비 근무표 저장에 실패했습니다. 다시 시도해 주세요.');
   }
  }finally{
-  maintenanceSavePending=false;
-  if(maintenanceDraft&&$('maintenanceBackdrop')?.classList.contains('open')){
-   maintenanceRender();
-   if(saveErrorMessage)$('maintenanceStatus').textContent=saveErrorMessage;
+  // A prior session's late RPC must never unlock a newer session's save or overwrite its status.
+  if(saveSeq===maintenanceSaveSeq){
+   maintenanceSavePending=false;
+   if(maintenanceDraft&&$('maintenanceBackdrop')?.classList.contains('open')){
+    maintenanceRender();
+    if(saveErrorMessage)$('maintenanceStatus').textContent=saveErrorMessage;
+   }
   }
  }
 }
