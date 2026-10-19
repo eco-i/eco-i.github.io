@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-21",
-  "next_block": "3-8-22",
-  "latest_report": "qa-round3/QA_3-8-21_REPORT.md",
+  "last_completed_block": "3-8-22",
+  "next_block": "3-8-23",
+  "latest_report": "qa-round3/QA_3-8-22_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 12,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_21_DATE_PICKER_FOCUS_AFTER_RERENDER_FIXED_QA_ONLY_TWELVE_UNDEPLOYED_DEFECTS",
+  "latest_status": "BLOCK_22_SCOPED_CLEAN_DATE_PICKER_HOLIDAY_DELETE_REALTIME_80_SOURCE_MOCK_STATIC_CHECKS",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -41,10 +41,12 @@
     "3-8-19 full Chromium site+mobile modal and cross-device logged-in active admin permission handoff still untested; isolated source/mock checks only",
     "3-8-20 nested mobile date-picker and modal focus in physical device / full-app browser remains unverified",
     "3-8-20 holiday-work and leave/long-service races with real Supabase multi-session requests remain unverified",
-    "3-8-21 physical Android/iOS and full logged-in Chromium date-picker focus/voiceover/TalkBack integration with actual app not verified"
+    "3-8-21 physical Android/iOS and full logged-in Chromium date-picker focus/voiceover/TalkBack integration with actual app not verified",
+    "3-8-22 QA date picker keyboard focus in full-app Chromium and Android/iOS remains untested (extracted JS with fake DOM only)",
+    "3-8-22 actual concurrent holiday-work edit/delete and annual/longservice saves in isolated QA DB accounts remain untested"
   ],
-  "next_scope": "3-8-22: date picker keyboard focus, nested modal screen reader real-browser where possible, holiday work same-day edit/delete and personnel conflicts, realtime post-save read ownership; QA-only; no production main or staff DB writes",
-  "updated_kst": "2026-10-19T17:18:04+09:00",
+  "next_scope": "3-8-23: holiday-work edit/return and same-date personnel session ownership, annual/longservice optimistic-save post-mutation recovery, keyboard Tab/Escape nested modal, safe isolated browser integration; QA branch only; main and real employee DB unchanged",
+  "updated_kst": "2026-10-19T17:33:38+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -508,6 +510,23 @@
       "production_main_modified": false,
       "production_database_mutated": false,
       "new_confirmed_product_defects": 1
+    },
+    "block_22": {
+      "date_picker_actual_functions_mock_valid_pass": 18,
+      "holiday_work_delete_mock_race_pass": 17,
+      "realtime_schedule_mock_timing_and_session_pass": 16,
+      "static_source_guard_js_dom_checks_pass": 29,
+      "total_valid_scoped_checks_pass": 80,
+      "invalid_fixture_assumptions_excluded": 1,
+      "source_slicer_fixture_failures_corrected": 4,
+      "qa_html_blob_unchanged": "ce076c820937c62bf6b2a2d1f471f9fbf0fe0ce6",
+      "real_full_app_chromium_verified": false,
+      "real_android_ios_verified": false,
+      "real_authenticated_supabase_rpc_or_mutation_verified": false,
+      "qa_product_code_changed": false,
+      "production_main_modified": false,
+      "production_database_mutated": false,
+      "new_confirmed_product_defects": 0
     }
   },
   "pending_qa_fixes": [
@@ -525,7 +544,7 @@
     "3-8-17-001: audit pagination anchor overlap and bounded fresh-snapshot adoption on offset drift; 200 V8 mock/static assertions PASS; real RPC 52-limit integration pending, QA only not deployed",
     "3-8-21-001: date-picker keyboard focus restored after date-grid innerHTML rerender; scoped actual function/fake DOM and standalone Chromium checks, QA index.html only; not production deployed"
   ],
-  "round3_new_product_defects_this_block": 1,
+  "round3_new_product_defects_this_block": 0,
   "memo_fix_regression": {
     "branch": "qa-3-8",
     "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
