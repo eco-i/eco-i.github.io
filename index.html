@@ -7440,7 +7440,7 @@ function openBackdrop(id){
   el.classList.add('open');
   el.setAttribute('aria-hidden','false');
   document.body.classList.add('modal-open');
-  if(!alreadyOpen)setTimeout(()=>{focusTopBackdrop(el);syncBackdropAccessibilityStack();},0);
+  if(!alreadyOpen)setTimeout(()=>{if(!el.contains(document.activeElement)||!focusTargetUsable(document.activeElement))focusTopBackdrop(el);syncBackdropAccessibilityStack();},0);
   else{syncBackdropAccessibilityStack();if(!el.contains(document.activeElement))focusTopBackdrop(el);}
 }
 const BACKDROP_SENSITIVE_INPUT_IDS=Object.freeze({
@@ -7534,6 +7534,8 @@ function closeBackdrop(id,force=false){
   setTimeout(()=>{
     const top=topOpenBackdrop();
     if(top){
+      // 팝업 전환 뒤 이미 최상위 팝업 안에 설정된 입력 포커스는 이전 닫기 타이머가 덮어쓰지 않는다.
+      if(top.contains(document.activeElement)&&focusTargetUsable(document.activeElement))return;
       if(returnFocus&&top.contains(returnFocus)&&focusTargetUsable(returnFocus))returnFocus.focus({preventScroll:true});
       else focusTopBackdrop(top);
       return;
