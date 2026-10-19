@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-15",
-  "next_block": "3-8-16",
-  "latest_report": "qa-round3/QA_3-8-15_REPORT.md",
+  "last_completed_block": "3-8-16",
+  "next_block": "3-8-17",
+  "latest_report": "qa-round3/QA_3-8-16_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 9,
+  "round3_new_product_defects": 10,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_15_AUDIT_REOPEN_RACE_FIXED_QA_ONLY_NINE_UNDEPLOYED_DEFECTS",
+  "latest_status": "BLOCK_16_AUDIT_REFRESH_BUSY_CONTROL_FIXED_QA_ONLY_TEN_UNDEPLOYED_DEFECTS",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -32,10 +32,11 @@
     "real full-app Chromium with production-equivalent HTML/CSS and connected admin/employee sessions",
     "real two-admin login/session save completion cross-over with network delay",
     "real concurrent maintenance RPC read/write responses and cross-tab revision propagation",
-    "real audit log popup close/reopen during slow live audit RPC and three-way concurrent audit view refresh"
+    "real audit log popup close/reopen during slow live audit RPC and three-way concurrent audit view refresh",
+    "3-8-16 audit refresh and more controls in real full-app Chromium/physical mobile under slow live RPC"
   ],
-  "next_scope": "3-8-16: audit log refresh/load-more and reopen races with realtime lifecycle, other list popup ownership across admin transitions, mobile modal focus and month-switch boundaries; QA branch only, no production main deployment or employee DB writes",
-  "updated_kst": "2026-10-19T13:19:09+09:00",
+  "next_scope": "3-8-17: audit offset pagination drift when new audit rows arrive between pages, realtime refresh and list ownership, permission/session and mobile actual-browser integration as feasible; QA branch only; no production main deployment or employee DB writes",
+  "updated_kst": "2026-10-19T13:45:44.944+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -131,6 +132,19 @@
       "production_applied": false,
       "original_main_mock_reproduced": true,
       "qa_mock_regression_cases_pass": 8,
+      "real_full_app_chromium_verified": false
+    },
+    {
+      "id": "3-8-16-001",
+      "severity": "low",
+      "title": "Audit refresh button remains enabled while another audit request is pending; click silently ignored",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-16-001_AUDIT_REFRESH_BUSY_CLICK.md",
+      "qa_fix_commit": "59b2e003627c8b9575bd548f505e83ce986d7ab4",
+      "qa_html_blob": "d6f86884edd51e0fd064adfacf54e35783bb4819",
+      "production_applied": false,
+      "original_main_like_qa_reproduced": true,
+      "qa_source_mock_and_static_checks_pass": 61,
       "real_full_app_chromium_verified": false
     }
   ],
@@ -338,6 +352,25 @@
       "actual_production_data_writes": 0,
       "production_main_modified": false,
       "new_confirmed_product_defects": 1
+    },
+    "block_16": {
+      "audit_original_control_defect_reproduced": true,
+      "audit_actual_function_delayed_rpc_and_static_checks_pass": 20,
+      "attendance_list_actual_function_mock_checks_pass": 12,
+      "month_navigation_boundary_race_mock_checks_pass": 13,
+      "modal_focus_accessibility_mock_static_checks_pass": 16,
+      "total_checks_pass": 61,
+      "qa_html_inline_js_parse_pass": 2,
+      "qa_html_literal_dom_ids": 486,
+      "qa_html_duplicate_ids": 0,
+      "qa_only_fix_commit": "59b2e003627c8b9575bd548f505e83ce986d7ab4",
+      "qa_html_blob": "d6f86884edd51e0fd064adfacf54e35783bb4819",
+      "real_full_app_chromium_verified": false,
+      "real_mobile_verified": false,
+      "real_supabase_multi_session_verified": false,
+      "production_main_modified": false,
+      "production_database_mutated": false,
+      "new_confirmed_product_defects": 1
     }
   },
   "pending_qa_fixes": [
@@ -350,7 +383,8 @@
     "3-8-11-001: maintenance load/save monotonic revision reconciliation in qa-3-8/maintenance-20261018.js; delayed RPC tests 13 PASS; not deployed",
     "3-8-12-001: superseded manual maintenance reload must use successful newer read instead of false server error; QA JS mock 8/8 PASS; not deployed",
     "QA follow-up (not new defect): prior 3-8-11 stale-read accepted newer cache returns true so monthly sync does not falsely fail; not deployed",
-    "3-8-15-001: audit popup reopened while old fetch is pending must invalidate old request generation and fetch again; QA-only index.html commit 194f9d45c118165e4129788150155a099f57130a, 8 audit scenarios PASS; not deployed"
+    "3-8-15-001: audit popup reopened while old fetch is pending must invalidate old request generation and fetch again; QA-only index.html commit 194f9d45c118165e4129788150155a099f57130a, 8 audit scenarios PASS; not deployed",
+    "3-8-16-001: audit refresh disabled while auditLoading, same state as load more; 61 isolated real-function/mock/static checks PASS; QA index.html only, not deployed"
   ],
   "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
