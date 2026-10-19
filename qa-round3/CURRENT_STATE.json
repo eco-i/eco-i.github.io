@@ -41,7 +41,7 @@
     "3-8-19 full Chromium site+mobile modal and cross-device logged-in active admin permission handoff still untested; isolated source/mock checks only"
   ],
   "next_scope": "3-8-20: mobile/modal layered accessibility and freshness, holiday/leave secondary list asynchronous request ownership and latest-day transitions; QA only, main and production employee database untouched",
-  "updated_kst": "2026-10-19T15 (sekund: 24)+09:00",
+  "updated_kst": "2026-10-19T15:54:41+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
