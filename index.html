@@ -5228,12 +5228,17 @@ function strictAuditRpcRows(rows,{maxRows=null,existingIds=null}={}){
   });
 }
 function updateAuditControls(){
-  const label=$('auditLoadedLabel'), more=$('auditMoreBtn');
+  const label=$('auditLoadedLabel'), more=$('auditMoreBtn'), refresh=$('refreshAuditBtn');
   if(label) label.textContent=auditRows.length?`표시 ${auditRows.length}건 · 최대 1,000건`:'최대 1,000건 보관';
   if(more){
     more.classList.toggle('hidden',!auditHasMore);
     more.disabled=auditLoading;
     more.textContent=auditLoading?'불러오는 중…':'더보기 (50건씩)';
+  }
+  // 새로고침도 더보기와 동일한 조회 잠금을 적용해 눌러도 무시되는 버튼을 표시하지 않는다.
+  if(refresh){
+    refresh.disabled=auditLoading;
+    refresh.textContent=auditLoading?'불러오는 중…':'새로고침';
   }
 }
 function renderAudit(){
