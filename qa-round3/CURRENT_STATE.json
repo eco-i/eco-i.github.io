@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-27",
-  "next_block": "3-8-28",
-  "latest_report": "qa-round3/QA_3-8-27_REPORT.md",
+  "last_completed_block": "3-8-28",
+  "next_block": "3-8-29",
+  "latest_report": "qa-round3/QA_3-8-28_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 18,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_27_QA_FIXED_HOLIDAY_WORK_STALE_PERSONNEL_PREFLIGHT_TOCTOU_70_SCOPED_PASS",
+  "latest_status": "BLOCK_28_SCOPED_CLEAN_88_CHECKS_ZERO_NEW_DEFECTS_NO_CODE_CHANGE",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -53,10 +53,12 @@
     "3-8-26 ancestor aria-hidden/inert focus changes need actual full logged-in app and Android/iOS TalkBack/VoiceOver regression",
     "3-8-26 actual 2-session QA-only holiday-work/personnel CAS and annual/long-service save/reload arbitration pending; production DB never accessed",
     "3-8-27: actual authenticated QA environment two-session holiday work/personnel changes and post-await server CAS acceptance, production DB never accessed",
-    "3-8-27: full-app browser nested modal fieldset/disabled focus integration, physical Android/iOS screen reader and role downgrade pending"
+    "3-8-27: full-app browser nested modal fieldset/disabled focus integration, physical Android/iOS screen reader and role downgrade pending",
+    "3-8-28: post-mutation session handoff real authenticated browser and 2-user holiday-work concurrency needs QA-only isolated database; never production",
+    "3-8-28: real Android/iOS PIN/admin-role accessibility and Realtime pending overlap not covered by function mocks"
   ],
-  "next_scope": "3-8-28: post-mutation stale session/personnel transitions, uncertain RPC responses, Realtime catchup and PIN/admin role overlap, modal disabled/hidden focus; isolated QA only, main/real employee DB protected",
-  "updated_kst": "2026-10-19T19:01:33.875+09:00",
+  "next_scope": "3-8-29: PIN/session role handoff stale-async ownership and pending/Reatime arbitration, actual annual/long-service saves after RPC with uncertain response and draft preservation, nested backdrop focus; isolated QA only; real employee database and main untouched",
+  "updated_kst": "2026-10-19T20:13:01.232+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -639,7 +641,7 @@
     "3-8-26-001: focusTargetUsable rejects elements within ancestor aria-hidden=true or inert; QA index.html only, standalone Chromium + isolated actual-function mocks PASS, not deployed",
     "3-8-27-001: enforce post-preflight personnel freshness/eligibility check before holiday work save RPC and personnel freshness before delete RPC; QA only, no server SQL or production deployment"
   ],
-  "round3_new_product_defects_this_block": 1,
+  "round3_new_product_defects_this_block": 0,
   "memo_fix_regression": {
     "branch": "qa-3-8",
     "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
@@ -770,6 +772,22 @@
     "qa_html_blob": "d3e535031861bfdd372fc0b8d1f24ef6070cccdf",
     "qa_fix_commit": "5ffe4f453ad4ac4e8260226418e7f3e5e8876121",
     "real_full_app_chromium_verified": false,
+    "actual_supabase_RPC_or_DB_access": false,
+    "production_main_modified": false,
+    "production_database_mutated": false
+  },
+  "block_28": {
+    "holiday_mutation_post_rpc_session_permission_actual_function_mock_pass": 14,
+    "realtime_pending_catchup_actual_function_mock_pass": 16,
+    "annual_longservice_read_actual_function_mock_pass": 12,
+    "modal_keyboard_handler_mock_pass": 14,
+    "static_js_html_privilege_guards_pass": 32,
+    "total_valid_scoped_checks_pass": 88,
+    "new_confirmed_product_defects": 0,
+    "html_code_changed": false,
+    "qa_html_blob_unchanged": "d3e535031861bfdd372fc0b8d1f24ef6070cccdf",
+    "real_full_app_chromium_verified": false,
+    "real_android_ios_verified": false,
     "actual_supabase_RPC_or_DB_access": false,
     "production_main_modified": false,
     "production_database_mutated": false
