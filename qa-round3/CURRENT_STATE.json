@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-7",
-  "next_block": "3-8-8",
-  "latest_report": "qa-round3/QA_3-8-7_REPORT.md",
+  "last_completed_block": "3-8-8",
+  "next_block": "3-8-9",
+  "latest_report": "qa-round3/QA_3-8-8_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 3,
+  "round3_new_product_defects": 4,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,15 +22,16 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "SCOPED_CLEAN_THREE_QA_FIXES_PENDING",
+  "latest_status": "SCOPED_QA_PASS_FOUR_FIXES_PENDING_FULL_CHROMIUM",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
     "real two-session maintenance/holiday-work overlap",
-    "end-to-end multi-device history edit/delete propagation"
+    "end-to-end multi-device history edit/delete propagation",
+    "3-8-8 full Chromium HTML/CSS administrator maintenance modal in-flight save/edit lock and release"
   ],
-  "next_scope": "3-8-8: responsive UI/real Chromium integration of eight feature changes and maintenance modal; no main deployment, protect data",
-  "updated_kst": "2026-10-19T06:08:48+09:00",
+  "next_scope": "3-8-9: real Chromium integration of complete HTML/CSS when accessible; mobile admin maintenance modal saving, pending-editor locking, all 8 changed feature crossings, roles; no main deployment or DB permanent writes",
+  "updated_kst": "2026-10-19T09:23:41+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -58,6 +59,18 @@
       "fix_file": "maintenance-20261018.js",
       "production_applied": false,
       "qa_isolated_function_verified": true
+    },
+    {
+      "id": "3-8-8-001",
+      "severity": "medium",
+      "title": "Maintenance save in flight silently discards subsequent editor mutations while showing success",
+      "fix_file": "maintenance-20261018.js",
+      "issue_file": "qa-round3/issues/3-8-8-001_MAINTENANCE_PENDING_SAVE_EDIT_LOSS.md",
+      "qa_fix_commit": "49da86199a13ab72b60a6020934f4cc31f380771",
+      "production_applied": false,
+      "qa_v8_mock_success_pass": true,
+      "qa_dom_mock_input_locks_pass": true,
+      "real_full_app_browser_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -124,14 +137,30 @@
       "isolated_layout_overflows": 0,
       "new_product_defects": 0,
       "production_data_changes": false
+    },
+    "block_8": {
+      "full_index_html_connector_content_available": false,
+      "isolated_real_source_save_race_reproduced": true,
+      "new_confirmed_product_defects": 1,
+      "qa_patch_source_change_sites": 12,
+      "async_success_assertions_passed": 10,
+      "fake_dom_static_inputs_locked_and_unlocked": 13,
+      "fake_dom_generated_controls_locked_and_unlocked": 6,
+      "error_message_regression_cases": 3,
+      "real_full_app_chromium_verified": false,
+      "mobile_physical_device_verified": false,
+      "real_multi_session_concurrency_verified": false,
+      "production_code_modified": false,
+      "production_data_mutated": false
     }
   },
   "pending_qa_fixes": [
     "3-8-2-001: memo/D-day year guard SQL rollback-tested in QA; not deployed",
     "3-8-5-001: revised 3-RPC holiday work/history locking SQL in qa-round3/fixes/QA_3-8-6_holiday_work_serialization.sql; rollback-tested sequentially, real concurrent client test pending; not deployed",
-    "3-8-5-002: maintenance save error status persisted by QA JS, browser UI test pending; not deployed"
+    "3-8-5-002: maintenance save error status persisted by QA JS, browser UI test pending; not deployed",
+    "3-8-8-001: in-flight maintenance editor mutation/close lock in qa-3-8/maintenance-20261018.js, V8 fake DOM regression PASS, full real browser integration pending; not deployed"
   ],
-  "round3_new_product_defects_this_block": 0,
+  "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
     "branch": "qa-3-8",
     "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
