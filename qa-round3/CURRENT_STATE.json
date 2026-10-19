@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-14",
-  "next_block": "3-8-15",
-  "latest_report": "qa-round3/QA_3-8-14_REPORT.md",
+  "last_completed_block": "3-8-15",
+  "next_block": "3-8-16",
+  "latest_report": "qa-round3/QA_3-8-15_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 8,
+  "round3_new_product_defects": 9,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_14_SCOPED_CLEAN_DRAFT_AND_POPUP_TESTS_8_DEFECTS_UNDEPLOYED",
+  "latest_status": "BLOCK_15_AUDIT_REOPEN_RACE_FIXED_QA_ONLY_NINE_UNDEPLOYED_DEFECTS",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -31,10 +31,11 @@
     "3-8-8 full Chromium HTML/CSS administrator maintenance modal in-flight save/edit lock and release",
     "real full-app Chromium with production-equivalent HTML/CSS and connected admin/employee sessions",
     "real two-admin login/session save completion cross-over with network delay",
-    "real concurrent maintenance RPC read/write responses and cross-tab revision propagation"
+    "real concurrent maintenance RPC read/write responses and cross-tab revision propagation",
+    "real audit log popup close/reopen during slow live audit RPC and three-way concurrent audit view refresh"
   ],
-  "next_scope": "3-8-15: popup close/reopen and asynchronous list load races, annual leave usage and attendance editor interop, mobile accessibility CSS/DOM checks; avoid production main writes or employee DB edits; real full browser E2E still pending",
-  "updated_kst": "2026-10-19T12:39:25+09:00",
+  "next_scope": "3-8-16: audit log refresh/load-more and reopen races with realtime lifecycle, other list popup ownership across admin transitions, mobile modal focus and month-switch boundaries; QA branch only, no production main deployment or employee DB writes",
+  "updated_kst": "2026-10-19T13:19:09+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -119,6 +120,18 @@
       "production_applied": false,
       "original_main_mock_reproduced": true,
       "qa_mock_regression_pass": 8
+    },
+    {
+      "id": "3-8-15-001",
+      "severity": "medium",
+      "title": "Closing and reopening audit log during an in-flight fetch reuses the old request and shows stale results without a fresh read",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-15-001_AUDIT_REOPEN_STALE_READ.md",
+      "qa_fix_commit": "194f9d45c118165e4129788150155a099f57130a",
+      "production_applied": false,
+      "original_main_mock_reproduced": true,
+      "qa_mock_regression_cases_pass": 8,
+      "real_full_app_chromium_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -309,6 +322,22 @@
       "real_two_db_sessions_verified": false,
       "production_main_modified": false,
       "production_database_mutated": false
+    },
+    "block_15": {
+      "main_audit_reopen_stale_read_mock_reproduced": true,
+      "qa_fixed_audit_reopen_cases_pass": 8,
+      "attendance_and_all_attendance_list_delayed_mock_cases_pass": 10,
+      "qa_html_inline_scripts_parse_pass": 2,
+      "static_html_unique_dom_ids": 486,
+      "static_duplicate_ids": 0,
+      "qa_maintenance_js_static_dom_refs_resolved": 26,
+      "mobile_css_scope_rule_count": 25,
+      "mobile_css_unscoped_rules": 0,
+      "real_chromium_full_app_verified": false,
+      "real_admin_sessions_verified": false,
+      "actual_production_data_writes": 0,
+      "production_main_modified": false,
+      "new_confirmed_product_defects": 1
     }
   },
   "pending_qa_fixes": [
@@ -320,9 +349,10 @@
     "3-8-10-001: maintenanceSaveSeq per-login save-finally ownership guard; A->B mock late RPC and 3-session 48-order regression PASS, production not deployed",
     "3-8-11-001: maintenance load/save monotonic revision reconciliation in qa-3-8/maintenance-20261018.js; delayed RPC tests 13 PASS; not deployed",
     "3-8-12-001: superseded manual maintenance reload must use successful newer read instead of false server error; QA JS mock 8/8 PASS; not deployed",
-    "QA follow-up (not new defect): prior 3-8-11 stale-read accepted newer cache returns true so monthly sync does not falsely fail; not deployed"
+    "QA follow-up (not new defect): prior 3-8-11 stale-read accepted newer cache returns true so monthly sync does not falsely fail; not deployed",
+    "3-8-15-001: audit popup reopened while old fetch is pending must invalidate old request generation and fetch again; QA-only index.html commit 194f9d45c118165e4129788150155a099f57130a, 8 audit scenarios PASS; not deployed"
   ],
-  "round3_new_product_defects_this_block": 0,
+  "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
     "branch": "qa-3-8",
     "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
