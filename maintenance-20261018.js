@@ -111,14 +111,17 @@ function maintenanceReset(){
  maintenanceDraft=null;maintenanceDraftBaseline=null;maintenanceEditorPeriodId='';maintenanceSavePending=false;
 }
 function maintenanceDirty(){if(!maintenanceDraft||!maintenanceDraftBaseline)return false;const {revision,...original}=maintenanceDraftBaseline;return JSON.stringify(maintenanceDraft)!==JSON.stringify(original);}
-function maintenanceCanDiscard(){return !maintenanceDirty()||confirmMutationWithSessionGuard('저장하지 않은 정비 근무표 변경이 있습니다. 닫을까요?',{allowDeferred:true});}
+function maintenanceCanDiscard(){
+ if(maintenanceSavePending){showToast('정비 근무표를 저장하고 있습니다. 저장이 끝난 후 닫아 주세요.','info');return false;}
+ return !maintenanceDirty()||confirmMutationWithSessionGuard('저장하지 않은 정비 근무표 변경이 있습니다. 닫을까요?',{allowDeferred:true});
+}
 function maintenanceRender(){
  const root=$('maintenanceBackdrop');if(!root||!maintenanceDraft)return;
  const good=maintenanceValidate(maintenanceDraft),stale=maintenanceDraftBaseline?.revision!==maintenanceSchedule.revision;
  const periods=maintenanceDraft.periods.slice().sort((a,b)=>a.start.localeCompare(b.start));
  if(!periods.some(p=>p.id===maintenanceEditorPeriodId))maintenanceEditorPeriodId=periods[0]?.id||'';
  const current=periods.find(p=>p.id===maintenanceEditorPeriodId)||null;
- $('maintenanceStatus').textContent=maintenanceReady===false?'서버 조회 실패 · 저장 불가':stale?'다른 관리자/탭에서 변경됨 · 최신 내용을 다시 열어 주세요':good||'변경 전 미리보기를 확인한 후 저장해 주세요.';
+ $('maintenanceStatus').textContent=maintenanceSavePending?'서버에 저장 중입니다. 완료될 때까지 내용을 변경할 수 없습니다.':maintenanceReady===false?'서버 조회 실패 · 저장 불가':stale?'다른 관리자/탭에서 변경됨 · 최신 내용을 다시 열어 주세요':good||'변경 전 미리보기를 확인한 후 저장해 주세요.';
  $('maintenancePeriodList').innerHTML=periods.length?periods.map(p=>
   '<div class="maintenance-line"><button type="button" data-mt-select="'+escapeHtml(p.id)+'" class="'+(p.id===maintenanceEditorPeriodId?'maintenance-selected':'')+'">'+escapeHtml(p.label)+' · '+p.start+' ~ '+p.end+'</button><button type="button" data-mt-remove="'+escapeHtml(p.id)+'" class="maintenance-remove">삭제</button></div>'
  ).join(''):'<div class="employee-empty">등록된 정비기간이 없습니다. 기존 2026년 10월 특별 편성은 그대로 유지됩니다.</div>';
@@ -160,6 +163,10 @@ function maintenanceRender(){
   '<span class="employee-help">근무일로 변경한 기존 공휴일이 없습니다.</span>';
  const btn=$('maintenanceSaveBtn');btn.disabled=maintenanceSavePending||!activeAdminMode()||!configured()||maintenanceReady!==true||stale||!!good||!maintenanceDirty();
  $('maintenanceReloadBtn').disabled=maintenanceSavePending;
+ for(const id of ['maintenanceLabel','maintenanceStart','maintenanceEnd','maintenanceAddBtn','maintenanceEditLabel','maintenanceEditStart','maintenanceEditEnd','maintenanceEditBtn','maintenanceHolidayDate','maintenanceHolidayName','maintenanceHolidayAddBtn','maintenanceExistingHolidayDate','maintenancePeriodSelect']){
+  const input=$(id);if(input)input.disabled=maintenanceSavePending;
+ }
+ root.querySelectorAll('[data-mt-select],[data-mt-remove],[data-mt-day],[data-mt-group],[data-mt-remove-holiday],[data-mt-restore-holiday]').forEach(el=>{el.disabled=maintenanceSavePending;});
 }
 function maintenanceOpen(){
  if(!activeAdminMode()||!configured()){showToast('관리자 권한과 서버 연결을 확인해 주세요.','info');return;}
@@ -169,7 +176,7 @@ function maintenanceOpen(){
  maintenanceRender();openBackdrop('maintenanceBackdrop');
 }
 function maintenanceAddPeriod(){
- if(!maintenanceDraft)return;
+ if(maintenanceSavePending||!maintenanceDraft)return;
  const label=$('maintenanceLabel').value.trim(),start=$('maintenanceStart').value,end=$('maintenanceEnd').value;
  if(!label||!maintenanceISODate(start)||!maintenanceISODate(end)){showToast('정비명과 시작·종료 날짜를 입력해 주세요.','info');return;}
  const id='p'+Date.now().toString(36)+(++maintenancePeriodSequence).toString(36);
@@ -179,7 +186,7 @@ function maintenanceAddPeriod(){
  $('maintenanceLabel').value='';$('maintenanceStart').value='';$('maintenanceEnd').value='';
 }
 function maintenanceEditPeriod(){
- if(!maintenanceDraft||!maintenanceEditorPeriodId)return;
+ if(maintenanceSavePending||!maintenanceDraft||!maintenanceEditorPeriodId)return;
  const old=maintenanceDraft.periods.find(p=>p.id===maintenanceEditorPeriodId);if(!old)return;
  const next=maintenanceClone(maintenanceDraft),p=next.periods.find(p=>p.id===maintenanceEditorPeriodId);
  p.label=$('maintenanceEditLabel').value.trim();p.start=$('maintenanceEditStart').value;p.end=$('maintenanceEditEnd').value;
@@ -188,21 +195,21 @@ function maintenanceEditPeriod(){
  maintenanceDraft=next;maintenanceRender();
 }
 function maintenanceAddHoliday(){
- if(!maintenanceDraft)return;
+ if(maintenanceSavePending||!maintenanceDraft)return;
  const date=$('maintenanceHolidayDate').value,title=$('maintenanceHolidayName').value.trim();
  const next=maintenanceClone(maintenanceDraft);next.holidays.push({date,title});
  const error=maintenanceValidate(next);if(error){$('maintenanceStatus').textContent=error;return;}
  maintenanceDraft=next;maintenanceRender();$('maintenanceHolidayDate').value='';$('maintenanceHolidayName').value='';
 }
 function maintenanceExcludeHoliday(){
- if(!maintenanceDraft)return;
+ if(maintenanceSavePending||!maintenanceDraft)return;
  const key=$('maintenanceExistingHolidayDate').value;
  const next=maintenanceClone(maintenanceDraft);next.excludedHolidays.push(key);
  const error=maintenanceValidate(next);if(error){$('maintenanceStatus').textContent=error;return;}
  maintenanceDraft=next;maintenanceRender();
 }
 function maintenanceSetOverride(day,group,shift){
- if(!maintenanceDraft||!maintenanceGroups.includes(group)||!maintenanceISODate(day)|| (shift&&!maintenanceShifts.includes(shift)))return;
+ if(maintenanceSavePending||!maintenanceDraft||!maintenanceGroups.includes(group)||!maintenanceISODate(day)|| (shift&&!maintenanceShifts.includes(shift)))return;
  maintenanceDraft.overrides=maintenanceDraft.overrides.filter(o=>!(o.date===day&&o.group===group));
  if(shift)maintenanceDraft.overrides.push({date:day,group,shift});
  maintenanceRender();
@@ -267,8 +274,9 @@ function maintenanceWire(){
   if(maintenanceDirty()&&!confirmMutationWithSessionGuard('작성 중인 정비 설정을 버리고 서버의 최신값을 불러올까요?'))return;
   void maintenanceReloadEditor();
  });
- $('maintenancePeriodSelect').addEventListener('change',e=>{maintenanceEditorPeriodId=e.target.value;maintenanceRender();});
+ $('maintenancePeriodSelect').addEventListener('change',e=>{if(maintenanceSavePending)return;maintenanceEditorPeriodId=e.target.value;maintenanceRender();});
  $('maintenancePeriodList').addEventListener('click',e=>{
+  if(maintenanceSavePending)return;
   const select=e.target.closest('[data-mt-select]'),remove=e.target.closest('[data-mt-remove]');
   if(select){maintenanceEditorPeriodId=select.dataset.mtSelect;maintenanceRender();}
   if(remove&&maintenanceDraft){
@@ -283,10 +291,12 @@ function maintenanceWire(){
   const select=e.target.closest('[data-mt-day][data-mt-group]');if(select)maintenanceSetOverride(select.dataset.mtDay,select.dataset.mtGroup,select.value);
  });
  $('maintenanceHolidayList').addEventListener('click',e=>{
+  if(maintenanceSavePending)return;
   const b=e.target.closest('[data-mt-remove-holiday]');
   if(b&&maintenanceDraft){maintenanceDraft.holidays=maintenanceDraft.holidays.filter(h=>h.date!==b.dataset.mtRemoveHoliday);maintenanceRender();}
  });
  $('maintenanceExcludedHolidayList').addEventListener('click',e=>{
+  if(maintenanceSavePending)return;
   const b=e.target.closest('[data-mt-restore-holiday]');
   if(b&&maintenanceDraft){maintenanceDraft.excludedHolidays=maintenanceDraft.excludedHolidays.filter(k=>k!==b.dataset.mtRestoreHoliday);maintenanceRender();}
  });
