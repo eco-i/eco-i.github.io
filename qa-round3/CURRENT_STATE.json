@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-13",
-  "next_block": "3-8-14",
-  "latest_report": "qa-round3/QA_3-8-13_REPORT.md",
+  "last_completed_block": "3-8-14",
+  "next_block": "3-8-15",
+  "latest_report": "qa-round3/QA_3-8-14_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 8,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_13_SCOPED_QA_CLEAN_NO_NEW_DEFECTS_PRESERVE_EIGHT_PENDING_FIXES",
+  "latest_status": "BLOCK_14_SCOPED_CLEAN_DRAFT_AND_POPUP_TESTS_8_DEFECTS_UNDEPLOYED",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -33,8 +33,8 @@
     "real two-admin login/session save completion cross-over with network delay",
     "real concurrent maintenance RPC read/write responses and cross-tab revision propagation"
   ],
-  "next_scope": "3-8-14: full current HTML UI and cross-screen refresh/popup session paths; unsaved attendance/annual leave draft render consistency, opening secondary lists during refresh and 2035 boundary; no main deployment or permanent DB writes",
-  "updated_kst": "2026-10-19T12:29:07+09:00",
+  "next_scope": "3-8-15: popup close/reopen and asynchronous list load races, annual leave usage and attendance editor interop, mobile accessibility CSS/DOM checks; avoid production main writes or employee DB edits; real full browser E2E still pending",
+  "updated_kst": "2026-10-19T12:39:25+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -287,6 +287,26 @@
       "new_confirmed_product_defects": 0,
       "real_independent_db_sessions_verified": false,
       "real_full_browser_app_verified": false,
+      "production_main_modified": false,
+      "production_database_mutated": false
+    },
+    "block_14": {
+      "actual_attendance_dirty_editor_sync_mock_scenarios_pass": 12,
+      "annual_leave_dirty_render_guard_mock_scenarios_pass": 9,
+      "annual_leave_usage_async_mock_scenarios_pass": 7,
+      "visible_secondary_screen_signature_mock_scenarios_pass": 17,
+      "annual_leave_2026_2035_picker_mock_scenarios_pass": 7,
+      "maintenance_admin_open_mock_scenarios_pass": 5,
+      "mock_dynamic_tests_pass": 57,
+      "main_html_critical_ids_checked": 26,
+      "qa_maintenance_static_id_references_checked": 26,
+      "missing_html_dom_ids": 0,
+      "duplicate_literal_html_ids": 0,
+      "confirmed_new_product_defects": 0,
+      "real_full_app_chromium_verified": false,
+      "real_mobile_devices_verified": false,
+      "real_staff_data_checked": false,
+      "real_two_db_sessions_verified": false,
       "production_main_modified": false,
       "production_database_mutated": false
     }
