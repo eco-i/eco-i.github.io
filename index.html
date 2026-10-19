@@ -7372,7 +7372,7 @@ const backdropReturnFocus=new Map();
 let backdropChainFallbackFocus=null;
 let backdropChainFallbackTimer=null;
 function focusTargetUsable(el){
-  return !!(el&&el.isConnected&&typeof el.focus==='function'&&!el.disabled&&el.getAttribute?.('aria-hidden')!=='true'&&getComputedStyle(el).display!=='none'&&getComputedStyle(el).visibility!=='hidden'&&el.getClientRects().length>0);
+  return !!(el&&el.isConnected&&typeof el.focus==='function'&&!el.disabled&&el.getAttribute?.('aria-hidden')!=='true'&&!el.closest?.('[aria-hidden="true"],[inert]')&&getComputedStyle(el).display!=='none'&&getComputedStyle(el).visibility!=='hidden'&&el.getClientRects().length>0);
 }
 function visibleModalFocusables(modal){
   if(!modal)return [];
