@@ -228,9 +228,19 @@ async function maintenanceReloadEditor(){
  if(maintenanceSavePending||!maintenanceDraft)return;
  // 서버 조회 중에도 편집/닫기/로그아웃이 가능하다. 나중에 도착한 응답이 새 편집을 덮어쓰면 안 된다.
  const originalDraft=maintenanceDraft,originalJson=JSON.stringify(maintenanceDraft),originalToken=state.sessionToken;
- const ok=await loadMaintenanceSchedule();
+ const readPromise=loadMaintenanceSchedule(),ownLoadSeq=maintenanceLoadSeq;
+ const ok=await readPromise;
  if(!maintenanceDraft||state.sessionToken!==originalToken||!$('maintenanceBackdrop')?.classList.contains('open'))return;
- if(ok!==true){showToast('서버에서 최신 정비 설정을 불러오지 못했습니다.','error');return;}
+ if(ok!==true){
+  // A newer calendar/realtime load can legitimately supersede this manual read.
+  // Do not call that a server error if its accepted snapshot is already ready.
+  if(maintenanceLoadSeq===ownLoadSeq){
+   showToast('서버에서 최신 정비 설정을 불러오지 못했습니다.','error');return;
+  }
+  if(maintenanceReady!==true){
+   showToast('다른 최신 정보 조회가 진행 중입니다. 조회가 끝난 뒤 다시 확인해 주세요.','info');return;
+  }
+ }
  if(maintenanceDraft!==originalDraft||JSON.stringify(maintenanceDraft)!==originalJson){
   maintenanceRender();
   showToast('최신 설정을 조회하는 동안 새로 작성한 변경 사항이 있어 유지했습니다. 필요하면 변경 내용을 확인한 후 다시 불러와 주세요.','info');
