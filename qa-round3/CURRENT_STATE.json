@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-12",
-  "next_block": "3-8-13",
-  "latest_report": "qa-round3/QA_3-8-12_REPORT.md",
+  "last_completed_block": "3-8-13",
+  "next_block": "3-8-14",
+  "latest_report": "qa-round3/QA_3-8-13_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 8,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_12_SCOPED_QA_PASS_EIGHT_DEFECTS_OPERATION_UNDEPLOYED",
+  "latest_status": "BLOCK_13_SCOPED_QA_CLEAN_NO_NEW_DEFECTS_PRESERVE_EIGHT_PENDING_FIXES",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -33,8 +33,8 @@
     "real two-admin login/session save completion cross-over with network delay",
     "real concurrent maintenance RPC read/write responses and cross-tab revision propagation"
   ],
-  "next_scope": "3-8-13: realtime refresh abort/catch-up and employee calendar, annual leave/overtime/holiday work detail propagation, personnel reassignment and 2035/2036 boundaries; operational main and staff data protected",
-  "updated_kst": "2026-10-19T12:03:46+09:00",
+  "next_scope": "3-8-14: full current HTML UI and cross-screen refresh/popup session paths; unsaved attendance/annual leave draft render consistency, opening secondary lists during refresh and 2035 boundary; no main deployment or permanent DB writes",
+  "updated_kst": "2026-10-19T12:29:07+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -277,6 +277,18 @@
       "real_db_concurrency_verified": false,
       "production_main_modified": false,
       "production_database_mutated": false
+    },
+    "block_13": {
+      "realtime_catchup_virtual_timer_assertions_pass": 13,
+      "personnel_attendance_leave_holiday_eligibility_day_crosschecks_pass": 10956,
+      "personnel_reassignment_boundary_assertions_pass": 8,
+      "overtime_capacity_synthetic_month_checks_pass": 120,
+      "maintenance_2035_2036_and_strict_revision_guard_assertions_pass": 18,
+      "new_confirmed_product_defects": 0,
+      "real_independent_db_sessions_verified": false,
+      "real_full_browser_app_verified": false,
+      "production_main_modified": false,
+      "production_database_mutated": false
     }
   },
   "pending_qa_fixes": [
@@ -290,7 +302,7 @@
     "3-8-12-001: superseded manual maintenance reload must use successful newer read instead of false server error; QA JS mock 8/8 PASS; not deployed",
     "QA follow-up (not new defect): prior 3-8-11 stale-read accepted newer cache returns true so monthly sync does not falsely fail; not deployed"
   ],
-  "round3_new_product_defects_this_block": 1,
+  "round3_new_product_defects_this_block": 0,
   "memo_fix_regression": {
     "branch": "qa-3-8",
     "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
