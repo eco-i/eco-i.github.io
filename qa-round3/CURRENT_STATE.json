@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-24",
-  "next_block": "3-8-25",
-  "latest_report": "qa-round3/QA_3-8-24_REPORT.md",
+  "last_completed_block": "3-8-25",
+  "next_block": "3-8-26",
+  "latest_report": "qa-round3/QA_3-8-25_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 15,
+  "round3_new_product_defects": 16,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_24_QA_FIXED_2_NESTED_DIALOG_REOPEN_AND_CLOSE_RETURN_FOCUS_82_SCOPED_CHECKS",
+  "latest_status": "BLOCK_25_QA_FIXED_STALE_DIALOG_DELAYED_CALLBACK_INPUT_FOCUS_104_SCOPED_TESTS",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -47,10 +47,12 @@
     "3-8-23 actual logged-in browser rapidly opening and closing 2-3 nested modals, assistive technology focus announcement and back-to-parent restore",
     "3-8-23 QA isolated authenticated cross-session holiday-work edits/deletes with personnel change and annual/long-service saves (production DB always excluded)",
     "3-8-24 both popup focus fixes in full logged-in site, physical Android/iOS and screen readers; only standalone synthetic DOM browser tested",
-    "3-8-24 real QA-only two-admin session with holiday-work and personnel changes and long-service/annual leave writes; production database excluded"
+    "3-8-24 real QA-only two-admin session with holiday-work and personnel changes and long-service/annual leave writes; production database excluded",
+    "3-8-25: logged-in complete app Chromium and physical Android/iOS delayed modal open/close focus stability and accessibility labels/voice announcements",
+    "3-8-25: QA-only isolated authenticated sessions for personnel/holiday-work CAS, session privilege changes and annual/long-service reload uncertainty; production DB excluded"
   ],
-  "next_scope": "3-8-25: closing/reopening dialogs with delayed callbacks, admin PIN/permissions and Realtime overlap, holiday work/personnel CAS and annual/long-service read retry in isolated QA scope; main/real employee DB untouched",
-  "updated_kst": "2026-10-19T18:10:12.009+09:00",
+  "next_scope": "3-8-26: hidden/disabled focus eligibility, PIN/admin permission and popup lifecycle, holiday-work/personnel CAS and annual/long-service reload races with isolated mock; QA branch only and main/employee DB protected",
+  "updated_kst": "2026-10-19T18:38:47.295+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -225,6 +227,21 @@
       "original_actual_js_mock_reproduced": true,
       "standalone_chromium_original_and_fixed_verified": true,
       "production_applied": false
+    },
+    {
+      "id": "3-8-25-001",
+      "severity": "low",
+      "title": "Deferred modal open/close callback overrides a valid manually focused field in current active dialog",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-25-001_STALE_MODAL_CALLBACK_RESETS_ACTIVE_INPUT_FOCUS.md",
+      "qa_fix_commit": "686ea014a094f8255805b932943a986b201c1799",
+      "qa_html_blob": "fad8e6b20c0001a1bbdcb8ef482e7542522c5373",
+      "actual_source_original_vs_candidate_cases": 15,
+      "original_expected_cases_pass": 9,
+      "candidate_expected_cases_pass": 15,
+      "qa_committed_source_focus_cases_pass": 31,
+      "production_applied": false,
+      "real_full_app_browser_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -587,9 +604,10 @@
     "3-8-21-001: date-picker keyboard focus restored after date-grid innerHTML rerender; scoped actual function/fake DOM and standalone Chromium checks, QA index.html only; not production deployed",
     "3-8-23-001: stale nested modal timer cannot focus non-top aria-hidden backdrop; one-guard QA index.html patch; V8 fake DOM and actual keydown mock PASS; not deployed",
     "3-8-24-001: reopen earlier active dialog must retake focus if it is now top; isolated DOM + standalone Chromium confirmed, QA only, not deployed",
-    "3-8-24-002: if parent dialog closes before child, inherit parent return-focus target; isolated DOM + standalone Chromium confirmed, QA only, not deployed"
+    "3-8-24-002: if parent dialog closes before child, inherit parent return-focus target; isolated DOM + standalone Chromium confirmed, QA only, not deployed",
+    "3-8-25-001: preserve valid focus already inside top modal against delayed open and close callbacks; QA HTML only, standalone JS/DOM mocks verified, not deployed"
   ],
-  "round3_new_product_defects_this_block": 2,
+  "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
     "branch": "qa-3-8",
     "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
@@ -630,8 +648,8 @@
     "year_month_isolation_checked": true,
     "production_data_changed": false
   },
-  "latest_qa_html_blob": "32b345b52f33de26fb17d88655abca9ee24385cc",
-  "latest_qa_fix_commit": "f40043e73161a5ee47b03888155288f35a1f7b97",
+  "latest_qa_html_blob": "fad8e6b20c0001a1bbdcb8ef482e7542522c5373",
+  "latest_qa_fix_commit": "686ea014a094f8255805b932943a986b201c1799",
   "block_23": {
     "holiday_work_edit_return_mock_pass": 15,
     "annual_and_longservice_save_mock_pass": 12,
@@ -667,5 +685,25 @@
     "real_supabase_session_or_data_tested": false,
     "main_modified": false,
     "production_database_mutated": false
+  },
+  "block_25": {
+    "modal_actual_function_timer_tests_pass": 31,
+    "holiday_save_actual_function_mock_tests_pass": 15,
+    "annual_longservice_load_actual_function_mock_tests_pass": 12,
+    "keydown_handler_mock_pass": 14,
+    "static_html_js_guard_pass": 32,
+    "valid_scoped_total_pass": 104,
+    "original_modal_candidate_comparison_cases": 15,
+    "original_modal_comparison_expected_pass": 9,
+    "corrected_candidate_comparison_expected_pass": 15,
+    "invalid_annual_longservice_fixture_reference_corrected_and_retested": true,
+    "qa_html_blob": "fad8e6b20c0001a1bbdcb8ef482e7542522c5373",
+    "qa_fix_commit": "686ea014a094f8255805b932943a986b201c1799",
+    "new_confirmed_product_defects": 1,
+    "production_main_modified": false,
+    "production_database_mutated": false,
+    "real_full_app_chromium_verified": false,
+    "real_android_ios_verified": false,
+    "actual_supabase_RPC_or_DB_access": false
   }
 }
