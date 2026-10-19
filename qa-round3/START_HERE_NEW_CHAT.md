@@ -1,12 +1,13 @@
-# 근무모아 QA 3차·깊이8 공식 인수인계
+# 근무모아 3차·깊이 8 최신 공식 인수인계
 
-- **3-8-20 완료 / 다음 3-8-21**. 이번 블록 범위 한정 CLEAN, 신규 확정 결함 0종. 전체 앱 무결함/실기기 E2E 확인 아님.
-- GitHub repo `eco-i/eco-i.github.io`, QA branch `qa-3-8`, production branch `main`. 새 채팅은 `qa-round3/CURRENT_STATE.json`과 `qa-round3/QA_3-8-20_REPORT.md`부터 직접 열기.
-- **3차 누적 신규 결함 11종**. 2차 과거 결함 540종 별도. 모든 QA 수정안 운영 미배포.
-- 운영 main 기준 SHA `6c784210e048426f18a486d5602652626d97574d`, APP_VERSION `ver20261018-2313` 유지. 직원 DB 쓰기/운영 배포 없음.
-- QA 최신 `index.html` blob `778529b59b550ee1f3bf4e8e3b0ea27463427276` **변경 없음**. 1MB 이상이므로 fetch_file 본문이 비면 fetch_blob 사용.
-- 블록 20 검수: 휴근 목록 scope/account 8/8, 연차 연도 전환·실패 8/8, 장기재직 dirty draft/세션 8/8, 3중 모달 포커스 및 aria 19/19, 연차·장기 사용내역 Realtime 초안보존 11/11, pending 닫기 49/49, JS parse/486 unique IDs/모바일 정적 24/24 = **127/127 PASS**.
-- 실제 GitHub JS 함수 추출 + 모의 RPC/DOM 검증만 수행. 물리 Android/iOS, 실제 전체 앱 로그인 Chromium, 진짜 Supabase 복수 세션 동시성 미검증. 이 한계를 유지할 것.
-- 상세 단계와 근거: `qa-round3/QA_3-8-20_REPORT.md`.
-- **3-8-21 권고:** 모바일 날짜 선택기의 Tab/Escape 및 중첩 포커스, 휴근 편집·삭제 비동기 경합, 연차·장기 재직 저장 직후 Realtime 겹침. `qa-3-8`에서만 수정하고 main 배포·직원 DB 변경 금지.
-- 연결 끊김/무응답/채팅 용량 절약 최우선. 중간 보고 짧게, 상세 내용 GitHub. ZIP·수동 업로드 요청 금지.
+- **공식 완료: 3-8-21 / 다음: 3-8-22.** 블록 21은 신규 확정 제품 결함 1종(3-8-21-001) 발견 후 QA 한정 수정, CLEAN 아님.
+- GitHub `eco-i/eco-i.github.io`, QA 브랜치 `qa-3-8`, 운영 브랜치 `main`.
+- 3차 신규 결함 **누적 12종**(직전 11+21번 1). 2차 과거 결함 **540종** 별도. QA 수정 전체 운영 미배포.
+- 운영 `main` 기준 SHA `6c784210e048426f18a486d5602652626d97574d`, 운영 APP_VERSION `ver20261018-2313` 유지. 실제 직원 DB/운영 SQL·main 변경 **0건**.
+- 이번 3-8-21-001(LOW): 기간 근태 달력의 시작일 선택 후 종료일 선택으로 이어질 때 `datePickerGrid.innerHTML` 재렌더가 포커스된 날짜 버튼을 제거해 키보드 포커스가 BODY로 이동. 원본 코드 가짜 DOM과 별도 headless Chromium 390×844 단독 DOM으로 확인.
+- QA index.html의 renderAttendanceDatePicker **함수만** 수정: 재렌더 이전 날짜 버튼의 포커스 키 기억, 같은/다음/마지막 선택가능 날짜 또는 월 이동 버튼으로 `focus({preventScroll:true})` 복원. 버전/CSS/DB/근태 로직 변경 없음. 코드 커밋 `49ba06da4dfdf9526ecf5e21adbf1beea33467d5`, 최신 QA HTML blob **`ce076c820937c62bf6b2a2d1f471f9fbf0fe0ce6`**.
+- 검증: 실제 함수 가짜 DOM 날짜 포커스 11/11, standalone Chromium DOM 1/1, 실제 휴근 삭제함수 모의 경합 14/14, JS·모바일·저장 경계 정적 24/24 → **합계 50/50 PASS**. 실제 전체 앱 Chromium 로그인/Android/iOS/실 Supabase mutation 병렬 요청 미검증.
+- 새 채팅방 시작 시 `qa-round3/CURRENT_STATE.json`, `qa-round3/QA_3-8-21_REPORT.md`를 GitHub에서 직접 열 것. 상세 문제 `qa-round3/issues/3-8-21-001_DATE_PICKER_FOCUS_LOSS.md`.
+- index.html은 1MB 초과: `fetch_file` 본문이 비면 최신 blob SHA로 `fetch_blob` 사용. ZIP/수동 업로드 요청하지 말 것.
+- **3-8-22 권고**: 날짜 선택기 포커스/중첩 모달 접근성, 휴근 동일 날짜 수정·삭제 동시성, Realtime/연차·장기 재직 저장 경합. QA 브랜치만 패치. 운영 main 배포·실직원 DB 쓰기 금지.
+- 사용자 우선: 연결 끊김/무응답 및 대화 길이 최소화, 짧은 진행보고, 상세 자료는 GitHub.
