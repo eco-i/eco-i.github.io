@@ -95,6 +95,12 @@ async function loadMaintenanceSchedule(){
  try{
   const fresh=maintenanceStrictResponse(await rpc('get_maintenance_schedule',{p_token:token},{timeoutMs:READONLY_RPC_TIMEOUT_MS}));
   if(!current())return false;
+  // Never roll back an already saved or newer revision with a delayed/replica-stale read.
+  if(fresh.revision<maintenanceSchedule.revision){
+   maintenanceReady=true;
+   if($('maintenanceBackdrop')?.classList.contains('open')&&maintenanceDraft)maintenanceRender();
+   return false;
+  }
   maintenanceSchedule=fresh;maintenanceReady=true;
   if($('maintenanceBackdrop')?.classList.contains('open')&&maintenanceDraft)maintenanceRender();
   return true;
@@ -247,7 +253,9 @@ async function maintenanceSave(){
  let saveErrorMessage='';
  try{
   const result=maintenanceStrictResponse(await rpc('admin_save_maintenance_schedule',{p_token:token,p_expected_revision:expected,p_data:saved}));
-  if(!sharedSessionContextCurrent(actor,token,{epoch}))return;
+  if(!sharedSessionContextCurrent(actor,token,{epoch})||saveSeq!==maintenanceSaveSeq)return;
+  // A completed write owns the latest authoritative state; invalidate reads started before it.
+  ++maintenanceLoadSeq;
   maintenanceSchedule=result;maintenanceReady=true;
   maintenanceDraft=maintenanceClone(result.data);maintenanceDraftBaseline={...maintenanceClone(result.data),revision:result.revision};
   maintenanceRender();closeBackdrop('maintenanceBackdrop',true);
