@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-25",
-  "next_block": "3-8-26",
-  "latest_report": "qa-round3/QA_3-8-25_REPORT.md",
+  "last_completed_block": "3-8-26",
+  "next_block": "3-8-27",
+  "latest_report": "qa-round3/QA_3-8-26_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 16,
+  "round3_new_product_defects": 17,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_25_QA_FIXED_STALE_DIALOG_DELAYED_CALLBACK_INPUT_FOCUS_104_SCOPED_TESTS",
+  "latest_status": "BLOCK_26_QA_FIXED_HIDDEN_ANCESTOR_FOCUS_TARGET_92_SCOPED_TESTS",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -49,10 +49,12 @@
     "3-8-24 both popup focus fixes in full logged-in site, physical Android/iOS and screen readers; only standalone synthetic DOM browser tested",
     "3-8-24 real QA-only two-admin session with holiday-work and personnel changes and long-service/annual leave writes; production database excluded",
     "3-8-25: logged-in complete app Chromium and physical Android/iOS delayed modal open/close focus stability and accessibility labels/voice announcements",
-    "3-8-25: QA-only isolated authenticated sessions for personnel/holiday-work CAS, session privilege changes and annual/long-service reload uncertainty; production DB excluded"
+    "3-8-25: QA-only isolated authenticated sessions for personnel/holiday-work CAS, session privilege changes and annual/long-service reload uncertainty; production DB excluded",
+    "3-8-26 ancestor aria-hidden/inert focus changes need actual full logged-in app and Android/iOS TalkBack/VoiceOver regression",
+    "3-8-26 actual 2-session QA-only holiday-work/personnel CAS and annual/long-service save/reload arbitration pending; production DB never accessed"
   ],
-  "next_scope": "3-8-26: hidden/disabled focus eligibility, PIN/admin permission and popup lifecycle, holiday-work/personnel CAS and annual/long-service reload races with isolated mock; QA branch only and main/employee DB protected",
-  "updated_kst": "2026-10-19T18:38:47.295+09:00",
+  "next_scope": "3-8-27: aria-hidden/inert nested and disabled fieldset focus, fast PIN/admin role switches and Realtime overlap, holiday-delete/personnel CAS, annual/long-service post-save delayed reload races; QA only, main and employee DB protected",
+  "updated_kst": "2026-10-19T18:50:56.016+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -242,6 +244,19 @@
       "qa_committed_source_focus_cases_pass": 31,
       "production_applied": false,
       "real_full_app_browser_verified": false
+    },
+    {
+      "id": "3-8-26-001",
+      "severity": "low",
+      "title": "Focus target validity misses aria-hidden or inert ancestor of otherwise visible element",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-26-001_ARIA_HIDDEN_INERT_ANCESTOR_FOCUS_ELIGIBILITY.md",
+      "qa_fix_commit": "1032c6e49f2db01b38d8c6c377e5f4db0318500c",
+      "qa_html_blob": "b65582e09c900785c79122217de8b705c069e166",
+      "standalone_chromium_original_vs_fix_cases_pass": 7,
+      "qa_source_focus_mock_pass": 11,
+      "production_applied": false,
+      "real_full_app_chromium_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -605,7 +620,8 @@
     "3-8-23-001: stale nested modal timer cannot focus non-top aria-hidden backdrop; one-guard QA index.html patch; V8 fake DOM and actual keydown mock PASS; not deployed",
     "3-8-24-001: reopen earlier active dialog must retake focus if it is now top; isolated DOM + standalone Chromium confirmed, QA only, not deployed",
     "3-8-24-002: if parent dialog closes before child, inherit parent return-focus target; isolated DOM + standalone Chromium confirmed, QA only, not deployed",
-    "3-8-25-001: preserve valid focus already inside top modal against delayed open and close callbacks; QA HTML only, standalone JS/DOM mocks verified, not deployed"
+    "3-8-25-001: preserve valid focus already inside top modal against delayed open and close callbacks; QA HTML only, standalone JS/DOM mocks verified, not deployed",
+    "3-8-26-001: focusTargetUsable rejects elements within ancestor aria-hidden=true or inert; QA index.html only, standalone Chromium + isolated actual-function mocks PASS, not deployed"
   ],
   "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
@@ -648,8 +664,8 @@
     "year_month_isolation_checked": true,
     "production_data_changed": false
   },
-  "latest_qa_html_blob": "fad8e6b20c0001a1bbdcb8ef482e7542522c5373",
-  "latest_qa_fix_commit": "686ea014a094f8255805b932943a986b201c1799",
+  "latest_qa_html_blob": "b65582e09c900785c79122217de8b705c069e166",
+  "latest_qa_fix_commit": "1032c6e49f2db01b38d8c6c377e5f4db0318500c",
   "block_23": {
     "holiday_work_edit_return_mock_pass": 15,
     "annual_and_longservice_save_mock_pass": 12,
@@ -705,5 +721,23 @@
     "real_full_app_chromium_verified": false,
     "real_android_ios_verified": false,
     "actual_supabase_RPC_or_DB_access": false
+  },
+  "block_26": {
+    "browser_synthetic_dom_focus_cases_pass": 7,
+    "actual_focus_function_mock_pass": 11,
+    "modal_and_PIN_actual_function_mock_pass": 14,
+    "holiday_save_actual_function_mock_pass": 16,
+    "annual_longservice_load_actual_function_mock_pass": 12,
+    "static_html_js_qa_guards_pass": 32,
+    "total_valid_scoped_pass": 92,
+    "initial_mock_PIN_fixture_missing_DOM_and_clear_function_fixed_and_retested": true,
+    "new_confirmed_product_defects": 1,
+    "qa_html_blob": "b65582e09c900785c79122217de8b705c069e166",
+    "qa_fix_commit": "1032c6e49f2db01b38d8c6c377e5f4db0318500c",
+    "real_full_app_chromium_verified": false,
+    "real_android_ios_verified": false,
+    "actual_supabase_RPC_or_DB_access": false,
+    "production_main_modified": false,
+    "production_database_mutated": false
   }
 }
