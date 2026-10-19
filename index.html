@@ -7402,7 +7402,7 @@ function topOpenBackdrop(){
   }).at(-1)||null;
 }
 function focusTopBackdrop(backdrop){
-  if(!backdrop?.classList.contains('open'))return;
+  if(!backdrop?.classList.contains('open')||topOpenBackdrop()!==backdrop)return;
   const modal=ensureBackdropAccessibility(backdrop); if(!modal)return;
   const focusables=visibleModalFocusables(modal);
   (focusables[0]||modal).focus({preventScroll:true});
