@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-9",
-  "next_block": "3-8-10",
-  "latest_report": "qa-round3/QA_3-8-9_REPORT.md",
+  "last_completed_block": "3-8-10",
+  "next_block": "3-8-11",
+  "latest_report": "qa-round3/QA_3-8-10_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 5,
+  "round3_new_product_defects": 6,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,17 +22,18 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_9_SCOPED_QA_VERIFIED_FIVE_DEFECTS_PENDING_FULL_APP",
+  "latest_status": "BLOCK_10_SCOPED_QA_VERIFIED_SIX_DEFECTS_UNDEPLOYED",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
     "real two-session maintenance/holiday-work overlap",
     "end-to-end multi-device history edit/delete propagation",
     "3-8-8 full Chromium HTML/CSS administrator maintenance modal in-flight save/edit lock and release",
-    "real full-app Chromium with production-equivalent HTML/CSS and connected admin/employee sessions"
+    "real full-app Chromium with production-equivalent HTML/CSS and connected admin/employee sessions",
+    "real two-admin login/session save completion cross-over with network delay"
   ],
-  "next_scope": "3-8-10: cross-browser-safe JS integration tests for maintenance reload/edit/save and employee/session overlays, plus main HTML CSS static regressions and holiday history interop; no deployment or production DB mutations",
-  "updated_kst": "2026-10-19T10:43:27+09:00",
+  "next_scope": "3-8-11: async maintenance revision/realtime, login restoration and multi-tab/session lifespan, offline retry and stale responses, holiday-work / leave / overtime intersections; real mobile/full app and concurrent DB sessions still pending; no main release or production DB writes",
+  "updated_kst": "2026-10-19T11:10:15+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -83,6 +84,18 @@
       "production_applied": false,
       "qa_v8_mock_cases_pass": 5,
       "qa_chromium_full_app_verified": false
+    },
+    {
+      "id": "3-8-10-001",
+      "severity": "high",
+      "title": "Previous login's late maintenance save finally unlocks a new login's pending save",
+      "fix_file": "maintenance-20261018.js",
+      "issue_file": "qa-round3/issues/3-8-10-001_STALE_SESSION_SAVE_UNLOCK.md",
+      "qa_fix_commit": "53cd3762bcf7055f9f0feefac3b979dde1081fdd",
+      "production_applied": false,
+      "qa_two_session_mock_reproduced": true,
+      "qa_three_session_permutations_pass": 48,
+      "real_concurrent_sessions_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -190,6 +203,25 @@
       "new_confirmed_product_defects": 1,
       "production_main_modified": false,
       "production_db_mutated": false
+    },
+    "block_10": {
+      "source_integration_html_qa_js_reconciled": true,
+      "admin_mutation_rpc_session_guard_present": true,
+      "logout_maintenance_reset_present": true,
+      "stale_save_unlock_reproduced_before_fix": true,
+      "save_generation_guard_qa_patched": true,
+      "new_confirmed_product_defects": 1,
+      "direct_save_regression_scenarios_pass": 5,
+      "three_session_outcome_permutations_pass": 48,
+      "reload_editor_regression_pass": 3,
+      "extracted_shift_holiday_crosschecks_pass": 94,
+      "legacy_maintenance_2026_assertions": 60,
+      "future_maintenance_2032_assertions": 24,
+      "holiday_boundary_assertions": 10,
+      "real_full_app_chromium_verified": false,
+      "real_two_independent_db_sessions_verified": false,
+      "production_main_modified": false,
+      "production_db_mutated": false
     }
   },
   "pending_qa_fixes": [
@@ -197,7 +229,8 @@
     "3-8-5-001: revised 3-RPC holiday work/history locking SQL in qa-round3/fixes/QA_3-8-6_holiday_work_serialization.sql; rollback-tested sequentially, real concurrent client test pending; not deployed",
     "3-8-5-002: maintenance save error status persisted by QA JS, browser UI test pending; not deployed",
     "3-8-8-001: in-flight maintenance editor mutation/close lock in qa-3-8/maintenance-20261018.js, V8 fake DOM regression PASS, full real browser integration pending; not deployed",
-    "3-8-9-001: maintenanceReloadEditor in-flight edit snapshot guard (qa-3-8 JS), 5 delayed RPC mock tests PASS, production not deployed"
+    "3-8-9-001: maintenanceReloadEditor in-flight edit snapshot guard (qa-3-8 JS), 5 delayed RPC mock tests PASS, production not deployed",
+    "3-8-10-001: maintenanceSaveSeq per-login save-finally ownership guard; A->B mock late RPC and 3-session 48-order regression PASS, production not deployed"
   ],
   "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
