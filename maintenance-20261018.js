@@ -256,11 +256,14 @@ async function maintenanceSave(){
   if(!sharedSessionContextCurrent(actor,token,{epoch})||saveSeq!==maintenanceSaveSeq)return;
   // A completed write owns the latest authoritative state; invalidate reads started before it.
   ++maintenanceLoadSeq;
-  maintenanceSchedule=result;maintenanceReady=true;
-  maintenanceDraft=maintenanceClone(result.data);maintenanceDraftBaseline={...maintenanceClone(result.data),revision:result.revision};
+  // Another tab may already have committed a newer revision while this write response was delayed.
+  const newerAlreadyLoaded=maintenanceSchedule.revision>result.revision;
+  if(!newerAlreadyLoaded)maintenanceSchedule=result;
+  maintenanceReady=true;
+  maintenanceDraft=maintenanceClone(maintenanceSchedule.data);maintenanceDraftBaseline={...maintenanceClone(maintenanceSchedule.data),revision:maintenanceSchedule.revision};
   maintenanceRender();closeBackdrop('maintenanceBackdrop',true);
   renderCalendar();rerenderOpenDetailUnlessDirty();
-  showToast('✓ 정비기간·조별 근무표·공휴일 변경을 전체 직원에게 저장했습니다.','success');
+  showToast(newerAlreadyLoaded?'저장이 완료되었지만 그 후 다른 관리자/탭의 더 최신 변경이 확인되어 최신 근무편성을 표시합니다.':'✓ 정비기간·조별 근무표·공휴일 변경을 전체 직원에게 저장했습니다.',newerAlreadyLoaded?'info':'success');
   realtimeNeedsCatchup=true;scheduleRealtimeRefresh(400);
  }catch(e){
   if(sharedSessionContextCurrent(actor,token,{epoch})){
