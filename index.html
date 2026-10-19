@@ -5263,29 +5263,56 @@ async function loadAuditPage(reset=false,{preserveDepth=false,silent=false}={}){
   // reset 재조회도 기존 정상 목록은 서버 성공 전까지 유지한다. 첫 진입처럼 기존 행이 없을 때만 로딩 화면을 표시한다.
   if(reset&&!auditRows.length)$('auditList').innerHTML='<div class="employee-empty">불러오는 중…</div>';
   auditLoading=true; updateAuditControls();
+  // 기존 페이지 마지막 행과 다음 조회 첫 행을 겹쳐 검사하여 offset 밀림을 감지한다.
+  const readSnapshot=async(count)=>{
+    for(let attempt=0;attempt<2;attempt++){
+      const rows=[];let offset=0,hasMore=false,shifted=false;
+      while(rows.length<count){
+        const want=Math.min(AUDIT_PAGE_SIZE,count-rows.length),tail=rows.length?Number(rows[rows.length-1].id):null;
+        const reqOffset=Math.max(0,offset-(tail===null?0:1)),reqLimit=want+1+(tail===null?0:1);
+        let got;
+        if(!configured())got=localAudit().slice(reqOffset,reqOffset+reqLimit);
+        else got=await rpc('list_recent_audit_page',{p_token:token,p_limit:reqLimit,p_offset:reqOffset});
+        if(!stillCurrent())return null;
+        got=strictAuditRpcRows(got,{maxRows:reqLimit});
+        if(tail!==null){
+          if(Number(got[0]?.id)!==tail){shifted=true;break;}
+          got=got.slice(1);
+        }
+        got=strictAuditRpcRows(got,{maxRows:want+1,existingIds:new Set(rows.map(x=>Number(x.id)))});
+        const page=got.slice(0,want);rows.push(...page);offset+=page.length;
+        hasMore=got.length>want&&offset<AUDIT_RETENTION_LIMIT;
+        if(page.length<want||!hasMore)break;
+      }
+      if(!shifted)return {rows,offset,hasMore};
+    }
+    throw new Error('변경 내역이 조회 중 바뀌었습니다. 다시 시도해 주세요.');
+  };
   try{
     if(reset){
-      const nextRows=[];let nextOffset=0,nextHasMore=false;
-      while(nextRows.length<targetCount){
-        const wanted=Math.min(AUDIT_PAGE_SIZE,targetCount-nextRows.length),requestCount=wanted+1;
-        let fetched;
-        if(!configured()) fetched=localAudit().slice(nextOffset,nextOffset+requestCount);
-        else fetched=await rpc('list_recent_audit_page',{p_token:token,p_limit:requestCount,p_offset:nextOffset});
-        if(!stillCurrent())return false;
-        fetched=strictAuditRpcRows(fetched,{maxRows:requestCount,existingIds:new Set(nextRows.map(r=>Number(r.id)))});
-        const page=fetched.slice(0,wanted);nextRows.push(...page);nextOffset+=page.length;
-        nextHasMore=fetched.length>wanted&&nextOffset<AUDIT_RETENTION_LIMIT;
-        if(page.length<wanted||!nextHasMore)break;
-      }
-      if(!stillCurrent())return false;
-      auditRows=nextRows;auditOffset=nextOffset;auditHasMore=nextHasMore;renderAudit();
+      const snapshot=await readSnapshot(targetCount);
+      if(!snapshot||!stillCurrent())return false;
+      auditRows=snapshot.rows;auditOffset=snapshot.offset;auditHasMore=snapshot.hasMore;renderAudit();
     }else{
-      let fetched;const requestCount=AUDIT_PAGE_SIZE+1;
-      if(!configured()) fetched=localAudit().slice(auditOffset,auditOffset+requestCount);
-      else fetched=await rpc('list_recent_audit_page',{p_token:token,p_limit:requestCount,p_offset:auditOffset});
+      const tail=auditRows.length?Number(auditRows[auditRows.length-1].id):null;
+      const reqOffset=Math.max(0,auditOffset-(tail===null?0:1)),reqLimit=AUDIT_PAGE_SIZE+1+(tail===null?0:1);
+      let got;
+      if(!configured())got=localAudit().slice(reqOffset,reqOffset+reqLimit);
+      else got=await rpc('list_recent_audit_page',{p_token:token,p_limit:reqLimit,p_offset:reqOffset});
       if(!stillCurrent())return false;
-      fetched=strictAuditRpcRows(fetched,{maxRows:requestCount,existingIds:new Set(auditRows.map(r=>Number(r.id)))});
-      const page=fetched.slice(0,AUDIT_PAGE_SIZE);auditRows.push(...page);auditOffset+=page.length;auditHasMore=fetched.length>AUDIT_PAGE_SIZE&&auditOffset<AUDIT_RETENTION_LIMIT;renderAudit();
+      got=strictAuditRpcRows(got,{maxRows:reqLimit});
+      const existingIds=new Set(auditRows.map(x=>Number(x.id))),pageAfter=tail===null?[]:got.slice(1);
+      const shifted=tail===null||Number(got[0]?.id)!==tail||pageAfter.some(x=>existingIds.has(Number(x.id)));
+      if(shifted){
+        // 현재 보이던 깊이에 50건을 추가한 최신 스냅샷을 원자적으로 채택한다.
+        const snapshot=await readSnapshot(Math.min(AUDIT_RETENTION_LIMIT,auditRows.length+AUDIT_PAGE_SIZE));
+        if(!snapshot||!stillCurrent())return false;
+        auditRows=snapshot.rows;auditOffset=snapshot.offset;auditHasMore=snapshot.hasMore;renderAudit();
+      }else{
+        const data=strictAuditRpcRows(pageAfter,{maxRows:AUDIT_PAGE_SIZE+1,existingIds});
+        const page=data.slice(0,AUDIT_PAGE_SIZE);auditRows.push(...page);auditOffset+=page.length;
+        auditHasMore=data.length>AUDIT_PAGE_SIZE&&auditOffset<AUDIT_RETENTION_LIMIT;renderAudit();
+      }
     }
     return true;
   }catch(e){
