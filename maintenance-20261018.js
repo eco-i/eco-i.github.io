@@ -86,7 +86,7 @@ function maintenanceStrictResponse(res){
  return {revision:Number(res.revision),data:maintenanceClone(data)};
 }
 async function loadMaintenanceSchedule(){
- const seq=++maintenanceLoadSeq;
+ const seq=++maintenanceLoadSeq,revisionAtReadStart=maintenanceSchedule.revision;
  if(!state.me){maintenanceSchedule={revision:0,data:maintenanceEmpty()};maintenanceReady=null;return false;}
  const actor=Number(state.me.employee_id),token=state.sessionToken,epoch=sessionContextEpoch;
  const current=()=>seq===maintenanceLoadSeq&&sharedSessionContextCurrent(actor,token,{epoch});
@@ -107,6 +107,8 @@ async function loadMaintenanceSchedule(){
  }catch(e){
   if(!current())return false;
   if(isConfirmedSessionExpired(e))throw e;
+  // An older read failure cannot mark fresh state unavailable after a successful write.
+  if(maintenanceSchedule.revision>revisionAtReadStart){maintenanceReady=true;return false;}
   maintenanceReady=false;
   if($('maintenanceBackdrop')?.classList.contains('open')&&maintenanceDraft)maintenanceRender();
   return false;
@@ -254,8 +256,7 @@ async function maintenanceSave(){
  try{
   const result=maintenanceStrictResponse(await rpc('admin_save_maintenance_schedule',{p_token:token,p_expected_revision:expected,p_data:saved}));
   if(!sharedSessionContextCurrent(actor,token,{epoch})||saveSeq!==maintenanceSaveSeq)return;
-  // A completed write owns the latest authoritative state; invalidate reads started before it.
-  ++maintenanceLoadSeq;
+  // A successful write and an overlapping read may each be newer. Compare revisions rather than discard the read.
   // Another tab may already have committed a newer revision while this write response was delayed.
   const newerAlreadyLoaded=maintenanceSchedule.revision>result.revision;
   if(!newerAlreadyLoaded)maintenanceSchedule=result;
