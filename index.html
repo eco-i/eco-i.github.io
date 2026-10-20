@@ -2870,8 +2870,12 @@ function markUpdateHandoffLoggedOut(token){
     storageSet(localStorage,updateHandoffLogoutTokenKey(token),String(Date.now()));
     pruneUpdateHandoffLogoutTokenKeys();
   }catch(e){}
-  // 현재 탭의 handoff는 더 이상 필요 없다.
-  storageRemove(sessionStorage,UPDATE_SESSION_HANDOFF_KEY);
+  // Delayed cleanup for an old token must not erase a newer login's update handoff in this tab.
+  // Only the handoff belonging to the token being logged out may be removed.
+  try{
+    const raw=storageGet(sessionStorage,UPDATE_SESSION_HANDOFF_KEY),info=raw?JSON.parse(raw):null;
+    if(raw&&String(info?.token||'')===String(token))storageRemove(sessionStorage,UPDATE_SESSION_HANDOFF_KEY);
+  }catch(e){ /* Malformed legacy handoff cannot be safely attributed to this token. */ }
   // 구버전 shared handoff가 같은 세션이면 명시적 로그아웃과 함께 제거한다.
   try{
     const raw=storageGet(localStorage,UPDATE_SESSION_HANDOFF_KEY);

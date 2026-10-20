@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-32",
-  "next_block": "3-8-33",
-  "latest_report": "qa-round3/QA_3-8-32_REPORT.md",
+  "last_completed_block": "3-8-33",
+  "next_block": "3-8-34",
+  "latest_report": "qa-round3/QA_3-8-33_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 24,
+  "round3_new_product_defects": 25,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_32_THREE_NEW_DEFECTS_HIGH_MEDIUM_LOW_FIXED_QA_136_VALID_CHECKS_PASS_NO_MAIN_DB_CHANGE",
+  "latest_status": "BLOCK_33_ONE_MEDIUM_HANDOFF_OWNERSHIP_DEFECT_FIXED_QA_143_VALID_CHECKS_PASS_NO_MAIN_DB_CHANGE",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -64,10 +64,12 @@
     "3-8-31: real full-app Chrome/Android/iOS nested PIN popups delayed autofocus and screen reader focus return after role handoff",
     "3-8-32: isolated QA multi-tab real browser Web Locks pending nonadmin login cleanup versus freshly authenticated admin",
     "3-8-32: local preview same-token logout/relogin plus pending auth-cleanup timer, actual Chrome/Android PWA",
-    "3-8-32: independent QA Supabase realtime/initial PIN/role-lowering concurrent transitions; do not touch employee records"
+    "3-8-32: independent QA Supabase realtime/initial PIN/role-lowering concurrent transitions; do not touch employee records",
+    "3-8-33: real QA-only two-account old session cleanup vs newer update handoff in same browser tab and Web Lock scheduling, no real employee data",
+    "3-8-33: local preview identical-token re-login handoff ownership and physical Android/iOS login retention"
   ],
-  "next_scope": "3-8-33 QA-only: queued shared session cleanup and logout tombstones, storage scope transitions on mobile/PC, initial PIN versus Realtime channel overlap, session restoration race. No production data.",
-  "updated_kst": "2026-10-19T22:16:35+09:00",
+  "next_scope": "3-8-34 QA only: handoff tombstone clear/migration and multi-tab automatic-update ownership, same-token renewals, Realtime reconnect refresh; production main and staff DB untouched",
+  "updated_kst": "2026-10-20T13:00:54+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -350,6 +352,17 @@
       "production_applied": false,
       "isolated_mock_verified": true,
       "real_server_e2e_verified": false
+    },
+    {
+      "id": "3-8-33-001",
+      "severity": "medium",
+      "title": "Old session logout cleanup unconditionally removes new login tab update handoff",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-33-001_STALE_LOGOUT_HANDOFF_REMOVAL.md",
+      "qa_html_blob": "d55a32fcbcad3110db76c8725b4b088fca7362d1",
+      "validated_actual_function_cases": 10,
+      "production_applied": false,
+      "real_browser_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -747,6 +760,21 @@
       "production_main_modified": false,
       "production_database_accessed": false,
       "real_authenticated_full_app_tested": false
+    },
+    "block_33": {
+      "handoff_actual_function_pass": 10,
+      "queued_shared_session_cleanup_actual_source_pass": 10,
+      "pc_mobile_cleanup_actual_function_pass": 14,
+      "realtime_channel_actual_function_mock_pass": 12,
+      "realtime_reconnect_actual_function_mock_pass": 10,
+      "initial_pin_gate_actual_function_mock_pass": 10,
+      "source_js_integrity_pass": 62,
+      "prior_restore_session_actual_function_pass": 15,
+      "total_valid_pass": 143,
+      "new_product_defects": 1,
+      "production_main_modified": false,
+      "real_employee_db_accessed": false,
+      "full_browser_e2e": false
     }
   },
   "pending_qa_fixes": [
