@@ -2881,16 +2881,17 @@ function legacyUpdateHandoffLogoutEntries(){
 }
 function pruneUpdateHandoffLogoutTokenKeys(){
   try{
-    const now=Date.now(),found=[];
+    const now=Date.now();
+    // Every still-fresh exact-token logout is authoritative. Never evict one
+    // merely because other tabs generated 64+ distinct logout tokens: a
+    // sleeping tab may still hold the evicted token in sessionStorage.
+    // Expiration (rather than a count cap) bounds normal storage retention.
     for(let i=localStorage.length-1;i>=0;i--){
       const key=localStorage.key(i);
       if(!key||!key.startsWith(UPDATE_SESSION_LOGOUT_TOKEN_PREFIX))continue;
       const at=Number(storageGet(localStorage,key)||0);
       if(!updateLogoutTombstoneIsFresh(at,UPDATE_SESSION_HANDOFF_TTL_MS,now))storageRemove(localStorage,key);
-      else found.push({key,at});
     }
-    // 비정상적으로 토큰이 많이 쌓여도 storage를 무한히 점유하지 않게 최신 64개만 보존한다.
-    found.sort((a,b)=>b.at-a.at).slice(64).forEach(item=>storageRemove(localStorage,item.key));
   }catch(e){}
 }
 function migrateLegacyUpdateHandoffLogoutTombstones(){
