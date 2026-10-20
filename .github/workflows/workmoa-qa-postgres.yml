@@ -1,0 +1,83 @@
+name: Workmoa QA isolated PostgreSQL integration (not full app E2E)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-postgres.yml'
+      - 'qa-round3/e2e/ci/**'
+      - 'qa-round3/fixes/QA_3-8-6_holiday_work_serialization.sql'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-qa-isolated-postgres-qa3
+  cancel-in-progress: true
+
+jobs:
+  isolated-postgres:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # No production URL, Supabase credentials, or connection to a cloud project.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: qa_runner
+          POSTGRES_PASSWORD: synthetic_ci_only_not_a_real_secret
+          POSTGRES_DB: qa_round3
+        ports:
+          - '127.0.0.1:5432:5432'
+        options: >-
+          --health-cmd "pg_isready -U qa_runner -d qa_round3"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGDATABASE: qa_round3
+      PGUSER: qa_runner
+      PGPASSWORD: synthetic_ci_only_not_a_real_secret
+    steps:
+      - name: Checkout QA branch without persistent GitHub credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify CI scope and prerequisites
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'eco-i/eco-i.github.io'
+          test "$GITHUB_REF" = 'refs/heads/qa-3-8'
+          test "$(git branch --show-current)" = 'qa-3-8'
+          test -z "$(printenv SUPABASE_ACCESS_TOKEN 2>/dev/null || true)"
+          test -z "$(printenv SUPABASE_DB_PASSWORD 2>/dev/null || true)"
+          test -z "$(printenv SUPABASE_URL 2>/dev/null || true)"
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+          python3 --version
+          psql --version
+      - name: Initialize synthetic local PostgreSQL schema
+        shell: bash
+        run: psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/synthetic-baseline.sql
+      - name: Apply unmodified 3-8-6 QA SQL to synthetic database
+        shell: bash
+        run: psql -X -v ON_ERROR_STOP=1 -f qa-round3/fixes/QA_3-8-6_holiday_work_serialization.sql
+      - name: Verify real PostgreSQL concurrency and CAS
+        shell: bash
+        run: python3 -u qa-round3/e2e/ci/pg-integration.py
+      - name: Summarize strict scope
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## Scope: synthetic PostgreSQL SQL-only integration'
+            echo '- Exact QA SQL RPC functions tested in PostgreSQL with synthetic prerequisite tables.'
+            echo '- NO real employees, NO hosted Supabase, NO live browser, NO real auth/RLS.'
+            echo '- Full-app P0/P1 E2E areas remain UNVERIFIED; do not mark overall QA CLEAN.'
+          } >> "$GITHUB_STEP_SUMMARY"
