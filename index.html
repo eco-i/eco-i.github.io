@@ -11623,8 +11623,16 @@ function handleSharedSessionStorageChange(e){
     // Exact-token logout suppression applies to PC tab-only sessions too.
     // Another user's shared-session event must not revoke this tab.
     if(current&&current===String(e.newValue||'')){
-      clearDeferredAdminDraftUnlockProof();
-      void logout(false);
+      // Storage events can arrive after a newer same-token fresh login has
+      // cleared this marker. Verify the live value, not the queued event.
+      // If the authoritative marker cannot be read, revoke conservatively.
+      let suppressedNow=false;
+      try{suppressedNow=localStorage.getItem(SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===current;}
+      catch(_){suppressedNow=true;}
+      if(suppressedNow){
+        clearDeferredAdminDraftUnlockProof();
+        void logout(false);
+      }
     }
     return;
   }
