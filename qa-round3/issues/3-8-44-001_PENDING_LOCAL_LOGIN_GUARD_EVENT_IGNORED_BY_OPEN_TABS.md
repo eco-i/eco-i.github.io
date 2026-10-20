@@ -1,0 +1,10 @@
+# 3-8-44-001 — 열린 탭에서 다른 탭의 미완료 로컬 로그인 guard 이벤트를 무시
+
+- **심각도 MEDIUM, QA-only 결함 및 국소 수정.** local-preview(`local:<id>`) 테스트 세션의 sibling-tab UI 정리/로그인 차단 신호 전파 불일치. 실제 운영 Supabase UUID 세션 권한 탈취를 입증한 것은 아님.
+- **원본 함수 재현:** 다른 탭에서 `staffAttendance_updateLocalLoginPending_v1:local%3A7`를 localStorage에 기록해도 `handleSharedSessionStorageChange`는 이 신규 키를 인식하지 않으므로, 로그인된 탭 `state.sessionToken='local:7'`에 대한 storage event에서 `logout(false)`를 호출하지 않음. 반면 `storedSessionTombstoned('local:7')`는 같은 guard가 있거나 해당 키를 읽지 못하면 fail-closed true 반환. PC 임시/모바일 저장범위 및 동일 토큰/다른 토큰 모의 이벤트 조건에서 원본 핸들러를 실행해 확인. 서버 RPC/실 DB 접근 없이 함수 직접 모의실행.
+- **수정:** sibling tab storage listener가 **현재 `local:` 토큰과 정확히 일치하는 pending guard key**를 식별하면, 동기 로그인 동안의 일시적 guard 설치/삭제가 정상 성공 로그인에 대한 불필요한 로그아웃으로 이어지지 않도록 **80ms 뒤** token 및 `sessionContextEpoch` 소유권을 다시 확인. 그때 `storedSessionTombstoned(current)`가 여전히 true인 경우에만 deferred admin draft proof 정리 + `logout(false)`. 다른 토큰·다른 저장소·로그인 완료 후 제거된 guard·다른 owner는 무시. 현재 `storedSessionTombstoned` 자체가 읽기 실패 시 fail-closed이므로 영속 guard read 실패도 보수적 차단.
+- 수정 구현은 초기 QA commit `e20368da5d149a55a721324bfe12af8df9ad37ea`에서 즉시 처리로 시작했으나, **정상 로그인 중 일시적 guard가 생기는 경합을 고려해 최종 commit `ba5a242ee66ac8aeacf7c5f7b255f8ac7e81989e`의 지연 재검증 처리로 확정**. 최종 코드 blob `ab638a84e6c211a3845889c9ab9b69a1f2b4f1ea`. 초기 수정본을 최종 기준으로 사용하지 말 것.
+- **최종 커밋 원본 함수 mock + 정적 회귀 1,473/1,473 PASS**: 새 guard event 타이머·현재 시점 재확인 192 조합×6 assertions=**1,152**; 기존 exact logout/suppression 이벤트 및 다른 storage 무시 **102**; local preview 정상 재로그인·epoch quota/guard 제거 거절 **180**; Realtime 지연 채널 teardown 소유권 **32**; script 2 syntax+script count+488 HTML ID count/unique+버전+3 로그인 경로 **7**. 최초 원본 실패 및 후보 검사 수치는 최종 PASS에서 제외.
+- **아직 검증하지 않은 위험:** 실제 Chromium old/new tab storage event delivery/ordering, 80ms 경계에서 실행 중인 구버전 writer/동시 login, 영속 guard 자체의 storage 권한 전체 장애, 지문 사진/관리자 모달의 실제 가시성, Chrome Web Locks/Android/iOS PWA 및 실 QA-only Supabase 통합. 실제 새 세션과 기존 탭의 동시 logout 지속 RPC/marker 경쟁도 물리 브라우저 검증 전 완료 주장 금지.
+- 운영 `main`, 실제 직원 DB·근태·지문·실계정 RPC·SQL·배포 접근/수정 **0**.
+- 작성 KST: 2026-10-20 18:35:02.
