@@ -1,6 +1,6 @@
 # 근무모아 3차·깊이8 — 위험 기반 종료 게이트
 
-> **QA-only 의사결정 보조. 3-8-47 현재 종료 확정 아님 / main 배포 승인 아님.**
+> **QA-only 의사결정 보조. 3-8-48 현재 종료 확정 아님 / main 배포 승인 아님.**
 > 대화 내 약 55~70블록은 추정치일 뿐 목표 개수·종료 보증이 아니다. 2차처럼 의미 없이 무기한 늘어나지 않도록 수치보다 남은 위험으로 종료 판단.
 
 ## 1. 코드 및 검수 관리 (GitHub에서 확인 가능)
@@ -31,7 +31,7 @@
 1. 블록 하나마다 명확히 다른 기능/불변식/회귀 목적이 있어야 하며, 동일 유형 예외조건의 무한 확장 금지.
 2. 신규 제품 결함과 미검증·환경 제한·test harness 오류를 분리.
 3. 실제 사용자의 직원 DB/운영 main 보호가 우선이며, 연결 안정성·간결한 대화 보고·상세 GitHub 기록 유지.
-4. **현재 종료 상태(3-8-47): 미충족.** 코드 단위 회귀는 상당수 통과했지만 실제 브라우저/서버 종단간 검증이 아직 남음.
+4. **현재 종료 상태(3-8-48): 미충족.** 코드 단위 회귀는 상당수 통과했지만 실제 브라우저/서버 종단간 검증이 아직 남음.
 
 초안 작성: 2026-10-20 18:20:51 KST, 3-8-43 범위.
 
@@ -50,3 +50,11 @@
 - 실제 Chrome 두 탭·구신 버전/권한/Web Locks, 물리 Android/iOS PWA, 가상 직원 DB와 분리 QA Supabase 동시 트랜잭션(휴근 SQL·대정비 관리자) 및 지문 가짜 사진, Realtime 신호, PIN 변경·근태 수정/삭제 결과 확인이 미완료.
 - 종료 기준의 연속 CLEAN 체크박스는 E2E 부분까지 충족하는 종합 기준으로서 **아직 체크하지 않음**. 환경 없는 모의검수 무한 반복 대신 별도 격리 환경 확보/남은 위험 합의가 선행돼야 한다.
 - 사용자 지시 없이는 운영 `main`이나 실제 직원 DB/인증정보/지문 사진 접근·배포 절대 금지.
+
+## 3-8-48 실제 E2E 환경 게이트 확인
+- [x] 기초 환경 실측 및 독립 QA 빌드용 fail-closed 도구 제공: `qa-round3/e2e/prepare-qa-site.mjs` (5 synthetic Node smoke results; 운영 project/key/service_role 거부).
+- [x] 실제 서버/브라우저 P0 5건, P1 3건 및 실행 조건·증빙 계약 명세: `qa-round3/e2e/E2E_RUNBOOK.md`.
+- [ ] 별도 순수 synthetic QA Supabase + 완성 기본 스키마 / 테스트 계정 확보. 연결 메타데이터에서 독립 QA 프로젝트 미발견; 기존 운영 Songdo DB 접근 금지.
+- [ ] 해당 QA 서버에 격리된 브라우저 두 탭 및 Android/iOS PWA 접근. 현재 Playwright 시스템 Chromium의 file/data/localhost navigation은 ERR_BLOCKED_BY_ADMINISTRATOR.
+- [ ] P0 실제 SQL/세션/권한 E2E PASS, P1 모바일·Realtime·근태·정비 PASS, 별도 E2E 기반 CLEAN 및 미해결 HIGH/CRITICAL 0. 46~47 code-scoped CLEAN을 실제 E2E CLEAN으로 착각 금지.
+- 48은 **E2E BLOCKED, CLEAN 아님**. 운영 본DB/실 직원기록과 main 변경 없음. 별도 QA 프로젝트 생성에 따른 비용 및 권한은 사용자 승인 전 확정·집행 금지.
