@@ -10,3 +10,9 @@
 - 코드 QA `index.html` blob `08867d7117ad9ae5a8247eda8d223687af2b8411`, `maintenance-20261018.js` blob `f8e8e469503d0abf53844aa85188b15b09a95238`, APP_VERSION `ver20261018-2313`.
 - 운영 `main` HEAD `6c784210e048426f18a486d5602652626d97574d` 검증; 운영 직원 DB/지문/인증/실근태·SQL/RPC·배포 변경 0. **사용자의 별도 최종 배포 지시 전에는 절대 main 병합/실데이터 조작 금지.**
 - 핵심 근거: `qa-round3/EXIT_CRITERIA.md`, `qa-round3/e2e/E2E_RUNBOOK.md`, `qa-round3/REMAINING_RISK_SCOPE_20261020.md`, `qa-round3/QA_3-8-53_REPORT.md`, `qa-round3/CURRENT_STATE.json`.
+
+## 2026-10-21 GitHub Actions 무료 실제 PostgreSQL SQL 통합시험 시작
+- [실제 SQL 통합검증 보고서](ACTIONS_POSTGRES_FIRST_PASS_20261021.md) / [성공한 Actions Run](https://github.com/eco-i/eco-i.github.io/actions/runs/39514319716) / commit `366310855aa268318611f321f651f5c3c7e667cd`.
+- 실제 PostgreSQL 16.15 컨테이너에서 합성 스키마와 **QA 원본 3-8-6 SQL**을 실행, 휴근-편성 양방향 경합과 두 관리자 revision CAS가 PASS. 이것은 SQL 일부 실증이며 **실제 Supabase Auth/RLS, 전체 사이트, 2탭/모바일 E2E가 아님**.
+- 자동화는 `.github/workflows/workmoa-qa-postgres.yml`에서 `qa-3-8` 관련 파일 push만 감지. 기본 무료 Linux 실행환경·외부 Supabase key/endpoint 0.
+- **공식 마지막 완료 3-8-53, 다음 3-8-54 미시작, 3차 신규 결함 37종, 조건부 코드종료/전체 NOT CLEAN/운영 배포 보류 모두 유지.**
