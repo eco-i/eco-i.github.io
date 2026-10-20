@@ -1,0 +1,64 @@
+name: Workmoa QA real Chromium isolated login UI (fake API, not full E2E)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-browser.yml'
+      - 'qa-round3/e2e/ci/browser-login-gate.py'
+      - 'qa-round3/e2e/prepare-local-qa-site.mjs'
+      - 'qa-round3/e2e/serve-local-qa-site.mjs'
+      - 'index.html'
+      - 'maintenance-20261018.js'
+      - 'maintenance-mobile-20261018.css'
+      - 'site-update-history.js'
+      - 'site-update-history.css'
+      - 'future-holidays-2028-2035.js'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-qa-real-browser-qa3
+  cancel-in-progress: true
+
+jobs:
+  browser-login-ui:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout only isolated QA branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Playwright Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check playwright==1.56.0
+          python3 -m playwright install --with-deps chromium
+      - name: Real browser loads full isolated HTML with fake-only loopback API
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -u qa-round3/e2e/ci/browser-login-gate.py
+      - name: Publish accurate scope
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## Actual full QA HTML / Chromium UI only'
+            echo '- Production backend and outside-origin requests explicitly blocked.'
+            echo '- Loopback fake API returns only login sentinel and mandatory PIN status.'
+            echo '- Browser UI results are NOT genuine Supabase Auth, PostgREST, RLS, attendance or multi-device E2E.'
+            echo '- Full app P0/P1 E2E UNVERIFIED; do not mark overall QA CLEAN.'
+          } >> "$GITHUB_STEP_SUMMARY"
