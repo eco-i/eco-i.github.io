@@ -4,7 +4,7 @@
 - **3-8-35 범위 한정 완료. 신규 결함 1종(MEDIUM: 3-8-35-001) 발견·QA 수정·회귀검사 통과. CLEAN 아님.** 3차 누적 신규 결함 **27종**(2차 과거 540종 별도).
 - **154/154 유효 격리·정적 PASS** = 신규 로그인/tombstone mock 77 + 자동업데이트 복원 mock 16 + Realtime SUBSCRIBED/catch-up 경합 mock 20 + 전체 소스/JS/DOM·기존 기능 정적 41.
 - 공식 시작: 3-8-34 완료/3차 26종/QA HTML `c754f9ff2be9e82768b550eb7ea3852f9b82d687`. GitHub 상태·인계·34 보고서 및 이슈 직접 조회.
-- QA 수정본 HTML blob **`4fd569795a1eafbdaf0918c4f0dfca3cbe`**, 제품코드 커밋 `9eca7cef89362cc81fc052a82a1134c399340231`. 버전 `ver20261018-2313` 고정, 운영 `main` `6c784210e048426f18a486d5602652626d97574d` 변경 없음. 직원 DB/Supabase API/SQL·배포 0.
+- QA 수정본 HTML blob **`4fd569795a1eafbdaf0918c4e0f2c4f0dfca3cbe`**, 제품코드 커밋 `9eca7cef89362cc81fc052a82a1134c399340231`. 버전 `ver20261018-2313` 고정, 운영 `main` `6c784210e048426f18a486d5602652626d97574d` 변경 없음. 직원 DB/Supabase API/SQL·배포 0.
 
 ## 깊이8 수행
 1. **공식 체크포인트:** 이전 34 완료 및 신규 결함 26종 확인. QA index 원본 Git blob으로 분석. 운영 branch 배포·실 직원 데이터 금지 유지.
