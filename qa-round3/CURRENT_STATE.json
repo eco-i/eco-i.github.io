@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-44",
-  "next_block": "3-8-45",
-  "latest_report": "qa-round3/QA_3-8-44_REPORT.md",
+  "last_completed_block": "3-8-45",
+  "next_block": "3-8-46",
+  "latest_report": "qa-round3/QA_3-8-45_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 36,
+  "round3_new_product_defects": 37,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_44_ONE_MEDIUM_PENDING_LOGIN_GUARD_CROSS_TAB_EVENT_REVOKE_WITH_80MS_SESSION_FENCE_FIXED_1473_ACTUAL_SOURCE_ASSERTIONS_MAIN_DB_PROTECTED",
+  "latest_status": "BLOCK_45_ONE_MEDIUM_STALE_SUPPRESSION_EVENT_FALSE_LOGOUT_FIXED_608_ACTUAL_SOURCE_ASSERTIONS_MAIN_DB_PROTECTED_E2E_PENDING",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -88,10 +88,12 @@
     "3-8-43: physical Chrome two tabs same shared token + PC temporary login logout suppression storage event local UI revoke, Web Locks and QA-only account E2E; not verified",
     "3-8-43: actual old-version mixed tab and new pending guard storage event, user-visible cached sensitive UI response, isolated browser QA only, no live employee records",
     "3-8-44: actual Chrome two-tab same local token guard set/remove, queued storage events vs 80ms delayed revoke and different login epoch; no physical E2E yet",
-    "3-8-44: actual logout(false) shared logout markers concurrent with a same local-token pending fresh login, old-version script and mobile/PWA; QA-only fake data"
+    "3-8-44: actual logout(false) shared logout markers concurrent with a same local-token pending fresh login, old-version script and mobile/PWA; QA-only fake data",
+    "3-8-45: real same-origin Chrome two-tab queued obsolete suppression storage event after fresh same-local-token login; sandbox Chromium navigation blocked, QA-only external browser required",
+    "3-8-45: old-version and new-version tabs Web Locks, physical Android/iOS/PWA and real isolated QA Supabase login/PIN/fingerprint/attendance integrated E2E remain unverified"
   ],
-  "next_scope": "3-8-45 QA-only: guard storage event vs logout(false) marker writes and concurrent same-local-token fresh login; old/new tab version overlap; determine physically isolated Chrome/Web Locks E2E prerequisites and exit-gate priority. No main or live employee DB.",
-  "updated_kst": "2026-10-20T18:35:40+09:00",
+  "next_scope": "3-8-46 QA-only risk-based distinct cross-function final regression: session/auth, attendance save/delete, PIN/fingerprint, Realtime, maintenance/annual leave; summarize isolated browser + QA-only Supabase exit-gate blockers, avoid repetitive suppression edge-case loops. No main or live staff DB.",
+  "updated_kst": "2026-10-20T19:44:11+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -558,6 +560,20 @@
       "qa_realtime_reconnect_mock_pass": 32,
       "qa_js_dom_static_pass": 7,
       "total_valid_pass": 1473,
+      "production_applied": false,
+      "real_browser_e2e_verified": false
+    },
+    {
+      "id": "3-8-45-001",
+      "severity": "medium",
+      "title": "Queued stale same-token logout suppression storage event falsely revokes a new login after the marker is cleared",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-45-001_STALE_SUPPRESSION_EVENT_REVOKES_FRESH_LOCAL_LOGIN.md",
+      "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411",
+      "qa_fix_commit": "3db6b577a7caef8f8a7333885405d953b2d86e05",
+      "pre_fix_actual_source_mock_false_logout_scenarios": 4,
+      "post_fix_suppression_source_scenarios_pass": 72,
+      "qa_total_actual_source_assertions_pass": 608,
       "production_applied": false,
       "real_browser_e2e_verified": false
     }
@@ -1133,6 +1149,22 @@
       "real_employee_db_accessed": false,
       "real_chrome_web_locks_verified": false,
       "real_supabase_realtime_verified": false
+    },
+    "block_45": {
+      "source_handler_suppression_scenarios_pass": 72,
+      "source_handler_suppression_assertions": 216,
+      "logout_token_aggregate_regression_scenarios_pass": 24,
+      "logout_token_aggregate_assertions": 72,
+      "pending_guard_regression_scenarios_pass": 96,
+      "pending_guard_assertions": 320,
+      "total_source_assertions_pass": 608,
+      "original_stale_event_false_logout_scenarios": 4,
+      "inline_script_syntax_pass": 6,
+      "html_id_count_unique": 488,
+      "full_browser_navigation_blocked_by_environment": true,
+      "real_two_tab_e2e_verified": false,
+      "main_modified": false,
+      "production_db_mutated": false
     }
   },
   "pending_qa_fixes": [
@@ -1208,8 +1240,8 @@
     "year_month_isolation_checked": true,
     "production_data_changed": false
   },
-  "latest_qa_html_blob": "ab638a84e6c211a3845889c9ab9b69a1f2b4f1ea",
-  "latest_qa_fix_commit": "ba5a242ee66ac8aeacf7c5f7b255f8ac7e81989e",
+  "latest_qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411",
+  "latest_qa_fix_commit": "3db6b577a7caef8f8a7333885405d953b2d86e05",
   "block_23": {
     "holiday_work_edit_return_mock_pass": 15,
     "annual_and_longservice_save_mock_pass": 12,
@@ -1411,6 +1443,21 @@
     "new_product_defects": 1,
     "qa_html_blob": "ab638a84e6c211a3845889c9ab9b69a1f2b4f1ea",
     "qa_fix_commit": "ba5a242ee66ac8aeacf7c5f7b255f8ac7e81989e",
+    "main_modified": false,
+    "production_db_mutated": false,
+    "real_multitab_browser_verified": false
+  },
+  "block_45": {
+    "total_valid_pass": 608,
+    "suppression_scenarios": 72,
+    "suppression_assertions_pass": 216,
+    "legacy_logout_cases": 24,
+    "legacy_logout_assertions_pass": 72,
+    "pending_guard_cases": 96,
+    "pending_guard_assertions_pass": 320,
+    "new_product_defects": 1,
+    "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411",
+    "qa_fix_commit": "3db6b577a7caef8f8a7333885405d953b2d86e05",
     "main_modified": false,
     "production_db_mutated": false,
     "real_multitab_browser_verified": false
