@@ -1779,5 +1779,30 @@
     "production_staff_db_mutated": false,
     "docker_install_required_from_user_now": false,
     "block_54": "NOT_STARTED_REQUIRES_ISOLATED_QA_E2E"
+  },
+  "actions_ci_sql_integration": {
+    "status": "ACTUAL_POSTGRES_SQL_SCOPE_PASS_FULL_APP_E2E_STILL_UNVERIFIED",
+    "verified_kst": "2026-10-21T08:20:42+09:00",
+    "report": "qa-round3/ACTIONS_POSTGRES_FIRST_PASS_20261021.md",
+    "workflow": ".github/workflows/workmoa-qa-postgres.yml",
+    "run_id": 39514319716,
+    "run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39514319716",
+    "run_commit": "366310855aa268318611f321f651f5c3c7e667cd",
+    "database": "GitHub Actions isolated synthetic PostgreSQL 16.15",
+    "sql_patch": "qa-round3/fixes/QA_3-8-6_holiday_work_serialization.sql",
+    "actual_pg_transactions_verified": true,
+    "tested_cases": [
+      "invalid synthetic session",
+      "synthetic holiday-work insertion",
+      "holiday work commits before holiday removal rejects reclassification",
+      "holiday removal commits before work rejects work",
+      "two-admin maintenance revision CAS"
+    ],
+    "genuine_supabase_auth_rpcs_verified": false,
+    "full_application_browser_e2e_verified": false,
+    "real_employees_used": false,
+    "main_modified": false,
+    "new_product_defects": 0,
+    "overall_clean": false
   }
 }
