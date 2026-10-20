@@ -1,12 +1,13 @@
 # 근무모아 3차·깊이8 공식 인수인계
 
-- **3-8-38 공식 완료: MEDIUM 신규 결함 1종 재현·QA 수정, 최종 커밋 실제 소스 격리·정적 59/59 assertion PASS. 다음 3-8-39.** 3차 누적 **30종**(2차 별도 540종). CLEAN 아님.
-- GitHub: `eco-i/eco-i.github.io`, 검수 `qa-3-8`, 운영 `main`. 새 채팅: `qa-round3/CURRENT_STATE.json`, 본 파일, `qa-round3/QA_3-8-38_REPORT.md` 먼저 직접 확인.
-- **3-8-38-001 MEDIUM:** 같은 `local:<id>` 재로그인에서 새 epoch의 storage write가 실패하면 기존 `storeLoginSession`은 먼저 logout tombstone·shared suppression을 삭제한 뒤 실패를 반환. 남아 있는 동일 token의 옛 저장 세션이 로그아웃 차단 없이 보이는 순서를 **실제 원본 함수·저장소 실패 mock**으로 모바일/PC 임시/PC 로그인 유지에서 재현. 실 브라우저 E2E는 아님.
-- QA 수정: 3가지 로그인 저장 범위에 `completeFreshLoginLogoutReset` 적용. local epoch 기록 성공을 **로그아웃 증거 삭제 전에** 확인, 후속 삭제 실패면 이전 epoch 복원 시도. 서버 UUID token 및 자동업데이트 `clearLogoutTombstone=false`는 기존 방침 유지.
-- 이슈: `qa-round3/issues/3-8-38-001_FAILED_LOCAL_EPOCH_WRITE_CLEARS_LOGOUT_PROOF.md`; 보고서 `qa-round3/QA_3-8-38_REPORT.md`.
-- QA HTML blob **`a9eeafdc9e1531b54423c9067c31762a6cb5601e`**, 코드 커밋 **`fb6d027d720ae1eb41c3989735f3ef19f1794fd4`**. 기존 37 blob `084696ce5ef54748bcb0043a14504cbae10ebe26`. 앱 버전 `ver20261018-2313` 유지.
-- 최종 QA 실제 소스 mock/정적 **59 assertion PASS**: 모바일/PC 유지/PC 임시 × exact/legacy sign-out, epoch 실패/성공, suppression 실패/epoch 복원, 이전 세션 없음, 서버 UUID 정상 저장; Realtime `requestRealtimeCatchup` 지연 Promise 6종, JS 파싱 2, HTML id 488 중복 0. 59는 최종 커밋 소스에 한정하며 원본 실패 재현과 중간 후보 검사를 중복 계수하지 않음.
-- **운영 main HEAD `6c784210e048426f18a486d5602652626d97574d` 그대로**, 실 직원 DB·지문/근태 기록 조회·변경, 실제 RPC/SQL/배포 **0**.
-- **다음 3-8-39:** local epoch key 만료·prune 정책, 실패한 rollback 자체도 거절되는 private-mode/quota 조합, old/new 실 브라우저 탭/Web Locks, clock skew, Realtime 느린 catch-up/새 signal 세대 및 초기 복원 경합. 실제 다중기기·Chrome·Android/iOS·QA Supabase 인증 연동 모두 별도 격리 QA 환경 필요.
-- 연결 안정성·채팅 길이 최우선. 사용자는 짧게 보고하고 상세 GitHub에 기록. ZIP 불필요. 운영 `main`·직원 DB 절대 무수정.
+- **3-8-39 공식 완료: MEDIUM 신규 결함 1종 재현·QA 수정, 커밋 실제 소스 격리·정적 495/495 assertion PASS. 다음 3-8-40.** 3차 누적 **31종**(2차 540종 별도). CLEAN 아님.
+- GitHub: `eco-i/eco-i.github.io`; 검수 `qa-3-8`; 운영 `main`. 새 채팅에서는 `qa-round3/CURRENT_STATE.json`, 본 문서, `qa-round3/QA_3-8-39_REPORT.md` 직접 확인.
+- **3-8-39-001 MEDIUM:** `pruneUpdateHandoffLogoutTokenKeys`가 65개 이상의 서로 다른 최근 logout key 중 시각상 오래된 **아직 유효한** 기록을 숫자 64 상한으로 제거. 이로 인해 `updateHandoffTokenWasLoggedOut` / `storedSessionTombstoned`가 false를 반환해 잠든 PC 임시탭/모바일 잔존 토큰의 자동복원 차단이 약화될 수 있음. 1분 내 65개 이상의 별도 토큰 발생이라는 희귀·고부하 경계 조건이며, **실제 서버 계정 진입/인증 우회는 확인하지 않았음**.
+- 수정은 `qa-3-8/index.html` 토큰 정리 함수 1곳만. 만료된 per-token 로그아웃 기록은 기존대로 정리하되, 아직 fresh한 기록은 수량 상한으로 제거하지 않음. 비정상적인 미래 clock/tombstone 다수 시 저장소 사용량 증가 가능성 별도 관리.
+- 이슈 `qa-round3/issues/3-8-39-001_FRESH_LOGOUT_TOKEN_EVICTED_AT_64_CAP.md`, 보고서 `qa-round3/QA_3-8-39_REPORT.md`.
+- 최종 QA HTML blob **`5ef9c5c4d2e94498e7285b55079454e37ac16d96`**, 제품코드 커밋 **`26c6fbeaadaa0e787968d69fee7d9b4995188fb6`**. 이전 38 완료 blob `a9eeafdc9e1531b54423c9067c31762a6cb5601e`. `APP_VERSION=ver20261018-2313` 불변.
+- **495/495 PASS 분류:** 최종 커밋 실제 소스 `prune/updateLogout/storedTombstone/storedSessionToken` 3 저장방식×10 토큰수×4 시각조건×4 assertion=**480**; 최종 JS 파싱 2, script 개수 1, HTML id 488 중복 0 (2 checks), 앱버전 1, 이전 epoch 보정 guard 1 = **7**; 실제 `requestRealtimeCatchup` Promise 2×2×2 **8**. 중단된 timer harness와 잘못 구성된 초기 fixture 결과는 **전부 제외**. 실제 full browser/Supabase E2E 아님.
+- 운영 `main` 기준 SHA **`6c784210e048426f18a486d5602652626d97574d`** 유지. 실 직원 계정·근태·지문 DB 조회/변경, SQL/RPC 및 운영 배포 **0**.
+- **다음 3-8-40:** local epoch key 오래된 값 정리/복원, localStorage set/remove 양쪽 거절 상황, Realtime refresh 2단계 예약 타이머/느린 Promise/세션 소유권, 오래된 페이지 2탭 Web Locks. Chrome·Android/iOS·QA-only 실계정 통합은 아직 미검증. 운영 DB는 절대 접근하지 말 것.
+- 연결 안정성·짧은 진행 보고·채팅 용량 최우선. 상세 기록 GitHub에만. ZIP 파일 불필요.
+
