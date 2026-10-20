@@ -1804,5 +1804,24 @@
     "main_modified": false,
     "new_product_defects": 0,
     "overall_clean": false
+  },
+  "actions_ci_browser_login_ui": {
+    "scope": "ACTUAL_CHROMIUM_FULL_HTML_UI_WITH_SYNTHETIC_FAKE_HTTP_RPC",
+    "outcome": "SCOPED_PASS_ONLY",
+    "builder_local_mode_regressions_pass": 16,
+    "actual_chromium_ui_checks_pass": 10,
+    "git_actions_run_id": 39516333413,
+    "run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39516333413",
+    "run_commit": "a3d3f114654e166ad5bfc4bf659847de665a8524",
+    "report": "qa-round3/ACTIONS_CHROMIUM_LOGIN_SCOPED_PASS_20261021.md",
+    "qa_local_builder_configured_routing_fix": true,
+    "true_supabase_auth_verified": false,
+    "actual_postgrest_verified": false,
+    "actual_browser_connected_to_postgresql": false,
+    "full_app_e2e_verified": false,
+    "new_product_defects": 0,
+    "main_modified": false,
+    "production_db_mutated": false,
+    "overall_clean": false
   }
 }
