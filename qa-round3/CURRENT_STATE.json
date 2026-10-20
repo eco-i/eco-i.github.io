@@ -99,7 +99,7 @@
     "3-8-52: free local QA scripts ready, Node synthetic builder 15/15 and HTTP fixture server 7/7 in sandbox, but Docker/Supabase CLI unavailable and Windows actual script not run. Full synthetic SQL baseline/71 RPC contracts and all real app E2E unverified.",
     "3-8-53: local-only Docker published-host-ports QA guard PASS on 12 fake-Docker Node scenarios; physical Windows/Docker and full synthetic backend remain unavailable; no app E2E."
   ],
-  "next_scope": "3-8-54 only after actual Windows Docker+Supabase local proof and ability to build completely synthetic app backend; avoid mock-only repetitions. No production DB, remote project or main.",
+  "next_scope": "Code review conditionally closed; do not continue mock-only blocks. 3-8-54 reserved strictly for independent synthetic QA server + real app E2E once available; no Docker setup demanded now. Overall QA NOT CLEAN; main and live staff DB excluded.",
   "updated_kst": "2026-10-20T22:30:37+09:00",
   "product_defects": [
     {
@@ -1753,5 +1753,31 @@
     "main_modified": false,
     "production_db_mutated": false,
     "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411"
+  },
+  "code_review_closeout": {
+    "decision": "CONDITIONALLY_CLOSED_CODE_SCOPE_ONLY",
+    "date_kst": "2026-10-20",
+    "report": "qa-round3/ROUND3_CODE_REVIEW_CONDITIONAL_CLOSEOUT_20261020.md",
+    "source_clean_blocks": [
+      "3-8-46",
+      "3-8-47"
+    ],
+    "source_scoped_checks_pass": [
+      1062,
+      265
+    ],
+    "last_product_code_change_block": "3-8-45",
+    "new_defects_total": 37,
+    "critical_recorded": 0,
+    "high_recorded": 5,
+    "medium_recorded": 22,
+    "low_recorded": 10,
+    "e2e": "BLOCKED_UNVERIFIED",
+    "overall_qa": "NOT_CLEAN_UNFINISHED",
+    "deployment_approved": false,
+    "production_main_modified": false,
+    "production_staff_db_mutated": false,
+    "docker_install_required_from_user_now": false,
+    "block_54": "NOT_STARTED_REQUIRES_ISOLATED_QA_E2E"
   }
 }
