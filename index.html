@@ -2253,11 +2253,17 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
   let stored=false;
   if(MOBILE_SESSION_DEVICE){
     const run=withSharedSessionMutex(()=>{
+      const previousSharedToken=storageGet(localStorage,SESSION_KEY);
       const ok=storageSet(localStorage,SESSION_KEY,token);
       if(!ok)return false;
-      // fresh shared login의 token 저장과 logout tombstone 해제를 같은 mutex 안에서 처리해,
-      // 옛 logout cleanup이 같은 token의 새 세션을 지우는 TOCTOU를 막는다.
-      if(clearLogoutTombstone){clearUpdateHandoffLogoutTombstone(token);if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)storageRemove(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);}
+      if(clearLogoutTombstone&&!clearUpdateHandoffLogoutTombstone(token)){
+        if(storageGet(localStorage,SESSION_KEY)===token){
+          if(previousSharedToken && previousSharedToken!==token)storageSet(localStorage,SESSION_KEY,previousSharedToken);
+          else if(!previousSharedToken)storageRemove(localStorage,SESSION_KEY);
+        }
+        return false;
+      }
+      if(clearLogoutTombstone&&storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)storageRemove(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
       storageRemove(sessionStorage,SESSION_KEY);storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);storageRemove(localStorage,PC_REMEMBER_KEY);
       return storageGet(localStorage,SESSION_KEY)===token;
     });
@@ -2270,7 +2276,16 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
       const rememberStored=tokenStored&&storageSet(localStorage,PC_REMEMBER_KEY,'1');
       const ok=tokenStored&&rememberStored;
       if(ok){
-        if(clearLogoutTombstone){clearUpdateHandoffLogoutTombstone(token);if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)storageRemove(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);}
+        if(clearLogoutTombstone&&!clearUpdateHandoffLogoutTombstone(token)){
+          if(storageGet(localStorage,SESSION_KEY)===token){
+            if(previousSharedToken)storageSet(localStorage,SESSION_KEY,previousSharedToken);
+            else storageRemove(localStorage,SESSION_KEY);
+            if(previousRemember)storageSet(localStorage,PC_REMEMBER_KEY,previousRemember);
+            else storageRemove(localStorage,PC_REMEMBER_KEY);
+          }
+          return false;
+        }
+        if(clearLogoutTombstone&&storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)storageRemove(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
         storageRemove(sessionStorage,SESSION_KEY);storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);storageRemove(localStorage,ADMIN_UNLOCK_KEY);
         return true;
       }
@@ -2286,11 +2301,14 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
     stored=run.locked ? run.value===true : null;
   }else{
     // PC 기본 로그인은 탭 전용이다. 다른 탭의 영구 로그인(localStorage)은 보존한다.
+    const previousTabToken=storageGet(sessionStorage,SESSION_KEY);
     stored=storageSet(sessionStorage,SESSION_KEY,token);
-    if(stored){
-      storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
-      if(clearLogoutTombstone)clearUpdateHandoffLogoutTombstone(token);
+    if(stored&&clearLogoutTombstone&&!clearUpdateHandoffLogoutTombstone(token)){
+      if(previousTabToken)storageSet(sessionStorage,SESSION_KEY,previousTabToken);
+      else storageRemove(sessionStorage,SESSION_KEY);
+      return false;
     }
+    if(stored)storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
   }
   if(stored!==true)return stored;
   // 새 서버 로그인만 handoff를 폐기한다. shared 로그인 tombstone은 위 mutex 구간에서 이미 원자적으로 해제했다.
@@ -2864,9 +2882,20 @@ function updateHandoffTokenWasLoggedOut(token){
   return true;
 }
 function clearUpdateHandoffLogoutTombstone(token){
-  if(!token)return;
+  token=String(token||'');if(!token)return false;
   migrateLegacyUpdateHandoffLogoutTombstones();
+  // A different legacy token's failed migration can retain this login's old logout record.
+  // Remove only the newly authenticated token, preserving all other logout markers.
+  const remaining=legacyUpdateHandoffLogoutEntries();
+  if(remaining.some(info=>info.token===token)){
+    const others=remaining.filter(info=>info.token!==token);
+    if(others.length){
+      if(!storageSet(localStorage,UPDATE_SESSION_LOGOUT_TOMBSTONE_KEY,JSON.stringify({entries:others})))return false;
+    }else storageRemove(localStorage,UPDATE_SESSION_LOGOUT_TOMBSTONE_KEY);
+    if(legacyUpdateHandoffLogoutEntries().some(info=>info.token===token))return false;
+  }
   storageRemove(localStorage,updateHandoffLogoutTokenKey(token));
+  return !updateHandoffTokenWasLoggedOut(token);
 }
 function markUpdateHandoffLoggedOut(token){
   if(!token)return;
