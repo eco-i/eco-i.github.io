@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-48",
-  "next_block": "3-8-49",
-  "latest_report": "qa-round3/QA_3-8-48_REPORT.md",
+  "last_completed_block": "3-8-49",
+  "next_block": "3-8-50",
+  "latest_report": "qa-round3/QA_3-8-49_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 37,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_48_ENVIRONMENT_GATE_DIAGNOSED_E2E_BLOCKED_WITH_SAFE_QA_SITE_PREPARER_NO_NEW_PRODUCT_DEFECTS",
+  "latest_status": "BLOCK_49_QA_HELPER_PUBLISHABLE_KEY_SUPPORTED_OFFLINE_NODE_13_PASS_BACKEND_MISSING_68_E2E_BLOCKED_NOT_CLEAN",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -92,10 +92,11 @@
     "3-8-45: real same-origin Chrome two-tab queued obsolete suppression storage event after fresh same-local-token login; sandbox Chromium navigation blocked, QA-only external browser required",
     "3-8-45: old-version and new-version tabs Web Locks, physical Android/iOS/PWA and real isolated QA Supabase login/PIN/fingerprint/attendance integrated E2E remain unverified",
     "3-8-47: actual full-app QA-only logged-in account disabled/readonly transitions + admin PIN/attendance deletion during slow RPC, physical Chrome/Web Locks, Android/iOS BFCache native fingerprint picker and Supabase E2E remain unverified; 46+47 code-scoped CLEAN not a substitute",
-    "3-8-48: e2e environment gate blocked; requires new isolated QA Supabase (NOT production clone), synthetic complete baseline schema, QA-only generated site with fail-closed endpoint/key, browser access, P0/P1 validation; no production DB access allowed."
+    "3-8-48: e2e environment gate blocked; requires new isolated QA Supabase (NOT production clone), synthetic complete baseline schema, QA-only generated site with fail-closed endpoint/key, browser access, P0/P1 validation; no production DB access allowed.",
+    "49: isolated QA project synthetic full backend baseline not yet provisioned; 68 of 71 literal app RPC names not defined in repository incremental SQL; real browser/QA server E2E blocked. QA-only build helper Node offline 13/13 PASS."
   ],
-  "next_scope": "3-8-49 CONDITIONAL: isolated Supabase QA project approval/creation, synthetic baseline schema (repository has incremental SQL only), and actual two-tab/mobile browser access. Execute P0 E2E only with isolated credentials. Otherwise PAUSE code QA block numbering and do not repeat mocks. Production main and staff DB forbidden.",
-  "updated_kst": "2026-10-20T20:31:37+09:00",
+  "next_scope": "3-8-50 conditional: with explicit user authorization create separate synthetic QA Supabase and complete baseline; run actual browser/SQL E2E P0. No production cloning, schema export containing secrets, main edits, or mock-only block proliferation.",
+  "updated_kst": "2026-10-20T20:50:38+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -1250,6 +1251,24 @@
       "p0_e2e_blocked": 5,
       "p1_e2e_blocked": 3,
       "reason": "no isolated Supabase and complete synthetic schema; browser administrator navigation blocked; original QA HTML points to production Supabase"
+    },
+    "block_49": {
+      "result": "QA_PREPARATION_COMPLETE_REAL_E2E_BLOCKED_NOT_CLEAN",
+      "new_product_defects": 0,
+      "qa_helper_compatibility_corrected": true,
+      "node_offline_synthetic_pass": 13,
+      "node_offline_synthetic_total": 13,
+      "app_literal_rpc_count": 71,
+      "sql_migration_files_reviewed": 16,
+      "match_rpc_create_in_repo_sql": 3,
+      "missing_rpc_definitions_in_incremental_migrations": 68,
+      "read_only_qa_preflight_written": true,
+      "prod_db_touched": false,
+      "main_modified": false,
+      "product_html_modified": false,
+      "real_browser_e2e_verified": false,
+      "qa_project_created": false,
+      "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411"
     }
   },
   "pending_qa_fixes": [
@@ -1584,5 +1603,23 @@
     "main_modified": false,
     "production_db_mutated": false,
     "real_browser_e2e_verified": false
+  },
+  "block_49": {
+    "result": "QA_PREPARATION_COMPLETE_REAL_E2E_BLOCKED_NOT_CLEAN",
+    "new_product_defects": 0,
+    "qa_helper_compatibility_corrected": true,
+    "node_offline_synthetic_pass": 13,
+    "node_offline_synthetic_total": 13,
+    "app_literal_rpc_count": 71,
+    "sql_migration_files_reviewed": 16,
+    "match_rpc_create_in_repo_sql": 3,
+    "missing_rpc_definitions_in_incremental_migrations": 68,
+    "read_only_qa_preflight_written": true,
+    "prod_db_touched": false,
+    "main_modified": false,
+    "product_html_modified": false,
+    "real_browser_e2e_verified": false,
+    "qa_project_created": false,
+    "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411"
   }
 }
