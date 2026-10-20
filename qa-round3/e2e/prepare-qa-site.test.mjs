@@ -15,7 +15,7 @@ copyFileSync(source, runner);
 const prodRef = 'p'.repeat(20), qaRef = 'q'.repeat(20);
 const prodKey = 'sb_publishable_PRODUCTION_FAKE_123456789';
 const qaKey = 'sb_publishable_ISOLATED_QA_FAKE_123456789';
-writeFileSync(join(root, 'index.html'), "const SUPABASE_URL = 'https://" + prodRef + ".supabase.co';\nconst SUPABASE_ANON_KEY = '" + prodKey + "';\n");
+writeFileSync(join(root, 'index.html'), '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><script>window.fake=true;</script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script><title>근무모아</title></head><body><script>\n' + "const SUPABASE_URL = 'https://" + prodRef + ".supabase.co';\nconst SUPABASE_ANON_KEY = '" + prodKey + "';\n" + '</script></body></html>');
 for (const asset of ['maintenance-20261018.js', 'maintenance-mobile-20261018.css', 'site-update-history.js', 'site-update-history.css', 'future-holidays-2028-2035.js', 'version.json', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png']) writeFileSync(join(root, asset), 'synthetic');
 const defaultEnv = { QA_ISOLATED_PROJECT_CONFIRMED:'YES', QA_SUPABASE_REF:qaRef, QA_SUPABASE_URL:'https://' + qaRef + '.supabase.co', QA_SUPABASE_ANON_KEY:qaKey, QA_PUBLISHABLE_KEY_VERIFIED:'YES' };
 const exec = (override = {}) => spawnSync(process.execPath, [runner], { encoding:'utf8', env: { PATH:process.env.PATH, ...defaultEnv, ...override } });
@@ -43,6 +43,13 @@ for (const [name,key,extra] of [
  const page = readFileSync(join(dest, 'index.html'),'utf8');
  assert.ok(page.includes(key) && page.includes(defaultEnv.QA_SUPABASE_URL));
  assert.ok(!page.includes(prodKey) && !page.includes(prodRef));
+ assert.ok(page.includes('[격리 QA] 근무모아'));
+ assert.ok(page.includes('name="workmoa-environment" content="isolated-synthetic-qa"'));
+ assert.match(page, /<head>\s*<meta http-equiv="Content-Security-Policy"/);
+ assert.ok(page.includes(`connect-src 'self' ${defaultEnv.QA_SUPABASE_URL} wss://${qaRef}.supabase.co`));
+ assert.ok(page.includes("script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net"));
+ assert.ok(page.includes("img-src 'self' data: blob:"));
+ assert.ok(page.includes("frame-src 'none'") && page.includes("object-src 'none'"));
  rmSync(dest,{recursive:true,force:true});
 });
 test('refuse production hostname hidden in static asset', () => {
@@ -54,4 +61,15 @@ test('refuse missing required asset', () => {
  const path = join(root, 'icon-192.png');
  try { rmSync(path); assert.equal(exec().status,2); }
  finally { writeFileSync(path,'synthetic'); }
+});
+
+test('incomplete HTML head blocked', () => {
+ const path=join(root,'index.html'),original=readFileSync(path,'utf8');
+ try{writeFileSync(path,original.replace('<head>','<header>').replace('</head>','</header>'));assert.equal(exec().status,2);}
+ finally{writeFileSync(path,original);}
+});
+test('preexisting CSP rejected for manual review', () => {
+ const path=join(root,'index.html'),original=readFileSync(path,'utf8');
+ try{writeFileSync(path,original.replace('<head>','<head><meta http-equiv="Content-Security-Policy" content="default-src *">'));assert.equal(exec().status,2);}
+ finally{writeFileSync(path,original);}
 });
