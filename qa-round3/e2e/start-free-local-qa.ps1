@@ -9,9 +9,11 @@ $branch=(& git -C $root branch --show-current).Trim()
 if($branch -ne 'qa-3-8'){throw 'Refusing non-QA branch. Do not run against main.'}
 $build=Join-Path $root 'qa-round3\e2e\prepare-local-qa-site.mjs'
 $serve=Join-Path $root 'qa-round3\e2e\serve-local-qa-site.mjs'
-if(!(Test-Path $build) -or !(Test-Path $serve)){throw 'Local QA scripts missing.'}
+$portGuard=Join-Path $root 'qa-round3\e2e\check-local-qa-docker.mjs'
+if(!(Test-Path $build) -or !(Test-Path $serve) -or !(Test-Path $portGuard)){throw 'Local QA scripts missing.'}
 $nodeVersion=(& node --version).Trim().TrimStart('v')
 if([int]($nodeVersion.Split('.')[0]) -lt 20){throw 'Node 20+ required.'}
+if($env:DOCKER_HOST -or $env:DOCKER_CONTEXT){throw 'Docker environment override detected; unset DOCKER_HOST and DOCKER_CONTEXT before local-only QA.'}
 $contextJson=& docker context inspect --format '{{json .Endpoints.docker.Host}}' 2>$null
 if($LASTEXITCODE -ne 0){throw 'Start Docker Desktop first.'}
 $endpoint=[string]($contextJson | ConvertFrom-Json)
@@ -49,6 +51,11 @@ try {
   if($binding -ne '127.0.0.1'){throw 'Unsafe Docker network bind address.'}
   $null = & npx --no-install supabase start --network-id $network 2>&1
   if($LASTEXITCODE -ne 0){throw 'Local Supabase start failed; check Docker Desktop. No cloud database accessed.'}
+  $null = & node $portGuard $network 2>&1
+  if($LASTEXITCODE -ne 0){
+    $null = & npx --no-install supabase stop 2>&1
+    throw 'Unsafe local Docker publish ports or context; local QA Supabase stack stopped without deleting data.'
+  }
   $lines=@(& npx --no-install supabase status -o env 2>&1)
   if($LASTEXITCODE -ne 0){throw 'Cannot verify Supabase local status.'}
   $vars=@{}
