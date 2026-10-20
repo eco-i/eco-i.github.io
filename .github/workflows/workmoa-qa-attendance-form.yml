@@ -1,0 +1,93 @@
+name: Workmoa QA real attendance form to disposable PostgreSQL (synthetic RPC)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-attendance-form.yml'
+      - 'qa-round3/e2e/ci/browser-attendance-form.py'
+      - 'qa-round3/e2e/ci/browser-postgres-bridge.py'
+      - 'qa-round3/e2e/ci/synthetic-baseline.sql'
+      - 'qa-round3/e2e/ci/attendance-form-fixture.sql'
+      - 'qa-round3/e2e/prepare-local-qa-site.mjs'
+      - 'qa-round3/e2e/serve-local-qa-site.mjs'
+      - 'index.html'
+      - 'maintenance-20261018.js'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-qa-attendance-form-3-8
+  cancel-in-progress: true
+
+jobs:
+  real-form-synthetic-db:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: qa_runner
+          POSTGRES_PASSWORD: synthetic_ci_only_not_a_real_secret
+          POSTGRES_DB: qa_round3
+        ports: ['127.0.0.1:5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U qa_runner -d qa_round3"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGDATABASE: qa_round3
+      PGUSER: qa_runner
+      PGPASSWORD: synthetic_ci_only_not_a_real_secret
+    steps:
+      - name: Checkout QA only, no persistent credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Ensure offline synthetic QA environment only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'eco-i/eco-i.github.io'
+          test "$GITHUB_REF" = 'refs/heads/qa-3-8'
+          test "$(git branch --show-current)" = 'qa-3-8'
+          test -z "$(printenv DATABASE_URL 2>/dev/null || true)"
+          test -z "$(printenv SUPABASE_URL 2>/dev/null || true)"
+          test -z "$(printenv SUPABASE_ACCESS_TOKEN 2>/dev/null || true)"
+          test -z "$(printenv SUPABASE_DB_PASSWORD 2>/dev/null || true)"
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+          python3 -m pip install --disable-pip-version-check 'playwright==1.56.0' 'psycopg[binary]==3.2.10'
+          python3 -m playwright install --with-deps chromium
+      - name: Create disposable synthetic PostgreSQL schema
+        run: |
+          set -euo pipefail
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/synthetic-baseline.sql
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/attendance-form-fixture.sql
+      - name: Real user login form and attendance Save button
+        run: python3 -u qa-round3/e2e/ci/browser-attendance-form.py
+      - name: Scope note
+        if: always()
+        run: |
+          {
+            echo '## Actual app login + attendance form Save, synthetic backend SQL scope'
+            echo '- The full original QA HTML executes in real Chromium. Test user entered into real login form; attendance Save button is clicked.'
+            echo '- Backend login/personnel and attendance save RPC are synthetic CI-only implementations with disposable PostgreSQL persistence.'
+            echo '- This does not replace production Supabase Auth, PostgREST, RLS, or server-side attendance CAS. Full P0/P1 E2E NOT CLEAN.'
+          } >> "$GITHUB_STEP_SUMMARY"
