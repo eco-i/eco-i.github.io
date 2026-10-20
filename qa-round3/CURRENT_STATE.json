@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-35",
-  "next_block": "3-8-36",
-  "latest_report": "qa-round3/QA_3-8-35_REPORT.md",
+  "last_completed_block": "3-8-36",
+  "next_block": "3-8-37",
+  "latest_report": "qa-round3/QA_3-8-36_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 27,
+  "round3_new_product_defects": 28,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_35_SAME_TOKEN_LEGACY_MARKER_NEW_LOGIN_FAIL_CLOSED_FIXED_QA_154_ISOLATED_CHECKS_PASS_NO_MAIN_DB_CHANGE",
+  "latest_status": "BLOCK_36_ONE_MEDIUM_SHARED_SUPPRESSION_FRESH_LOGIN_FAILURE_FIXED_QA_189_ACTUAL_SOURCE_ISOLATED_STATIC_PASS_NO_PRODUCTION_DB",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -70,10 +70,12 @@
     "3-8-34: actual Chrome/Android/iOS private-mode/quota failure during legacy logout tombstone migration and handoff restore (QA-only tokens)",
     "3-8-34: real two-tab older-version aggregate writer versus same-token fresh login/Web Locks session generation, and real Supabase Realtime reconnect (QA-only accounts)",
     "3-8-35: actual QA-only two-tab Web Locks and old-version legacy aggregate writer race vs same-token login, login stored/rollback failures; real employee DB excluded",
-    "3-8-35: real Supabase Realtime SUBSCRIBED/new-channel catch-up + mobile PWA/initial PIN authority handoff needs isolated QA accounts"
+    "3-8-35: real Supabase Realtime SUBSCRIBED/new-channel catch-up + mobile PWA/initial PIN authority handoff needs isolated QA accounts",
+    "3-8-36: real Chrome/Android/iOS same-token shared suppression and failed localStorage removal, PC tab/local same-token login and admin PIN, QA-only accounts required",
+    "3-8-36: older-version live writer replaying legacy aggregate after same-token fresh login; do not claim atomic cross-version correctness without physical multi-tab browser"
   ],
-  "next_scope": "3-8-36 QA-only: legacy aggregate rewriter race vs same-token fresh login, rollback write failure, automatic-update handoff epochs, Realtime callback ownership. Main/employee DB untouched",
-  "updated_kst": "2026-10-20T15:00:18.445+09:00",
+  "next_scope": "3-8-37 QA-only: older-version legacy aggregate rewriter after same-token fresh login, storage rollback failures and login-generation proof, multi-tab Web Locks and Realtime fresh-catchup races; operating main and real staff DB protected",
+  "updated_kst": "2026-10-20T15:58:11.398+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -397,6 +399,21 @@
       "source_js_dom_static_checks_pass": 41,
       "production_applied": false,
       "real_multitab_verified": false
+    },
+    {
+      "id": "3-8-36-001",
+      "severity": "medium",
+      "title": "Fresh same-token login is reported successful while shared logout suppression remains authoritative",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-36-001_SAME_TOKEN_SHARED_LOGOUT_SUPPRESSION.md",
+      "qa_html_blob": "86ff27b08a66f7e1853f3888a74a7d8ba0109471",
+      "qa_fix_commit": "5126e7d2a2382af0e404987f4aa3f0f48cf0120f",
+      "login_storage_suppression_actual_source_pass": 108,
+      "update_handoff_restore_mock_pass": 20,
+      "realtime_channel_mock_pass": 20,
+      "source_integrity_pass": 41,
+      "production_applied": false,
+      "real_browser_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -833,6 +850,19 @@
       "main_changed": false,
       "employee_database_accessed": false,
       "full_chromium_logged_in_browser_verified": false
+    },
+    "block_36": {
+      "shared_logout_suppression_login_actual_source_pass": 108,
+      "restore_update_session_handoff_actual_function_pass": 20,
+      "realtime_subscribe_old_callback_mock_pass": 20,
+      "source_js_dom_static_pass": 41,
+      "total_valid_pass": 189,
+      "original_pc_tab_unconditionally_blocked": true,
+      "original_shared_suppression_remove_failure_reproduced": true,
+      "new_product_defects": 1,
+      "production_main_modified": false,
+      "real_employee_db_accessed": false,
+      "full_browser_multitab_verified": false
     }
   },
   "pending_qa_fixes": [
@@ -856,7 +886,8 @@
     "3-8-26-001: focusTargetUsable rejects elements within ancestor aria-hidden=true or inert; QA index.html only, standalone Chromium + isolated actual-function mocks PASS, not deployed",
     "3-8-27-001: enforce post-preflight personnel freshness/eligibility check before holiday work save RPC and personnel freshness before delete RPC; QA only, no server SQL or production deployment",
     "3-8-34-001: preserve valid legacy logout aggregate if token-key write fails and recheck same-token legacy fallback; QA index.html only, storage quota actual browser integration pending; production not deployed",
-    "3-8-35-001: same-token fresh login clears only matching legacy aggregate logout; exact failure rolls back tab/shared session when possible; QA index only, actual multitab/old writer concurrency pending; not deployed"
+    "3-8-35-001: same-token fresh login clears only matching legacy aggregate logout; exact failure rolls back tab/shared session when possible; QA index only, actual multitab/old writer concurrency pending; not deployed",
+    "3-8-36-001: exact-token shared logout suppression must be cleared successfully for fresh login; PC tab + PC remembered + mobile guard/rollback in QA index only, not deployed"
   ],
   "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
@@ -899,8 +930,8 @@
     "year_month_isolation_checked": true,
     "production_data_changed": false
   },
-  "latest_qa_html_blob": "4fd569795a1eafbdaf0918c4e0f2c4f0dfca3cbe",
-  "latest_qa_fix_commit": "9eca7cef89362cc81fc052a82a1134c399340231",
+  "latest_qa_html_blob": "86ff27b08a66f7e1853f3888a74a7d8ba0109471",
+  "latest_qa_fix_commit": "5126e7d2a2382af0e404987f4aa3f0f48cf0120f",
   "block_23": {
     "holiday_work_edit_return_mock_pass": 15,
     "annual_and_longservice_save_mock_pass": 12,
