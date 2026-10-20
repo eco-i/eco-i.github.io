@@ -11600,7 +11600,9 @@ function handleSharedSessionStorageChange(e){
   // immediately even when SESSION_KEY itself did not change.
   if(e.key===SHARED_SESSION_LOGOUT_SUPPRESSION_KEY){
     const current=String(state.sessionToken||'');
-    if(current&&current===String(e.newValue||'')&&(MOBILE_SESSION_DEVICE||storageGet(sessionStorage,SESSION_KEY)!==current)){
+    // Exact-token logout suppression applies to PC tab-only sessions too.
+    // Another user's shared-session event must not revoke this tab.
+    if(current&&current===String(e.newValue||'')){
       clearDeferredAdminDraftUnlockProof();
       void logout(false);
     }
