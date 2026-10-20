@@ -2264,16 +2264,18 @@ function completeFreshLoginLogoutReset(token){
   const localPreview=token.startsWith('local:');
   const epochKey=localPreview?UPDATE_SESSION_LOCAL_LOGIN_EPOCH_PREFIX+encodeURIComponent(token):'';
   const previousEpoch=localPreview?storageGet(localStorage,epochKey):'';
-  // Validate the new local-login epoch before removing any old sign-out proof.
-  // Failed epoch writes must not resurrect an old same-token session.
-  if(!recordLocalFreshLoginEpoch(token))return false;
-  if(clearUpdateHandoffLogoutTombstone(token)&&clearSharedLogoutSuppressionForFreshLogin(token))return true;
-  // A later failed sign-out cleanup must not leave an uncommitted epoch
-  // that hides a legacy logout record belonging to the previous login.
-  if(localPreview){
+  // Persisting a key and verifying it are separate storage operations.
+  // A successful setItem followed by a failed verification read can leave a
+  // new epoch in place even though the login was rejected. Restore the old
+  // marker before a failed login can hide a prior legacy logout.
+  const restorePreviousEpoch=()=>{
+    if(!localPreview)return;
     if(previousEpoch)storageSet(localStorage,epochKey,previousEpoch);
     else storageRemove(localStorage,epochKey);
-  }
+  };
+  if(!recordLocalFreshLoginEpoch(token)){restorePreviousEpoch();return false;}
+  if(clearUpdateHandoffLogoutTombstone(token)&&clearSharedLogoutSuppressionForFreshLogin(token))return true;
+  restorePreviousEpoch();
   return false;
 }
 function storeLoginSession(token,persistent,clearLogoutTombstone=true){
