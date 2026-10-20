@@ -23,3 +23,14 @@
 - Docker 오류가 나면 Docker Desktop 실행/WSL2 설정/권한 확인.
 - 네트워크 다운로드는 첫 Supabase CLI·컨테이너 설치에만 필요. 클라우드 Supabase 프로젝트 생성이나 월 사용료는 필요 없음.
 - 시작 성공 후에도 SQL/RPC 기초 구성이 없으므로 **실제 근무모아 로그인 테스트를 성공했다고 주장하지 않습니다.**
+
+## 3-8-53: 실제 Docker 포트 공개 여부 확인 추가
+- 새 `qa-round3/e2e/check-local-qa-docker.mjs`는 **가짜 Docker 응답 12/12 Node 검증**을 통과했지만, Windows PC의 실제 Docker에서 확인된 것은 아닙니다. `node --test qa-round3/e2e/check-local-qa-docker.test.mjs` 재실행 가능.
+- `start-free-local-qa.ps1`은 `DOCKER_HOST` 또는 `DOCKER_CONTEXT` 환경변수가 설정돼 있으면 **Docker 시작 전에 거부**합니다. 기존 QA-only 네트워크에서 Supabase 시작 직후 Docker 컨테이너의 실제 port HostIp를 검사하며 **127.0.0.1 아닌 노출, 로컬 API 54321/Studio 54323 포트 누락을 발견하면 로컬 Supabase stack을 중지**합니다. 중지는 QA 로컬 프로젝트에만 수행하고 데이터 볼륨 제거 플래그를 사용하지 않습니다.
+- **실제 Windows 실행은 아직 확인되지 않았습니다.** Docker Desktop과 Node 20+, Git이 설치된 본인 Windows PC에서만 아래 명령을 실행해 주세요(반드시 `qa-3-8` 브랜치 폴더 안에서):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\qa-round3\e2e\start-free-local-qa.ps1
+```
+
+- 표시되는 개인 키/토큰은 공유하지 말고, 성공 시 `FREE LOCAL QA: http://127.0.0.1:54330` 문구 또는 키를 지운 오류 내용만 알려 주세요. 완료 시에도 실제 앱 전체 RPC는 합성 기초 schema가 없어 **아직 정상 로그인되지 않는 것이 예상**됩니다.

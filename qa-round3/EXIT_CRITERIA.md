@@ -1,6 +1,6 @@
 # 근무모아 3차·깊이8 — 위험 기반 종료 게이트
 
-> **QA-only 의사결정 보조. 3-8-52 현재 종료 확정 아님 / main 배포 승인 아님.**
+> **QA-only 의사결정 보조. 3-8-53 현재 종료 확정 아님 / main 배포 승인 아님.**
 > 대화 내 약 55~70블록은 추정치일 뿐 목표 개수·종료 보증이 아니다. 2차처럼 의미 없이 무기한 늘어나지 않도록 수치보다 남은 위험으로 종료 판단.
 
 ## 1. 코드 및 검수 관리 (GitHub에서 확인 가능)
@@ -31,7 +31,7 @@
 1. 블록 하나마다 명확히 다른 기능/불변식/회귀 목적이 있어야 하며, 동일 유형 예외조건의 무한 확장 금지.
 2. 신규 제품 결함과 미검증·환경 제한·test harness 오류를 분리.
 3. 실제 사용자의 직원 DB/운영 main 보호가 우선이며, 연결 안정성·간결한 대화 보고·상세 GitHub 기록 유지.
-4. **현재 종료 상태(3-8-52): 미충족.** 코드 단위 회귀는 상당수 통과했지만 실제 브라우저/서버 종단간 검증이 아직 남음.
+4. **현재 종료 상태(3-8-53): 미충족.** 코드 단위 회귀는 상당수 통과했지만 실제 브라우저/서버 종단간 검증이 아직 남음.
 
 초안 작성: 2026-10-20 18:20:51 KST, 3-8-43 범위.
 
@@ -81,3 +81,9 @@
 - [ ] 사용자 Windows에서 Docker Desktop·Node·CLI 설치 후 **실제 Supabase local start 성공 확인** (지금은 미실행). Windows PowerShell 스크립트는 현재 컨테이너에서 동작 검증 불가.
 - [ ] 독립 가상 직원 전용 필수 테이블·함수·권한/Realtime baseline schema 및 RPC 재현, 실제 2탭/모바일/E2E 결과 PASS. GitHub 증분 SQL만으로 부족.
 - **3-8-52는 무료 로컬 환경 구성 코드/안전 테스트 범위의 준비 완료이며 전체 앱 E2E CLEAN 아님.** 클라우드 유료 서비스 신설/운영 DB/운영 main 변경 없음.
+
+## 3-8-53 독립 무료 로컬 QA 보안 사전점검
+- [x] 가짜 Docker CLI 응답 실제 Node child-process **12/12 PASS**; 실제 공개 포트를 Docker inspect로 확인하는 local-only port guard 파일 보존.
+- [x] Windows 로컬 bootstrap이 docker host/context 환경 override를 시작 전에 거부하고, Supabase start 뒤 loopback-only published port 점검 실패 시 local stack stop하도록 수정.
+- [ ] 물리 Windows에서 실제 Docker/Supabase start, 독립 synthetic DB schema·RPC, 실제 앱 로그인/근태/PIN/지문/2탭/Realtime E2E는 여전히 **미실행**.
+- 공식 결과 **QA 도구 scoped PASS, 제품 E2E BLOCKED/NOT CLEAN**. 무료 로컬만·운영 DB/main 건드리지 않음.
