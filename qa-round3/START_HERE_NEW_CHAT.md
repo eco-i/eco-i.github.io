@@ -16,3 +16,10 @@
 - 실제 PostgreSQL 16.15 컨테이너에서 합성 스키마와 **QA 원본 3-8-6 SQL**을 실행, 휴근-편성 양방향 경합과 두 관리자 revision CAS가 PASS. 이것은 SQL 일부 실증이며 **실제 Supabase Auth/RLS, 전체 사이트, 2탭/모바일 E2E가 아님**.
 - 자동화는 `.github/workflows/workmoa-qa-postgres.yml`에서 `qa-3-8` 관련 파일 push만 감지. 기본 무료 Linux 실행환경·외부 Supabase key/endpoint 0.
 - **공식 마지막 완료 3-8-53, 다음 3-8-54 미시작, 3차 신규 결함 37종, 조건부 코드종료/전체 NOT CLEAN/운영 배포 보류 모두 유지.**
+
+## 2026-10-21 GitHub Actions 2단계: 원본 근무모아 HTML 실제 Chromium UI PASS
+- [보고서](ACTIONS_CHROMIUM_LOGIN_SCOPED_PASS_20261021.md) · [검증된 run 39516333413](https://github.com/eco-i/eco-i.github.io/actions/runs/39516333413).
+- **전체 1MB 원본 앱 HTML**을 원격 접근 차단된 Chromium에서 로드. local QA 서버 생성기가 원래 `configured()` 조건 때문에 *오프라인 미리보기로만 전환*되는 검수 환경 결함을 찾아, **생성 임시 QA 문서에만** loopback RPC 연결 판단 패치. 제품 원본 수정 없음.
+- Node 생성기 fail-closed 16/16 PASS, Chromium UI 10/10 PASS: 틀린 PIN 차단·합성 로그인 오류, 필수 PIN 변경 게이트, 운영 Supabase/외부 연결 차단.
+- **서버는 실제 Supabase가 아니라 fake HTTP RPC**이며 앞 단계의 실제 PostgreSQL SQL 시험과 연결된 전체 E2E가 아님. P0/P1 E2E는 그대로 미검증.
+- **공식 완료 3-8-53 / 다음 3-8-54 미시작 / 누적 신규 제품결함 37종 / 전체 NOT CLEAN / 운영 main·실직원 DB·배포 0**.
