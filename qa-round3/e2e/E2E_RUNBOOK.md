@@ -46,3 +46,7 @@
 - 현대 `sb_publishable_` 키와 legacy anon JWT 모두 QA 전용일 때 지원. `QA_SUPABASE_REF` 20자리 및 QA URL 호스트 일치 필수; 현대 키는 QA Dashboard에서 소속을 확인한 뒤에만 `QA_PUBLISHABLE_KEY_VERIFIED=YES` 선언.
 - Node 오프라인 합성테스트 `node --test qa-round3/e2e/prepare-qa-site.test.mjs` **13/13 PASS**. 실제 서버 연결·운영 DB·직원 데이터 없음.
 - 저장소의 16 증분 migration이 앱의 71 RPC 중 3종만 이름 일치 생성하므로, 독립 설치 가능한 QA 기초 스키마/함수 계약이 추가로 필요하다. `QA_BACKEND_GAPS.md` 참조. read-only 준비 확인 SQL `qa-schema-preflight.sql`은 독립 QA 프로젝트에서만 실행.
+
+## 3-8-50 QA 사이트의 브라우저 네트워크 안전장치
+- 임시 QA HTML 최상단 CSP(meta): `connect-src 'self' https://<QA_REF>.supabase.co wss://<QA_REF>.supabase.co`, jsdelivr CDN는 script-src에만, 필요한 data/blob 이미지·인라인 스타일/JS 허용. object/frame/worker 차단. 제목 `[격리 QA] 근무모아`.
+- 오프라인 synthetic Node 보안생성 테스트 **15/15 PASS**. 실 브라우저 실행 후 DevTools/네트워크에서 운영 Supabase 요청 **0** 및 정상 E2E UI 작동을 반드시 확인해야 한다. 정책 텍스트 검사만으로 CSP 실제 차단 효과 확인을 대신하지 못한다.
