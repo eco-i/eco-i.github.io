@@ -13,12 +13,12 @@
 1. **기존 운영 프로젝트의 DB branch/backup/restore/clone을 QA로 사용하지 말 것**: 실 직원 데이터 복제 위험. 새로운, 비용·권한이 확인된 완전 독립 QA 프로젝트만 사용. 클라우드 생성·과금 관련 **사용자 승인 후** 진행.
 2. **기본 스키마부터 재현 가능한, 민감정보가 없는 QA 전용 schema**를 별도로 마련. 운영 직원 레코드·세션 토큰·지문 base64·관리자 비밀번호 절대 복제 금지. 증분 migration 중에는 원본 기반 테이블·RPC가 없어서 그대로 적용 불가능한 항목이 있음. 처음에는 미실행 상태로 둔다.
 3. 가상 직원만 등록: 서로 다른 관리자 1명, 일반 직원 2명, 조회전용 또는 퇴사 상태 테스트 계정 1명. 가짜 고유 직원 식별자/비밀번호 사용. 지문은 사람이 나온 원본 사진 대신 표식이 들어간 synthetic image.
-4. **QA 키는 해당 QA 프로젝트의 legacy anon JWT(role=anon, ref=QA ref)**. 서비스 역할/관리자/운영 key는 사용하지 않는다. QA 프로젝트의 RLS와 `SECURITY DEFINER` RPC, 일반 데이터 직접 접근 금지, 관리자 별도 PIN 검증을 독립 확인.
+4. **QA 키는 해당 QA 프로젝트의 검증된 `sb_publishable_` 공개 키 또는 legacy anon JWT(role=anon, ref=QA ref)**. 서비스 역할/관리자/운영 key는 사용하지 않는다. QA 프로젝트의 RLS와 `SECURITY DEFINER` RPC, 일반 데이터 직접 접근 금지, 관리자 별도 PIN 검증을 독립 확인.
 
 ## 2. QA 전용 사이트 임시 생성 — 실행 도구 포함
 - `qa-round3/e2e/prepare-qa-site.mjs`: Node.js 기본 기능만 사용. **외부 네트워크 연결·GitHub/DB 쓰기 없음**. 입력된 QA URL·anon key의 원본 운영 URL/키 일치, Supabase hostname, JWT `role=anon` 및 `ref=QA project` 불일치를 모두 fail-closed.
-- 필수 입력: `QA_ISOLATED_PROJECT_CONFIRMED=YES`, `QA_SUPABASE_URL`, `QA_SUPABASE_ANON_KEY`. 환경 변수를 **실제 독립 QA 프로젝트를 확인한 본인 컴퓨터에서만** 설정하고 `node qa-round3/e2e/prepare-qa-site.mjs` 실행. 안전확인에 통과하면 OS 임시 폴더에 `index.html` + 정적 리소스 복사. 저장소 root 운영파일 변경 없음.
-- 현재 원본은 bearer JWT 기반 코드이므로 일반 `sb_publishable_...` 키를 임의 넣지 않는다. `service_role`/운영 키가 거부되는지 확인.
+- 필수 입력: `QA_ISOLATED_PROJECT_CONFIRMED=YES`, `QA_SUPABASE_REF`, `QA_SUPABASE_URL`, `QA_SUPABASE_ANON_KEY`. 환경 변수를 **실제 독립 QA 프로젝트를 확인한 본인 컴퓨터에서만** 설정하고 `node qa-round3/e2e/prepare-qa-site.mjs` 실행. 안전확인에 통과하면 OS 임시 폴더에 `index.html` + 정적 리소스 복사. 저장소 root 운영파일 변경 없음.
+- 현재 원본은 `sb_publishable_` 공개 키를 사용한다. QA 공개 키는 QA Dashboard에서 프로젝트 소속을 확인한 뒤에만 `QA_PUBLISHABLE_KEY_VERIFIED=YES`와 함께 입력한다. 이 플래그는 암호학적 검증을 대체하지 않는다. `sb_secret_`/`service_role` 키는 절대로 브라우저에 입력하지 않는다. `service_role`/운영 키가 거부되는지 확인.
 - **QA 사이트 출처는 운영 사이트와 분리**하고 테스트 브라우저 개발자도구/방화벽에서 운영 Supabase 호스트 요청이 **0건**임을 검증. 테스트하는 앱에서 공식 운영 URL로 요청이 조금이라도 발생하면 중지.
 - 자동 업데이트·manifest·페이지 캐시가 운영 출처로 돌아가지 않게 별도 QA origin 사용. 배포가 아니라 임시 테스트 호스트.
 
@@ -41,3 +41,8 @@
 - 사용자가 별도의 **최종 운영 배포 지시**를 내리기 전 `main` 병합·운영 DB SQL 실행 금지. QA 프로젝트 구성만으로 운영 배포 승인 아님.
 
 작성 KST: 2026-10-20T20:31:37+09:00.
+
+## 3-8-49 보완
+- 현대 `sb_publishable_` 키와 legacy anon JWT 모두 QA 전용일 때 지원. `QA_SUPABASE_REF` 20자리 및 QA URL 호스트 일치 필수; 현대 키는 QA Dashboard에서 소속을 확인한 뒤에만 `QA_PUBLISHABLE_KEY_VERIFIED=YES` 선언.
+- Node 오프라인 합성테스트 `node --test qa-round3/e2e/prepare-qa-site.test.mjs` **13/13 PASS**. 실제 서버 연결·운영 DB·직원 데이터 없음.
+- 저장소의 16 증분 migration이 앱의 71 RPC 중 3종만 이름 일치 생성하므로, 독립 설치 가능한 QA 기초 스키마/함수 계약이 추가로 필요하다. `QA_BACKEND_GAPS.md` 참조. read-only 준비 확인 SQL `qa-schema-preflight.sql`은 독립 QA 프로젝트에서만 실행.
