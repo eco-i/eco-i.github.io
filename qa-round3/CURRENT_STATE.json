@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-51",
-  "next_block": "3-8-52",
-  "latest_report": "qa-round3/QA_3-8-51_REPORT.md",
+  "last_completed_block": "3-8-52",
+  "next_block": "3-8-53",
+  "latest_report": "qa-round3/QA_3-8-52_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 37,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_51_REAL_CHROMIUM_SYNTHETIC_CSP_11_OF_11_PASS_FULL_APP_E2E_BLOCKED_NOT_CLEAN",
+  "latest_status": "BLOCK_52_FREE_LOCAL_QA_SETUP_SCRIPTS_PREPARED_NODE_15_PASS_HTTP_7_PASS_DOCKER_UNAVAILABLE_E2E_BLOCKED",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -95,10 +95,11 @@
     "3-8-48: e2e environment gate blocked; requires new isolated QA Supabase (NOT production clone), synthetic complete baseline schema, QA-only generated site with fail-closed endpoint/key, browser access, P0/P1 validation; no production DB access allowed.",
     "49: isolated QA project synthetic full backend baseline not yet provisioned; 68 of 71 literal app RPC names not defined in repository incremental SQL; real browser/QA server E2E blocked. QA-only build helper Node offline 13/13 PASS.",
     "3-8-50: isolated QA HTML now inserts browser CSP restricting connect-src to QA-only HTTP/WSS (synthetic Node 15/15). Actual browser CSP enforcement and Supabase full E2E unverified; independent synthetic DB not provisioned.",
-    "3-8-51: Chromium synthetic CSP browser 11/11 PASS, no real endpoints accessed. Production/QA full app E2E, WebSocket handshake, real browser same-origin two tabs, Supabase SQL transactional tests and mobile PWA remain blocked."
+    "3-8-51: Chromium synthetic CSP browser 11/11 PASS, no real endpoints accessed. Production/QA full app E2E, WebSocket handshake, real browser same-origin two tabs, Supabase SQL transactional tests and mobile PWA remain blocked.",
+    "3-8-52: free local QA scripts ready, Node synthetic builder 15/15 and HTTP fixture server 7/7 in sandbox, but Docker/Supabase CLI unavailable and Windows actual script not run. Full synthetic SQL baseline/71 RPC contracts and all real app E2E unverified."
   ],
-  "next_scope": "3-8-52 only after independently approved isolated Supabase synthetic QA with complete baseline and real browser access. No more simulated block accumulation. Production main and live employees data strictly prohibited.",
-  "updated_kst": "2026-10-20T21:41:03+09:00",
+  "next_scope": "3-8-53 only when free local Supabase server can actually run and synthetic baseline database/RPC work begins. User Windows Docker/Node setup first; never connect production or clone real employee data. No repeated mock-only blocks.",
+  "updated_kst": "2026-10-20T22:15:46+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -1301,6 +1302,25 @@
       "product_code_modified": false,
       "main_modified": false,
       "production_db_mutated": false
+    },
+    "block_52": {
+      "result": "LOCAL_QA_SCAFFOLD_PREPARED_RUNTIME_BLOCKED_NOT_CLEAN",
+      "new_product_defects": 0,
+      "cloud_paid_project_created": false,
+      "qa_local_builder_node_synthetic_tests_pass": 15,
+      "qa_local_builder_node_synthetic_tests_total": 15,
+      "qa_local_http_server_fixture_tests_pass": 7,
+      "qa_local_http_server_fixture_tests_total": 7,
+      "docker_available_in_current_runtime": false,
+      "supabase_cli_available_in_current_runtime": false,
+      "actual_supabase_local_started": false,
+      "windows_bootstrap_execution_verified": false,
+      "complete_synthetic_backend_schema_available": false,
+      "full_app_e2e_verified": false,
+      "product_html_modified": false,
+      "main_modified": false,
+      "production_db_mutated": false,
+      "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411"
     }
   },
   "pending_qa_fixes": [
@@ -1683,5 +1703,24 @@
     "product_code_modified": false,
     "main_modified": false,
     "production_db_mutated": false
+  },
+  "block_52": {
+    "result": "LOCAL_QA_SCAFFOLD_PREPARED_RUNTIME_BLOCKED_NOT_CLEAN",
+    "new_product_defects": 0,
+    "cloud_paid_project_created": false,
+    "qa_local_builder_node_synthetic_tests_pass": 15,
+    "qa_local_builder_node_synthetic_tests_total": 15,
+    "qa_local_http_server_fixture_tests_pass": 7,
+    "qa_local_http_server_fixture_tests_total": 7,
+    "docker_available_in_current_runtime": false,
+    "supabase_cli_available_in_current_runtime": false,
+    "actual_supabase_local_started": false,
+    "windows_bootstrap_execution_verified": false,
+    "complete_synthetic_backend_schema_available": false,
+    "full_app_e2e_verified": false,
+    "product_html_modified": false,
+    "main_modified": false,
+    "production_db_mutated": false,
+    "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411"
   }
 }

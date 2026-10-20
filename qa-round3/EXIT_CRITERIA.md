@@ -1,6 +1,6 @@
 # 근무모아 3차·깊이8 — 위험 기반 종료 게이트
 
-> **QA-only 의사결정 보조. 3-8-51 현재 종료 확정 아님 / main 배포 승인 아님.**
+> **QA-only 의사결정 보조. 3-8-52 현재 종료 확정 아님 / main 배포 승인 아님.**
 > 대화 내 약 55~70블록은 추정치일 뿐 목표 개수·종료 보증이 아니다. 2차처럼 의미 없이 무기한 늘어나지 않도록 수치보다 남은 위험으로 종료 판단.
 
 ## 1. 코드 및 검수 관리 (GitHub에서 확인 가능)
@@ -31,7 +31,7 @@
 1. 블록 하나마다 명확히 다른 기능/불변식/회귀 목적이 있어야 하며, 동일 유형 예외조건의 무한 확장 금지.
 2. 신규 제품 결함과 미검증·환경 제한·test harness 오류를 분리.
 3. 실제 사용자의 직원 DB/운영 main 보호가 우선이며, 연결 안정성·간결한 대화 보고·상세 GitHub 기록 유지.
-4. **현재 종료 상태(3-8-51): 미충족.** 코드 단위 회귀는 상당수 통과했지만 실제 브라우저/서버 종단간 검증이 아직 남음.
+4. **현재 종료 상태(3-8-52): 미충족.** 코드 단위 회귀는 상당수 통과했지만 실제 브라우저/서버 종단간 검증이 아직 남음.
 
 초안 작성: 2026-10-20 18:20:51 KST, 3-8-43 범위.
 
@@ -75,3 +75,9 @@
 - [x] 실제 Chromium 144에서 합성 QA 문서+CSP 인라인 DOM 렌더링 및 접속 정책 **11/11 PASS**: 가짜 비QA 네트워크·다른 project·CDN fetch·외부 script/image/frame/worker 차단, 지정 QA HTTPS/script CDN/data image 허용. 모든 네트워크 route aborted; 실 DB·자격증명 없음.
 - [ ] 같은 출처 실제 앱 Chrome 두 탭/Web Locks/PWA·Android·iOS, QA WSS/Realtime·서버 RPC·DB 동시성 검증은 **여전히 미실행**. 실제 앱 전부를 검증했다는 의미 아님. WSS 허용·차단의 물리 handshake도 미검증.
 - 51은 **브라우저 CSP 범위 PASS / 전체 E2E BLOCKED, CLEAN 아님**. 완전 독립 QA Supabase와 synthetic baseline 및 사용자 신규 프로젝트 승인 전 운영 DB/운영 main 접근 금지.
+
+## 3-8-52 무료 로컬 개발환경 준비 게이트
+- [x] Docker/Supabase CLI 설치가 없는 현재 도구 환경의 제약 실측. 로컬 가상 계정 전용 생성기(Node 15/15)와 127.0.0.1 정적 서버 테스트(7/7), Windows 시작 자동화 스크립트/실행 지침 GitHub QA 브랜치 준비.
+- [ ] 사용자 Windows에서 Docker Desktop·Node·CLI 설치 후 **실제 Supabase local start 성공 확인** (지금은 미실행). Windows PowerShell 스크립트는 현재 컨테이너에서 동작 검증 불가.
+- [ ] 독립 가상 직원 전용 필수 테이블·함수·권한/Realtime baseline schema 및 RPC 재현, 실제 2탭/모바일/E2E 결과 PASS. GitHub 증분 SQL만으로 부족.
+- **3-8-52는 무료 로컬 환경 구성 코드/안전 테스트 범위의 준비 완료이며 전체 앱 E2E CLEAN 아님.** 클라우드 유료 서비스 신설/운영 DB/운영 main 변경 없음.
