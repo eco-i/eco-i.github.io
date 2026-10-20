@@ -1823,5 +1823,25 @@
     "main_modified": false,
     "production_db_mutated": false,
     "overall_clean": false
+  },
+  "actions_ci_browser_postgres_bridge": {
+    "verified_kst": "2026-10-21T08:48:40+09:00",
+    "status": "ACTUAL_CHROMIUM_TO_REAL_POSTGRESQL_SCOPED_PASS_NOT_FULL_APP_E2E",
+    "run_id": 39517320631,
+    "run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39517320631",
+    "run_sha": "405665a3dc2f5d4793090f224183551f9f6a28f1",
+    "report": "qa-round3/ACTIONS_CHROMIUM_POSTGRES_BRIDGE_SCOPED_PASS_20261021.md",
+    "test_checks_pass": 12,
+    "original_qa_sql_applied": true,
+    "synthetic_gateway_to_real_postgresql": true,
+    "actual_app_rpc_prelogin_and_initial_pin_write_guard_verified": true,
+    "database_commits_and_conflict_exceptions_verified": true,
+    "authorized_app_form_writes_e2e_verified": false,
+    "genuine_supabase_auth_postgrest_rls_verified": false,
+    "full_app_e2e_verified": false,
+    "overall_clean": false,
+    "production_main_modified": false,
+    "production_db_touched": false,
+    "new_product_defects": 0
   }
 }
