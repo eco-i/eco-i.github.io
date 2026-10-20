@@ -23,3 +23,10 @@
 - Node 생성기 fail-closed 16/16 PASS, Chromium UI 10/10 PASS: 틀린 PIN 차단·합성 로그인 오류, 필수 PIN 변경 게이트, 운영 Supabase/외부 연결 차단.
 - **서버는 실제 Supabase가 아니라 fake HTTP RPC**이며 앞 단계의 실제 PostgreSQL SQL 시험과 연결된 전체 E2E가 아님. P0/P1 E2E는 그대로 미검증.
 - **공식 완료 3-8-53 / 다음 3-8-54 미시작 / 누적 신규 제품결함 37종 / 전체 NOT CLEAN / 운영 main·실직원 DB·배포 0**.
+
+## 2026-10-21 3단계 — Chromium↔실제 PostgreSQL HTTP 브리지 첫 성공
+- [직접 실행 로그](https://github.com/eco-i/eco-i.github.io/actions/runs/39517320631) · [상세 증빙](ACTIONS_CHROMIUM_POSTGRES_BRIDGE_SCOPED_PASS_20261021.md).
+- **12/12 scoped PASS**: 앱 로그인 전/초기 PIN 시 앱 자체 RPC 쓰기 거부 + 격리 브라우저 HTTP 전송→합성 gateway→실제 PostgreSQL에서 QA 원본 SQL의 휴일근무 저장·기존 기록 보호·휴일 해제·구 revision 거절을 행 단위 검증.
+- **진짜 PostgreSQL 사용**, 그러나 **HTTP gateway 및 로그인 응답/세션 helper는 synthetic**, 성공 쓰기는 앱 입력폼이 아닌 브라우저 test fetch. 정규 Supabase Auth/PostgREST/RLS, 실제 직원계정/근태 작성 UI까지 연결한 full app E2E **아님**.
+- 별도 SQL 경합 run 및 기존 실제 Chromium UI run과 역할 다름. 이 사실을 CLEAN이나 실서버 전체검증으로 혼동하지 말 것.
+- **공식 마지막 완료 3-8-53 / 다음 3-8-54 미시작 / 결함 37종 / 전체 NOT CLEAN / 운영 main·직원 DB·배포 변경 0**.
