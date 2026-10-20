@@ -2834,12 +2834,14 @@ function pruneUpdateHandoffLogoutTokenKeys(){
 }
 function migrateLegacyUpdateHandoffLogoutTombstones(){
   const entries=legacyUpdateHandoffLogoutEntries();
+  let migrated=true;
   entries.forEach(info=>{
     const key=updateHandoffLogoutTokenKey(info.token),existing=Number(storageGet(localStorage,key)||0);
-    if(!Number.isFinite(existing)||info.at>existing)storageSet(localStorage,key,String(info.at));
+    // Never discard the only fresh logout evidence when quota/private-mode storage rejects its token key.
+    if((!Number.isFinite(existing)||info.at>existing)&&!storageSet(localStorage,key,String(info.at)))migrated=false;
   });
-  // legacy aggregate는 같은 JSON에 여러 탭이 read-modify-write 하던 구조라 새 기록에는 사용하지 않는다.
-  storageRemove(localStorage,UPDATE_SESSION_LOGOUT_TOMBSTONE_KEY);
+  // Keep the legacy source until every still-fresh marker is safely persisted.
+  if(migrated)storageRemove(localStorage,UPDATE_SESSION_LOGOUT_TOMBSTONE_KEY);
   pruneUpdateHandoffLogoutTokenKeys();
 }
 function updateLogoutTombstoneIsFresh(at,ttl,now=Date.now()){
@@ -2854,7 +2856,11 @@ function updateHandoffTokenWasLoggedOut(token){
   if(!token)return false;
   migrateLegacyUpdateHandoffLogoutTombstones();
   const key=updateHandoffLogoutTokenKey(token),at=Number(storageGet(localStorage,key)||0);
-  if(!updateLogoutTombstoneIsFresh(at,UPDATE_SESSION_HANDOFF_TTL_MS)){storageRemove(localStorage,key);return false;}
+  if(!updateLogoutTombstoneIsFresh(at,UPDATE_SESSION_HANDOFF_TTL_MS)){
+    storageRemove(localStorage,key);
+    // Migration may be blocked by storage quota: consult the retained legacy proof rather than reviving a logged-out session.
+    return legacyUpdateHandoffLogoutEntries().some(info=>info.token===String(token));
+  }
   return true;
 }
 function clearUpdateHandoffLogoutTombstone(token){
