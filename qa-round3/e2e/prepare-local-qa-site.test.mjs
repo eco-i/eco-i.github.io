@@ -12,7 +12,8 @@ mkdirSync(dirname(builder),{recursive:true});
 copyFileSync(join(dirname(fileURLToPath(import.meta.url)),'prepare-local-qa-site.mjs'),builder);
 const prod='p'.repeat(20),prodKey='sb_publishable_FAKE_PROD_12345678',qaKey='sb_publishable_FAKE_LOCAL_12345678';
 const index=join(root,'index.html');
-const original='<!DOCTYPE html><html><head><title>근무모아</title></head><body><script>\nconst SUPABASE_URL = "https://'+prod+'.supabase.co";\nconst SUPABASE_ANON_KEY = "'+prodKey+'";\n</script></body></html>';
+const configuredFn='function configured(){\n  return /^https:\\/\\/.+\\.supabase\\.co$/.test(SUPABASE_URL) && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("YOUR-");\n}\n';
+const original='<!DOCTYPE html><html><head><title>근무모아</title></head><body><script>\nconst SUPABASE_URL = "https://'+prod+'.supabase.co";\nconst SUPABASE_ANON_KEY = "'+prodKey+'";\n'+configuredFn+'</script></body></html>';
 writeFileSync(index,original);
 const assets=['maintenance-20261018.js','maintenance-mobile-20261018.css','site-update-history.js','site-update-history.css','future-holidays-2028-2035.js','version.json','manifest.webmanifest','icon-192.png','icon-512.png'];
 for(const p of assets)writeFileSync(join(root,p),'fake');
@@ -38,6 +39,7 @@ for(const key of [qaKey,jwt('anon')])test('local HTML generated with CSP',()=>{
  assert.ok(text.includes(key) && !text.includes(prodKey));
  assert.ok(text.includes("connect-src 'self' http://127.0.0.1:54321 ws://127.0.0.1:54321"));
  assert.ok(!text.includes(prod+'.supabase.co') && text.includes('[로컬 QA 전용]'));
+ assert.ok(text.includes("return SUPABASE_URL === 'http://127.0.0.1:54321'"), 'local configured must use loopback API rather than offline mode');
  assert.ok(!p.stdout.includes(key));
  rmSync(matched[1],{recursive:true,force:true});
 });
@@ -51,4 +53,9 @@ test('reject inherited CSP',()=>{
 test('reject missing icon',()=>{
  const p=join(root,'icon-192.png');
  try{rmSync(p);assert.equal(run().status,2)}finally{writeFileSync(p,'fake')}
+});
+
+test('reject missing configured function rather than silently using offline preview mode',()=>{
+ try{writeFileSync(index,original.replace(configuredFn,''));assert.equal(run().status,2);}
+ finally{writeFileSync(index,original)}
 });
