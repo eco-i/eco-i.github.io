@@ -18,5 +18,5 @@
 - JS 2개 파싱, 488 HTML ID 유일성, 기능 함수 존재 및 3-8-30~34 권한/세션 보호장치 등 **41/41 정적 PASS**.
 - **154/154 유효 검사.** 원본 버그 재현 실패는 PASS 집계에서 제외. 실제 Supabase RPC·Realtime 서버, 직원 계정/DB, 전체 로그인 Chromium, Android/iOS PWA, 실 Web Locks 다중탭 E2E 미실시.
 - QA 코드 커밋: `9eca7cef89362cc81fc052a82a1134c399340231`.
-- QA HTML blob: `4fd569795a1eafbdaf0918c4f0dfca3cbe`, `APP_VERSION ver20261018-2313` 변경 없음.
+- QA HTML blob: `4fd569795a1eafbdaf0918c4e0f2c4f0dfca3cbe`, `APP_VERSION ver20261018-2313` 변경 없음.
 - 운영 `main` 및 실 직원 DB/지문·근태 기록 읽기·쓰기·배포 **0**.
