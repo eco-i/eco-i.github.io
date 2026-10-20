@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-50",
-  "next_block": "3-8-51",
-  "latest_report": "qa-round3/QA_3-8-50_REPORT.md",
+  "last_completed_block": "3-8-51",
+  "next_block": "3-8-52",
+  "latest_report": "qa-round3/QA_3-8-51_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 37,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_50_QA_ISOLATED_HTML_CSP_GUARD_OFFLINE_NODE_15_OF_15_REAL_E2E_BLOCKED_NOT_CLEAN",
+  "latest_status": "BLOCK_51_REAL_CHROMIUM_SYNTHETIC_CSP_11_OF_11_PASS_FULL_APP_E2E_BLOCKED_NOT_CLEAN",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -94,10 +94,11 @@
     "3-8-47: actual full-app QA-only logged-in account disabled/readonly transitions + admin PIN/attendance deletion during slow RPC, physical Chrome/Web Locks, Android/iOS BFCache native fingerprint picker and Supabase E2E remain unverified; 46+47 code-scoped CLEAN not a substitute",
     "3-8-48: e2e environment gate blocked; requires new isolated QA Supabase (NOT production clone), synthetic complete baseline schema, QA-only generated site with fail-closed endpoint/key, browser access, P0/P1 validation; no production DB access allowed.",
     "49: isolated QA project synthetic full backend baseline not yet provisioned; 68 of 71 literal app RPC names not defined in repository incremental SQL; real browser/QA server E2E blocked. QA-only build helper Node offline 13/13 PASS.",
-    "3-8-50: isolated QA HTML now inserts browser CSP restricting connect-src to QA-only HTTP/WSS (synthetic Node 15/15). Actual browser CSP enforcement and Supabase full E2E unverified; independent synthetic DB not provisioned."
+    "3-8-50: isolated QA HTML now inserts browser CSP restricting connect-src to QA-only HTTP/WSS (synthetic Node 15/15). Actual browser CSP enforcement and Supabase full E2E unverified; independent synthetic DB not provisioned.",
+    "3-8-51: Chromium synthetic CSP browser 11/11 PASS, no real endpoints accessed. Production/QA full app E2E, WebSocket handshake, real browser same-origin two tabs, Supabase SQL transactional tests and mobile PWA remain blocked."
   ],
-  "next_scope": "3-8-51 conditional: separate independently funded/approved synthetic QA Supabase with complete core schema, and actual browser/mobile available. Avoid more repeated mock/helper blocks while E2E blocked. No production main or staff DB changes.",
-  "updated_kst": "2026-10-20T21:28:39+09:00",
+  "next_scope": "3-8-52 only after independently approved isolated Supabase synthetic QA with complete baseline and real browser access. No more simulated block accumulation. Production main and live employees data strictly prohibited.",
+  "updated_kst": "2026-10-20T21:41:03+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -1284,6 +1285,22 @@
       "main_modified": false,
       "production_db_mutated": false,
       "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411"
+    },
+    "block_51": {
+      "result": "BROWSER_CSP_SCOPED_PASS_FULL_APP_E2E_BLOCKED_NOT_CLEAN",
+      "new_product_defects": 0,
+      "browser": "Chromium 144.0.7559.96",
+      "real_chromium_csp_synthetic_pass": 11,
+      "real_chromium_csp_synthetic_total": 11,
+      "actual_app_loaded_in_browser": false,
+      "qa_websocket_csp_enforcement_tested": false,
+      "live_network_requests_executed": false,
+      "independent_qa_supabase_available": false,
+      "app_e2e_verified": false,
+      "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411",
+      "product_code_modified": false,
+      "main_modified": false,
+      "production_db_mutated": false
     }
   },
   "pending_qa_fixes": [
@@ -1650,5 +1667,21 @@
     "main_modified": false,
     "production_db_mutated": false,
     "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411"
+  },
+  "block_51": {
+    "result": "BROWSER_CSP_SCOPED_PASS_FULL_APP_E2E_BLOCKED_NOT_CLEAN",
+    "new_product_defects": 0,
+    "browser": "Chromium 144.0.7559.96",
+    "real_chromium_csp_synthetic_pass": 11,
+    "real_chromium_csp_synthetic_total": 11,
+    "actual_app_loaded_in_browser": false,
+    "qa_websocket_csp_enforcement_tested": false,
+    "live_network_requests_executed": false,
+    "independent_qa_supabase_available": false,
+    "app_e2e_verified": false,
+    "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411",
+    "product_code_modified": false,
+    "main_modified": false,
+    "production_db_mutated": false
   }
 }

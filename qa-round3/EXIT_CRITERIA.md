@@ -1,6 +1,6 @@
 # 근무모아 3차·깊이8 — 위험 기반 종료 게이트
 
-> **QA-only 의사결정 보조. 3-8-50 현재 종료 확정 아님 / main 배포 승인 아님.**
+> **QA-only 의사결정 보조. 3-8-51 현재 종료 확정 아님 / main 배포 승인 아님.**
 > 대화 내 약 55~70블록은 추정치일 뿐 목표 개수·종료 보증이 아니다. 2차처럼 의미 없이 무기한 늘어나지 않도록 수치보다 남은 위험으로 종료 판단.
 
 ## 1. 코드 및 검수 관리 (GitHub에서 확인 가능)
@@ -31,7 +31,7 @@
 1. 블록 하나마다 명확히 다른 기능/불변식/회귀 목적이 있어야 하며, 동일 유형 예외조건의 무한 확장 금지.
 2. 신규 제품 결함과 미검증·환경 제한·test harness 오류를 분리.
 3. 실제 사용자의 직원 DB/운영 main 보호가 우선이며, 연결 안정성·간결한 대화 보고·상세 GitHub 기록 유지.
-4. **현재 종료 상태(3-8-50): 미충족.** 코드 단위 회귀는 상당수 통과했지만 실제 브라우저/서버 종단간 검증이 아직 남음.
+4. **현재 종료 상태(3-8-51): 미충족.** 코드 단위 회귀는 상당수 통과했지만 실제 브라우저/서버 종단간 검증이 아직 남음.
 
 초안 작성: 2026-10-20 18:20:51 KST, 3-8-43 범위.
 
@@ -70,3 +70,8 @@
 - [x] Node v22 합성 로컬 fixture 안전 검사 15/15 PASS. **물리 브라우저 CSP enforcement나 실제 전체 앱 통과 의미 아님**.
 - [ ] 독립 synthetic QA Supabase/완전 초기 schema/RPC 및 브라우저 동작, SQL concurrency, PIN, 근태, 지문, Realtime E2E. 사용자 승인 없는 새 과금 또는 운영 DB/직원기록 접근 금지.
 - 결과: **50 QA 보조도구 범위 완료, E2E BLOCKED/NOT CLEAN. 3차 종료/운영 배포 승인 아님.**
+
+## 3-8-51 synthetic Chromium CSP 직접 적용
+- [x] 실제 Chromium 144에서 합성 QA 문서+CSP 인라인 DOM 렌더링 및 접속 정책 **11/11 PASS**: 가짜 비QA 네트워크·다른 project·CDN fetch·외부 script/image/frame/worker 차단, 지정 QA HTTPS/script CDN/data image 허용. 모든 네트워크 route aborted; 실 DB·자격증명 없음.
+- [ ] 같은 출처 실제 앱 Chrome 두 탭/Web Locks/PWA·Android·iOS, QA WSS/Realtime·서버 RPC·DB 동시성 검증은 **여전히 미실행**. 실제 앱 전부를 검증했다는 의미 아님. WSS 허용·차단의 물리 handshake도 미검증.
+- 51은 **브라우저 CSP 범위 PASS / 전체 E2E BLOCKED, CLEAN 아님**. 완전 독립 QA Supabase와 synthetic baseline 및 사용자 신규 프로젝트 승인 전 운영 DB/운영 main 접근 금지.
