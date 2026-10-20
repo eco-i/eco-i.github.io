@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-33",
-  "next_block": "3-8-34",
-  "latest_report": "qa-round3/QA_3-8-33_REPORT.md",
+  "last_completed_block": "3-8-34",
+  "next_block": "3-8-35",
+  "latest_report": "qa-round3/QA_3-8-34_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 25,
+  "round3_new_product_defects": 26,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_33_ONE_MEDIUM_HANDOFF_OWNERSHIP_DEFECT_FIXED_QA_143_VALID_CHECKS_PASS_NO_MAIN_DB_CHANGE",
+  "latest_status": "BLOCK_34_ONE_MEDIUM_LEGACY_LOGOUT_MIGRATION_LOSS_FIXED_QA_131_VALID_ISOLATED_CHECKS_PASS_MAIN_DB_UNCHANGED",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -66,10 +66,12 @@
     "3-8-32: local preview same-token logout/relogin plus pending auth-cleanup timer, actual Chrome/Android PWA",
     "3-8-32: independent QA Supabase realtime/initial PIN/role-lowering concurrent transitions; do not touch employee records",
     "3-8-33: real QA-only two-account old session cleanup vs newer update handoff in same browser tab and Web Lock scheduling, no real employee data",
-    "3-8-33: local preview identical-token re-login handoff ownership and physical Android/iOS login retention"
+    "3-8-33: local preview identical-token re-login handoff ownership and physical Android/iOS login retention",
+    "3-8-34: actual Chrome/Android/iOS private-mode/quota failure during legacy logout tombstone migration and handoff restore (QA-only tokens)",
+    "3-8-34: real two-tab older-version aggregate writer versus same-token fresh login/Web Locks session generation, and real Supabase Realtime reconnect (QA-only accounts)"
   ],
-  "next_scope": "3-8-34 QA only: handoff tombstone clear/migration and multi-tab automatic-update ownership, same-token renewals, Realtime reconnect refresh; production main and staff DB untouched",
-  "updated_kst": "2026-10-20T13:00:54+09:00",
+  "next_scope": "3-8-35 QA only: same-token fresh login with legacy aggregate writer/storage failure, multi-tab handoff generation, Realtime SUBSCRIBED catchup owner transitions; main and employee DB protected",
+  "updated_kst": "2026-10-20T13:35:02.343+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -361,6 +363,21 @@
       "issue_file": "qa-round3/issues/3-8-33-001_STALE_LOGOUT_HANDOFF_REMOVAL.md",
       "qa_html_blob": "d55a32fcbcad3110db76c8725b4b088fca7362d1",
       "validated_actual_function_cases": 10,
+      "production_applied": false,
+      "real_browser_verified": false
+    },
+    {
+      "id": "3-8-34-001",
+      "severity": "medium",
+      "title": "Legacy logout aggregate migration write failure loses the only active logout tombstone",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-34-001_LEGACY_LOGOUT_TOMBSTONE_MIGRATION_LOSS.md",
+      "qa_html_blob": "c754f9ff2be9e82768b550eb7ea3852f9b82d687",
+      "qa_fix_commit": "47b6bb57dc042e5eed254bf02de5c62852683939",
+      "source_mock_pass": 78,
+      "handoff_restore_mock_pass": 12,
+      "realtime_reconnect_mock_pass": 16,
+      "source_integrity_pass": 25,
       "production_applied": false,
       "real_browser_verified": false
     }
@@ -775,6 +792,18 @@
       "production_main_modified": false,
       "real_employee_db_accessed": false,
       "full_browser_e2e": false
+    },
+    "block_34": {
+      "legacy_tombstone_actual_source_mock_pass": 78,
+      "handoff_restore_actual_function_mock_pass": 12,
+      "realtime_reconnect_actual_function_mock_pass": 16,
+      "final_source_static_integrity_pass": 25,
+      "total_valid_pass": 131,
+      "pre_fix_legacy_migration_write_failure_reproduced": true,
+      "new_product_defects": 1,
+      "production_main_modified": false,
+      "real_employee_db_accessed": false,
+      "full_browser_e2e": false
     }
   },
   "pending_qa_fixes": [
@@ -796,9 +825,10 @@
     "3-8-24-002: if parent dialog closes before child, inherit parent return-focus target; isolated DOM + standalone Chromium confirmed, QA only, not deployed",
     "3-8-25-001: preserve valid focus already inside top modal against delayed open and close callbacks; QA HTML only, standalone JS/DOM mocks verified, not deployed",
     "3-8-26-001: focusTargetUsable rejects elements within ancestor aria-hidden=true or inert; QA index.html only, standalone Chromium + isolated actual-function mocks PASS, not deployed",
-    "3-8-27-001: enforce post-preflight personnel freshness/eligibility check before holiday work save RPC and personnel freshness before delete RPC; QA only, no server SQL or production deployment"
+    "3-8-27-001: enforce post-preflight personnel freshness/eligibility check before holiday work save RPC and personnel freshness before delete RPC; QA only, no server SQL or production deployment",
+    "3-8-34-001: preserve valid legacy logout aggregate if token-key write fails and recheck same-token legacy fallback; QA index.html only, storage quota actual browser integration pending; production not deployed"
   ],
-  "round3_new_product_defects_this_block": 0,
+  "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
     "branch": "qa-3-8",
     "sql_path": "qa-round3/fixes/QA_3-8-2_memo_year_guard.sql",
@@ -839,8 +869,8 @@
     "year_month_isolation_checked": true,
     "production_data_changed": false
   },
-  "latest_qa_html_blob": "d3e535031861bfdd372fc0b8d1f24ef6070cccdf",
-  "latest_qa_fix_commit": "5ffe4f453ad4ac4e8260226418e7f3e5e8876121",
+  "latest_qa_html_blob": "c754f9ff2be9e82768b550eb7ea3852f9b82d687",
+  "latest_qa_fix_commit": "47b6bb57dc042e5eed254bf02de5c62852683939",
   "block_23": {
     "holiday_work_edit_return_mock_pass": 15,
     "annual_and_longservice_save_mock_pass": 12,
