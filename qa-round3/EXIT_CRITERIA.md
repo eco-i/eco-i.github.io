@@ -87,3 +87,10 @@
 - [x] Windows 로컬 bootstrap이 docker host/context 환경 override를 시작 전에 거부하고, Supabase start 뒤 loopback-only published port 점검 실패 시 local stack stop하도록 수정.
 - [ ] 물리 Windows에서 실제 Docker/Supabase start, 독립 synthetic DB schema·RPC, 실제 앱 로그인/근태/PIN/지문/2탭/Realtime E2E는 여전히 **미실행**.
 - 공식 결과 **QA 도구 scoped PASS, 제품 E2E BLOCKED/NOT CLEAN**. 무료 로컬만·운영 DB/main 건드리지 않음.
+
+## 2026-10-20 사용자 선택: 코드 범위 검수 조건부 종료·E2E 분리
+- 상세: [3차 코드 검수 조건부 종료 보고서](ROUND3_CODE_REVIEW_CONDITIONAL_CLOSEOUT_20261020.md).
+- **코드 수준의 반복 검수 작업만 중단**한다. 46/47의 서로 다른 mock/source-based CLEAN 2회 기록은 유지하되, 위 체크박스 중 **실제 통합 회귀·실브라우저·SQL/E2E·최종 배포 승인 항목은 모두 미달**이다.
+- 마지막 공식 완료는 **3-8-53**, 예약된 `3-8-54`는 **시작하지 않음**. 기록상 결함 37종(HIGH 5, MEDIUM 22, LOW 10) 및 QA 수정 위치를 모두 종료 보고서에 인덱싱했지만 **실 E2E에서 해결 완료라고 단정하지 않는다**.
+- 운영 `main`·실 직원 DB/SQL·실지문·로그인 정보, 배포는 보호 상태로 유지. 사용자의 이번 동의는 **검수 범위의 조건부 마무리 동의이지 위험 수용을 통한 배포 승인 아님**.
+- 추후 가상 직원 전용 QA 서버/브라우저 접근이 확보되면 `E2E_RUNBOOK.md` P0 5건, P1 3건 검증 후 별도 배포 판단. 사용자 개인 PC에 Docker 설치를 지금 필수 요구하지 않음.
