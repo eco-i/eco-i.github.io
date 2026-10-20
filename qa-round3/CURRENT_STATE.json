@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-36",
-  "next_block": "3-8-37",
-  "latest_report": "qa-round3/QA_3-8-36_REPORT.md",
+  "last_completed_block": "3-8-37",
+  "next_block": "3-8-38",
+  "latest_report": "qa-round3/QA_3-8-37_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 28,
+  "round3_new_product_defects": 29,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_36_ONE_MEDIUM_SHARED_SUPPRESSION_FRESH_LOGIN_FAILURE_FIXED_QA_189_ACTUAL_SOURCE_ISOLATED_STATIC_PASS_NO_PRODUCTION_DB",
+  "latest_status": "BLOCK_37_ONE_MEDIUM_LOCAL_LOGIN_EPOCH_OLD_LEGACY_REPLAY_FIXED_QA_291_ACTUAL_SOURCE_ISOLATED_STATIC_PASS_MAIN_DB_PROTECTED",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -72,10 +72,12 @@
     "3-8-35: actual QA-only two-tab Web Locks and old-version legacy aggregate writer race vs same-token login, login stored/rollback failures; real employee DB excluded",
     "3-8-35: real Supabase Realtime SUBSCRIBED/new-channel catch-up + mobile PWA/initial PIN authority handoff needs isolated QA accounts",
     "3-8-36: real Chrome/Android/iOS same-token shared suppression and failed localStorage removal, PC tab/local same-token login and admin PIN, QA-only accounts required",
-    "3-8-36: older-version live writer replaying legacy aggregate after same-token fresh login; do not claim atomic cross-version correctness without physical multi-tab browser"
+    "3-8-36: older-version live writer replaying legacy aggregate after same-token fresh login; do not claim atomic cross-version correctness without physical multi-tab browser",
+    "3-8-37: use isolated QA local-preview old-version and new-version real browser tabs to test legacy aggregate writer replay after same-token fresh login (no employee data)",
+    "3-8-37: storage epoch key write failure, large clock rollback, PIN/Realtime/session restore race with physical Android/iOS and QA-only disconnected accounts; no production DB"
   ],
-  "next_scope": "3-8-37 QA-only: older-version legacy aggregate rewriter after same-token fresh login, storage rollback failures and login-generation proof, multi-tab Web Locks and Realtime fresh-catchup races; operating main and real staff DB protected",
-  "updated_kst": "2026-10-20T15:58:11.398+09:00",
+  "next_scope": "3-8-38 QA-only: local login epoch storage fail/revert and pruning, clock skew and bootstrap initialization order, Realtime catch-up delayed Promise and new signal ownership. Do not modify main or real employee DB.",
+  "updated_kst": "2026-10-20T16:20:57.975+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -414,6 +416,21 @@
       "source_integrity_pass": 41,
       "production_applied": false,
       "real_browser_verified": false
+    },
+    {
+      "id": "3-8-37-001",
+      "severity": "medium",
+      "title": "Replayed old-version legacy logout aggregate revokes a successful new local-preview login reusing the same token",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-37-001_OLD_LEGACY_LOGOUT_REPLAY_AFTER_LOCAL_RELOGIN.md",
+      "qa_html_blob": "084696ce5ef54748bcb0043a14504cbae10ebe26",
+      "qa_fix_commit": "c4ad51bb9f9e9d193cbb3e9a61d6814b9b5f4a6d",
+      "final_source_local_login_epoch_and_legacy_replay_mock_pass": 190,
+      "final_source_restore_handoff_mock_pass": 40,
+      "final_source_realtime_channel_mock_pass": 20,
+      "final_source_js_dom_static_pass": 41,
+      "production_applied": false,
+      "real_multitab_verified": false
     }
   ],
   "round3_completed_tests": {
@@ -863,6 +880,20 @@
       "production_main_modified": false,
       "real_employee_db_accessed": false,
       "full_browser_multitab_verified": false
+    },
+    "block_37": {
+      "local_token_reuse_and_old_writer_actual_function_mock_pass": 190,
+      "restore_update_handoff_actual_function_pass": 40,
+      "realtime_subscribe_source_mock_pass": 20,
+      "source_js_html_integrity_static_pass": 41,
+      "total_valid_pass": 291,
+      "old_source_replay_problem_reproduced": true,
+      "clock_future_skew_greater_than_five_seconds_fail_closed": true,
+      "source_blob": "084696ce5ef54748bcb0043a14504cbae10ebe26",
+      "new_product_defects": 1,
+      "production_main_modified": false,
+      "real_employee_db_accessed": false,
+      "actual_multitab_chromium_verified": false
     }
   },
   "pending_qa_fixes": [
@@ -887,7 +918,8 @@
     "3-8-27-001: enforce post-preflight personnel freshness/eligibility check before holiday work save RPC and personnel freshness before delete RPC; QA only, no server SQL or production deployment",
     "3-8-34-001: preserve valid legacy logout aggregate if token-key write fails and recheck same-token legacy fallback; QA index.html only, storage quota actual browser integration pending; production not deployed",
     "3-8-35-001: same-token fresh login clears only matching legacy aggregate logout; exact failure rolls back tab/shared session when possible; QA index only, actual multitab/old writer concurrency pending; not deployed",
-    "3-8-36-001: exact-token shared logout suppression must be cleared successfully for fresh login; PC tab + PC remembered + mobile guard/rollback in QA index only, not deployed"
+    "3-8-36-001: exact-token shared logout suppression must be cleared successfully for fresh login; PC tab + PC remembered + mobile guard/rollback in QA index only, not deployed",
+    "3-8-37-001: per-local-token fresh-login epoch marker filters only older legacy logout records; exact current/newer logout and server tokens preserved. QA index only, not deployed; actual old-version tab E2E pending."
   ],
   "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
@@ -930,8 +962,8 @@
     "year_month_isolation_checked": true,
     "production_data_changed": false
   },
-  "latest_qa_html_blob": "86ff27b08a66f7e1853f3888a74a7d8ba0109471",
-  "latest_qa_fix_commit": "5126e7d2a2382af0e404987f4aa3f0f48cf0120f",
+  "latest_qa_html_blob": "084696ce5ef54748bcb0043a14504cbae10ebe26",
+  "latest_qa_fix_commit": "c4ad51bb9f9e9d193cbb3e9a61d6814b9b5f4a6d",
   "block_23": {
     "holiday_work_edit_return_mock_pass": 15,
     "annual_and_longservice_save_mock_pass": 12,
