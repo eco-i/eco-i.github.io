@@ -14,6 +14,16 @@ function one(name) {
 }
 const prodUrl = one('SUPABASE_URL');
 const prodKey = one('SUPABASE_ANON_KEY');
+// The production configured() accepts only *.supabase.co, so simply changing
+// the URL to 127.0.0.1 would silently enable OFFLINE preview, not local RPC.
+// Replace configured() in the GENERATED temporary QA HTML only, fail-closed.
+const configPattern=/^function configured\(\)\{\r?\n\s*return [^\r\n]{1,320};\r?\n\}/gm;
+const configurations=[...input.matchAll(configPattern)];
+if(configurations.length!==1 || !configurations[0][0].includes('SUPABASE_URL') || !configurations[0][0].includes('supabase')) {
+  reject('expected exactly one recognizable production configured() function');
+}
+const productionConfiguredFn=configurations[0][0];
+
 if (!/^https:\/\/[a-z0-9]{20}\.supabase\.co\/?$/i.test(prodUrl)) reject('unexpected production source URL');
 if (process.env.LOCAL_QA_ONLY !== 'YES' || process.env.LOCAL_QA_KEYS_CONFIRMED !== 'YES') reject('explicit local-only confirmation missing');
 if (process.env.LOCAL_SUPABASE_URL !== 'http://127.0.0.1:54321') reject('only local loopback API allowed');
@@ -43,6 +53,7 @@ const csp = ["default-src 'none'","base-uri 'self'","form-action 'self'","script
 const page = input
  .replace(/^const SUPABASE_URL\s*=\s*(['"])(.*?)\1\s*;/m, "const SUPABASE_URL = 'http://127.0.0.1:54321';")
  .replace(/^const SUPABASE_ANON_KEY\s*=\s*(['"])(.*?)\1\s*;/m, 'const SUPABASE_ANON_KEY = ' + JSON.stringify(key) + ';')
+ .replace(productionConfiguredFn, "function configured(){\n  return SUPABASE_URL === 'http://127.0.0.1:54321' && SUPABASE_ANON_KEY === " + JSON.stringify(key) + ";\n}")
  .replace(/<head(?:\s[^>]*)?>/i, m => m + '\n<meta http-equiv="Content-Security-Policy" content="' + csp + '">\n<meta name="workmoa-environment" content="local-synthetic-qa">')
  .replace(/<title>근무모아<\/title>/, '<title>[로컬 QA 전용] 근무모아</title>');
 if (page.includes(prodUrl) || page.includes(prodKey) || /https?:\/\/[a-z0-9]{20}\.supabase\.co/i.test(page)) reject('remote backend remains');
