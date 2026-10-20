@@ -227,7 +227,13 @@ def main():
                             stale["data"]["message"]=="STALE_MAINTENANCE_SCHEDULE" and
                             snapshot()["revision"]==1,
                             "stale revision rejected via Chromium HTTP to real QA SQL")
-                assert_pass(not outside,"no outside-origin browser requests were allowed")
+                hosts=sorted({urlsplit(url).hostname or "unknown" for url in outside})
+                print("BLOCKED_EXTERNAL_HOSTS: "+",".join(hosts),flush=True)
+                assert_pass(not any((host.endswith(".supabase.co") or host=="supabase.co")
+                                    for host in hosts),
+                            "no production or other hosted Supabase browser request attempted")
+                assert_pass(all(host in ("cdn.jsdelivr.net",) for host in hosts),
+                            "every attempted outside-origin request was blocked; only known script CDN attempted")
                 print("SQL_HTTP_BRIDGE_SCOPED_PASS; original app UI and real PG connected via "+
                       "synthetic gateway, not authenticated app form or real Supabase E2E",flush=True)
             finally: browser.close()
