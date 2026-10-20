@@ -2060,7 +2060,13 @@ function storedSessionTombstoned(token){
   if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)return true;
   // An uncommitted local login must not be recovered after an epoch rollback
   // and localStorage remove/set failure. This literal key also runs at bootstrap.
-  if(token.startsWith('local:')&&storageGet(localStorage,'staffAttendance_updateLocalLoginPending_v1:'+encodeURIComponent(token)))return true;
+  if(token.startsWith('local:')){
+    // A failed guard read is not proof that the pending login was completed.
+    // Fail closed at bootstrap and for already-open local-preview sessions.
+    try{
+      if(localStorage.getItem('staffAttendance_updateLocalLoginPending_v1:'+encodeURIComponent(token)))return true;
+    }catch(_){return true;}
+  }
   // This helper also runs during initial state bootstrap, before late
   // update-handoff constants initialize; read the token-specific key directly.
   const now=Date.now(),fresh=value=>{
@@ -2296,7 +2302,12 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
   // Update handoff is not a fresh login and cannot clear a failed-login guard.
   if(!clearLogoutTombstone){
     const guardKey=localLoginPendingGuardKey(token);
-    if(guardKey&&storageGet(localStorage,guardKey))return false;
+    if(guardKey){
+      // Handoff is not an authenticated fresh login. An unreadable guard must
+      // not be mistaken for an absent guard and re-store a rejected token.
+      try{if(localStorage.getItem(guardKey))return false;}
+      catch(_){return false;}
+    }
   }
   let stored=false;
   if(MOBILE_SESSION_DEVICE){
