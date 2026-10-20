@@ -2248,6 +2248,13 @@ function clearStoredLoginSession(token=''){
   // 토큰을 식별할 수 없는 복구 실패 상황에서는 현재 탭의 임시 상태만 정리한다.
   storageRemove(sessionStorage,SESSION_KEY);storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);
 }
+function clearSharedLogoutSuppressionForFreshLogin(token){
+  // Shared logout suppression applies even to a same-token PC tab-only login.
+  // Reject fresh-login success if the exact-token flag cannot be removed.
+  if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)!==token)return true;
+  storageRemove(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
+  return storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)!==token;
+}
 function storeLoginSession(token,persistent,clearLogoutTombstone=true){
   if(!token){clearStoredLoginSession('');return true;}
   let stored=false;
@@ -2256,14 +2263,13 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
       const previousSharedToken=storageGet(localStorage,SESSION_KEY);
       const ok=storageSet(localStorage,SESSION_KEY,token);
       if(!ok)return false;
-      if(clearLogoutTombstone&&!clearUpdateHandoffLogoutTombstone(token)){
+      if(clearLogoutTombstone&&(!clearUpdateHandoffLogoutTombstone(token)||!clearSharedLogoutSuppressionForFreshLogin(token))){
         if(storageGet(localStorage,SESSION_KEY)===token){
           if(previousSharedToken && previousSharedToken!==token)storageSet(localStorage,SESSION_KEY,previousSharedToken);
           else if(!previousSharedToken)storageRemove(localStorage,SESSION_KEY);
         }
         return false;
       }
-      if(clearLogoutTombstone&&storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)storageRemove(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
       storageRemove(sessionStorage,SESSION_KEY);storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);storageRemove(localStorage,PC_REMEMBER_KEY);
       return storageGet(localStorage,SESSION_KEY)===token;
     });
@@ -2276,7 +2282,7 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
       const rememberStored=tokenStored&&storageSet(localStorage,PC_REMEMBER_KEY,'1');
       const ok=tokenStored&&rememberStored;
       if(ok){
-        if(clearLogoutTombstone&&!clearUpdateHandoffLogoutTombstone(token)){
+        if(clearLogoutTombstone&&(!clearUpdateHandoffLogoutTombstone(token)||!clearSharedLogoutSuppressionForFreshLogin(token))){
           if(storageGet(localStorage,SESSION_KEY)===token){
             if(previousSharedToken)storageSet(localStorage,SESSION_KEY,previousSharedToken);
             else storageRemove(localStorage,SESSION_KEY);
@@ -2285,7 +2291,6 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
           }
           return false;
         }
-        if(clearLogoutTombstone&&storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)storageRemove(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
         storageRemove(sessionStorage,SESSION_KEY);storageRemove(sessionStorage,ADMIN_UNLOCK_KEY);storageRemove(localStorage,ADMIN_UNLOCK_KEY);
         return true;
       }
@@ -2303,7 +2308,7 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
     // PC 기본 로그인은 탭 전용이다. 다른 탭의 영구 로그인(localStorage)은 보존한다.
     const previousTabToken=storageGet(sessionStorage,SESSION_KEY);
     stored=storageSet(sessionStorage,SESSION_KEY,token);
-    if(stored&&clearLogoutTombstone&&!clearUpdateHandoffLogoutTombstone(token)){
+    if(stored&&clearLogoutTombstone&&(!clearUpdateHandoffLogoutTombstone(token)||!clearSharedLogoutSuppressionForFreshLogin(token))){
       if(previousTabToken)storageSet(sessionStorage,SESSION_KEY,previousTabToken);
       else storageRemove(sessionStorage,SESSION_KEY);
       return false;
