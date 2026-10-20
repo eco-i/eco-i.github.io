@@ -2071,7 +2071,11 @@ function storedSessionTombstoned(token){
     if(!raw)return false;
     const value=JSON.parse(raw);
     const entries=Array.isArray(value?.entries)?value.entries:(value?.token?[value]:[]);
-    return entries.some(item=>String(item?.token||'')===token&&fresh(item?.at));
+    // This code also runs during bootstrap: use the literal key rather than a later const.
+    const freshLocalAt=token.startsWith('local:')
+      ?Number(storageGet(localStorage,'staffAttendance_updateLocalLoginEpoch_v1:'+encodeURIComponent(token))||0):0;
+    return entries.some(item=>String(item?.token||'')===token&&fresh(item?.at)
+      &&!(fresh(freshLocalAt)&&freshLocalAt<=now+5000&&Number(item?.at)<freshLocalAt));
   }catch(_){return false;}
 }
 function storedSessionToken(){
@@ -2263,7 +2267,7 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
       const previousSharedToken=storageGet(localStorage,SESSION_KEY);
       const ok=storageSet(localStorage,SESSION_KEY,token);
       if(!ok)return false;
-      if(clearLogoutTombstone&&(!clearUpdateHandoffLogoutTombstone(token)||!clearSharedLogoutSuppressionForFreshLogin(token))){
+      if(clearLogoutTombstone&&(!clearUpdateHandoffLogoutTombstone(token)||!clearSharedLogoutSuppressionForFreshLogin(token)||!recordLocalFreshLoginEpoch(token))){
         if(storageGet(localStorage,SESSION_KEY)===token){
           if(previousSharedToken && previousSharedToken!==token)storageSet(localStorage,SESSION_KEY,previousSharedToken);
           else if(!previousSharedToken)storageRemove(localStorage,SESSION_KEY);
@@ -2282,7 +2286,7 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
       const rememberStored=tokenStored&&storageSet(localStorage,PC_REMEMBER_KEY,'1');
       const ok=tokenStored&&rememberStored;
       if(ok){
-        if(clearLogoutTombstone&&(!clearUpdateHandoffLogoutTombstone(token)||!clearSharedLogoutSuppressionForFreshLogin(token))){
+        if(clearLogoutTombstone&&(!clearUpdateHandoffLogoutTombstone(token)||!clearSharedLogoutSuppressionForFreshLogin(token)||!recordLocalFreshLoginEpoch(token))){
           if(storageGet(localStorage,SESSION_KEY)===token){
             if(previousSharedToken)storageSet(localStorage,SESSION_KEY,previousSharedToken);
             else storageRemove(localStorage,SESSION_KEY);
@@ -2308,7 +2312,7 @@ function storeLoginSession(token,persistent,clearLogoutTombstone=true){
     // PC 기본 로그인은 탭 전용이다. 다른 탭의 영구 로그인(localStorage)은 보존한다.
     const previousTabToken=storageGet(sessionStorage,SESSION_KEY);
     stored=storageSet(sessionStorage,SESSION_KEY,token);
-    if(stored&&clearLogoutTombstone&&(!clearUpdateHandoffLogoutTombstone(token)||!clearSharedLogoutSuppressionForFreshLogin(token))){
+    if(stored&&clearLogoutTombstone&&(!clearUpdateHandoffLogoutTombstone(token)||!clearSharedLogoutSuppressionForFreshLogin(token)||!recordLocalFreshLoginEpoch(token))){
       if(previousTabToken)storageSet(sessionStorage,SESSION_KEY,previousTabToken);
       else storageRemove(sessionStorage,SESSION_KEY);
       return false;
@@ -2814,6 +2818,7 @@ const UPDATE_TOAST_KEY='staffAttendance_updateToast_v1';
 const UPDATE_SESSION_HANDOFF_KEY='staffAttendance_updateSessionHandoff_v1';
 const UPDATE_SESSION_LOGOUT_TOMBSTONE_KEY='staffAttendance_updateSessionLogout_v1'; // QA35~36 legacy aggregate
 const UPDATE_SESSION_LOGOUT_TOKEN_PREFIX='staffAttendance_updateSessionLogoutToken_v1:';
+const UPDATE_SESSION_LOCAL_LOGIN_EPOCH_PREFIX='staffAttendance_updateLocalLoginEpoch_v1:';
 const UPDATE_RETRY_MS=12000;
 const UPDATE_SESSION_HANDOFF_TTL_MS=60000;
 const UPDATE_TIMESTAMP_FUTURE_TOLERANCE_MS=5000;
@@ -2827,6 +2832,19 @@ function updateTimestampIsFresh(at,ttl,now=Date.now()){
 function updateHandoffLogoutTokenKey(token){
   return UPDATE_SESSION_LOGOUT_TOKEN_PREFIX+encodeURIComponent(String(token||''));
 }
+function localFreshLoginEpoch(token){
+  token=String(token||'');
+  if(!token.startsWith('local:'))return 0;
+  const at=Number(storageGet(localStorage,UPDATE_SESSION_LOCAL_LOGIN_EPOCH_PREFIX+encodeURIComponent(token))||0);
+  return updateTimestampIsFresh(at,UPDATE_SESSION_HANDOFF_TTL_MS)?at:0;
+}
+function recordLocalFreshLoginEpoch(token){
+  token=String(token||'');
+  if(!token.startsWith('local:'))return true;
+  const key=UPDATE_SESSION_LOCAL_LOGIN_EPOCH_PREFIX+encodeURIComponent(token),at=Date.now();
+  // No cross-version login proof means old legacy pages could resurrect a consumed logout.
+  return storageSet(localStorage,key,String(at))&&Number(storageGet(localStorage,key))===at;
+}
 function legacyUpdateHandoffLogoutEntries(){
   try{
     const raw=storageGet(localStorage,UPDATE_SESSION_LOGOUT_TOMBSTONE_KEY);
@@ -2836,6 +2854,9 @@ function legacyUpdateHandoffLogoutEntries(){
     source.forEach(item=>{
       const token=String(item?.token||''),at=Number(item?.at||0);
       if(!token||!updateLogoutTombstoneIsFresh(at,UPDATE_SESSION_HANDOFF_TTL_MS,now))return;
+      // An older-version tab may rewrite a pre-login legacy logout after local-preview token reuse.
+      const freshLoginAt=localFreshLoginEpoch(token);
+      if(freshLoginAt&&at<freshLoginAt)return;
       if(!latest.has(token)||at>latest.get(token))latest.set(token,at);
     });
     return Array.from(latest,([token,at])=>({token,at})).sort((a,b)=>b.at-a.at);
