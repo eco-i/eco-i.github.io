@@ -11582,6 +11582,21 @@ function handleSharedSessionStorageChange(e){
     }
     return;
   }
+  // A pending same-token local login blocks restoration and subsequent
+  // session-bound work. React to its storage event as well, so an already-open
+  // sibling tab cannot retain a sensitive UI while the blocker remains live.
+  // Recheck current storage, not e.newValue: stale queued guard events from
+  // a completed fresh login must never log out that successfully owned token.
+  if(typeof e.key==='string'&&e.key.startsWith('staffAttendance_updateLocalLoginPending_v1:')){
+    const current=String(state.sessionToken||'');
+    if(current.startsWith('local:')
+        &&e.key==='staffAttendance_updateLocalLoginPending_v1:'+encodeURIComponent(current)
+        &&storedSessionTombstoned(current)){
+      clearDeferredAdminDraftUnlockProof();
+      void logout(false);
+    }
+    return;
+  }
   // A different tab's localStorage.clear() emits key===null without a
   // separate SESSION_KEY removal event. Revoke the stale shared role/UI.
   // A desktop tab-only login is isolated from shared localStorage changes.
