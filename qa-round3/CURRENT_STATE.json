@@ -3,9 +3,9 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-46",
-  "next_block": "3-8-47",
-  "latest_report": "qa-round3/QA_3-8-46_REPORT.md",
+  "last_completed_block": "3-8-47",
+  "next_block": "3-8-48",
+  "latest_report": "qa-round3/QA_3-8-47_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
   "round3_new_product_defects": 37,
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_46_CODE_SCOPED_CLEAN_1062_ACTUAL_SOURCE_MOCK_ASSERTIONS_PASS_RPC_GUARD33_STATIC_PASS_E2E_PENDING",
+  "latest_status": "BLOCK_47_SECOND_DISTINCT_CODE_SCOPED_CLEAN_265_ACTUAL_SOURCE_ISOLATED_ASSERTIONS_E2E_EXIT_GATE_PENDING",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -90,10 +90,11 @@
     "3-8-44: actual Chrome two-tab same local token guard set/remove, queued storage events vs 80ms delayed revoke and different login epoch; no physical E2E yet",
     "3-8-44: actual logout(false) shared logout markers concurrent with a same local-token pending fresh login, old-version script and mobile/PWA; QA-only fake data",
     "3-8-45: real same-origin Chrome two-tab queued obsolete suppression storage event after fresh same-local-token login; sandbox Chromium navigation blocked, QA-only external browser required",
-    "3-8-45: old-version and new-version tabs Web Locks, physical Android/iOS/PWA and real isolated QA Supabase login/PIN/fingerprint/attendance integrated E2E remain unverified"
+    "3-8-45: old-version and new-version tabs Web Locks, physical Android/iOS/PWA and real isolated QA Supabase login/PIN/fingerprint/attendance integrated E2E remain unverified",
+    "3-8-47: actual full-app QA-only logged-in account disabled/readonly transitions + admin PIN/attendance deletion during slow RPC, physical Chrome/Web Locks, Android/iOS BFCache native fingerprint picker and Supabase E2E remain unverified; 46+47 code-scoped CLEAN not a substitute"
   ],
-  "next_scope": "3-8-47 distinct risk-based review: account disabled/role downgrade/admin PIN, attendance deletion/recovery, fingerprint picker/BFCache long RPC + Realtime delayed authority. No repeat of 46 artificial leave scenarios; E2E remains pending unless isolated QA environment provided. main/employee DB forbidden.",
-  "updated_kst": "2026-10-20T19:59:12+09:00",
+  "next_scope": "3-8-48 only if useful: establish isolated browser + QA Supabase E2E feasibility with fake staff and test authentication, high-risk holiday-work SQL/maintenance concurrent sessions + Web Locks, mobile/PWA. Without isolated test environment, document unverified risks rather than extending mock blocks. No production main, credential, or employee DB.",
+  "updated_kst": "2026-10-20T20:13:21+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -1189,6 +1190,45 @@
       "isolated_supabase_e2e_verified": false,
       "production_db_mutated": false,
       "main_modified": false
+    },
+    "block_47": {
+      "result": "CLEAN_CODE_SCOPED_ONLY",
+      "new_product_defects": 0,
+      "product_code_changed": false,
+      "attendance_delete_async_races": {
+        "cases": 17,
+        "assertions_pass": 48
+      },
+      "own_pin_delayed_responses": {
+        "cases": 10,
+        "assertions_pass": 28
+      },
+      "fingerprint_picker_recovery": {
+        "cases": 10,
+        "assertions_pass": 60
+      },
+      "disabled_account_owner_context": {
+        "cases": 36,
+        "assertions_pass": 72
+      },
+      "rpc_late_response_owner_fencing": {
+        "cases": 13,
+        "assertions_pass": 32
+      },
+      "photo_compression_late_session_gates": {
+        "cases": 13,
+        "assertions_pass": 25
+      },
+      "source_mock_scenarios": 99,
+      "total_source_assertions_pass": 265,
+      "static_html_script_count": 6,
+      "static_maintenance_script_syntax_ok": true,
+      "static_html_dom_ids_unique": 488,
+      "real_multitab_browser_verified": false,
+      "isolated_supabase_e2e_verified": false,
+      "physical_mobile_verified": false,
+      "main_modified": false,
+      "production_db_mutated": false
     }
   },
   "pending_qa_fixes": [
@@ -1495,5 +1535,16 @@
     "real_browser_e2e_verified": false,
     "main_modified": false,
     "production_db_mutated": false
+  },
+  "block_47": {
+    "result": "CLEAN_CODE_SCOPED_ONLY",
+    "total_valid_pass": 265,
+    "new_product_defects": 0,
+    "qa_html_blob": "08867d7117ad9ae5a8247eda8d223687af2b8411",
+    "maintenance_blob": "f8e8e469503d0abf53844aa85188b15b09a95238",
+    "main_modified": false,
+    "production_db_mutated": false,
+    "real_browser_e2e_verified": false,
+    "exit_gate_met": false
   }
 }
