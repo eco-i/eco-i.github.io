@@ -2058,6 +2058,9 @@ function storedSessionTombstoned(token){
   // when another sleeping tab missed its storage event or Web Locks failed.
   // A fresh successful login clears the exact-token suppression marker.
   if(storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)===token)return true;
+  // An uncommitted local login must not be recovered after an epoch rollback
+  // and localStorage remove/set failure. This literal key also runs at bootstrap.
+  if(token.startsWith('local:')&&storageGet(localStorage,'staffAttendance_updateLocalLoginPending_v1:'+encodeURIComponent(token)))return true;
   // This helper also runs during initial state bootstrap, before late
   // update-handoff constants initialize; read the token-specific key directly.
   const now=Date.now(),fresh=value=>{
@@ -2259,27 +2262,42 @@ function clearSharedLogoutSuppressionForFreshLogin(token){
   storageRemove(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY);
   return storageGet(localStorage,SHARED_SESSION_LOGOUT_SUPPRESSION_KEY)!==token;
 }
+function localLoginPendingGuardKey(token){
+  token=String(token||'');
+  return token.startsWith('local:')?'staffAttendance_updateLocalLoginPending_v1:'+encodeURIComponent(token):'';
+}
 function completeFreshLoginLogoutReset(token){
   token=String(token||'');
-  const localPreview=token.startsWith('local:');
-  const epochKey=localPreview?UPDATE_SESSION_LOCAL_LOGIN_EPOCH_PREFIX+encodeURIComponent(token):'';
-  const previousEpoch=localPreview?storageGet(localStorage,epochKey):'';
-  // Persisting a key and verifying it are separate storage operations.
-  // A successful setItem followed by a failed verification read can leave a
-  // new epoch in place even though the login was rejected. Restore the old
-  // marker before a failed login can hide a prior legacy logout.
+  const guardKey=localLoginPendingGuardKey(token);
+  const epochKey=guardKey?UPDATE_SESSION_LOCAL_LOGIN_EPOCH_PREFIX+encodeURIComponent(token):'';
+  const previousEpoch=guardKey?storageGet(localStorage,epochKey):'';
+  // Publish an independent blocker BEFORE changing old logout evidence.
+  // If epoch verification and rollback both fail, a sleeping tab still sees it.
+  if(guardKey&&!storageSet(localStorage,guardKey,String(Date.now())))return false;
   const restorePreviousEpoch=()=>{
-    if(!localPreview)return;
+    if(!guardKey)return;
     if(previousEpoch)storageSet(localStorage,epochKey,previousEpoch);
     else storageRemove(localStorage,epochKey);
   };
   if(!recordLocalFreshLoginEpoch(token)){restorePreviousEpoch();return false;}
-  if(clearUpdateHandoffLogoutTombstone(token)&&clearSharedLogoutSuppressionForFreshLogin(token))return true;
-  restorePreviousEpoch();
-  return false;
+  if(!clearUpdateHandoffLogoutTombstone(token)||!clearSharedLogoutSuppressionForFreshLogin(token)){
+    restorePreviousEpoch();
+    return false;
+  }
+  if(guardKey){
+    // Native removeItem is synchronous. A thrown removal leaves the blocker
+    // in place and rejects this login; do not trust a separate readback.
+    try{localStorage.removeItem(guardKey);}catch(_){return false;}
+  }
+  return true;
 }
 function storeLoginSession(token,persistent,clearLogoutTombstone=true){
   if(!token){clearStoredLoginSession('');return true;}
+  // Update handoff is not a fresh login and cannot clear a failed-login guard.
+  if(!clearLogoutTombstone){
+    const guardKey=localLoginPendingGuardKey(token);
+    if(guardKey&&storageGet(localStorage,guardKey))return false;
+  }
   let stored=false;
   if(MOBILE_SESSION_DEVICE){
     const run=withSharedSessionMutex(()=>{
