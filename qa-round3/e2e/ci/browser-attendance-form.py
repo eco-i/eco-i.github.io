@@ -161,8 +161,11 @@ def main():
                 # The first successful login opens the app's real usage-guide modal.
                 # Dismiss it through the visible real button BEFORE opening the form,
                 # otherwise Playwright correctly refuses to click through the overlay.
-                if page.locator("#usageGuideBackdrop.open").count():
-                    page.locator("#usageGuideConfirmBtn").click()
+                # Usage guide is scheduled asynchronously after login; checking
+                # count immediately misses its 120ms deferred open.
+                page.locator("#usageGuideBackdrop.open").wait_for(state="visible",timeout=5000)
+                page.locator("#usageGuideConfirmBtn").click()
+                page.locator("#usageGuideBackdrop.open").wait_for(state="hidden",timeout=5000)
                 check(page.locator("#usageGuideBackdrop.open").count()==0,
                       "first-login usage guide dismissed with actual UI control")
                 # Navigate to genuine form; date-picker UX is outside this focused scope.
