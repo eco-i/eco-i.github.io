@@ -158,6 +158,13 @@ def main():
                       "real login UI loads synthetic personnel and worker roster")
                 check(page.evaluate("state.personnelBackendReady===true && state.me?.employee_id===2"),
                       "real app has writable synthetic personnel context")
+                # The first successful login opens the app's real usage-guide modal.
+                # Dismiss it through the visible real button BEFORE opening the form,
+                # otherwise Playwright correctly refuses to click through the overlay.
+                if page.locator("#usageGuideBackdrop.open").count():
+                    page.locator("#usageGuideConfirmBtn").click()
+                check(page.locator("#usageGuideBackdrop.open").count()==0,
+                      "first-login usage guide dismissed with actual UI control")
                 # Navigate to genuine form; date-picker UX is outside this focused scope.
                 page.evaluate("openForm('2027-05-13')")
                 page.locator("#formBackdrop.open").wait_for(timeout=10000)
