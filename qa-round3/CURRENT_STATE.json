@@ -3,12 +3,12 @@
   "qa_round": 3,
   "qa_depth": 8,
   "status": "IN_PROGRESS",
-  "last_completed_block": "3-8-42",
-  "next_block": "3-8-43",
-  "latest_report": "qa-round3/QA_3-8-42_REPORT.md",
+  "last_completed_block": "3-8-43",
+  "next_block": "3-8-44",
+  "latest_report": "qa-round3/QA_3-8-43_REPORT.md",
   "original_round2_last_completed": "2-8-290",
   "original_round2_historical_defects": 540,
-  "round3_new_product_defects": 34,
+  "round3_new_product_defects": 35,
   "production_branch": "main",
   "production_baseline_sha": "6c784210e048426f18a486d5602652626d97574d",
   "production_version": "ver20261018-2313",
@@ -22,7 +22,7 @@
   "expected_anniversary_changes": 2,
   "unexpected_shift_diff": 0,
   "future_holiday_js_db_matched": 158,
-  "latest_status": "BLOCK_42_ONE_MEDIUM_PENDING_LOCAL_GUARD_READ_FAILURE_FAIL_OPEN_FIXED_557_SCOPED_ACTUAL_SOURCE_ASSERTIONS_MAIN_DB_PROTECTED",
+  "latest_status": "BLOCK_43_ONE_MEDIUM_PC_TAB_SAME_TOKEN_LOGOUT_SUPPRESSION_EVENT_FIXED_QA_381_ACTUAL_SOURCE_ASSERTIONS_EXIT_CRITERIA_RECORDED_MAIN_DB_PROTECTED",
   "pending_manual_tests": [
     "real non-admin active account history list/auth validation",
     "real mobile and desktop full-app visual interaction",
@@ -84,10 +84,12 @@
     "3-8-41: isolated browser real readback error + denied epoch rollback + pending-login guard persistence/renewal, Chrome/Android/iOS and old-version tabs, without production accounts",
     "3-8-41: guard-key read/write or final removal denied, and live QA-only multi-session/Web Locks/Realtime handoff remain unverified, employee DB excluded",
     "3-8-42: actual browser guard-key getItem exception during cold restore and update handoff, persistent unreadable localStorage and user-facing re-login recovery; no live employee data",
-    "3-8-42: old-version tab ignoring newly introduced pending guard, real Web Locks and Realtime multi-account delivery; isolated QA-only accounts needed"
+    "3-8-42: old-version tab ignoring newly introduced pending guard, real Web Locks and Realtime multi-account delivery; isolated QA-only accounts needed",
+    "3-8-43: physical Chrome two tabs same shared token + PC temporary login logout suppression storage event local UI revoke, Web Locks and QA-only account E2E; not verified",
+    "3-8-43: actual old-version mixed tab and new pending guard storage event, user-visible cached sensitive UI response, isolated browser QA only, no live employee records"
   ],
-  "next_scope": "3-8-43 QA-only: user-facing local login guard recovery and stale key lifecycle, Realtime channel reconnect/session ownership, end-condition triage to avoid unbounded block growth. No main or live employee DB.",
-  "updated_kst": "2026-10-20T18:03:35+09:00",
+  "next_scope": "3-8-44 QA-only: isolate pending local login guard cross-tab storage event/UX and test actual session ownership and integration gaps where QA-only facilities exist; prioritize risk-based exit criteria, avoid endless mock variations; no main or live employee DB.",
+  "updated_kst": "2026-10-20T18:21:34+09:00",
   "product_defects": [
     {
       "id": "3-8-2-001",
@@ -518,6 +520,24 @@
       "qa_final_js_dom_static_assertions_pass": 7,
       "qa_realtime_delayed_promise_assertions_pass": 16,
       "total_valid_pass": 557,
+      "production_applied": false,
+      "physical_browser_verified": false
+    },
+    {
+      "id": "3-8-43-001",
+      "severity": "medium",
+      "title": "PC tab-only login does not immediately revoke UI upon same-token shared logout suppression storage event",
+      "fix_file": "index.html",
+      "issue_file": "qa-round3/issues/3-8-43-001_PC_TAB_IGNORES_SAME_TOKEN_LOGOUT_SUPPRESSION_EVENT.md",
+      "qa_html_blob": "44639c7e2f31f7037b4a10999c580348c083fd1e",
+      "qa_fix_commit": "baab6ab7704364fbfbbd74b11407625344079213",
+      "pre_fix_actual_source_storage_event_mock_reproduced": true,
+      "qa_actual_source_storage_event_assertions_pass": 102,
+      "qa_reconnect_deferred_teardown_mock_pass": 32,
+      "qa_guard_relogin_mock_pass": 180,
+      "qa_js_dom_static_pass": 7,
+      "qa_realtime_channel_callback_mock_pass": 60,
+      "total_valid_pass": 381,
       "production_applied": false,
       "physical_browser_verified": false
     }
@@ -1059,6 +1079,23 @@
       "real_employee_db_accessed": false,
       "real_chrome_web_locks_verified": false,
       "real_supabase_realtime_verified": false
+    },
+    "block_43": {
+      "pre_fix_same_token_pc_tab_session_storage_event_ignored_reproduced": true,
+      "post_fix_actual_source_storage_event_assertions_pass": 102,
+      "source_reconnect_delayed_teardown_cases_pass": 32,
+      "source_local_guard_relogin_assertions_pass": 180,
+      "source_inline_js_dom_static_assertions_pass": 7,
+      "source_realtime_subscribe_insert_closed_callback_assertions_pass": 60,
+      "total_valid_pass": 381,
+      "source_blob": "44639c7e2f31f7037b4a10999c580348c083fd1e",
+      "qa_fix_commit": "baab6ab7704364fbfbbd74b11407625344079213",
+      "new_product_defects": 1,
+      "exit_criteria_defined": true,
+      "main_modified": false,
+      "real_employee_db_accessed": false,
+      "real_chrome_web_locks_verified": false,
+      "real_supabase_realtime_verified": false
     }
   },
   "pending_qa_fixes": [
@@ -1089,7 +1126,8 @@
     "3-8-39-001: exact-token logout proof is pruned only after expiration; never drop still-fresh proof due to 64-key cap. QA index only; count-storage growth under extreme clock skew noted; not deployed",
     "3-8-40-001: failed epoch verification read after successful setItem now attempts prior epoch restore before refusing local login; 288 actual-function storage regression assertions PASS, unverified compound rollback rejection; QA index only, not deployed",
     "3-8-41-001: token-scoped persistent local pending-login guard installed before logout cleanup; bootstrap and handoff reject uncommitted token until final success. QA index only; real browser/guard storage failure edge pending; not deployed.",
-    "3-8-42-001: pending guard read errors now fail closed for storedSessionTombstoned (including early bootstrap) and update handoff; QA only, no deployment, 557 source assertions."
+    "3-8-42-001: pending guard read errors now fail closed for storedSessionTombstoned (including early bootstrap) and update handoff; QA only, no deployment, 557 source assertions.",
+    "3-8-43-001: exact-token shared logout suppression storage event now revokes PC tab-only session as well as remembered/mobile; QA only, 381 source assertions, not deployed."
   ],
   "round3_new_product_defects_this_block": 1,
   "memo_fix_regression": {
@@ -1132,8 +1170,8 @@
     "year_month_isolation_checked": true,
     "production_data_changed": false
   },
-  "latest_qa_html_blob": "6c9727dcb3f39d1c2f3063fafbdbe6838cfb345b",
-  "latest_qa_fix_commit": "2bcdb23791dd67523b2dbce51284c7acbc5fa523",
+  "latest_qa_html_blob": "44639c7e2f31f7037b4a10999c580348c083fd1e",
+  "latest_qa_fix_commit": "baab6ab7704364fbfbbd74b11407625344079213",
   "block_23": {
     "holiday_work_edit_return_mock_pass": 15,
     "annual_and_longservice_save_mock_pass": 12,
@@ -1308,5 +1346,20 @@
     "main_modified": false,
     "production_db_mutated": false,
     "full_browser_verified": false
+  },
+  "round3_exit_criteria_file": "qa-round3/EXIT_CRITERIA.md",
+  "block_43": {
+    "total_valid_pass": 381,
+    "source_storage_events_assertions_pass": 102,
+    "realtime_reconnect_assertions_pass": 32,
+    "login_guard_assertions_pass": 180,
+    "static_checks_pass": 7,
+    "realtime_channel_callback_assertions_pass": 60,
+    "new_product_defects": 1,
+    "qa_html_blob": "44639c7e2f31f7037b4a10999c580348c083fd1e",
+    "qa_fix_commit": "baab6ab7704364fbfbbd74b11407625344079213",
+    "main_modified": false,
+    "production_db_mutated": false,
+    "real_multitab_browser_verified": false
   }
 }
