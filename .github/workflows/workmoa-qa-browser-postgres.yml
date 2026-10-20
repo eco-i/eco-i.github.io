@@ -1,0 +1,96 @@
+name: Workmoa QA isolated Chromium HTTP to real PostgreSQL (scoped)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-browser-postgres.yml'
+      - 'qa-round3/e2e/ci/browser-postgres-bridge.py'
+      - 'qa-round3/e2e/ci/synthetic-baseline.sql'
+      - 'qa-round3/e2e/prepare-local-qa-site.mjs'
+      - 'qa-round3/e2e/serve-local-qa-site.mjs'
+      - 'qa-round3/fixes/QA_3-8-6_holiday_work_serialization.sql'
+      - 'index.html'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-qa-bridge-qa-3-8
+  cancel-in-progress: true
+
+jobs:
+  browser-real-sql-bridge:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: qa_runner
+          POSTGRES_PASSWORD: synthetic_ci_only_not_a_real_secret
+          POSTGRES_DB: qa_round3
+        ports:
+          - '127.0.0.1:5432:5432'
+        options: >-
+          --health-cmd "pg_isready -U qa_runner -d qa_round3"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGDATABASE: qa_round3
+      PGUSER: qa_runner
+      PGPASSWORD: synthetic_ci_only_not_a_real_secret
+    steps:
+      - name: Checkout QA only without persistent credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate scope and test tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'eco-i/eco-i.github.io'
+          test "$GITHUB_REF" = 'refs/heads/qa-3-8'
+          test "$(git branch --show-current)" = 'qa-3-8'
+          test -z "$(printenv DATABASE_URL 2>/dev/null || true)"
+          test -z "$(printenv SUPABASE_URL 2>/dev/null || true)"
+          test -z "$(printenv SUPABASE_ACCESS_TOKEN 2>/dev/null || true)"
+          test -z "$(printenv SUPABASE_DB_PASSWORD 2>/dev/null || true)"
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+          python3 -m pip install --disable-pip-version-check 'playwright==1.56.0' 'psycopg[binary]==3.2.10'
+          python3 -m playwright install --with-deps chromium
+      - name: Prepare disposable database with synthetic employee fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/synthetic-baseline.sql
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/fixes/QA_3-8-6_holiday_work_serialization.sql
+      - name: Exercise full QA HTML Chromium through loopback gateway to actual SQL
+        shell: bash
+        run: python3 -u qa-round3/e2e/ci/browser-postgres-bridge.py
+      - name: Report tested scope, not full-app E2E
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## Scope: actual Chromium -> synthetic loopback HTTP bridge -> original QA SQL in real PostgreSQL'
+            echo '- Verify actual full HTML origin, local network blockade, authentic PostgreSQL commits and exceptions.'
+            echo '- Login and PIN response are synthetic; database identity helpers are synthetic.'
+            echo '- App form-level authenticated writes, Supabase Auth/PostgREST/RLS/Realtime and P0/P1 full-app E2E are unverified.'
+            echo '- This runner never uses production credentials, project, staff records or operating main.'
+          } >> "$GITHUB_STEP_SUMMARY"
