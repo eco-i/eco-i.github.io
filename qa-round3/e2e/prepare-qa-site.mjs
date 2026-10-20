@@ -57,10 +57,32 @@ for (const file of files) {
     if (assetText.includes(productionUrl) || assetText.includes(productionKey)) refuse(`production config found in static asset: ${file}`);
   }
 }
+// Restrict browser network access to this QA project even if future code gains another URL.
+const csp = [
+  "default-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  `connect-src 'self' ${qaUrl} wss://${target.hostname}`,
+  "manifest-src 'self'",
+  "media-src 'self' blob:",
+  "worker-src 'none'",
+  "frame-src 'none'",
+  "object-src 'none'"
+].join('; ');
+if (!/^<!doctype html>/i.test(source.trimStart())) refuse('expected full HTML document');
+if (!/<head(?:\s[^>]*)?>/i.test(source) || !/<\/head>/i.test(source)) refuse('expected document head');
+if (/<meta\b[^>]*http-equiv\s*=\s*['"]?content-security-policy\b/i.test(source)) refuse('unexpected existing CSP; manual review required');
 const page = source
   .replace(/^const SUPABASE_URL\s*=\s*(['"])(.*?)\1\s*;/m, `const SUPABASE_URL = ${JSON.stringify(qaUrl)};`)
-  .replace(/^const SUPABASE_ANON_KEY\s*=\s*(['"])(.*?)\1\s*;/m, `const SUPABASE_ANON_KEY = ${JSON.stringify(qaKey)};`);
+  .replace(/^const SUPABASE_ANON_KEY\s*=\s*(['"])(.*?)\1\s*;/m, `const SUPABASE_ANON_KEY = ${JSON.stringify(qaKey)};`)
+  .replace(/<head(?:\s[^>]*)?>/i, match => `${match}\n<meta http-equiv="Content-Security-Policy" content="${csp}">\n<meta name="workmoa-environment" content="isolated-synthetic-qa">`)
+  .replace(/<title>근무모아<\/title>/, '<title>[격리 QA] 근무모아</title>');
 if (page.includes(productionUrl) || page.includes(productionKey)) refuse('production backend configuration remains in generated HTML');
+if (!page.includes('http-equiv="Content-Security-Policy"') || !page.includes(`connect-src 'self' ${qaUrl} wss://${target.hostname}`)) refuse('QA network isolation policy missing');
 const targetDir = mkdtempSync(join(tmpdir(), 'workmoa-isolated-qa-'));
 for (const file of files) cpSync(join(root, file), join(targetDir, file));
 writeFileSync(join(targetDir, 'index.html'), page, { mode: 0o600 });
