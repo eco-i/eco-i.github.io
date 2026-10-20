@@ -7,6 +7,7 @@ on:
       - '.github/workflows/workmoa-qa-browser.yml'
       - 'qa-round3/e2e/ci/browser-login-gate.py'
       - 'qa-round3/e2e/prepare-local-qa-site.mjs'
+      - 'qa-round3/e2e/prepare-local-qa-site.test.mjs'
       - 'qa-round3/e2e/serve-local-qa-site.mjs'
       - 'index.html'
       - 'maintenance-20261018.js'
@@ -40,6 +41,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify QA builder synthetic fail-closed regressions
+        shell: bash
+        run: node --test qa-round3/e2e/prepare-local-qa-site.test.mjs
       - name: Install pinned Playwright Chromium
         shell: bash
         run: |
