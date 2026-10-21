@@ -30,3 +30,9 @@
 - **진짜 PostgreSQL 사용**, 그러나 **HTTP gateway 및 로그인 응답/세션 helper는 synthetic**, 성공 쓰기는 앱 입력폼이 아닌 브라우저 test fetch. 정규 Supabase Auth/PostgREST/RLS, 실제 직원계정/근태 작성 UI까지 연결한 full app E2E **아님**.
 - 별도 SQL 경합 run 및 기존 실제 Chromium UI run과 역할 다름. 이 사실을 CLEAN이나 실서버 전체검증으로 혼동하지 말 것.
 - **공식 마지막 완료 3-8-53 / 다음 3-8-54 미시작 / 결함 37종 / 전체 NOT CLEAN / 운영 main·직원 DB·배포 변경 0**.
+
+## 2026-10-21 4단계 — 원본 로그인·실제 근태 저장 버튼→격리 DB→재조회
+- GitHub 성공 run: https://github.com/eco-i/eco-i.github.io/actions/runs/39519223780
+- [상세 검수 증빙](ACTIONS_REAL_ATTENDANCE_FORM_SYNTHETIC_SQL_PASS_20261021.md), **11/11 scoped PASS**: 원본 `index.html` Chrome 실제 로그인, 합성 직원/인사 최신 동기화, 안내창 확인 클릭, 근태 등록창/저장 버튼 클릭, QA 전용 근태 RPC 1회, **실제 PostgreSQL 한 건 커밋**, 앱 저장 후 서버 데이터 재조회 확인.
+- **중요 제한:** 로그인·인사·근태 저장 SQL/RPC는 이 단계에서 개발한 QA synthetic fixture! 근무모아 운영 `save_attendance_personnel_v2` 서버 원본이 아니며 정규 Supabase Auth/PostgREST/RLS/권한·CAS 전체 실증 **아님**. 날짜는 테스트 코드로 `openForm('2027-05-13')` 호출했으므로 전체 날짜 선택 UI 검증 아님.
+- 실 서비스 P0/P1 통합검수 전체는 아직 미검증. **공식 3-8-53 완료 / 3-8-54 미시작 / 결함 37종 / 전체 NOT CLEAN / main·실직원 DB·배포 변경 0** 유지.
