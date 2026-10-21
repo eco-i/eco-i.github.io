@@ -1,0 +1,355 @@
+{
+  "schemaVersion": 1,
+  "scope": "PUBLIC_CLIENT_SUCCESS_RESPONSE_CONTRACT_ONLY",
+  "sourceOfTruth": "main/index.html at frozen mainBlobSha",
+  "mainHeadSha": "6c784210e048426f18a486d5602652626d97574d",
+  "mainBlobSha": "5553a1d319e3ab7ff4dd6bb8ee7d995657112698",
+  "sourceManifest": "qa-round3/e2e/ci/missing-rpc-recovery-contracts.json",
+  "sourceValidatorsInspected": 11,
+  "rpcCount": 26,
+  "directCallsites": 31,
+  "previewDataRestoreSplit": {
+    "personalCallsites": 2,
+    "adminCallsites": 2
+  },
+  "actualBackendSQLRecovered": false,
+  "liveRpcNamesStillMissing": 26,
+  "realAuthenticatedBackendE2ECompleted": false,
+  "releaseAllowed": false,
+  "items": [
+    {
+      "name": "admin_apply_personnel_batch_v3",
+      "mainCallsiteLines": [
+        10353
+      ],
+      "clientSuccessValidator": "strictPersonnelBatchMutationResultRpc",
+      "responseShapeClass": "batch_id_and_count",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "admin_cancel_personnel_batch_v2",
+      "mainCallsiteLines": [
+        10371
+      ],
+      "clientSuccessValidator": "strictPersonnelTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "admin_delete_holiday_work_personnel_v2",
+      "mainCallsiteLines": [
+        8566,
+        8726
+      ],
+      "clientSuccessValidator": "strictTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "admin_reset_current_personnel_pins_v3",
+      "mainCallsiteLines": [
+        10472
+      ],
+      "clientSuccessValidator": "strictPinResetResultRpc",
+      "responseShapeClass": "integer_matches_preview_target_count",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "admin_reset_data_v2",
+      "mainCallsiteLines": [
+        11171
+      ],
+      "clientSuccessValidator": "strictDataMutationResultRpc",
+      "responseShapeClass": "data_reset_summary_with_safety_backup",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "admin_restore_data_v2",
+      "mainCallsiteLines": [
+        11120
+      ],
+      "clientSuccessValidator": "strictDataMutationResultRpc",
+      "responseShapeClass": "data_restore_summary_with_safety_backup",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "admin_restore_personnel_snapshot_v3",
+      "mainCallsiteLines": [
+        10423
+      ],
+      "clientSuccessValidator": "strictPersonnelTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "admin_restore_safety_backup_v2",
+      "mainCallsiteLines": [
+        11233
+      ],
+      "clientSuccessValidator": "strictDataMutationResultRpc",
+      "responseShapeClass": "safety_restore_summary_with_source_id",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "admin_save_holiday_work_personnel_v2",
+      "mainCallsiteLines": [
+        8527
+      ],
+      "clientSuccessValidator": "strictPositiveIdMutationResultRpc",
+      "responseShapeClass": "positive_id_matching_existing_if_update",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "admin_set_employee_account_status_v3",
+      "mainCallsiteLines": [
+        10133
+      ],
+      "clientSuccessValidator": "strictPersonnelTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "admin_set_holiday_work_enabled_v2",
+      "mainCallsiteLines": [
+        9466
+      ],
+      "clientSuccessValidator": "strictTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "delete_company_event_v4",
+      "mainCallsiteLines": [
+        8406
+      ],
+      "clientSuccessValidator": "strictTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "delete_my_holiday_work_personnel_v2",
+      "mainCallsiteLines": [
+        8566,
+        8726
+      ],
+      "clientSuccessValidator": "strictTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "delete_my_memo_v2",
+      "mainCallsiteLines": [
+        7849
+      ],
+      "clientSuccessValidator": "strictTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "delete_my_memos_v2",
+      "mainCallsiteLines": [
+        8099
+      ],
+      "clientSuccessValidator": "strictTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "get_personnel_restore_revision_v1",
+      "mainCallsiteLines": [
+        10387
+      ],
+      "clientSuccessValidator": "strictPersonnelRestoreRevisionRpc",
+      "responseShapeClass": "hex32_revision",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "preview_admin_reset_data_v2",
+      "mainCallsiteLines": [
+        11154
+      ],
+      "clientSuccessValidator": "strictDataResetPreviewRpc",
+      "responseShapeClass": "section_array_and_hex32_revision",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "preview_current_personnel_pin_reset_v1",
+      "mainCallsiteLines": [
+        10458
+      ],
+      "clientSuccessValidator": "strictPinResetPreviewRpc",
+      "responseShapeClass": "target_count_and_hex32_revision",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "preview_data_restore_v2",
+      "mainCallsiteLines": [
+        10998,
+        11020,
+        11084,
+        11110
+      ],
+      "clientSuccessValidator": "strictDataRestorePreviewRpc",
+      "responseShapeClass": "per_scope_section_counts_and_hex32_revision",
+      "scopeSpecificCallsites": [
+        {
+          "line": 10998,
+          "scope": "personal"
+        },
+        {
+          "line": 11020,
+          "scope": "personal"
+        },
+        {
+          "line": 11084,
+          "scope": "admin"
+        },
+        {
+          "line": 11110,
+          "scope": "admin"
+        }
+      ],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "preview_safety_backup_restore_v2",
+      "mainCallsiteLines": [
+        11224
+      ],
+      "clientSuccessValidator": "strictSafetyRestorePreviewRpc",
+      "responseShapeClass": "section_array_and_hex32_revision",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "restore_my_data_v2",
+      "mainCallsiteLines": [
+        11034
+      ],
+      "clientSuccessValidator": "strictDataMutationResultRpc",
+      "responseShapeClass": "data_restore_summary_personal",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "save_company_event_v4",
+      "mainCallsiteLines": [
+        8370
+      ],
+      "clientSuccessValidator": "strictPositiveIdMutationResultRpc",
+      "responseShapeClass": "positive_id_matching_existing_if_update",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "save_my_annual_leave_setting_v2",
+      "mainCallsiteLines": [
+        7177
+      ],
+      "clientSuccessValidator": "strictTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "save_my_holiday_work_personnel_v2",
+      "mainCallsiteLines": [
+        8527
+      ],
+      "clientSuccessValidator": "strictPositiveIdMutationResultRpc",
+      "responseShapeClass": "positive_id_matching_existing_if_update",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "save_my_long_service_profile_v2",
+      "mainCallsiteLines": [
+        4331
+      ],
+      "clientSuccessValidator": "strictTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    },
+    {
+      "name": "save_my_memo_v2",
+      "mainCallsiteLines": [
+        7831
+      ],
+      "clientSuccessValidator": "strictTrueMutationResultRpc",
+      "responseShapeClass": "boolean_true",
+      "scopeSpecificCallsites": [],
+      "clientValidationObserved": true,
+      "serverConformanceProven": false,
+      "acceptanceStatus": "CLIENT_ONLY_SOURCE_CONFIRMED"
+    }
+  ]
+}
