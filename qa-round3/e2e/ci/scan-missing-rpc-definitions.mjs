@@ -77,6 +77,7 @@ fs.writeFileSync(out,JSON.stringify(summary,null,2)+'\n');
 console.log('PUBLIC_REPO_SOURCE_SCAN_DONE refs=3 textFiles='+summary.totalTextFilesInspected+
  ' names='+found.length+'/26 candidateHits='+summary.matches.length);
 if(found.length)console.log('CANDIDATE_NAMES_ONLY '+found.join(','));
+for(const hit of summary.matches)console.log('SOURCE_CANDIDATE_LOCATION '+JSON.stringify({name:hit.name,ref:hit.ref,path:hit.file,line:hit.line,sourceKind:hit.sourceKind,verified:false}));
 if(!found.length)console.log('NO_EXACT_26_FUNCTION_DEFINITIONS_FOUND_IN_TRACKED_TEXT: not proof for unreachable Git history/private sources');
 console.log('LIVE_RPC_26_MISSING_REMAINS_RELEASE_BLOCKED; NO SQL RECOVERED OR DEPLOYED');
 if(process.env.GITHUB_STEP_SUMMARY)
