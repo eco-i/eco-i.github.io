@@ -5,7 +5,8 @@ on:
     branches: [qa-3-8]
     paths:
       - '.github/workflows/workmoa-qa-postgres.yml'
-      - 'qa-round3/e2e/ci/**'
+      - 'qa-round3/e2e/ci/synthetic-baseline.sql'
+      - 'qa-round3/e2e/ci/pg-integration.py'
       - 'qa-round3/fixes/QA_3-8-6_holiday_work_serialization.sql'
 
 permissions:
