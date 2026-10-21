@@ -139,3 +139,11 @@
 - 새 보고서는 공개 가능한 보안 수용조건·API 설계 미결정만 포함하고 비공개 함수 SQL 원문/RLS 정책/키/직원 데이터 없음. **실제 26종 SQL 원본 0, 서버 설치 0, 신규 E2E 0**; 출시차단 CI 의도된 RED 유지.
 - 다음 실질 단계는 **비공개 구현 소스/독립 QA 환경의 명시적 승인·확보→세션/권한/CAS 구현 계약 확정→실 SQL QA 통합시험**. 이번에는 운영 Supabase에 재접속하지 않음.
 - 공식 마지막 **3-8-53**, 다음 **3-8-54 미시작·BLOCKED**, 신규 제품결함 **37종**, 전체 **NOT CLEAN**, `main`·실제 직원 DB·운영 SQL/RPC·배포 변경 없음.
+
+## 2026-10-21 — 운영과 완전 분리된 실제 PostgreSQL 두 관리자 CAS 시험 PASS
+- [실제 DB 경합 시험 보고서](REAL_POSTGRES_TWO_SESSION_CAS_LAB_VERIFIED_20261021.md). **최종 GitHub Actions Run [39606034883](https://github.com/eco-i/eco-i.github.io/actions/runs/39606034883) 성공** (최초 Run 39605818320도 성공).
+- GitHub Actions ubuntu 일회용 **PostgreSQL 17.11** 서버 서비스 컨테이너에서 synthetic 스키마 `qa_rpc_cas_lab`을 실행. SQL [synthetic-postgres-cas-lab.sql](e2e/experiments/synthetic-postgres-cas-lab.sql), 진짜 두 연결 경합 스크립트 [run-synthetic-cas-lab.sh](e2e/experiments/run-synthetic-cas-lab.sh), [workflow](../.github/workflows/workmoa-qa-postgres-cas-lab.yml).
+- **검증:** 변경된 발령 revision으로 취소 거부·미래발령 성공·과거발령 거부; 휴근 설정 expected-state/CAS·중복 변경 부작용 0; **동시 A/B DB 연결 두 종류(휴근 반대설정·인사발령 수정 대 취소)** 행 잠금 후 stale 요청 차단; 트랜잭션 rollback·감사 로그 일관성.
+- **중요 제한:** 실험은 실제 PostgreSQL의 합성 함수 2종/가짜 행 검증이며, 앱에서 부르는 **정확한 26종 최신 실서버 RPC SQL 정의 0**, 직원 Auth/RLS/EXECUTE/관리자 PIN/실제 PostgREST 앱 연동 0. 실제 QA E2E 성취가 아니라 충돌 방지 설계 선택의 **격리 DB 기술 실증**만 의미. 기존 운영 HTML 계약 변경 없음.
+- 연결된 GitHub에 근무모아 **전용 private** 저장소가 없고, Supabase의 기존 두 프로젝트 중 **별도의 근무모아 QA 프로젝트가 없음**을 메타데이터로 확인. 타 서비스 비공개 저장소/DB를 근무모아 QA로 전용하지 않음. 프로젝트 생성·과금은 조직 지정/비용 확인/별도 승인 전 금지.
+- **공식 3-8-53 완료 / 3-8-54 미시작·보류 / 37종 / 26종 실서버 미설치 / 전체 NOT CLEAN / 릴리스 게이트 RED**. `main`/운영 SQL/실제 직원 DB/배포 변경 0.
