@@ -154,3 +154,9 @@
 - 기존 서비스 프로젝트 **일시정지/삭제/이동/실 데이터 행 조회/SQL 실행 0**. 운영 GitHub `main`·직원 데이터 보호. 타 서비스 DB를 근무모아 QA로 전용하지 않음.
 - 새 프로젝트를 위해서는 기존 프로젝트 중 하나 일시중단(해당 서비스 장애 위험) 또는 Pro 유료 전환 등 **별도 사용자 승인**이 필요. 당장은 **무료 GitHub Actions 일회용 PostgreSQL**에서 제한된 가짜 데이터 시험만 가능. 서버 26종 실제 구현 SQL/Auth/RLS/전체 E2E를 통과한 것으로 간주하지 않음.
 - 공식 상태 **3-8-53 완료 / 3-8-54 미시작·보류 / 결함 37종 / 전체 NOT CLEAN / 최신 서버 RPC 26종 미설치** 유지.
+
+## 2026-10-21 — 별도 private GitHub 작업공간 생성 UI 차단
+- 다음 작업은 누락된 최신 26종 RPC의 **비공개 구현 준비**. GitHub 연결 계정 `ahnbest23-hash`에서 기존 `mapleland` private repo 접근 확인, 그러나 현재 설치된 GitHub 커넥터에 **새 repository 생성 기능이 없음**. 새 저장소를 직접 만들었다고 주장하지 않음.
+- 사용자 수행 필요(1회): https://github.com/new?owner=ahnbest23-hash&name=workmoa-backend-private&visibility=private 에서 **Owner ahnbest23-hash / Private / Initialize README / Create repository**. 새 repo가 GitHub App에 자동 노출되지 않으면 GitHub Settings → Applications → Installed GitHub Apps → 해당 앱 Configure → Repository access에서 이 저장소만 추가.
+- 새 private repo 접속 확인 후에만 **보안 기본파일·비공개 설계 디렉터리·실 SQL 개발 흐름** 착수. 코드 저장소가 private이어도 직원 데이터, 토큰, 비밀번호, 지문 사진, 운영 RLS/SQL 원문 자동반출 금지.
+- 운영 `eco-i/eco-i.github.io`의 `main`, QA 공식상태 `3-8-53`/다음 `3-8-54 BLOCKED`, 공식 제품결함 37종, 전체 NOT CLEAN 유지. 운영 DB/배포 접근·변경 0. 유료 프로젝트 추가 생성 없음.
