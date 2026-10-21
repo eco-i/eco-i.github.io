@@ -1,0 +1,57 @@
+name: Workmoa QA 26-RPC recovery acceptance design (NOT E2E)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-rpc-recovery-design.yml'
+      - 'qa-round3/e2e/ci/rpc-recovery-design-gate.mjs'
+      - 'qa-round3/e2e/ci/rpc-recovery-acceptance-matrix.json'
+      - 'qa-round3/e2e/ci/missing-rpc-recovery-contracts.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-qa-rpc-design-3-8
+  cancel-in-progress: true
+
+jobs:
+  verify-contract-plan-only:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out public QA data only (no stored token)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Node 22 (no third-party dependency or installation)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reject any runner supplied with backend connection details
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = eco-i/eco-i.github.io
+          test "$GITHUB_REF" = refs/heads/qa-3-8
+          test -z "${DATABASE_URL:-}"
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          test -z "${QA_SUPABASE_URL:-}"
+          test -z "${QA_SUPABASE_ANON_KEY:-}"
+          node --check qa-round3/e2e/ci/rpc-recovery-design-gate.mjs
+      - name: Detect incomplete designs and unsafe unverified claims
+        run: node qa-round3/e2e/ci/rpc-recovery-design-gate.mjs --self-test
+      - name: Static audit of 26 recovery acceptance plans (NOT SQL)
+        run: node qa-round3/e2e/ci/rpc-recovery-design-gate.mjs audit
+      - name: Archive safe metadata only
+        uses: actions/upload-artifact@v4
+        with:
+          name: workmoa-rpc-26-design-static-only
+          path: ${{ runner.temp }}/rpc-recovery-design-static-only.json
+          if-no-files-found: error
+          retention-days: 7
