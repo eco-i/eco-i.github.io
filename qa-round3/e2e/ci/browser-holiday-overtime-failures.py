@@ -150,6 +150,24 @@ def main():
                 check(after==before and page.locator("#saveHolidayWorkBtn").is_enabled(),
                       "holiday unsaved draft kept and Save unlocked after failure")
                 check(no_writes(),"holiday Save 404 performed zero PG writes")
+                # A true account lockdown must still override yesterday's
+                # server error and prevent save without erasing the draft.
+                hread=page.evaluate("""()=>{state.me.is_read_only=true;
+                  syncOpenDetailPermissionsPreservingDraft();return {
+                    error:document.getElementById('holidayWorkError').textContent,
+                    hidden:document.getElementById('saveHolidayWorkBtn').classList.contains('hidden'),
+                    checked:document.getElementById('holidayWorkChecked').checked
+                  }}""")
+                check("조회 전용" in hread["error"] and hread["hidden"] and hread["checked"],
+                      "holiday readonly change overrides server error and locks Save; draft intact")
+                hrestored=page.evaluate("""()=>{state.me.is_read_only=false;
+                  syncOpenDetailPermissionsPreservingDraft();return {
+                    error:document.getElementById('holidayWorkError').textContent,
+                    hidden:document.getElementById('saveHolidayWorkBtn').classList.contains('hidden'),
+                    checked:document.getElementById('holidayWorkChecked').checked
+                  }}""")
+                check(hrestored["error"]=="" and not hrestored["hidden"] and hrestored["checked"],
+                      "holiday readonly recovery clears old permission notice and preserves draft")
                 # The legacy per-section Close button is hidden in this UI.
                 # Use the visible modal header close and explicitly accept the
                 # genuine unsaved-draft discard confirmation.
@@ -183,6 +201,22 @@ def main():
                       page.locator("#saveOvertimeBtn").is_enabled(),
                       "overtime unsaved 10-minute draft survives and Save reenabled")
                 check(no_writes(),"overtime conflict performed zero synthetic PostgreSQL writes")
+                oread=page.evaluate("""()=>{state.me.is_read_only=true;
+                  syncOpenDetailPermissionsPreservingDraft();return {
+                    error:document.getElementById('overtimeDetailError').textContent,
+                    hidden:document.getElementById('saveOvertimeBtn').classList.contains('hidden'),
+                    minutes:overtimeDetailMinutes.early
+                  }}""")
+                check("조회 전용" in oread["error"] and oread["hidden"] and oread["minutes"]==10,
+                      "overtime readonly change prioritizes account lock and preserves 10-minute draft")
+                orestored=page.evaluate("""()=>{state.me.is_read_only=false;
+                  syncOpenDetailPermissionsPreservingDraft();return {
+                    error:document.getElementById('overtimeDetailError').textContent,
+                    hidden:document.getElementById('saveOvertimeBtn').classList.contains('hidden'),
+                    minutes:overtimeDetailMinutes.early
+                  }}""")
+                check(orestored["error"]=="" and not orestored["hidden"] and orestored["minutes"]==10,
+                      "overtime readonly recovery clears obsolete warning, draft and Save restored")
                 check(SENT==["save_my_holiday_work_personnel_v2","save_my_overtime_day_v2"],
                       "exactly one real UI mutation request per failed operation")
                 check(not any(".supabase.co" in x for x in external),
