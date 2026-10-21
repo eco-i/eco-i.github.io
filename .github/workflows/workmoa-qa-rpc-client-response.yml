@@ -1,0 +1,64 @@
+name: Workmoa QA actual client RPC response contracts (NO backend E2E)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-rpc-client-response.yml'
+      - 'qa-round3/e2e/ci/rpc-client-response-gate.mjs'
+      - 'qa-round3/e2e/ci/rpc-recovery-client-response-contracts.json'
+      - 'qa-round3/e2e/ci/missing-rpc-recovery-contracts.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-qa-rpc-response-3-8
+  cancel-in-progress: true
+
+jobs:
+  actual-browser-validator-contract:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read-only checkout QA, no persisted credentials
+        uses: actions/checkout@v4
+        with:
+          path: qa
+          persist-credentials: false
+      - name: Read-only checkout pinned live UI source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: live-main
+          persist-credentials: false
+      - name: Setup stock Node 22 (no npm packages)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Hard-stop on production or backend credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = eco-i/eco-i.github.io
+          test "$GITHUB_REF" = refs/heads/qa-3-8
+          test -z "${DATABASE_URL:-}"
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          test -z "${QA_SUPABASE_URL:-}"
+          test -z "${QA_SUPABASE_ANON_KEY:-}"
+          node --check qa/qa-round3/e2e/ci/rpc-client-response-gate.mjs
+      - name: Validator source extraction selftest
+        run: node qa/qa-round3/e2e/ci/rpc-client-response-gate.mjs --self-test live-main
+      - name: Check all 26 actual main callsites and exercise source validators
+        run: node qa/qa-round3/e2e/ci/rpc-client-response-gate.mjs audit qa live-main
+      - name: Save synthetic response contract result (no SQL)
+        uses: actions/upload-artifact@v4
+        with:
+          name: workmoa-client-response-contract-only
+          path: ${{ runner.temp }}/workmoa-client-response-validation.json
+          if-no-files-found: error
+          retention-days: 7
