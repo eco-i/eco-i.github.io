@@ -150,7 +150,11 @@ def main():
                 check(after==before and page.locator("#saveHolidayWorkBtn").is_enabled(),
                       "holiday unsaved draft kept and Save unlocked after failure")
                 check(no_writes(),"holiday Save 404 performed zero PG writes")
-                page.locator("#closeHolidayWorkBtn").click()
+                # The legacy per-section Close button is hidden in this UI.
+                # Use the visible modal header close and explicitly accept the
+                # genuine unsaved-draft discard confirmation.
+                page.once("dialog",lambda dlg:dlg.accept())
+                page.locator('#detailBackdrop [data-close="detail"]').click()
                 page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=5000)
 
                 open_date(page,OVERTIME,"overtime")
