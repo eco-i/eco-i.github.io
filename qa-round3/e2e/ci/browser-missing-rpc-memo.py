@@ -111,6 +111,10 @@ def main():
                 page.evaluate("""async ()=>{state.year=2027;state.month=4;
                     await loadMonthData(true);openDetail('2027-05-13')}""")
                 page.locator("#detailBackdrop.open").wait_for(timeout=10000)
+                # Empty dates are auto-collapsed in the genuine UI.
+                # Expand through the visible real memo section toggle before asserting Save.
+                if not page.locator("#saveMemoBtn").is_visible():
+                    page.locator("#memoDetailToggleBtn").click()
                 if not (page.locator("#saveMemoBtn").is_visible() and
                         page.locator("#saveMemoBtn").is_enabled() and
                         not page.locator("#memoText").is_disabled()):
