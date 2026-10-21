@@ -160,3 +160,11 @@
 - 사용자 수행 필요(1회): https://github.com/new?owner=ahnbest23-hash&name=workmoa-backend-private&visibility=private 에서 **Owner ahnbest23-hash / Private / Initialize README / Create repository**. 새 repo가 GitHub App에 자동 노출되지 않으면 GitHub Settings → Applications → Installed GitHub Apps → 해당 앱 Configure → Repository access에서 이 저장소만 추가.
 - 새 private repo 접속 확인 후에만 **보안 기본파일·비공개 설계 디렉터리·실 SQL 개발 흐름** 착수. 코드 저장소가 private이어도 직원 데이터, 토큰, 비밀번호, 지문 사진, 운영 RLS/SQL 원문 자동반출 금지.
 - 운영 `eco-i/eco-i.github.io`의 `main`, QA 공식상태 `3-8-53`/다음 `3-8-54 BLOCKED`, 공식 제품결함 37종, 전체 NOT CLEAN 유지. 운영 DB/배포 접근·변경 0. 유료 프로젝트 추가 생성 없음.
+
+## 2026-10-21 — 비공개 개발 1차 코드 초안: 개인 메모 RPC 3종 (미설치, 미검증)
+- GitHub 연결된 `ahnbest23-hash/workmoa-backend-private`는 **Private**이고 README/SECURITY.md/.gitignore/구현계획 파일이 존재한다는 점을 확인. 다만 앞선 private 저장소 자동 쓰기 작업이 연결 도구 안전 검사에서 차단되었으므로 **코드가 GitHub에 커밋되었다고 주장하지 않음**.
+- 공개 `main` HTML 실제 호출 위치를 대조하여 **개인 메모 저장 `save_my_memo_v2` / 개별삭제 `delete_my_memo_v2` / 다건삭제 `delete_my_memos_v2`** 먼저 개발하기로 선정. API 인자 `p_expected`(없으면 null, 있으면 id/date/text/updatedAt)와 Boolean `true` 응답 기준 확인.
+- 운영 Supabase는 **읽기 전용 메타데이터** 조회만 수행: 테이블 열/고유 인덱스와 기존 보조 함수명·형식 확인; 직원·세션·PIN·근무 행과 함수 원문/암호정보 **조회하지 않음**. SQL DDL/DML·RPC 실행·실제 데이터 변경 **0**.
+- 비공개로 보관할 후보 `DRAFT_MEMO_RPC_3.sql.txt` 및 `MEMO_3_REVIEW_GATE.md`을 작업 파일로 생성. 초안은 `BEGIN; DO RAISE EXCEPTION ...; COMMIT;` 보호구문으로 **실행 시 트랜잭션 롤백**하도록 의도했고, 3 함수가 감사를 거치기 전엔 `EXECUTE` 권한을 부여하지 않음. **파일은 아직 private GitHub 미등록/서버 미설치, 실제 SQL 컴파일·Auth/RLS/CAS 시험 미완료**.
+- 승인된 독립 QA 인증/세션/인사 보조 함수를 검토해 SQL 문법과 전체 사용계정 경합을 검증한 후에만 보안 심사→private 정본화 검토. 무료 Supabase QA 프로젝트는 2개 활성 무료 한도로 현재 생성 불가.
+- 공식 **3-8-53 완료 / 3-8-54 미시작·보류 / 3차 신규 결함 37종 / 서버 최신 RPC 26종 미설치 / 전체 NOT CLEAN** 유지. `main`·운영 직원 DB·운영 SQL·배포 변경 0.
