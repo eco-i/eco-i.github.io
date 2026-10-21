@@ -98,3 +98,8 @@
 - 사용자 승인 범위의 운영 PostgreSQL 시스템 카탈로그 `SELECT`만 조회. 최신 26종은 설치되지 않았고, **22종**에 대응되는 이름의 구버전 서버 RPC 존재. 이 중 **19종은 프런트 요구 인자명/개수가 달라** CAS/revision 인자 등을 누락하며, **3종**은 인자명만 같으나 반환·권한/동시성 동등성은 미검증. **4종**은 유사 구버전 함수도 없음. **자동 fallback/운영 설치 절대 금지**.
 - **26종의 실제 최신 SQL 구현은 여전히 확보되지 않았음**. 다음은 신규 함수의 보안 계약/원본 출처를 승인된 비공개 경로에 안전하게 확보하고, 가상 PostgreSQL/PostgREST에서 진짜 함수 정의를 실증하는 것. 생성한 JSON은 *공개된 입력 필드 계약표*이지 SQL 함수 구현 아님. 기존 배포 차단 CI RED 유지.
 - QA HTML 최신 기존 blob `cc8df3e010234d87ef99b35e66d521ab18d96c4d` 유지, `main`·실 직원 DB/운영 SQL·배포 무변경, 공식 **3-8-53 / 3-8-54 미시작 / 결함 37종 유지 / NOT CLEAN**.
+
+## 2026-10-21 — 26종 RPC 복구 계약 실제 CI 검증 PASS
+- **[GitHub Actions Run 39569094304](https://github.com/eco-i/eco-i.github.io/actions/runs/39569094304) 실제 SUCCESS**. [단계 증빙 보고서](RPC_RECOVERY_STATIC_INTEGRITY_GATE_VERIFIED_20261021.md). QA 정적 회귀 게이트 [rpc-recovery-integrity-gate.mjs](e2e/ci/rpc-recovery-integrity-gate.mjs) 및 [Actions 워크플로](../.github/workflows/workmoa-qa-rpc-recovery-integrity.yml) 추가. main 소스 SHA 고정·QA vs main 직접 RPC 이름 **26종/호출 31곳**과 인자명 확인, CAS 필드 삭제/legacy 함수로 이름 대체하면 fail closed. 실제 UI/SQL/Auth/RLS 동작은 확인하지 않음.
+- **중요 구분: 이번 정적 입력 계약 보존용 새 CI는 GREEN**, 기존 **운영 서버에 최신 RPC 이름 26종이 없다는 배포 차단용 CI는 의도대로 RED**. 두 결과를 혼동하거나 GREEN으로 배포 승인하지 말 것. 최신 서버 함수 SQL 본문 0종 확보, 가상 DB에 최신 함수 설치 및 서버 E2E 0. 기존 실측 동일기본명 legacy 함수 22종 중 19종 인자 불일치/3종 인자명만 일치/4종 legacy 없음. 운영과 직원 데이터 건드리지 않음.
+- GitHub commit 검색으로 추가 과거 DB 관련 커밋을 확인했지만, **26개 최신 원본 확보 근거 없음**(검색 범위의 한계). 승인된 비공개 SQL 저장·독립 QA 백엔드 원본 확보 전에는 자동 fallback·SQL 생성·운영 배포 금지. 공식 **3-8-53 완료/3-8-54 보류/3차 37종**, 전체 NOT CLEAN.
