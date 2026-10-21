@@ -36,3 +36,11 @@
 - [상세 검수 증빙](ACTIONS_REAL_ATTENDANCE_FORM_SYNTHETIC_SQL_PASS_20261021.md), **11/11 scoped PASS**: 원본 `index.html` Chrome 실제 로그인, 합성 직원/인사 최신 동기화, 안내창 확인 클릭, 근태 등록창/저장 버튼 클릭, QA 전용 근태 RPC 1회, **실제 PostgreSQL 한 건 커밋**, 앱 저장 후 서버 데이터 재조회 확인.
 - **중요 제한:** 로그인·인사·근태 저장 SQL/RPC는 이 단계에서 개발한 QA synthetic fixture! 근무모아 운영 `save_attendance_personnel_v2` 서버 원본이 아니며 정규 Supabase Auth/PostgREST/RLS/권한·CAS 전체 실증 **아님**. 날짜는 테스트 코드로 `openForm('2027-05-13')` 호출했으므로 전체 날짜 선택 UI 검증 아님.
 - 실 서비스 P0/P1 통합검수 전체는 아직 미검증. **공식 3-8-53 완료 / 3-8-54 미시작 / 결함 37종 / 전체 NOT CLEAN / main·실직원 DB·배포 변경 0** 유지.
+
+## 2026-10-21 원본 서버 함수 증빙 게이트 (추가 mock 검수 중단)
+- [검증 보고서](BACKEND_ORIGINAL_SQL_READINESS_AUDIT_20261021.md) · [실행 로그](https://github.com/eco-i/eco-i.github.io/actions/runs/39530177504).
+- Actions `backend-readiness.mjs` **정상 PASS**의 의미는 **정적 인벤토리 계산 성공**, 전체 서버 E2E 성공이 아님.
+- 원본 앱/지원 JS의 literal/fallback RPC **80종** vs `db/migrations/*.sql` **16개 파일**에서 같은 이름의 원본 `CREATE FUNCTION` **6종**, 원본 정의가 **저장소에 없는 74종**. QA 테스트용 모의함수는 계산에서 제외함.
+- 로그인/계정 상태/인사/근태 저장·삭제/PIN 원본 SQL과 RLS·GRANT·세션 권한·CAS 동작은 **원본 서버 DDL 근거 없이 실제 E2E 재현 불가**. 단, 배포된 운영 Supabase에는 다른 함수가 있을 수 있으므로 누락을 단정하지 않음; 운영 서버는 이 작업에서 접근하지 않음.
+- 필요한 다음 일은 **민감정보 없는, 버전 관리된 원본 서버 함수 및 스키마/RLS 정의 확보**, 그 다음 운영과 분리된 가짜 직원 QA 프로젝트 재현. GitHub Actions만으로 원본이 없는 74종의 실제 구현을 추측해 PASS 처리하지 말 것.
+- **공식 마지막 완료 3-8-53 / 다음 3-8-54 미시작·BLOCKED / 신규 결함 37종 / 전체 NOT CLEAN / 운영 main·직원 DB·배포 변경 0** 유지.
