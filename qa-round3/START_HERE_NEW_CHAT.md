@@ -193,3 +193,11 @@
 - 사용자 수동 등록한 Private 경로 `.github/workflows/workmoa-private-memo3-security-qa.yml` 파일을 GitHub에서 확인했으나 **내용이 약 8,216자**로 시작 부분의 `name:`·`on:`·`jobs:`이 누락됨. 테스트 원본은 **15,549바이트**. GitHub Actions Run **39692088942**는 `failure`, **jobs 0**. 즉 YAML 파싱·워크플로 정의 실패이며 **실제 DB 보안시험 미시작**, 제품/권한시험 FAIL로 해석하지 않음.
 - 원본 전체 YAML 교체 파일을 준비했고 로컬 YAML 구문과 임베디드 Bash 실행 스크립트의 `bash -n`를 확인. **실제 PostgreSQL 권한시험의 PASS/FAIL은 아직 없음**. 사용자가 private repo `.github/workflows/`에 원본 전체 파일을 다시 업로드 또는 편집 후 GitHub Actions 결과 재확인 필요.
 - 검수 본선 `3-8-53` 마지막 완료, `3-8-54` BLOCKED, 신규 제품 결함 37종, 운영 정확명 RPC 26종 미설치, 전체 NOT CLEAN 상태 유지. `main`·운영 DB/SQL 수정 0.
+
+## 2026-10-22 — Private 메모 3종 역할권한 PostgreSQL 시험 PASS
+- 사용자가 Private `ahnbest23-hash/workmoa-backend-private`의 `.github/workflows/workmoa-private-memo3-security-qa.yml`을 전체 15,549바이트로 다시 업로드. 기존 8,216자짜리 잘린 파일을 정상 교체함.
+- Github Actions **Run 39692505119**, job **119541848574**, **SUCCESS**. 일회용 PostgreSQL 17 컨테이너에서 실제 후보 SQL 3종 컴파일, 실행 차단 확인, 초기 `anon` EXECUTE·원본테이블 SELECT 거부, 제한적 임시 `anon` EXECUTE 허용 시 가짜 앱 토큰으로 두 직원 메모 분리, 위조/만료 토큰·읽기 전용 사용자·타인 snapshot 거부, 로그아웃 토큰 철회/임시 EXECUTE REVOKE 확인. Job 모든 step SUCCESS.
+- CI 로그 출력 마커: `PRIVATE_ROLE_QA_DRAFT_COMPILE_PASS`, `PRIVATE_ROLE_QA_INITIAL_ACL_DENY_PASS`, `PRIVATE_ROLE_QA_EXPLICIT_ANON_BOUNDARY_PASS`, `PRIVATE_ROLE_QA_DENIED_REQUESTS_PASS`, `PRIVATE_ROLE_QA_REVOKED_SESSION_AND_GRANTS_PASS`.
+- **해석 제한:** 테스트는 합성 employees/app_sessions와 합성 helper 함수, 로컬 PostgreSQL 소유자 권한으로 실행한 가상 접근 시험. 실제 Supabase 인증/RLS/PostgREST·운영 helper·SQL 소유권/권한정책 검증이 **아니므로** 운영 RPC 복구 **0/26** 및 실서버 E2E 미완료 유지. 운영 앱은 `anon` JWT로 RPC를 부르는 구조이므로, 초안에서 권한을 REVOKE하는 것은 출시 전 의도된 기본 차단. 사용자 승인 없이 `anon` 실행권한 부여 금지.
+- 이전 오류 Run 39692088942: 불완전한 워크플로 업로드로 Jobs 0개인 **워크플로 파싱 오류**였으며, 정상 전체 재업로드 후 실험 PASS로 해결. 공개 소스 저장소에 Private SQL 본문 복사하지 않음.
+- `main` / 운영 Supabase 데이터·SQL·실직원 자료 변경 0. **3-8-53 완료, 3-8-54 BLOCKED, 신규 37결함, 전체 NOT CLEAN** 유지.
