@@ -1,0 +1,66 @@
+name: Workmoa QA historical public code source discovery (names-only, NOT E2E)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-rpc-source-discovery.yml'
+      - 'qa-round3/e2e/ci/scan-missing-rpc-definitions.mjs'
+      - 'qa-round3/e2e/ci/missing-rpc-recovery-contracts.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-rpc-source-discovery
+  cancel-in-progress: true
+
+jobs:
+  public-source-discovery:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Checkout QA source, never retain GitHub credentials
+        uses: actions/checkout@v4
+        with:
+          path: qa
+          persist-credentials: false
+      - name: Checkout public production main read-only
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-source
+          persist-credentials: false
+      - name: Checkout historical round 2 branch read-only
+        uses: actions/checkout@v4
+        with:
+          ref: qa-2-8
+          path: qa2-source
+          persist-credentials: false
+      - name: Set up Node 22 without database packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reject all production database env and run static parser self-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = eco-i/eco-i.github.io
+          test "$GITHUB_REF" = refs/heads/qa-3-8
+          test -z "${DATABASE_URL:-}"
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          node --check qa/qa-round3/e2e/ci/scan-missing-rpc-definitions.mjs
+          node qa/qa-round3/e2e/ci/scan-missing-rpc-definitions.mjs --self-test
+      - name: Search tracked public SQL and document code in three actual branches
+        run: node qa/qa-round3/e2e/ci/scan-missing-rpc-definitions.mjs scan qa main-source qa2-source
+      - name: Preserve definition NAMES and FILE LOCATIONS only, never function bodies
+        uses: actions/upload-artifact@v4
+        with:
+          name: workmoa-public-rpc-provenance-names-only
+          path: ${{ runner.temp }}/workmoa-public-repo-function-definition-search.json
+          if-no-files-found: error
+          retention-days: 7
