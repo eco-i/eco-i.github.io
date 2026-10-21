@@ -37,7 +37,13 @@ READS={
     "list_holiday_work_eligibility":[{"employee_id":2,"holiday_work_enabled":True}],
     "list_holiday_work":[],
     "list_my_holiday_work":[],
-    "list_company_events_v2":[]
+    "list_company_events_v2":[],
+    "get_maintenance_schedule":{"revision":0,"data":br.INITIAL},
+    "list_overtime_entries":[],
+    "list_holiday_work_month_confirmations":[],
+    "list_my_fingerprint_records":[],
+    "list_my_memos":[],
+    "list_my_memo_ddays":[]
 }
 SAVES=[]; CALLS=[]
 class AttendanceBridge(br.Gateway):
@@ -177,8 +183,10 @@ def main():
                       "actual attendance form opens with synthetic date and enabled save button")
                 check(br.value("SELECT count(*) FROM public.qa_attendance_entries")==0,
                       "no database attendance row exists before actual click")
+                check(page.evaluate("!!state.me && !state.me.is_read_only && state.accountStatusBackendReady===true"),
+                      "current synthetic session is active and account status is authoritative before click")
                 page.locator("#saveAttendanceBtn").click()
-                deadline=time.monotonic()+20
+                deadline=time.monotonic()+12
                 while time.monotonic()<deadline and not SAVES:
                     time.sleep(.15)
                 if not SAVES:
