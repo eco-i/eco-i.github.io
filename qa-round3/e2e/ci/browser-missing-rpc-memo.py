@@ -111,9 +111,27 @@ def main():
                 page.evaluate("""async ()=>{state.year=2027;state.month=4;
                     await loadMonthData(true);openDetail('2027-05-13')}""")
                 page.locator("#detailBackdrop.open").wait_for(timeout=10000)
+                if not (page.locator("#saveMemoBtn").is_visible() and
+                        page.locator("#saveMemoBtn").is_enabled() and
+                        not page.locator("#memoText").is_disabled()):
+                    print("DIAG MEMO GATE "+str(page.evaluate("""()=>({
+                      view:state.view, selected:state.selectedDate,
+                      memoReady:state.memoBackendReady,
+                      personnelReady:state.personnelBackendReady,
+                      accountReady:state.accountStatusBackendReady,
+                      memoSectionClass:document.getElementById('memoDetailSection').className,
+                      dateWritable:memoDateWritable(state.selectedDate),
+                      personnelWritable:personnelMutationReady(),
+                      accountReadOnly:accountReadOnly(),
+                      saveHidden:document.getElementById('saveMemoBtn').className,
+                      saveDisabled:document.getElementById('saveMemoBtn').disabled,
+                      memoReadOnly:document.getElementById('memoText').readOnly,
+                      memoMessage:document.getElementById('memoDetailError').textContent,
+                      selectedMonth:state.month,employee:myEmployeeRecord()
+                    })""")),flush=True)
                 check(page.locator("#saveMemoBtn").is_visible() and
                       page.locator("#saveMemoBtn").is_enabled() and
-                      not page.locator("#memoText").is_disabled(),
+                      not page.locator("#memoText").is_read_only(),
                       "real memo edit field and Save button are enabled")
                 page.locator("#memoText").fill(MEMO_TEXT)
                 check(br.value("SELECT count(*) FROM public.qa_memo_entries")==0,
