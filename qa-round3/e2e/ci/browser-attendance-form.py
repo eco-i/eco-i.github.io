@@ -175,6 +175,9 @@ def main():
                 page.locator("#usageGuideBackdrop.open").wait_for(state="hidden",timeout=5000)
                 check(page.locator("#usageGuideBackdrop.open").count()==0,
                       "first-login usage guide dismissed with actual UI control")
+                # Test a future month: set the month context to the synthetic
+                # record's month. The date-picker UX remains out of scope.
+                page.evaluate("state.year=2027;state.month=4;")
                 # Navigate to genuine form; date-picker UX is outside this focused scope.
                 page.evaluate("openForm('2027-05-13')")
                 page.locator("#formBackdrop.open").wait_for(timeout=10000)
@@ -222,7 +225,9 @@ def main():
                 check(row=={"employee_id":2,"attendance_type":"연가",
                            "start_date":br.DATE,"end_date":br.DATE,"absence_mode":"all_day"},
                       "app submit reached isolated PostgreSQL and committed exact synthetic attendance row")
-                page.locator("#formBackdrop:not(.open)").wait_for(timeout=20000)
+                # Closed backdrops are intentionally invisible in this UI:
+                # Playwright's default 'visible' would time out even when saved.
+                page.locator("#formBackdrop").wait_for(state="hidden",timeout=20000)
                 check(page.evaluate("state.attendance.some(r => r.employee_id===2 && r.start_date==='2027-05-13')"),
                       "post-save app resync reads committed DB attendance through bridge")
                 check(not any(".supabase.co" in x for x in blocked),
