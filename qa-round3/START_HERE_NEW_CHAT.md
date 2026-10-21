@@ -117,3 +117,10 @@
 - 기존 코드에서 세션·관리자/직원 쓰기가능 상태 판단, 인사 이력·업무상 날짜검증, 백업·복원 형식검사, 업무 테이블 잠금, 감사기록·변경 신호 보조 로직이 존재함을 확인. **정적 확인이며 권한 우회 없음/경합·복원 안전성을 실증한 것은 아님**. 최신 `p_expected`/`p_expected_revision`/`p_expected_id`+`p_expected_updated_at`의 CAS 보장을 구버전 RPC로 대체할 수 없음.
 - **서버 미설치 최신 26종의 원본 SQL 구현은 여전히 0개**, 운영 함수 설치·DML/DDL·직원 데이터 변화 없음. 다음은 기존 구현의 계약을 반영한 비공개 신규 설계·독립 QA PostgreSQL/PostgREST 진짜 함수 E2E; 추가 프로젝트/과금/실운영 SQL 적용에는 별도 사용자 승인 필요.
 - `main` 보호, 공식 **3-8-53 완료/3-8-54 미시작·보류/3차 37종 유지**, 실 서버 RPC 계약 릴리스 차단 RED, 전체 NOT CLEAN.
+
+## 2026-10-21 — 미설치 RPC 26종 복구 수용설계/격리 QA 진입 게이트 (신규 작업)
+- [26종 도메인별 복구 수용조건과 독립 QA 선행조건](RPC_26_RECOVERY_DESIGN_AND_ISOLATED_QA_ENTRY_20261021.md) 작성. **최신 서버 SQL 구현/설치 아님**; 운영 구버전 내부 구현·RLS 원문은 PUBLIC 저장소에 기록하지 않음.
+- [함수별 안전 수용시험표](e2e/ci/rpc-recovery-acceptance-matrix.json): **26종 전체**, P0 **14종** / P1 **12종**, 변경 **21종** / 조회·미리보기 **5종**. 프런트에서 expected-state 입력이 없는 **2종**(`admin_cancel_personnel_batch_v2`, `admin_set_holiday_work_enabled_v2`)은 동시수정 안전 설계 **미해결**로 차단 명시.
+- [실제 GitHub Actions Run 39576913632 — SUCCESS](https://github.com/eco-i/eco-i.github.io/actions/runs/39576913632): 설계 검사 파일 [rpc-recovery-design-gate.mjs](e2e/ci/rpc-recovery-design-gate.mjs), [무료 워크플로](../.github/workflows/workmoa-qa-rpc-recovery-design.yml)로 함수/시험 누락, 위험도 하향, CAS 인자 삭제, 미검증 E2E·복구 완료 표시 등 음성변형 7개를 fail closed 검증. **이는 계약 설계의 정적 PASS로 실제 SQL/Auth/RLS/브라우저 전체 E2E PASS가 아님.** 운영 불일치 26종 배포 차단 CI의 의도된 RED는 계속 유지.
+- 다음: 실제 최신 구현 정본이 없다면 비공개 개발 경로에서 신규 SQL 설계·보안검토(임의 fallback 금지); 완전 분리된 가상 PostgreSQL/PostgREST/세션/RLS로 실제 원본 E2E. 비공개 코드 저장 경로·실 구현/과금/운영 설치는 별도 승인 없이 하지 않음.
+- **공식 3-8-53 완료 / 3-8-54 미시작·보류 / 결함 37종 / 전체 NOT CLEAN**, `main`·실제 직원 DB·운영 Supabase SQL/RPC/배포 **변경 0**.
