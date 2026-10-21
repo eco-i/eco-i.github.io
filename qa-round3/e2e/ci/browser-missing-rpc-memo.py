@@ -157,7 +157,17 @@ def main():
                      ()=>window.__qaMemoClickCount++,{capture:true})}""")
                 check(br.value("SELECT count(*) FROM public.qa_memo_entries")==0,
                       "synthetic PostgreSQL contains no memo before click")
-                page.locator("#saveMemoBtn").click()
+                # Read-only DOM observer tracks whether the real app briefly
+                # writes a server error and later clears it in another code path.
+                page.evaluate("""()=>{window.__qaMemoErrorTimeline=[];
+                    const el=document.getElementById('memoDetailError');
+                    new MutationObserver(()=>window.__qaMemoErrorTimeline.push(el.textContent))
+                    .observe(el,{subtree:true,characterData:true,childList:true})}""")
+                with page.expect_response(lambda res: urlsplit(res.url).path.endswith(
+                        "/rest/v1/rpc/save_my_memo_v2"),timeout=15000) as observed:
+                    page.locator("#saveMemoBtn").click()
+                check(observed.value.status==404,
+                      "actual Save button received simulated PostgREST-style 404 response")
                 # CRITICAL: sync Playwright requires its Python event loop to
                 # dispatch page.route(...) handlers. NEVER time.sleep() here:
                 # it starves loopback HTTP routing and creates a false
@@ -196,6 +206,14 @@ def main():
                 check(len(MISSING_REQUESTS)==1,
                       "actual Save button dispatched exactly one missing save_my_memo_v2 RPC")
                 error=page.locator("#memoDetailError").text_content().strip()
+                timeline=page.evaluate("window.__qaMemoErrorTimeline")
+                print("DIAG MEMO_ERROR_MUTATIONS="+str(timeline[-12:]),flush=True)
+                print("DIAG MEMO_UI_POST_404="+str(page.evaluate("""()=>({
+                  error:document.getElementById('memoDetailError').textContent,
+                  pending:memoSavePending, button:document.getElementById('saveMemoBtn').disabled,
+                  draft:document.getElementById('memoText').value,
+                  editor:document.getElementById('detailBackdrop').className
+                })""")),flush=True)
                 check(bool(error) and len(error)<600,
                       "visible real app error after PostgREST-shaped missing-function response")
                 check(page.locator("#memoText").input_value()==MEMO_TEXT and
