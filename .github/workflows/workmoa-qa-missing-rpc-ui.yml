@@ -1,0 +1,104 @@
+name: Workmoa QA real memo UI missing RPC, disposable PostgreSQL (negative test)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-missing-rpc-ui.yml'
+      - 'qa-round3/e2e/ci/browser-missing-rpc-memo.py'
+      - 'qa-round3/e2e/ci/missing-rpc-memo-fixture.sql'
+      - 'qa-round3/e2e/ci/browser-attendance-form.py'
+      - 'qa-round3/e2e/ci/browser-postgres-bridge.py'
+      - 'qa-round3/e2e/ci/synthetic-baseline.sql'
+      - 'qa-round3/e2e/ci/attendance-form-fixture.sql'
+      - 'qa-round3/e2e/prepare-local-qa-site.mjs'
+      - 'qa-round3/e2e/serve-local-qa-site.mjs'
+      - 'index.html'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-qa-missing-rpc-ui-3-8
+  cancel-in-progress: true
+
+jobs:
+  missing-memo-server-rpc:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: qa_runner
+          POSTGRES_PASSWORD: synthetic_ci_only_not_a_real_secret
+          POSTGRES_DB: qa_round3
+        ports: ['127.0.0.1:5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U qa_runner -d qa_round3"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGDATABASE: qa_round3
+      PGUSER: qa_runner
+      PGPASSWORD: synthetic_ci_only_not_a_real_secret
+    steps:
+      - name: Checkout QA only, do not persist credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup isolated Python runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Setup Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Enforce QA-only runner and deny production backend configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'eco-i/eco-i.github.io'
+          test "$GITHUB_REF" = 'refs/heads/qa-3-8'
+          test "$(git branch --show-current)" = 'qa-3-8'
+          test -z "${DATABASE_URL:-}"
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          test -z "${QA_SUPABASE_URL:-}"
+          test -z "${QA_SUPABASE_ANON_KEY:-}"
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+          python3 -m pip install --disable-pip-version-check 'playwright==1.56.0' 'psycopg[binary]==3.2.10'
+          python3 -m playwright install --with-deps chromium
+          python3 -m py_compile qa-round3/e2e/ci/browser-missing-rpc-memo.py
+      - name: Create only disposable synthetic PostgreSQL fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/synthetic-baseline.sql
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/attendance-form-fixture.sql
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/missing-rpc-memo-fixture.sql
+      - name: Click actual memo Save button, assert PGRST202 error and zero DB writes
+        shell: bash
+        run: python3 -u qa-round3/e2e/ci/browser-missing-rpc-memo.py
+      - name: Scope note — negative UI E2E only
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## Real Chromium memo UI, synthetic 404 and disposable PostgreSQL'
+            echo '- Actual unchanged app login and memo Save button were executed with fictitious staff in an isolated browser origin.'
+            echo '- The missing RPC error is POSTGREST-SHAPED SIMULATED 404; not a real Supabase PostgREST request.'
+            echo '- Persistence was checked against a dedicated disposable synthetic PostgreSQL memo table.'
+            echo '- No actual employee session/data, production Supabase credentials, real backend implementation, or deployment was used.'
+            echo '- Full real-Auth/RLS/CAS/multisession E2E remains BLOCKED / NOT CLEAN.'
+          } >> "$GITHUB_STEP_SUMMARY"
