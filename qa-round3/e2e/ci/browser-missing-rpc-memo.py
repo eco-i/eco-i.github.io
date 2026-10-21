@@ -158,11 +158,18 @@ def main():
                 check(br.value("SELECT count(*) FROM public.qa_memo_entries")==0,
                       "synthetic PostgreSQL contains no memo before click")
                 page.locator("#saveMemoBtn").click()
-                deadline=time.monotonic()+12
-                while time.monotonic()<deadline:
-                    if MISSING_REQUESTS and page.locator("#memoDetailError").text_content().strip():
-                        break
-                    time.sleep(.15)
+                # CRITICAL: sync Playwright requires its Python event loop to
+                # dispatch page.route(...) handlers. NEVER time.sleep() here:
+                # it starves loopback HTTP routing and creates a false
+                # "button did not dispatch RPC" result while fetch is pending.
+                # wait_for_function pumps Playwright's dispatcher normally.
+                from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+                try:
+                    page.wait_for_function("""()=>!memoSavePending &&
+                        !!document.getElementById('memoDetailError').textContent.trim()""",
+                        timeout=15000, polling=100)
+                except PlaywrightTimeoutError:
+                    print("DIAG_PLAYWRIGHT_TIMEOUT: pending browser/network route or no visible error",flush=True)
                 if not MISSING_REQUESTS:
                     print("DIAG hit_tail="+",".join(br.HITS[-25:]),flush=True)
                     print("DIAG memo_error="+repr(page.locator("#memoDetailError").text_content()),flush=True)
@@ -188,8 +195,6 @@ def main():
                     )
                 check(len(MISSING_REQUESTS)==1,
                       "actual Save button dispatched exactly one missing save_my_memo_v2 RPC")
-                page.wait_for_function("""()=>!memoSavePending && (
-                   !!document.getElementById('memoDetailError').textContent.trim())""",timeout=15000)
                 error=page.locator("#memoDetailError").text_content().strip()
                 check(bool(error) and len(error)<600,
                       "visible real app error after PostgREST-shaped missing-function response")
