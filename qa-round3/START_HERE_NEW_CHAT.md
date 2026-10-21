@@ -86,3 +86,9 @@
 - [크로미움 수정 최초 PASS Run 39562537890](https://github.com/eco-i/eco-i.github.io/actions/runs/39562537890), [추가 권한 전환 회귀 PASS Run 39562765829](https://github.com/eco-i/eco-i.github.io/actions/runs/39562765829): 사용자 가상 로그인, 실제 Save 버튼, 합성 PGRST202/404, 저장오류 가시성, 입력 초안 유지, DB 불변 0건, 다시 쓰기 가능, readonly 잠금/복귀 정상. **운영 PostgREST/Auth/RLS의 실제 E2E 완료가 아님.**
 - 변경 커밋 기준 기존 가상 근태 폼/로그인/SQL 브리지/원본 감사 PASS; [운영 API 이름 불일치 배포 차단](https://github.com/eco-i/eco-i.github.io/actions/runs/39562537918)은 **의도된 RED** 유지(26 서버 함수 미설치, 31 UI 호출 개소).
 - 구 [실패 보고](MISSING_RPC_REAL_MEMO_BUTTON_E2E_BLOCKER_20261021.md)에는 **후속 해결 표시**. 현재 해당 실패는 QA 브라우저 음성경로 범위에서 해소. QA 제품결함 **1건 신규 확인·QA에서 수정**하되 공식 상태파일의 누적 결함 **37종·3-8-53 완료·3-8-54 미시작**은 아직 변경하지 않음. 실제 P0/P1 E2E, 독립 QA 원본 서버 복구, 운영 배포 **NOT CLEAN/BLOCKED**.
+
+## 2026-10-21 — 휴일근무·초과근무 저장실패 안내 오류 QA 수정 + 실제 Chromium PASS
+- [정밀 원인·수정·검수 보고서](HOLIDAY_OVERTIME_ERROR_VISIBILITY_QA_VERIFIED_20261021.md). 메모에 이어 **휴일근무·초과근무**의 권한 정상 상태에서 저장 실패 안내가 후속 `syncOpenDetailPermissionsPreservingDraft`에 의해 사라질 위험 확인. 휴근은 `finally`에서 즉시 사라질 수 있고, 초과근무는 저장 함수 내 `saveError` 임시복원에도 재동기화 시 지워질 수 있음. **두 영역에 권한 안내만 별도 추적/복구하는 QA-only 최소 수정**.
+- QA 제품 수정/문법교정: `659947c29f...` 초안에 잘못된 `if (...) const` 한 줄로 기존 CI 실패 → `cf84a389ea9e04e7c3e7ae7b3fbe3b24331311b1`로 바로잡음. **정상 검수 QA HTML blob `cc8df3e010234d87ef99b35e66d521ab18d96c4d`**. 운영 `main`/실 직원 DB는 변경 0.
+- [실제 가상 Chromium 버튼 Save·404/409 실패 UI PASS](https://github.com/eco-i/eco-i.github.io/actions/runs/39564500467) / [readonly 잠금·복귀 확장 PASS](https://github.com/eco-i/eco-i.github.io/actions/runs/39564699553). 휴근 가상 토요일 체크/시간, 초과근무 +10분; 가상 404/PGRST202 및 409/STALE_OVERTIME_DAY, 문구 유지·초안 보존·재시도 가능·실험용 PG 무쓰기 0·외부 Supabase 접근 0. 실제 운영 Auth/RLS/CAS E2E 아님.
+- **기존 로그인/근태/메모/PG 브리지 회귀는 문법 수정 후 모두 PASS**, 원본 SQL 감사 PASS. 서버 함수명 **26종 미설치/31개 직접 호출**은 여전히 실증되어 의도된 릴리스 계약 차단 CI RED 유지. 배포 금지/전체 NOT CLEAN. **3-8-53 마지막 공식 완료·3-8-54 미시작·공식 신규 결함 37종 유지**(새 UI 오류 정식 결함대장 등재는 별도 일관된 결정 후).
