@@ -1,0 +1,822 @@
+{
+  "schemaVersion": 1,
+  "title": "Workmoa production RPC recovery input-contract manifest — NO DDL / NO DEPLOY",
+  "recordedKstDate": "2026-10-21",
+  "mainHeadSha": "6c784210e048426f18a486d5602652626d97574d",
+  "mainBlobSha": "5553a1d319e3ab7ff4dd6bb8ee7d995657112698",
+  "sourceOfClientFields": "Public main/index.html literal RPC payload field names only",
+  "sourceOfServerNameAvailability": "User-authorized read-only pg_catalog.pg_proc metadata (no function body)",
+  "sqlProvenanceCoverage": "Missing all 26 exact-name definitions in 16 current db/migrations SQL sources and 6 inspected older private SQL files",
+  "identityAndPermissionValidated": false,
+  "correctnessAndCASValidated": false,
+  "realBackendE2eValidated": false,
+  "liveProductionModified": false,
+  "releaseAllowed": false,
+  "counts": {
+    "missingExactFunctions": 26,
+    "matchingOlderNameExists": 22,
+    "olderNameMissing": 4,
+    "olderNameWithMatchingArgumentNamesOnly": 3,
+    "olderNameWithDifferingArgumentNames": 19,
+    "directProductionCallsites": 31
+  },
+  "items": [
+    {
+      "name": "admin_apply_personnel_batch_v3",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 10353
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_effective_date",
+        "p_expected",
+        "p_items",
+        "p_mode",
+        "p_note",
+        "p_replace_batch_id",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_apply_personnel_batch",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected"
+          ]
+        }
+      ],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "admin_cancel_personnel_batch_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 10371
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_batch_id",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_cancel_personnel_batch",
+          "parameterParity": "names_only_match",
+          "missingClientCASFields": []
+        }
+      ],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "admin_delete_holiday_work_personnel_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 8566
+        },
+        {
+          "file": "index.html",
+          "line": 8726
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_date",
+        "p_employee_id",
+        "p_expected_id",
+        "p_expected_updated_at",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_delete_holiday_work_personnel_v1",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_id",
+            "p_expected_updated_at"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "admin_reset_current_personnel_pins_v3",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 10472
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_admin_pin",
+        "p_expected_revision",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_reset_current_personnel_pins",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_revision"
+          ]
+        }
+      ],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "admin_reset_data_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 11171
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_admin_pin",
+        "p_app_version",
+        "p_expected_revision",
+        "p_sections",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_reset_data_v1",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_revision"
+          ]
+        }
+      ],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "admin_restore_data_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 11120
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_admin_pin",
+        "p_app_version",
+        "p_expected_revision",
+        "p_payload",
+        "p_sections",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_restore_data_v1",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_revision"
+          ]
+        }
+      ],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "admin_restore_personnel_snapshot_v3",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 10423
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_admin_pin",
+        "p_expected_revision",
+        "p_snapshot_id",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_restore_personnel_snapshot",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_revision"
+          ]
+        }
+      ],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "admin_restore_safety_backup_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 11233
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_admin_pin",
+        "p_app_version",
+        "p_expected_revision",
+        "p_safety_backup_id",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_restore_safety_backup_v1",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_revision"
+          ]
+        }
+      ],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "admin_save_holiday_work_personnel_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 8527
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_date",
+        "p_employee_id",
+        "p_end_time",
+        "p_expected_id",
+        "p_expected_updated_at",
+        "p_start_time",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_save_holiday_work_personnel_v1",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_id",
+            "p_expected_updated_at"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "admin_set_employee_account_status_v3",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 10133
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_account_status",
+        "p_effective_date",
+        "p_employee_id",
+        "p_expected",
+        "p_note",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_set_employee_account_status",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected"
+          ]
+        }
+      ],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "admin_set_holiday_work_enabled_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 9466
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_employee_id",
+        "p_enabled",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "admin_set_holiday_work_enabled",
+          "parameterParity": "names_only_match",
+          "missingClientCASFields": []
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "delete_company_event_v4",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 8406
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_expected_updated_at",
+        "p_id",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "delete_company_event",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_updated_at"
+          ]
+        },
+        {
+          "name": "delete_company_event_v2",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_updated_at"
+          ]
+        },
+        {
+          "name": "delete_company_event_v3",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_updated_at"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "delete_my_holiday_work_personnel_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 8566
+        },
+        {
+          "file": "index.html",
+          "line": 8726
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_date",
+        "p_expected_id",
+        "p_expected_updated_at",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "delete_my_holiday_work_personnel_v1",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_id",
+            "p_expected_updated_at"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "delete_my_memo_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 7849
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_date",
+        "p_expected",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "delete_my_memo",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "delete_my_memos_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 8099
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_dates",
+        "p_expected",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "delete_my_memos",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "get_personnel_restore_revision_v1",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 10387
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "preview_admin_reset_data_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 11154
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_sections",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "preview_current_personnel_pin_reset_v1",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 10458
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "preview_data_restore_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 10998
+        },
+        {
+          "file": "index.html",
+          "line": 11020
+        },
+        {
+          "file": "index.html",
+          "line": 11084
+        },
+        {
+          "file": "index.html",
+          "line": 11110
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_payload",
+        "p_sections",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "preview_data_restore_v1",
+          "parameterParity": "names_only_match",
+          "missingClientCASFields": []
+        }
+      ],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "preview_safety_backup_restore_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 11224
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_safety_backup_id",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "restore_my_data_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 11034
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_expected_revision",
+        "p_payload",
+        "p_sections",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "restore_my_data_v1",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_revision"
+          ]
+        }
+      ],
+      "releaseImpact": "high_consequence_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "save_company_event_v4",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 8370
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_end_date",
+        "p_expected_updated_at",
+        "p_id",
+        "p_start_date",
+        "p_text",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "save_company_event",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_updated_at"
+          ]
+        },
+        {
+          "name": "save_company_event_v2",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_updated_at"
+          ]
+        },
+        {
+          "name": "save_company_event_v3",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_updated_at"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "save_my_annual_leave_setting_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 7177
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_baseline_remaining_minutes",
+        "p_carryover_minutes",
+        "p_expected",
+        "p_granted_minutes",
+        "p_token",
+        "p_year"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "save_my_annual_leave_setting",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "save_my_holiday_work_personnel_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 8527
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_date",
+        "p_end_time",
+        "p_expected_id",
+        "p_expected_updated_at",
+        "p_start_time",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "save_my_holiday_work_personnel_v1",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected_id",
+            "p_expected_updated_at"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "save_my_long_service_profile_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 4331
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_exclusions",
+        "p_expected",
+        "p_hire_date",
+        "p_previous_used_band",
+        "p_previous_used_minutes",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "save_my_long_service_profile",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    },
+    {
+      "name": "save_my_memo_v2",
+      "directCallsites": [
+        {
+          "file": "index.html",
+          "line": 7831
+        }
+      ],
+      "clientPayloadKeys": [
+        "p_date",
+        "p_expected",
+        "p_text",
+        "p_token"
+      ],
+      "installedInPublic": false,
+      "sameBaseInstalled": [
+        {
+          "name": "save_my_memo",
+          "parameterParity": "different_names_or_count",
+          "missingClientCASFields": [
+            "p_expected"
+          ]
+        }
+      ],
+      "releaseImpact": "functional_regression_review",
+      "replacementApproved": false,
+      "serverImplementationProvenance": "not_available",
+      "executedProductionMutation": false,
+      "qaBackendE2eVerified": false
+    }
+  ]
+}
