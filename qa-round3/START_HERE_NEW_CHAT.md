@@ -201,3 +201,10 @@
 - **해석 제한:** 테스트는 합성 employees/app_sessions와 합성 helper 함수, 로컬 PostgreSQL 소유자 권한으로 실행한 가상 접근 시험. 실제 Supabase 인증/RLS/PostgREST·운영 helper·SQL 소유권/권한정책 검증이 **아니므로** 운영 RPC 복구 **0/26** 및 실서버 E2E 미완료 유지. 운영 앱은 `anon` JWT로 RPC를 부르는 구조이므로, 초안에서 권한을 REVOKE하는 것은 출시 전 의도된 기본 차단. 사용자 승인 없이 `anon` 실행권한 부여 금지.
 - 이전 오류 Run 39692088942: 불완전한 워크플로 업로드로 Jobs 0개인 **워크플로 파싱 오류**였으며, 정상 전체 재업로드 후 실험 PASS로 해결. 공개 소스 저장소에 Private SQL 본문 복사하지 않음.
 - `main` / 운영 Supabase 데이터·SQL·실직원 자료 변경 0. **3-8-53 완료, 3-8-54 BLOCKED, 신규 37결함, 전체 NOT CLEAN** 유지.
+
+## 2026-10-22 — 독립 PostgREST HTTP 메모 RPC 3종 연동 시험 준비
+- Private 메모 RPC 후보 3종은 일회용 PostgreSQL 함수/권한 검증까지만 PASS (이전 Runs 39690694910 및 39692505119). 실제 HTTP/PostgREST 요청 경로 검증은 아직 미실행.
+- 합성 PostgreSQL 17 + 고정 PostgREST v14.18 이미지로 **실제 HTTP POST /rpc/save_my_memo_v2, delete_my_memo_v2, delete_my_memos_v2** 호출, anonymous SQL 역할 임시 권한, 두 가짜 직원 토큰 분리, 만료/읽기전용/가짜토큰 거부, 이전 상태 CAS, 다건 stale 시 전체 롤백, direct table GET 거부, 토큰 철회 및 최종 EXECUTE REVOKE를 검증할 **새 워크플로** `workmoa-private-memo3-http-qa.yml` 작성.
+- 새 YAML/Bash 문법검사 **PASS**, 17,724바이트; **실제 HTTP 시험 아직 수행되지 않음**. 자동 비공개 GitHub 쓰기 제한으로 업로드 및 실제 Actions 실행이 필요. Private SQL 원문 공개 유출 0. QA 로그나 나중의 HTTP PASS도 Supabase API Gateway·Supabase Auth/실제 helper/RLS 통합을 증명하지 않음.
+- 운영 main HTML 원본 3346~3348행의 RPC HTTP 헤더는 `apikey: sb_publishable...`와 `Authorization: Bearer sb_publishable...`을 동시에 사용함. 현재 Supabase 공식 문서는 publishable 키가 JWT가 아니며 Authorization Bearer에 넣지 말고 apikey로만 사용하도록 안내한다. **구형 호환 게이트웨이의 실제 동작 확인 전까지 결함으로 확정하거나 운영 앱을 무단 수정하지 말 것.** 실 Supabase Gateway 인증 호환성은 후속 별도 검증.
+- **3-8-53 완료, 3-8-54 BLOCKED, 제품결함 37종, 실서버 정확명 RPC 26종 미설치, 전체 NOT CLEAN**. 운영 main·직원 DB·운영 SQL 변경 0.
