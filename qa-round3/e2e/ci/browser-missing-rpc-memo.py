@@ -140,6 +140,18 @@ def main():
                       page.locator("#memoText").is_editable(),
                       "real memo edit field and Save button are enabled")
                 page.locator("#memoText").fill(MEMO_TEXT)
+                # CDP debug-only: inspect the real listener registrations on the actual
+                # button. Never modify event listeners, scripts, or production code.
+                cdp=context.new_cdp_session(page)
+                obj=cdp.send("Runtime.evaluate",{"expression":
+                    "document.getElementById('saveMemoBtn')","returnByValue":False})
+                objid=obj.get("result",{}).get("objectId")
+                assert objid,"Cannot inspect actual Save button"
+                listeners=cdp.send("DOMDebugger.getEventListeners",{"objectId":objid})
+                registered=[{"type":v.get("type"),"lineNumber":v.get("lineNumber")} for v in listeners.get("listeners",[])
+                            if v.get("type")=="click"]
+                print("DIAG SAVE BUTTON registered click listener count="+str(len(registered))+
+                      " lines="+str(registered),flush=True)
                 page.evaluate("""()=>{window.__qaMemoClickCount=0;
                     document.getElementById('saveMemoBtn').addEventListener('click',
                      ()=>window.__qaMemoClickCount++,{capture:true})}""")
