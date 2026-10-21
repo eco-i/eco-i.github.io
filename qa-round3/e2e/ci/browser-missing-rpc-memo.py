@@ -221,6 +221,29 @@ def main():
                       "unsaved memo text and open editor preserved after failed Save")
                 check(page.locator("#saveMemoBtn").is_enabled(),
                       "save control re-enabled so user may retry once backend is repaired")
+                # Regression: a routine permissions refresh must not silently erase
+                # the server failure, but a real read-only downgrade must win.
+                page.evaluate("syncOpenDetailPermissionsPreservingDraft()")
+                check(page.locator("#memoDetailError").text_content().strip()==error,
+                      "routine permissions refresh preserves a genuine server error")
+                locked=page.evaluate("""()=>{state.me.is_read_only=true;
+                  syncOpenDetailPermissionsPreservingDraft();return {
+                  error:document.getElementById('memoDetailError').textContent,
+                  draft:document.getElementById('memoText').value,
+                  hidden:document.getElementById('saveMemoBtn').classList.contains('hidden')
+                  }}""")
+                check("조회 전용" in locked["error"] and
+                      locked["draft"]==MEMO_TEXT and locked["hidden"],
+                      "read-only downgrade immediately overrides old error and locks Save without losing draft")
+                restored=page.evaluate("""()=>{state.me.is_read_only=false;
+                  syncOpenDetailPermissionsPreservingDraft();return {
+                  error:document.getElementById('memoDetailError').textContent,
+                  draft:document.getElementById('memoText').value,
+                  enabled:!document.getElementById('saveMemoBtn').classList.contains('hidden')
+                  }}""")
+                check(restored["error"]=="" and restored["draft"]==MEMO_TEXT and
+                      restored["enabled"],
+                      "permission restoration clears only the prior permission notice, not the draft")
                 check(br.value("SELECT count(*) FROM public.qa_memo_entries")==0,
                       "real isolated PostgreSQL holds zero memo writes after 404")
                 check(page.evaluate("!state.memos.some(x=>x.memo_date==='2027-05-13')"),
