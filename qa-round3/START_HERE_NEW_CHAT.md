@@ -174,3 +174,10 @@
 - 두 파일 경로 정확히 일치. SQL은 `BEGIN;` 다음 의도적인 `DO ... RAISE EXCEPTION 'WORKMOA_DRAFT_ONLY'` 실행금지 가드 포함, 후보 함수명 `save_my_memo_v2` / `delete_my_memo_v2` / `delete_my_memos_v2` 3종 정확히 포함. 마지막에 **3개 함수 각각 EXECUTE 명시 REVOKE**, 실제 `GRANT EXECUTE` 없음. DB 직원 데이터 파괴성 테이블 DDL 없음(정적 텍스트 검사).
 - **중요:** 3종 `SECURITY DEFINER`의 내부 권한 검사, 세션/인사 보조함수, 함수소유자, 권한 상속/RLS, 실제 PostgreSQL 컴파일과 격리 E2E는 미검증이다. 정적 파일 확인은 설치 준비 승인도 완성도 PASS도 아니다. Postgres 함수는 기본 PUBLIC EXECUTE 이슈가 있으므로 출시 전 트랜잭션 단위 명시 REVOKE와 QA 보안시험을 계속 요구함.
 - SQL 내용은 Public에 복사하지 않았고 운영 Supabase DDL/DML/RPC 실행·직원 데이터 변경·운영 main 갱신 0. **공식 3-8-53 완료 / 3-8-54 BLOCKED / 제품결함 37종 / 서버 실제 누락 26종 / NOT CLEAN 유지**.
+
+## 2026-10-22 — 메모 RPC 3종 실제 일회용 PostgreSQL 시험 PASS
+- 사용자가 PRIVATE 개발 저장소에 `.github/workflows/workmoa-private-memo3-qa.yml`을 직접 등록했고, **[GitHub Actions Run 39690694910](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39690694910) SUCCESS**, job `119535858054` 완료. 실제 컨테이너 PostgreSQL **17.11**에서 원본 SQL 파일의 의도된 실행 차단이 작동함을 먼저 확인, 임시 복사본에서만 가드를 제거한 뒤 SQL 3종을 실제로 컴파일하고 실행. 비공개 SQL 구현 본문·직원 데이터는 이 공개 저장소로 복사하지 않음.
+- CI 로그 근거: `DRAFT_HARD_STOP_PASS`, `REAL_POSTGRES_COMPILE_PASS`, `MEMO3_STATIC_FUNCTIONAL_PASS`, `MEMO3_REAL_POSTGRES_CONCURRENCY_PASS`. 저장·수정·개별삭제·선택삭제·다건 atomic·이전 스냅샷 충돌·가짜 두 계정 분리·가짜 읽기전용/만료세션 검사·실 DB 2연결 경합.
+- **검수 의미 한정:** 테스트는 가짜 직원·가짜 세션 보조함수 + QA PostgreSQL 소유자 실행이다. **실제 Supabase Auth/RLS/PostgREST/실 운영 보조함수 또는 함수소유자 보안·공개 EXECUTE 실증 아님**, 실제 누락된 26 RPC 가운데 설치 0, 운영 적용 승인 0. 3종 **독립 합성 환경 DB 기능시험 PASS**이지 실서버 복구나 `3-8-54` 완료가 아님.
+- 무료 Supabase 개인조직은 활성 2개 제한으로 별도 QA 프로젝트 생성 실패 상태 유지. `eco-i/eco-i.github.io` `main`·운영 Supabase 직원 기록·실제 SQL/배포 변경 0.
+- **공식 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 3차 제품결함 37종 / 정확명 RPC 26종 실서버 미설치 / 전체 NOT CLEAN** 유지. 다음 게이트는 QA 전용 인증·권한/RLS·PostgREST 실제 통합 또는 재현 가능한 독립 서버 모형에서 권한공백 재검증; 해당 검증 없이 배포 승인 금지.
