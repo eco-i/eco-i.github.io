@@ -181,3 +181,10 @@
 - **검수 의미 한정:** 테스트는 가짜 직원·가짜 세션 보조함수 + QA PostgreSQL 소유자 실행이다. **실제 Supabase Auth/RLS/PostgREST/실 운영 보조함수 또는 함수소유자 보안·공개 EXECUTE 실증 아님**, 실제 누락된 26 RPC 가운데 설치 0, 운영 적용 승인 0. 3종 **독립 합성 환경 DB 기능시험 PASS**이지 실서버 복구나 `3-8-54` 완료가 아님.
 - 무료 Supabase 개인조직은 활성 2개 제한으로 별도 QA 프로젝트 생성 실패 상태 유지. `eco-i/eco-i.github.io` `main`·운영 Supabase 직원 기록·실제 SQL/배포 변경 0.
 - **공식 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 3차 제품결함 37종 / 정확명 RPC 26종 실서버 미설치 / 전체 NOT CLEAN** 유지. 다음 게이트는 QA 전용 인증·권한/RLS·PostgREST 실제 통합 또는 재현 가능한 독립 서버 모형에서 권한공백 재검증; 해당 검증 없이 배포 승인 금지.
+
+## 2026-10-22 — Private 메모 3종 함수 권한검증 사전 설계: UI anon 역할 불일치
+- 운영 `main/index.html` 원본 RPC fetch 확인(3346–3348행): 실제 앱 요청은 Supabase public publishable key를 통한 **Postgres `anon` 역할**. 비공개 개발 초안 `DRAFT_MEMO_RPC_3.sql.txt`은 서버 설치가 승인되지 않아 `PUBLIC,anon,authenticated`의 세 함수 EXECUTE를 모두 REVOKE한 상태. **그대로 공개 API 사용 불가(의도된 차단)**. 릴리스 전에는 `anon` 호출을 허용할 때 실제 custom session token/인사권한을 각 RPC 내부에서 증명해야 하고, `SECURITY DEFINER` 소유자와 helper, RLS 우회를 따로 심사해야 함. SQL 공개본 반출 금지.
+- Supabase 공식 보안 문서 [Data API 접근통제](https://supabase.com/docs/guides/api/securing-your-api), [anon SECURITY DEFINER 실행 권고](https://supabase.com/docs/guides/observability/advisors?queryGroups=lint&lint=0028_anon_security_definer_function_executable): `GRANT EXECUTE`는 RLS 및 함수 자체 내부 권한검증과 **별개**. 공개된 함수에 무조건 EXECUTE 부여 금지.
+- 일회용 GitHub Actions PostgreSQL 17 서버에서 **anon 최초 EXECUTE 거부→QA 내부 한정 임시 EXECUTE 허용→서로 다른 가상 2직원 토큰별 메모 분리→위조/만료/읽기전용/타인 snapshot 거부→로그아웃 토큰 폐기→재차 REVOKE** 순으로 시험하는 YAML을 사용자용 파일로 준비. 기존 비공개 SQL 원본 SHA-256 고정과 fail-closed 가드 테스트 포함.
+- **현재 단계는 YAML·쉘 문법 사전검사만 PASS.** 새 YAML 파일은 아직 private repo 미등록, GitHub Actions **미실행**, Auth/RLS/PostgREST 실증 **0**. 작업환경에 로컬 PostgreSQL 실행 없음. 저장소 본문이나 SQL 보안 설계가 실제 라이브에 설치되었다고 주장하지 않음.
+- 공식 **3-8-53 완료 / 3-8-54 BLOCKED / 37종 / 실서버 누락 RPC 26종 / 전체 NOT CLEAN** 유지, 운영 `main`·실 직원 DB·SQL·배포 변경 0.
