@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/workmoa-qa-backend-readiness.yml'
       - 'qa-round3/e2e/ci/backend-readiness.mjs'
+      - 'qa-round3/CURRENT_STATE.json'
       - 'index.html'
       - 'maintenance-20261018.js'
       - 'site-update-history.js'
