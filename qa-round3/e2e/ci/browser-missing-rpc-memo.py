@@ -131,7 +131,7 @@ def main():
                     })""")),flush=True)
                 check(page.locator("#saveMemoBtn").is_visible() and
                       page.locator("#saveMemoBtn").is_enabled() and
-                      not page.locator("#memoText").is_read_only(),
+                      page.locator("#memoText").is_editable(),
                       "real memo edit field and Save button are enabled")
                 page.locator("#memoText").fill(MEMO_TEXT)
                 check(br.value("SELECT count(*) FROM public.qa_memo_entries")==0,
