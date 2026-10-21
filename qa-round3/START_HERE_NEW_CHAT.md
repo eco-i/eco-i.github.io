@@ -73,3 +73,9 @@
 - [실제 자동검수 결과 보고](LIVE_RPC_RELEASE_GATE_FIRST_RUN_20261021.md) / [Actions Run 39540136579](https://github.com/eco-i/eco-i.github.io/actions/runs/39540136579): **QA 코드 checkout + 운영 main 읽기전용 checkout + Node 파서 자기시험 + 스냅샷 실측 대응 감사 + 이름 전용 증빙 artifact 저장 모두 성공, 마지막 릴리스 차단만 의도적으로 FAIL**. 워크플로 빨간 표시는 테스트 도구 고장이 아니라 **확인된 26 미설치 RPC/직접 호출 31곳 때문에 배포 금지하는 정상 작동**.
 - 신규 QA 전용 파일: `qa-round3/e2e/ci/live-rpc-contract-snapshot.json`, `qa-round3/e2e/ci/live-rpc-contract-gate.mjs`, `.github/workflows/workmoa-qa-live-rpc-contract.yml`; **원본 SQL·RLS·운영 키·실제 데이터는 저장하지 않음**. CI에서는 운영 Supabase에 접속하지 않으며 하루짜리 사용자가 승인한 catalog 메타데이터 스냅샷을 적용(7일 만료, main SHA 변경 시 fail closed).
 - 자동차단은 원본 누락 26종의 수리나 실제 E2E 검증이 아니므로 **전체 NOT CLEAN**, **3-8-53 공식 마지막 완료·3-8-54 미시작·결함 37종 유지**. 구버전 fallback 강제 삽입·운영 RPC 수정/설치는 명시적 최종 승인 없이 절대 금지.
+
+## 2026-10-21 — 실제 메모 UI 누락 RPC 음성경로 자동검수: FAIL/BLOCKED
+- [실제 Chromium UI 실험·실패 원인 분리 보고](MISSING_RPC_REAL_MEMO_BUTTON_E2E_BLOCKER_20261021.md). 무료 Actions에 가상 직원용 실제 앱 로그인/날짜 메모 UI + 가짜 PostgreSQL 16 메모 테이블 + PostgREST 형태 `PGRST202` 합성 404 게이트웨이를 구축. 관련 파일: `qa-round3/e2e/ci/browser-missing-rpc-memo.py`, `missing-rpc-memo-fixture.sql`, `.github/workflows/workmoa-qa-missing-rpc-ui.yml`.
+- 실제 Chromium 버튼 클릭 이벤트 1개, CDP 메모 저장 click 리스너 1개는 확인했지만 **클릭 직후 memo 저장 RPC가 나가지 않았음**. 동일 화면에서 함수 *직접 호출*로 RPC가 발생한 것은 사용자 버튼 E2E 성공이 아니므로 검수 코드가 직접 호출 진단을 제거하고 **UI_BUTTON_NOT_DISPATCHED FAIL CLOSED**하도록 수정함.
+- **실제 운영 서비스 장애의 근본 원인이나 신규 확정 결함으로 단정하지 않음**: 독립 합성 인증/브리지와 앱 초기화/세션보호 조건을 추가 분리 진단해야 함. 기존 서버 함수 미설치 26종/직접 호출 31곳 실측은 그대로 유효. 메모 404 후 UI 오류·초안 유지에 관한 E2E PASS는 아직 주장할 수 없음.
+- `main`/직원 DB/실제 Supabase/운영 로그인/RLS·RPC 읽기·쓰기 0. **3-8-53 완료 / 3-8-54 미시작 / 신규 결함 37종 / 전체 NOT CLEAN**.
