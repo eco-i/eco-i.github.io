@@ -182,8 +182,10 @@ def main():
                     })""")),flush=True)
                     print("DIAG JS errors="+str(js_errors[-5:]),flush=True)
                     print("DIAG REAL CLICKS="+str(page.evaluate("window.__qaMemoClickCount")),flush=True)
-                    await_direct=page.evaluate("async ()=>{await saveSelectedDateMemo(); return {pending:memoSavePending,error:document.getElementById('memoDetailError').textContent}}")
-                    print("DIAG direct-function result="+str(await_direct)+" RPCs="+",".join(br.HITS[-6:]),flush=True)
+                    raise AssertionError(
+                        "MISSING_RPC_UI_BUTTON_NOT_DISPATCHED: capture click fired but no memo "
+                        "RPC reached the isolated bridge; do not mark PASS or bypass the button."
+                    )
                 check(len(MISSING_REQUESTS)==1,
                       "actual Save button dispatched exactly one missing save_my_memo_v2 RPC")
                 page.wait_for_function("""()=>!memoSavePending && (
