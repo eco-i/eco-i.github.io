@@ -124,3 +124,9 @@
 - [실제 GitHub Actions Run 39576913632 — SUCCESS](https://github.com/eco-i/eco-i.github.io/actions/runs/39576913632): 설계 검사 파일 [rpc-recovery-design-gate.mjs](e2e/ci/rpc-recovery-design-gate.mjs), [무료 워크플로](../.github/workflows/workmoa-qa-rpc-recovery-design.yml)로 함수/시험 누락, 위험도 하향, CAS 인자 삭제, 미검증 E2E·복구 완료 표시 등 음성변형 7개를 fail closed 검증. **이는 계약 설계의 정적 PASS로 실제 SQL/Auth/RLS/브라우저 전체 E2E PASS가 아님.** 운영 불일치 26종 배포 차단 CI의 의도된 RED는 계속 유지.
 - 다음: 실제 최신 구현 정본이 없다면 비공개 개발 경로에서 신규 SQL 설계·보안검토(임의 fallback 금지); 완전 분리된 가상 PostgreSQL/PostgREST/세션/RLS로 실제 원본 E2E. 비공개 코드 저장 경로·실 구현/과금/운영 설치는 별도 승인 없이 하지 않음.
 - **공식 3-8-53 완료 / 3-8-54 미시작·보류 / 결함 37종 / 전체 NOT CLEAN**, `main`·실제 직원 DB·운영 Supabase SQL/RPC/배포 **변경 0**.
+
+## 2026-10-21 — 실제 운영 프런트 RPC 반환값 계약 26종 소스 검증 (추가)
+- [실제 앱 응답 검증 함수 테스트 보고](RPC_26_CLIENT_RESPONSE_CONTRACTS_VERIFIED_20261021.md) / [함수별 공개 응답 계약표](e2e/ci/rpc-recovery-client-response-contracts.json). 운영 `main` HTML 원본 기준 직접 호출 **26종/31곳**의 후속 결과검증기 **11종** 확인. 특히 `preview_data_restore_v2`는 **개인 미리보기 2곳 + 관리자 미리보기 2곳**에 사용하므로 역할별 권한 분리 필수.
+- [GitHub Actions 실제 PASS Run 39594553591](https://github.com/eco-i/eco-i.github.io/actions/runs/39594553591): Node VM 격리 환경에서 **실제 사이트의 검증 함수**를 추출해 합성 정상·비정상 응답을 시험. 검수 도구: [rpc-client-response-gate.mjs](e2e/ci/rpc-client-response-gate.mjs); [무료 workflow](../.github/workflows/workmoa-qa-rpc-client-response.yml).
+- 정상 반환 Boolean `true`/양수 ID/인사 `batch_id,count`/PIN `target_count`/32자리 hex revision/백업·복원 요약 및 scope 등 계약 확인. **이는 프런트 검증함수의 모의 입력 테스트만 PASS**이며 실제 최신 RPC 26종 SQL 원본·Auth/RLS·동시 CAS 실증 **0**. 운영 불일치 배포차단 RED 계속 유지.
+- 이번 GitHub 작업은 안전한 공개 QA 자료만 갱신. 실제 SQL 구현/독립 QA 서버 설치/운영 직원 데이터/운영 `main`/배포 변경 **0**. **3-8-53 완료, 3-8-54 미시작·BLOCKED, 37종, 전체 NOT CLEAN** 유지.
