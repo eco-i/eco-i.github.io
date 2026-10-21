@@ -154,7 +154,7 @@ def main():
                 # Use the visible modal header close and explicitly accept the
                 # genuine unsaved-draft discard confirmation.
                 page.once("dialog",lambda dlg:dlg.accept())
-                page.locator('#detailBackdrop [data-close="detail"]').click()
+                page.get_by_role("button",name="날짜 상세 닫기").click()
                 page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=5000)
 
                 open_date(page,OVERTIME,"overtime")
