@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "stage": "DECISION_BLOCKERS_NOT_IMPLEMENTATION",
+  "sourceMainHeadSha": "6c784210e048426f18a486d5602652626d97574d",
+  "sourceMainHtmlBlobSha": "5553a1d319e3ab7ff4dd6bb8ee7d995657112698",
+  "lockedRpcContract": "qa-round3/e2e/ci/missing-rpc-recovery-contracts.json",
+  "operationalReleaseAllowed": false,
+  "originalSQLRecovered": false,
+  "isolatedRealE2EPassed": false,
+  "mainModified": false,
+  "formalLastCompleted": "3-8-53",
+  "next": "3-8-54_BLOCKED",
+  "officialDefects": 37,
+  "mustResolve": [
+    {
+      "id": "P0-CAS-BATCH-CANCEL",
+      "rpc": "admin_cancel_personnel_batch_v2",
+      "mainLine": 10371,
+      "clientPayload": [
+        "p_token",
+        "p_batch_id"
+      ],
+      "existingClientFreshnessReads": [
+        "list_personnel_assignments",
+        "personnelBatchSourceSnapshot",
+        "personnelBatchSourceStillSame"
+      ],
+      "risk": "SERVER_RECEIVES_NO_EXPECTED_SNAPSHOT_AND_CANNOT_COMPARE_ORIGINAL_VIEW_STATE",
+      "requiredAction": "VERSIONED_CLIENT_AND_SERVER_CONTRACT_OR_PROVEN_EQUIVALENT_ATOMIC_PROTECTION",
+      "minEvidence": [
+        "stale_batch_modified_but_still_active_must_reject",
+        "two_admin_conflicting_cancellation_vs_edit_must_not_lose_changes",
+        "future_only_and_admin_rechecked_server_side",
+        "history_rollback_on_failure"
+      ],
+      "resolution": "UNRESOLVED"
+    },
+    {
+      "id": "P1-CAS-HOLIDAY-ELIGIBILITY",
+      "rpc": "admin_set_holiday_work_enabled_v2",
+      "mainLine": 9466,
+      "clientPayload": [
+        "p_token",
+        "p_employee_id",
+        "p_enabled"
+      ],
+      "existingClientFreshnessReads": [
+        "personnelMutationReady",
+        "holidayWorkEligibilityReady"
+      ],
+      "risk": "SERVER_RECEIVES_TARGET_BOOLEAN_WITHOUT_EXPECTED_PREVIOUS_STATE",
+      "requiredAction": "VERSIONED_CLIENT_AND_SERVER_CONTRACT_OR_EXPLICITLY_REVIEWED_CONFLICT_SEMANTICS",
+      "minEvidence": [
+        "two_admin_same_employee_opposite_toggles_are_arbitrated",
+        "stale_ui_write_does_not_silently_overwrite_changed_state",
+        "existing_holiday_work_rows_preserved_when_eligibility_disabled",
+        "role_revoke_during_write_must_reject"
+      ],
+      "resolution": "UNRESOLVED"
+    },
+    {
+      "id": "P0-SCOPE-SHARED-PREVIEW",
+      "rpc": "preview_data_restore_v2",
+      "mainLines": [
+        10998,
+        11020,
+        11084,
+        11110
+      ],
+      "clientScopes": {
+        "personal": 2,
+        "admin": 2
+      },
+      "risk": "SAME_RPC_NAME_SERVES_PERSONAL_AND_ADMIN_PAYLOAD_SCOPES",
+      "requiredAction": "AUTHORIZE_BACKUP_SCOPE_ON_SERVER_IN_EACH_REQUEST",
+      "minEvidence": [
+        "nonadmin_cannot_preview_admin_data",
+        "role_downgrade_between_preview_apply_must_reject",
+        "preview_has_zero_database_side_effects",
+        "backup_type_not_trusted_from_untrusted_payload"
+      ],
+      "resolution": "UNRESOLVED"
+    },
+    {
+      "id": "P0-RESTORE-REVISION-CHAIN",
+      "rpcs": [
+        "get_personnel_restore_revision_v1",
+        "admin_restore_personnel_snapshot_v3",
+        "preview_current_personnel_pin_reset_v1",
+        "admin_reset_current_personnel_pins_v3",
+        "preview_admin_reset_data_v2",
+        "admin_reset_data_v2",
+        "preview_data_restore_v2",
+        "admin_restore_data_v2",
+        "restore_my_data_v2",
+        "preview_safety_backup_restore_v2",
+        "admin_restore_safety_backup_v2"
+      ],
+      "risk": "PREVIEW_REVISION_CANNOT_PROTECT_UNRELATED_FUTURE_WRITES_UNLESS_COMPARED_AT_MUTATION_COMMIT",
+      "requiredAction": "RECHECK_CURRENT_SCOPE_AND_REVISION_INSIDE_SAME_AUTHORIZED_TRANSACTION",
+      "minEvidence": [
+        "preview_then_other_admin_mutation_then_apply_is_rejected",
+        "invalid_payload_rolls_back_every_write",
+        "stale_pin_or_account_privilege_blocks_apply",
+        "backup_identity_and_schema_invariants_survive_rollback"
+      ],
+      "resolution": "UNRESOLVED"
+    }
+  ],
+  "phaseOrder": [
+    {
+      "phase": 0,
+      "task": "APPROVE_RESTRICTED_PRIVATE_IMPLEMENTATION_SOURCE_AND_CLEAN_QA_EXECUTION_ENVIRONMENT",
+      "state": "BLOCKED_APPROVAL_AND_SOURCE"
+    },
+    {
+      "phase": 1,
+      "task": "REVIEW_SERVER_IDENTITY_SESSIONS_ADMIN_PIN_EXECUTE_RLS_TRANSACTIONAL_HELPER_INTERFACES",
+      "state": "BLOCKED_PRIVATE_IMPLEMENTATION"
+    },
+    {
+      "phase": 2,
+      "task": "RESOLVE_TWO_MISSING_CLIENT_EXPECTED_STATE_INPUTS_AND_SHARED_PREVIEW_SCOPE_AUTHORIZATION",
+      "state": "BLOCKED_CONTRACT_DESIGN"
+    },
+    {
+      "phase": 3,
+      "task": "IMPLEMENT_AND_INDEPENDENTLY_REVIEW_PRIVATE_REAL_SQL_26_NAMES_NO_LEGACY_FORWARDING",
+      "state": "BLOCKED_PRIVATE_IMPLEMENTATION"
+    },
+    {
+      "phase": 4,
+      "task": "RUN_ISOLATED_POSTGRES_POSTGREST_AUTH_RLS_CONCURRENT_REAL_E2E_WITH_SYNTHETIC_EMPLOYEES",
+      "state": "BLOCKED_ENVIRONMENT_AND_SQL"
+    },
+    {
+      "phase": 5,
+      "task": "REPEAT_RELEASE_MISMATCH_AUDIT_PREPARE_SEPARATE_EXPLICIT_APPROVAL_FOR_PRODUCTION",
+      "state": "BLOCKED_ALL_PRIOR_PHASES"
+    }
+  ]
+}
