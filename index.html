@@ -7838,7 +7838,7 @@ function syncOpenDetailPermissionsPreservingDraft(){
     if($('holidayWorkEmployee'))$('holidayWorkEmployee').disabled=ro||!admin||opPending||!personnelReady;
     if($('saveHolidayWorkBtn'))$('saveHolidayWorkBtn').classList.toggle('hidden',!editable);
     if($('deleteHolidayWorkBtn')){$('deleteHolidayWorkBtn').disabled=!canDelete;$('deleteHolidayWorkBtn').classList.toggle('hidden',uiLocked||deferredAdminDraft||(locked&&!admin)||!backendReady);}
-    if($('holidayWorkError'))const holidayWorkPermissionNotice=!target?'해당 날짜에 휴일근무 등록 가능한 일근 직원이 없습니다.':(adminContextLost?'관리자 권한이 변경되어 이 직원의 휴근을 더 이상 수정할 수 없습니다. 입력값은 보존됩니다.':(ro?'조회 전용 계정으로 변경되어 현재 작성 중 내용은 저장할 수 없습니다.':(!personnelReady?'최신 인사이력을 확인하지 못해 휴근을 변경할 수 없습니다. 입력값은 보존됩니다.':(backendLoading?'휴근 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.':(backendBad?'휴근 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.':(locked?'현재 휴일근무 등록이 비활성화되어 있습니다.':''))))));
+    const holidayWorkPermissionNotice=!target?'해당 날짜에 휴일근무 등록 가능한 일근 직원이 없습니다.':(adminContextLost?'관리자 권한이 변경되어 이 직원의 휴근을 더 이상 수정할 수 없습니다. 입력값은 보존됩니다.':(ro?'조회 전용 계정으로 변경되어 현재 작성 중 내용은 저장할 수 없습니다.':(!personnelReady?'최신 인사이력을 확인하지 못해 휴근을 변경할 수 없습니다. 입력값은 보존됩니다.':(backendLoading?'휴근 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.':(backendBad?'휴근 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.':(locked?'현재 휴일근무 등록이 비활성화되어 있습니다.':''))))));
     const holidayWorkErrorNode=$('holidayWorkError'),holidayWorkPreviousPermissionNotice=holidayWorkErrorNode.dataset.permissionMessage||'';
     if(holidayWorkPermissionNotice)holidayWorkErrorNode.textContent=holidayWorkPermissionNotice;
     else if(holidayWorkPreviousPermissionNotice&&holidayWorkErrorNode.textContent===holidayWorkPreviousPermissionNotice)holidayWorkErrorNode.textContent='';
