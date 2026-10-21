@@ -132,7 +132,8 @@ def main():
             browser=p.chromium.launch(headless=True,args=["--no-sandbox"])
             try:
                 context=browser.new_context(locale="ko-KR",service_workers="block")
-                page=context.new_page(); blocked=[];errors=[]
+                page=context.new_page(); blocked=[];errors=[];navigations=[]
+                page.on("framenavigated",lambda f:navigations.append(f.url))
                 def gate(route):
                     url=urlsplit(route.request.url)
                     if url.hostname==br.HOST and url.port in (br.PORT,br.WEB) and url.scheme in ("http","ws"):
@@ -186,8 +187,11 @@ def main():
                 check(page.evaluate("!!state.me && !state.me.is_read_only && state.accountStatusBackendReady===true"),
                       "current synthetic session is active and account status is authoritative before click")
                 page.locator("#saveAttendanceBtn").click()
-                deadline=time.monotonic()+12
+                deadline=time.monotonic()+5
                 while time.monotonic()<deadline and not SAVES:
+                    if not page.evaluate("!!state.me"):
+                        print("DIAG session lost immediately after button click",flush=True)
+                        break
                     time.sleep(.15)
                 if not SAVES:
                     print("DIAG calls="+",".join(CALLS[-30:]),flush=True)
@@ -195,8 +199,19 @@ def main():
                     print("DIAG form="+str(page.locator("#formError").text_content()),flush=True)
                     print("DIAG app="+str(page.evaluate("""()=>({
                       mode:state.mode,personnel:state.personnelBackendReady,
-                      account:state.me,attendanceCount:state.attendance.length
+                      account:state.me,tokenExists:!!state.sessionToken,
+                      initialPin:state.initialPinRequired,
+                      sessionKey:SESSION_KEY,tabToken:sessionStorage.getItem(SESSION_KEY),
+                      sharedToken:localStorage.getItem(SESSION_KEY),
+                      pageLifecycleFreshnessPending:pageLifecycleFreshnessPending,
+                      visibleGuide:document.getElementById('usageGuideBackdrop').className,
+                      appClass:document.getElementById('appView').className,
+                      loginClass:document.getElementById('loginView').className,
+                      formClass:document.getElementById('formBackdrop').className,
+                      attendanceCount:state.attendance.length
                     })""")),flush=True)
+                    print("DIAG pageNavigations="+str(navigations),flush=True)
+                    print("DIAG errors="+str(errors[-5:]),flush=True)
                 check(len(SAVES)==1,
                       "real save button passed preflight and issued exactly one protected attendance RPC")
                 row=br.value("""SELECT json_build_object(
