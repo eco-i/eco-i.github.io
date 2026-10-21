@@ -113,5 +113,37 @@ DO $test$ BEGIN
   THEN RAISE EXCEPTION 'TEST_TWO_SESSION_CAS_INVARIANT_FAILED'; END IF;
 END;$test$;
 SQL
+
+# Separate real two-admin collision for an active future personnel batch.
+psql -X -q -v ON_ERROR_STOP=1 <<'SQL'
+INSERT INTO qa_rpc_cas_lab.future_batches VALUES (21,DATE '2099-05-20','active',1);
+SQL
+psql -X -q -v ON_ERROR_STOP=1 >"$temp_dir/batch-a.log" 2>&1 <<'SQL' &
+BEGIN;
+SELECT batch_id FROM qa_rpc_cas_lab.future_batches WHERE batch_id=21 FOR UPDATE;
+SELECT pg_sleep(3);
+UPDATE qa_rpc_cas_lab.future_batches SET effective_date=DATE '2099-05-21',revision=revision+1 WHERE batch_id=21;
+COMMIT;
+SQL
+batch_holder=$!
+sleep 1
+batch_started=$(date +%s)
+if psql -X -q -v ON_ERROR_STOP=1 >"$temp_dir/batch-b.log" 2>&1 <<'SQL'
+SELECT qa_rpc_cas_lab.cancel_future_batch(21,1);
+SQL
+then echo 'FAIL: obsolete cancel overwrote concurrent personnel edit'; exit 1; fi
+batch_ended=$(date +%s)
+grep -q 'STALE_QA_BATCH' "$temp_dir/batch-b.log" || { echo 'FAIL: batch race lacked stale revision conflict'; exit 1; }
+wait "$batch_holder"
+test $((batch_ended-batch_started)) -ge 1 || { echo 'FAIL: batch row lock did not overlap'; exit 1; }
+psql -X -q -v ON_ERROR_STOP=1 <<'SQL'
+DO $test$ BEGIN
+  IF NOT EXISTS(SELECT 1 FROM qa_rpc_cas_lab.future_batches WHERE batch_id=21
+      AND batch_status='active' AND effective_date=DATE '2099-05-21' AND revision=2)
+    OR (SELECT count(*) FROM qa_rpc_cas_lab.audit_log WHERE category='batch_cancel' AND target_id=21)<>0
+  THEN RAISE EXCEPTION 'TEST_CONCURRENT_BATCH_EDIT_WAS_CANCELLED'; END IF;
+END;$test$;
+SQL
+
 echo 'REAL_POSTGRES_SYNTHETIC_CAS_LAB_PASS: row locking, stale rejection, 2 overlapping sessions, rollback'
 echo 'NOT_APPLICATION_E2E: independent fake schema/functions only, no Auth/RLS/real RPC implementation'
