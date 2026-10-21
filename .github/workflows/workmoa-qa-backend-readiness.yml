@@ -1,0 +1,49 @@
+name: Workmoa QA original backend SQL provenance audit (not E2E)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-backend-readiness.yml'
+      - 'qa-round3/e2e/ci/backend-readiness.mjs'
+      - 'index.html'
+      - 'maintenance-20261018.js'
+      - 'site-update-history.js'
+      - 'db/migrations/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-qa-backend-readiness-3-8
+  cancel-in-progress: true
+
+jobs:
+  source-readiness:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout only QA files without persistent credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inventory real frontend RPC calls versus versioned backend definitions
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/qa-3-8
+          test "$GITHUB_REPOSITORY" = eco-i/eco-i.github.io
+          test "$(git branch --show-current)" = qa-3-8
+          node qa-round3/e2e/ci/backend-readiness.mjs
+      - name: Save provenance inventory as QA evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-source-readiness
+          path: ${{ runner.temp }}/workmoa-backend-readiness.json
+          retention-days: 7
+          if-no-files-found: error
