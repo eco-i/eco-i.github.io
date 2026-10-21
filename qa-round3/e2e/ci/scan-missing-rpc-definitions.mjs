@@ -23,6 +23,9 @@ function scan(root,branch,names) {
   const list=git(root,'ls-files','-z').split('\0').filter(Boolean);
   const hits=[];let inspected=0;
   for(const filename of list) {
+    // This scanner's own synthetic parser-self-test contains a deliberately
+    // fake CREATE FUNCTION statement. It MUST NOT count as recovered source.
+    if(filename==='qa-round3/e2e/ci/scan-missing-rpc-definitions.mjs')continue;
     const ext=path.extname(filename).toLowerCase();
     if(!extensions.has(ext))continue;
     const full=path.join(root,filename);
