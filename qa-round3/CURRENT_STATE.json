@@ -1862,5 +1862,25 @@
     "new_product_defects": 0,
     "production_modified": false,
     "overall_clean": false
+  },
+  "backend_original_sql_readiness": {
+    "checked_kst": "2026-10-21T10:56:36+09:00",
+    "result": "VERSION_CONTROLLED_ORIGINAL_RPC_SCHEMA_INCOMPLETE_NO_FULL_APP_E2E",
+    "report": "qa-round3/BACKEND_ORIGINAL_SQL_READINESS_AUDIT_20261021.md",
+    "workflow": ".github/workflows/workmoa-qa-backend-readiness.yml",
+    "script": "qa-round3/e2e/ci/backend-readiness.mjs",
+    "run_id": 39530177504,
+    "run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39530177504",
+    "frontend_literal_and_fallback_names": 80,
+    "versioned_migration_sql_files": 16,
+    "matching_original_rpc_names_in_migrations": 6,
+    "rpc_names_missing_original_ddl_in_repo": 74,
+    "excludes_synthetic_ci_sql_fixtures": true,
+    "production_database_accessed": false,
+    "actual_live_db_missing_functions_unknown": true,
+    "full_app_e2e_verified": false,
+    "next_3_8_54": "BLOCKED_PENDING_PROVENANCE_AND_ISOLATED_REAL_BACKEND",
+    "current_overall_clean": false,
+    "release_approved": false
   }
 }
