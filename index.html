@@ -7838,7 +7838,11 @@ function syncOpenDetailPermissionsPreservingDraft(){
     if($('holidayWorkEmployee'))$('holidayWorkEmployee').disabled=ro||!admin||opPending||!personnelReady;
     if($('saveHolidayWorkBtn'))$('saveHolidayWorkBtn').classList.toggle('hidden',!editable);
     if($('deleteHolidayWorkBtn')){$('deleteHolidayWorkBtn').disabled=!canDelete;$('deleteHolidayWorkBtn').classList.toggle('hidden',uiLocked||deferredAdminDraft||(locked&&!admin)||!backendReady);}
-    if($('holidayWorkError'))$('holidayWorkError').textContent=!target?'해당 날짜에 휴일근무 등록 가능한 일근 직원이 없습니다.':(adminContextLost?'관리자 권한이 변경되어 이 직원의 휴근을 더 이상 수정할 수 없습니다. 입력값은 보존됩니다.':(ro?'조회 전용 계정으로 변경되어 현재 작성 중 내용은 저장할 수 없습니다.':(!personnelReady?'최신 인사이력을 확인하지 못해 휴근을 변경할 수 없습니다. 입력값은 보존됩니다.':(backendLoading?'휴근 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.':(backendBad?'휴근 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.':(locked?'현재 휴일근무 등록이 비활성화되어 있습니다.':''))))));
+    if($('holidayWorkError'))const holidayWorkPermissionNotice=!target?'해당 날짜에 휴일근무 등록 가능한 일근 직원이 없습니다.':(adminContextLost?'관리자 권한이 변경되어 이 직원의 휴근을 더 이상 수정할 수 없습니다. 입력값은 보존됩니다.':(ro?'조회 전용 계정으로 변경되어 현재 작성 중 내용은 저장할 수 없습니다.':(!personnelReady?'최신 인사이력을 확인하지 못해 휴근을 변경할 수 없습니다. 입력값은 보존됩니다.':(backendLoading?'휴근 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.':(backendBad?'휴근 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.':(locked?'현재 휴일근무 등록이 비활성화되어 있습니다.':''))))));
+    const holidayWorkErrorNode=$('holidayWorkError'),holidayWorkPreviousPermissionNotice=holidayWorkErrorNode.dataset.permissionMessage||'';
+    if(holidayWorkPermissionNotice)holidayWorkErrorNode.textContent=holidayWorkPermissionNotice;
+    else if(holidayWorkPreviousPermissionNotice&&holidayWorkErrorNode.textContent===holidayWorkPreviousPermissionNotice)holidayWorkErrorNode.textContent='';
+    holidayWorkErrorNode.dataset.permissionMessage=holidayWorkPermissionNotice;
   }
   if(!$('overtimeDetailSection')?.classList.contains('hidden')){
     const dateWritable=overtimeDetailDateWritable(key),backendReady=!configured()||state.overtimeBackendReady===true,backendLoading=configured()&&state.overtimeBackendReady===null,backendBad=configured()&&state.overtimeBackendReady===false,writable=dateWritable&&!ro&&backendReady&&!overtimeDaySavePending,rows=overtimeRowsForDate(key);
@@ -7847,7 +7851,11 @@ function syncOpenDetailPermissionsPreservingDraft(){
     $('saveOvertimeBtn').classList.toggle('hidden',!writable);
     renderOvertimeDetailValues();
     $('overtimeDetailStatus').textContent=ro?'조회 전용':(!personnelReady?'인사 확인 필요':(!dateWritable?'근무배치 없음':(backendLoading?'불러오는 중':(backendBad?'연결 확인':(!rows.length?'미등록':(rows.some(r=>r.completed)?'계획·완료':'계획'))))));
-    $('overtimeDetailError').textContent=ro?'조회 전용 계정으로 변경되어 현재 작성 중 내용은 저장할 수 없습니다.':(!personnelReady?'최신 인사이력을 확인하지 못해 초과근무를 변경할 수 없습니다. 작성 중 내용은 보존됩니다.':(!dateWritable?'현재 인사배치 기준으로 이 날짜에는 초과근무를 저장할 수 없습니다. 작성 중 내용은 보존됩니다.':(backendLoading?'초과근무 정보를 불러오는 중입니다.':(backendBad?'초과근무 서버 설정을 확인해 주세요.':''))));
+    const overtimePermissionNotice=ro?'조회 전용 계정으로 변경되어 현재 작성 중 내용은 저장할 수 없습니다.':(!personnelReady?'최신 인사이력을 확인하지 못해 초과근무를 변경할 수 없습니다. 작성 중 내용은 보존됩니다.':(!dateWritable?'현재 인사배치 기준으로 이 날짜에는 초과근무를 저장할 수 없습니다. 작성 중 내용은 보존됩니다.':(backendLoading?'초과근무 정보를 불러오는 중입니다.':(backendBad?'초과근무 서버 설정을 확인해 주세요.':''))));
+    const overtimeErrorNode=$('overtimeDetailError'),overtimePreviousPermissionNotice=overtimeErrorNode.dataset.permissionMessage||'';
+    if(overtimePermissionNotice)overtimeErrorNode.textContent=overtimePermissionNotice;
+    else if(overtimePreviousPermissionNotice&&overtimeErrorNode.textContent===overtimePreviousPermissionNotice)overtimeErrorNode.textContent='';
+    overtimeErrorNode.dataset.permissionMessage=overtimePermissionNotice;
   }
   if(!$('memoDetailSection')?.classList.contains('hidden')){
     const emp=myEmployeeRecord(),dateWritable=!!key&&!!emp&&!ro&&employeeOperationalOn(emp,key),backendReady=!configured()||state.memoBackendReady===true,backendLoading=configured()&&state.memoBackendReady===null,backendBad=configured()&&state.memoBackendReady===false,writable=personnelReady&&dateWritable&&backendReady&&!memoSavePending&&!memoDeletePendingDates.has(key),memo=memoForDate(key);
