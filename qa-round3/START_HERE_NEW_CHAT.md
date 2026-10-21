@@ -168,3 +168,9 @@
 - 비공개로 보관할 후보 `DRAFT_MEMO_RPC_3.sql.txt` 및 `MEMO_3_REVIEW_GATE.md`을 작업 파일로 생성. 초안은 `BEGIN; DO RAISE EXCEPTION ...; COMMIT;` 보호구문으로 **실행 시 트랜잭션 롤백**하도록 의도했고, 3 함수가 감사를 거치기 전엔 `EXECUTE` 권한을 부여하지 않음. **파일은 아직 private GitHub 미등록/서버 미설치, 실제 SQL 컴파일·Auth/RLS/CAS 시험 미완료**.
 - 승인된 독립 QA 인증/세션/인사 보조 함수를 검토해 SQL 문법과 전체 사용계정 경합을 검증한 후에만 보안 심사→private 정본화 검토. 무료 Supabase QA 프로젝트는 2개 활성 무료 한도로 현재 생성 불가.
 - 공식 **3-8-53 완료 / 3-8-54 미시작·보류 / 3차 신규 결함 37종 / 서버 최신 RPC 26종 미설치 / 전체 NOT CLEAN** 유지. `main`·운영 직원 DB·운영 SQL·배포 변경 0.
+
+## 2026-10-21 — Private GitHub 메모 RPC 3종 업로드 확인
+- 사용자가 Private GitHub 저장소 `ahnbest23-hash/workmoa-backend-private`에 `DRAFT_MEMO_RPC_3.sql.txt`, `MEMO_3_REVIEW_GATE.md` 두 파일 수동 업로드 완료. 저장소에 파일 존재 확인, SQL 초안은 총 **10,430바이트**, 보안검토 문서는 **1,876바이트**.
+- 두 파일 경로 정확히 일치. SQL은 `BEGIN;` 다음 의도적인 `DO ... RAISE EXCEPTION 'WORKMOA_DRAFT_ONLY'` 실행금지 가드 포함, 후보 함수명 `save_my_memo_v2` / `delete_my_memo_v2` / `delete_my_memos_v2` 3종 정확히 포함. 마지막에 **3개 함수 각각 EXECUTE 명시 REVOKE**, 실제 `GRANT EXECUTE` 없음. DB 직원 데이터 파괴성 테이블 DDL 없음(정적 텍스트 검사).
+- **중요:** 3종 `SECURITY DEFINER`의 내부 권한 검사, 세션/인사 보조함수, 함수소유자, 권한 상속/RLS, 실제 PostgreSQL 컴파일과 격리 E2E는 미검증이다. 정적 파일 확인은 설치 준비 승인도 완성도 PASS도 아니다. Postgres 함수는 기본 PUBLIC EXECUTE 이슈가 있으므로 출시 전 트랜잭션 단위 명시 REVOKE와 QA 보안시험을 계속 요구함.
+- SQL 내용은 Public에 복사하지 않았고 운영 Supabase DDL/DML/RPC 실행·직원 데이터 변경·운영 main 갱신 0. **공식 3-8-53 완료 / 3-8-54 BLOCKED / 제품결함 37종 / 서버 실제 누락 26종 / NOT CLEAN 유지**.
