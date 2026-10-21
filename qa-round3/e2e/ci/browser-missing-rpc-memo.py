@@ -89,6 +89,8 @@ def main():
             try:
                 context=browser.new_context(locale="ko-KR",service_workers="block")
                 page=context.new_page()
+                js_errors=[]
+                page.on("pageerror",lambda e:js_errors.append(str(e)[:300]))
                 external=[]
                 def route_gate(route):
                     uri=urlsplit(route.request.url)
@@ -152,8 +154,18 @@ def main():
                     print("DIAG app="+str(page.evaluate("""()=>({
                       memoBackend:state.memoBackendReady, personnel:state.personnelBackendReady,
                       selected:state.selectedDate, memoText:document.getElementById('memoText').value,
-                      action:state.me?.employee_id
+                      action:state.me?.employee_id,view:state.view,
+                      memoSavePending:memoSavePending, memoDateWritable:memoDateWritable(state.selectedDate),
+                      personnelMutationReady:personnelMutationReady(), readonly:accountReadOnly(),
+                      initialPinRequired:state.initialPinRequired,
+                      saveDisabled:document.getElementById('saveMemoBtn').disabled,
+                      editorOpen:document.getElementById('detailBackdrop').className,
+                      toast:document.getElementById('toast').textContent,
+                      loading:document.getElementById('loadingOverlay')?.className,
+                      dirty:detailDirtyFlags(),
+                      lifecycleReady:pageLifecycleWriteFreshnessReady()
                     })""")),flush=True)
+                    print("DIAG JS errors="+str(js_errors[-5:]),flush=True)
                 check(len(MISSING_REQUESTS)==1,
                       "actual Save button dispatched exactly one missing save_my_memo_v2 RPC")
                 page.wait_for_function("""()=>!memoSavePending && (
