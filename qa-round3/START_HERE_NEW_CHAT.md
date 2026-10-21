@@ -92,3 +92,9 @@
 - QA 제품 수정/문법교정: `659947c29f...` 초안에 잘못된 `if (...) const` 한 줄로 기존 CI 실패 → `cf84a389ea9e04e7c3e7ae7b3fbe3b24331311b1`로 바로잡음. **정상 검수 QA HTML blob `cc8df3e010234d87ef99b35e66d521ab18d96c4d`**. 운영 `main`/실 직원 DB는 변경 0.
 - [실제 가상 Chromium 버튼 Save·404/409 실패 UI PASS](https://github.com/eco-i/eco-i.github.io/actions/runs/39564500467) / [readonly 잠금·복귀 확장 PASS](https://github.com/eco-i/eco-i.github.io/actions/runs/39564699553). 휴근 가상 토요일 체크/시간, 초과근무 +10분; 가상 404/PGRST202 및 409/STALE_OVERTIME_DAY, 문구 유지·초안 보존·재시도 가능·실험용 PG 무쓰기 0·외부 Supabase 접근 0. 실제 운영 Auth/RLS/CAS E2E 아님.
 - **기존 로그인/근태/메모/PG 브리지 회귀는 문법 수정 후 모두 PASS**, 원본 SQL 감사 PASS. 서버 함수명 **26종 미설치/31개 직접 호출**은 여전히 실증되어 의도된 릴리스 계약 차단 CI RED 유지. 배포 금지/전체 NOT CLEAN. **3-8-53 마지막 공식 완료·3-8-54 미시작·공식 신규 결함 37종 유지**(새 UI 오류 정식 결함대장 등재는 별도 일관된 결정 후).
+
+## 2026-10-21 — 최신 RPC 26종 원본 추적·구버전 계약 정밀 분류
+- [1단계 원본 추적·위험 분류 보고](MISSING_RPC_26_SOURCE_RECOVERY_READINESS_20261021.md) / [26종 프런트 입력 계약 자동추출 manifest](e2e/ci/missing-rpc-recovery-contracts.json). 운영 main HTML/호출위치 31개소 대조; GitHub 현행 `db/migrations/*.sql` 16개 blob **26종 정의·명칭 등장 0**. 비공개 2026-09 SQL 보관본 6개 이름 일치 0(해당 6개만 확인, 전체 과거 자료 부재 단정 금지). 원본 SQL/인증정보 공개 반출 0.
+- 사용자 승인 범위의 운영 PostgreSQL 시스템 카탈로그 `SELECT`만 조회. 최신 26종은 설치되지 않았고, **22종**에 대응되는 이름의 구버전 서버 RPC 존재. 이 중 **19종은 프런트 요구 인자명/개수가 달라** CAS/revision 인자 등을 누락하며, **3종**은 인자명만 같으나 반환·권한/동시성 동등성은 미검증. **4종**은 유사 구버전 함수도 없음. **자동 fallback/운영 설치 절대 금지**.
+- **26종의 실제 최신 SQL 구현은 여전히 확보되지 않았음**. 다음은 신규 함수의 보안 계약/원본 출처를 승인된 비공개 경로에 안전하게 확보하고, 가상 PostgreSQL/PostgREST에서 진짜 함수 정의를 실증하는 것. 생성한 JSON은 *공개된 입력 필드 계약표*이지 SQL 함수 구현 아님. 기존 배포 차단 CI RED 유지.
+- QA HTML 최신 기존 blob `cc8df3e010234d87ef99b35e66d521ab18d96c4d` 유지, `main`·실 직원 DB/운영 SQL·배포 무변경, 공식 **3-8-53 / 3-8-54 미시작 / 결함 37종 유지 / NOT CLEAN**.
