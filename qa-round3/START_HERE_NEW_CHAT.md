@@ -208,3 +208,10 @@
 - 새 YAML/Bash 문법검사 **PASS**, 17,724바이트; **실제 HTTP 시험 아직 수행되지 않음**. 자동 비공개 GitHub 쓰기 제한으로 업로드 및 실제 Actions 실행이 필요. Private SQL 원문 공개 유출 0. QA 로그나 나중의 HTTP PASS도 Supabase API Gateway·Supabase Auth/실제 helper/RLS 통합을 증명하지 않음.
 - 운영 main HTML 원본 3346~3348행의 RPC HTTP 헤더는 `apikey: sb_publishable...`와 `Authorization: Bearer sb_publishable...`을 동시에 사용함. 현재 Supabase 공식 문서는 publishable 키가 JWT가 아니며 Authorization Bearer에 넣지 말고 apikey로만 사용하도록 안내한다. **구형 호환 게이트웨이의 실제 동작 확인 전까지 결함으로 확정하거나 운영 앱을 무단 수정하지 말 것.** 실 Supabase Gateway 인증 호환성은 후속 별도 검증.
 - **3-8-53 완료, 3-8-54 BLOCKED, 제품결함 37종, 실서버 정확명 RPC 26종 미설치, 전체 NOT CLEAN**. 운영 main·직원 DB·운영 SQL 변경 0.
+
+## 2026-10-22 — Private PostgREST HTTP 시험 실행 실패(준비단계 503), 새 채팅 인계
+- 사용자 Private `ahnbest23-hash/workmoa-backend-private`에 `.github/workflows/workmoa-private-memo3-http-qa.yml` **17,724바이트 정상 업로드**.
+- Actions **Run 39695127139**, job **119550528350**, **failure**. 임시 PostgreSQL 17 준비와 원본 SQL 가드 확인/임시 DB 복사본 컴파일까지 **SUCCESS**. `PostgREST container HTTP integration and negative authorization tests` step에서 첫 HTTP 요청 `POST /rpc/save_my_memo_v2` **503 PGRST002 — 'Could not query the database for the schema cache. Retrying.'** 발생하며 중단됨. PostgREST 14.18 시작 로그에서 schema cache 연결 재시도. PostgREST 준비대기 조건/DB role 접속권한·schema cache 권한(및 로그) 검토 필요; **메모 함수의 HTTP 비즈니스 로직이 실패했다고 확정하지 않음.**
+- Run 링크: https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39695127139 ; GitHub 공개 저장소에 비공개 SQL 내용은 이전처럼 복사하지 않음.
+- 전 단계 Private 메모3 PostgreSQL 컴파일·기능 **PASS** Run 39690694910 / 모의 역할 권한 **PASS** Run 39692505119 유지. 이번 HTTP 통합 **NOT VERIFIED**.
+- 다음 채팅에서 `.github/workflows/workmoa-private-memo3-http-qa.yml` 검토 → PGRST002 (schema-cache 준비/GRANT/role) 진단 → 전체 YAML 안전 수정본 준비→ 사용자 Private 업로드→재실행 확인. `main` 및 운영 Supabase 데이터·SQL/배포 변경 0. **공식 3-8-53 완료 / 3-8-54 BLOCKED / 신규 결함 37종 / 실서버 RPC 26종 미설치 / NOT CLEAN**.
