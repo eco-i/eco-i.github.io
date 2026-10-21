@@ -75,7 +75,7 @@ def open_date(page, date, kind):
       await loadMonthData(true);openDetail(date)}""",date)
     page.locator("#detailBackdrop.open").wait_for(timeout=10000)
     section=f"#{kind}DetailSection"
-    toggle=f"#{kind}DetailToggleBtn"
+    toggle="#holidayWorkToggleBtn" if kind=="holidayWork" else "#overtimeDetailToggleBtn"
     if not page.locator(section).is_visible():
         raise AssertionError(kind+" detail section unavailable in synthetic user/date")
     if not page.locator(section+" button").first.is_visible():
@@ -121,7 +121,7 @@ def main():
                 open_date(page,HOLIDAY,"holidayWork")
                 # Expand via actual UI toggle if the empty date is collapsed.
                 if not page.locator("#saveHolidayWorkBtn").is_visible():
-                    page.locator("#holidayWorkDetailToggleBtn").click()
+                    page.locator("#holidayWorkToggleBtn").click()
                 check(page.locator("#saveHolidayWorkBtn").is_visible() and
                       page.locator("#saveHolidayWorkBtn").is_enabled(),
                       "holiday work Save button available on a Saturday")
