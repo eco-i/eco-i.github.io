@@ -140,6 +140,9 @@ def main():
                       page.locator("#memoText").is_editable(),
                       "real memo edit field and Save button are enabled")
                 page.locator("#memoText").fill(MEMO_TEXT)
+                page.evaluate("""()=>{window.__qaMemoClickCount=0;
+                    document.getElementById('saveMemoBtn').addEventListener('click',
+                     ()=>window.__qaMemoClickCount++,{capture:true})}""")
                 check(br.value("SELECT count(*) FROM public.qa_memo_entries")==0,
                       "synthetic PostgreSQL contains no memo before click")
                 page.locator("#saveMemoBtn").click()
@@ -166,6 +169,9 @@ def main():
                       lifecycleReady:pageLifecycleWriteFreshnessReady()
                     })""")),flush=True)
                     print("DIAG JS errors="+str(js_errors[-5:]),flush=True)
+                    print("DIAG REAL CLICKS="+str(page.evaluate("window.__qaMemoClickCount")),flush=True)
+                    await_direct=page.evaluate("async ()=>{await saveSelectedDateMemo(); return {pending:memoSavePending,error:document.getElementById('memoDetailError').textContent}}")
+                    print("DIAG direct-function result="+str(await_direct)+" RPCs="+",".join(br.HITS[-6:]),flush=True)
                 check(len(MISSING_REQUESTS)==1,
                       "actual Save button dispatched exactly one missing save_my_memo_v2 RPC")
                 page.wait_for_function("""()=>!memoSavePending && (
