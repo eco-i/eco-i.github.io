@@ -1,5 +1,7 @@
 # 근무모아 — 실제 Chromium 메모 저장 버튼 ↔ 누락 RPC 실패경로 검수 (2026-10-21)
 
+> **후속 해결 정정 (2026-10-21):** 이 문서는 *당시 실패했던 검수 시점*의 기록이다. 이후 Playwright 요청 처리 대기 루프의 `time.sleep()` 블로킹 문제를 수정하자 버튼에서 실제 RPC 호출이 확인됐고, 앱의 `finally` 권한 UI 갱신이 서버 오류 안내를 지우는 별도 결함을 찾아 `qa-3-8`에서만 수정했다. [후속 PASS 증빙](MEMO_MISSING_RPC_ERROR_DISPLAY_FIX_VERIFIED_20261021.md) / [최신 확장 브라우저 PASS](https://github.com/eco-i/eco-i.github.io/actions/runs/39562765829). 운영 `main`·실제 DB 무변경이며 전체 E2E NOT CLEAN. 본문 이하의 'BLOCKED'는 이력을 설명할 뿐 현재 메모 음성 UI 검수 상태가 아니다.
+
 > **최종 판정: FAIL / BLOCKED (실 UI → 누락 RPC 오류 수신 E2E 미완성).**
 > 원인 확정 전 운영 사이트 결함이라고 단정하지 않는다. 테스트는 사용자 승인과 무관한 **운영 DB 액세스 0**, GitHub Actions의 일회용 가짜 DB와 가상 직원 UI만 활용했다.
 
