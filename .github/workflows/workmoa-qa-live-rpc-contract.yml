@@ -1,0 +1,66 @@
+name: Workmoa QA live RPC catalog snapshot contract gate (release BLOCKED)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-live-rpc-contract.yml'
+      - 'qa-round3/e2e/ci/live-rpc-contract-gate.mjs'
+      - 'qa-round3/e2e/ci/live-rpc-contract-snapshot.json'
+      - 'index.html'
+      - 'maintenance-20261018.js'
+      - 'site-update-history.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-qa-rpc-contract-3-8
+  cancel-in-progress: true
+
+jobs:
+  live-rpc-contract:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout QA source, no persistent credentials
+        uses: actions/checkout@v4
+        with:
+          path: qa
+          persist-credentials: false
+      - name: Checkout public production MAIN source as READ ONLY
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: live-main
+          persist-credentials: false
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Assert this is isolated QA and not a live database operation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'eco-i/eco-i.github.io'
+          test "$GITHUB_REF" = 'refs/heads/qa-3-8'
+          test -z "${DATABASE_URL:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          test -z "${PGPASSWORD:-}"
+          node --check qa/qa-round3/e2e/ci/live-rpc-contract-gate.mjs
+          node qa/qa-round3/e2e/ci/live-rpc-contract-gate.mjs --self-test
+      - name: Record production MAIN and QA source mismatch (snapshot, not live DB)
+        run: node qa/qa-round3/e2e/ci/live-rpc-contract-gate.mjs audit qa live-main
+      - name: Archive name-only inventory; never any DDL or credentials
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-rpc-contract-name-inventory-only
+          path: ${{ runner.temp }}/workmoa-live-rpc-contract.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Fail CLOSED on confirmed API contract mismatch (expected red gate)
+        run: node qa/qa-round3/e2e/ci/live-rpc-contract-gate.mjs enforce qa live-main
