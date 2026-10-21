@@ -188,3 +188,8 @@
 - 일회용 GitHub Actions PostgreSQL 17 서버에서 **anon 최초 EXECUTE 거부→QA 내부 한정 임시 EXECUTE 허용→서로 다른 가상 2직원 토큰별 메모 분리→위조/만료/읽기전용/타인 snapshot 거부→로그아웃 토큰 폐기→재차 REVOKE** 순으로 시험하는 YAML을 사용자용 파일로 준비. 기존 비공개 SQL 원본 SHA-256 고정과 fail-closed 가드 테스트 포함.
 - **현재 단계는 YAML·쉘 문법 사전검사만 PASS.** 새 YAML 파일은 아직 private repo 미등록, GitHub Actions **미실행**, Auth/RLS/PostgREST 실증 **0**. 작업환경에 로컬 PostgreSQL 실행 없음. 저장소 본문이나 SQL 보안 설계가 실제 라이브에 설치되었다고 주장하지 않음.
 - 공식 **3-8-53 완료 / 3-8-54 BLOCKED / 37종 / 실서버 누락 RPC 26종 / 전체 NOT CLEAN** 유지, 운영 `main`·실 직원 DB·SQL·배포 변경 0.
+
+## 2026-10-22 — Private 메모 역할권한 QA workflow 업로드 형식 오류, 시험 미실행
+- 사용자 수동 등록한 Private 경로 `.github/workflows/workmoa-private-memo3-security-qa.yml` 파일을 GitHub에서 확인했으나 **내용이 약 8,216자**로 시작 부분의 `name:`·`on:`·`jobs:`이 누락됨. 테스트 원본은 **15,549바이트**. GitHub Actions Run **39692088942**는 `failure`, **jobs 0**. 즉 YAML 파싱·워크플로 정의 실패이며 **실제 DB 보안시험 미시작**, 제품/권한시험 FAIL로 해석하지 않음.
+- 원본 전체 YAML 교체 파일을 준비했고 로컬 YAML 구문과 임베디드 Bash 실행 스크립트의 `bash -n`를 확인. **실제 PostgreSQL 권한시험의 PASS/FAIL은 아직 없음**. 사용자가 private repo `.github/workflows/`에 원본 전체 파일을 다시 업로드 또는 편집 후 GitHub Actions 결과 재확인 필요.
+- 검수 본선 `3-8-53` 마지막 완료, `3-8-54` BLOCKED, 신규 제품 결함 37종, 운영 정확명 RPC 26종 미설치, 전체 NOT CLEAN 상태 유지. `main`·운영 DB/SQL 수정 0.
