@@ -53,7 +53,7 @@ function checkLockedContract(root,prodRoot){
      lock.counts?.missingExactFunctions!==expectedTotalNames||
      lock.counts?.directProductionCallsites!==expectedTotalCallsites||
      lock.counts?.matchingOlderNameExists!==22||
-     lock.counts?.olderNameWithMatchingArgumentNames!==19||
+     lock.counts?.olderNameWithDifferingArgumentNames!==19||
      lock.counts?.olderNameWithMatchingArgumentNamesOnly!==3||
      lock.counts?.olderNameMissing!==4)fail('metadata is incomplete, or has been marked approved without actual E2E');
   if(lock.mainHeadSha!==git(prodRoot,'rev-parse','HEAD'))fail('production main commit drift');
