@@ -1,0 +1,73 @@
+name: Workmoa QA isolated PostgreSQL CAS lab (NOT application E2E)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-postgres-cas-lab.yml'
+      - 'qa-round3/e2e/experiments/synthetic-postgres-cas-lab.sql'
+      - 'qa-round3/e2e/experiments/run-synthetic-cas-lab.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-pg-cas-lab-3-8
+  cancel-in-progress: true
+
+jobs:
+  real-postgres-clean-room-experiment:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    services:
+      synthetic-postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: qa_synthetic_pg_only_20261021
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+      PGDATABASE: postgres
+      PGPASSWORD: qa_synthetic_pg_only_20261021
+    steps:
+      - name: Get QA branch only, no persisted repository credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Hard-stop on production/remote backend configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = eco-i/eco-i.github.io
+          test "$GITHUB_REF" = refs/heads/qa-3-8
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${QA_SUPABASE_URL:-}"
+          test -z "${DATABASE_URL:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          test "$PGHOST" = 127.0.0.1
+          command -v psql
+          psql --version
+      - name: Test actual PostgreSQL transactions and two competing sessions with only fake rows
+        shell: bash
+        run: bash qa-round3/e2e/experiments/run-synthetic-cas-lab.sh
+      - name: Explain narrow scope and release blocker
+        if: always()
+        shell: bash
+        run: |
+          echo 'Synthetic PostgreSQL experiment only.'
+          echo 'No original missing 26 RPC bodies, no application Auth/RLS, no Supabase, no real staff rows.'
+          echo 'Official 3-8-53 complete / 3-8-54 blocked / overall NOT CLEAN.'
+          echo 'Do not use lab SQL as a migration or enable production release.'
