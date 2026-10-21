@@ -130,3 +130,12 @@
 - [GitHub Actions 실제 PASS Run 39594553591](https://github.com/eco-i/eco-i.github.io/actions/runs/39594553591): Node VM 격리 환경에서 **실제 사이트의 검증 함수**를 추출해 합성 정상·비정상 응답을 시험. 검수 도구: [rpc-client-response-gate.mjs](e2e/ci/rpc-client-response-gate.mjs); [무료 workflow](../.github/workflows/workmoa-qa-rpc-client-response.yml).
 - 정상 반환 Boolean `true`/양수 ID/인사 `batch_id,count`/PIN `target_count`/32자리 hex revision/백업·복원 요약 및 scope 등 계약 확인. **이는 프런트 검증함수의 모의 입력 테스트만 PASS**이며 실제 최신 RPC 26종 SQL 원본·Auth/RLS·동시 CAS 실증 **0**. 운영 불일치 배포차단 RED 계속 유지.
 - 이번 GitHub 작업은 안전한 공개 QA 자료만 갱신. 실제 SQL 구현/독립 QA 서버 설치/운영 직원 데이터/운영 `main`/배포 변경 **0**. **3-8-53 완료, 3-8-54 미시작·BLOCKED, 37종, 전체 NOT CLEAN** 유지.
+
+## 2026-10-21 — 서버 복구 본격 설계 전 CAS/권한 의사결정 공백 4묶음 정밀 확인
+- [실제 클라이언트 근거와 복구 결정사항 상세 보고](RPC_RECOVERY_ACTUAL_CLIENT_CAS_AND_PREVIEW_BLOCKERS_20261021.md) / [비민감 기계판독 의사결정 기록](e2e/ci/rpc-recovery-unresolved-decision-register.json). 기존 조사를 반복하거나 새 synthetic fixture SQL/가짜 PASS를 추가하지 않고, 운영 `main` 원본 호출 흐름을 읽기 전용 대조.
+- 인사발령 취소 `admin_cancel_personnel_batch_v2` (10371행): UI는 최신 batch를 다시 읽어 snapshot 비교하지만 RPC에는 `p_token,p_batch_id`만 전달. 서버가 **사용자가 본 원본 수정버전**을 이 요청만으로 알 수 없어, 읽기→쓰기 사이 변경 감지의 클라이언트/서버 계약 결정이 선행.
+- 휴근 허용 토글 `admin_set_holiday_work_enabled_v2` (9466행): `p_token,p_employee_id,p_enabled`만 전달, 이전값/revision 부재. 동시 관리자 반대 요청에 대해 CAS 또는 명시적으로 승인된 충돌 처리 의미 결정 필요. 두 함수에 임의 `p_expected` 입력 삽입하거나 현행 26종 정적 게이트를 우회하지 않음.
+- 단일 `preview_data_restore_v2`는 개인 2곳/관리자 2곳 공유: UI 반환검증 이외에 서버에서 scope·권한을 독립 강제해야 함. 인사 복구/PIN 초기화/관리자 전체 복원·초기화의 preview→실행 revision 검증도 **트랜잭션 원자 조건**임을 정리.
+- 새 보고서는 공개 가능한 보안 수용조건·API 설계 미결정만 포함하고 비공개 함수 SQL 원문/RLS 정책/키/직원 데이터 없음. **실제 26종 SQL 원본 0, 서버 설치 0, 신규 E2E 0**; 출시차단 CI 의도된 RED 유지.
+- 다음 실질 단계는 **비공개 구현 소스/독립 QA 환경의 명시적 승인·확보→세션/권한/CAS 구현 계약 확정→실 SQL QA 통합시험**. 이번에는 운영 Supabase에 재접속하지 않음.
+- 공식 마지막 **3-8-53**, 다음 **3-8-54 미시작·BLOCKED**, 신규 제품결함 **37종**, 전체 **NOT CLEAN**, `main`·실제 직원 DB·운영 SQL/RPC·배포 변경 없음.
