@@ -1,0 +1,63 @@
+name: Workmoa QA static missing-RPC recovery contract integrity (NOT E2E)
+
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-rpc-recovery-integrity.yml'
+      - 'qa-round3/e2e/ci/rpc-recovery-integrity-gate.mjs'
+      - 'qa-round3/e2e/ci/missing-rpc-recovery-contracts.json'
+      - 'index.html'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-qa-rpc-recovery-integrity-3-8
+  cancel-in-progress: true
+
+jobs:
+  static-contract-protection:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out QA only with no persisted credentials
+        uses: actions/checkout@v4
+        with:
+          path: qa
+          persist-credentials: false
+      - name: Read-only checkout of production main source for contract comparison
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: live-main
+          persist-credentials: false
+      - name: Setup Node.js (no package installation)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Hard-stop on production or secret-configured runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = eco-i/eco-i.github.io
+          test "$GITHUB_REF" = refs/heads/qa-3-8
+          test -z "${DATABASE_URL:-}"
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          test -z "${QA_SUPABASE_URL:-}"
+          test -z "${QA_SUPABASE_ANON_KEY:-}"
+          node --check qa/qa-round3/e2e/ci/rpc-recovery-integrity-gate.mjs
+          node qa/qa-round3/e2e/ci/rpc-recovery-integrity-gate.mjs --self-test
+      - name: Verify all 26 missing API names and CAS payload fields against main and QA
+        run: node qa/qa-round3/e2e/ci/rpc-recovery-integrity-gate.mjs audit qa live-main
+      - name: Archive public-name-only static contract report
+        uses: actions/upload-artifact@v4
+        with:
+          name: workmoa-rpc-recovery-static-contract-only
+          path: ${{ runner.temp }}/workmoa-rpc-recovery-contract-integrity.json
+          if-no-files-found: error
+          retention-days: 7
