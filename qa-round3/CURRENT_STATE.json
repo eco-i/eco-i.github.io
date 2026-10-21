@@ -1843,5 +1843,24 @@
     "production_main_modified": false,
     "production_db_touched": false,
     "new_product_defects": 0
+  },
+  "actions_ci_actual_attendance_form": {
+    "status": "SCOPED_PASS_REAL_APP_ATTENDANCE_FORM_TO_SYNTHETIC_POSTGRESQL",
+    "verified_kst": "2026-10-21T09:06:54+09:00",
+    "run_id": 39519223780,
+    "run_url": "https://github.com/eco-i/eco-i.github.io/actions/runs/39519223780",
+    "run_sha": "42b0cf1b5c3eb1f596234b27d893254d90285fce",
+    "report": "qa-round3/ACTIONS_REAL_ATTENDANCE_FORM_SYNTHETIC_SQL_PASS_20261021.md",
+    "actual_chromium_form_button_click": true,
+    "actual_sql_commit_verified": true,
+    "post_save_ui_resync_verified": true,
+    "synthetic_backend_login_personnel_rpcs": true,
+    "synthetic_attendance_sql_not_production_original": true,
+    "real_auth_postgrest_rls_verified": false,
+    "full_app_p0_p1_e2e_verified": false,
+    "qa_product_changes": 0,
+    "new_product_defects": 0,
+    "production_modified": false,
+    "overall_clean": false
   }
 }
