@@ -103,3 +103,10 @@
 - **[GitHub Actions Run 39569094304](https://github.com/eco-i/eco-i.github.io/actions/runs/39569094304) 실제 SUCCESS**. [단계 증빙 보고서](RPC_RECOVERY_STATIC_INTEGRITY_GATE_VERIFIED_20261021.md). QA 정적 회귀 게이트 [rpc-recovery-integrity-gate.mjs](e2e/ci/rpc-recovery-integrity-gate.mjs) 및 [Actions 워크플로](../.github/workflows/workmoa-qa-rpc-recovery-integrity.yml) 추가. main 소스 SHA 고정·QA vs main 직접 RPC 이름 **26종/호출 31곳**과 인자명 확인, CAS 필드 삭제/legacy 함수로 이름 대체하면 fail closed. 실제 UI/SQL/Auth/RLS 동작은 확인하지 않음.
 - **중요 구분: 이번 정적 입력 계약 보존용 새 CI는 GREEN**, 기존 **운영 서버에 최신 RPC 이름 26종이 없다는 배포 차단용 CI는 의도대로 RED**. 두 결과를 혼동하거나 GREEN으로 배포 승인하지 말 것. 최신 서버 함수 SQL 본문 0종 확보, 가상 DB에 최신 함수 설치 및 서버 E2E 0. 기존 실측 동일기본명 legacy 함수 22종 중 19종 인자 불일치/3종 인자명만 일치/4종 legacy 없음. 운영과 직원 데이터 건드리지 않음.
 - GitHub commit 검색으로 추가 과거 DB 관련 커밋을 확인했지만, **26개 최신 원본 확보 근거 없음**(검색 범위의 한계). 승인된 비공개 SQL 저장·독립 QA 백엔드 원본 확보 전에는 자동 fallback·SQL 생성·운영 배포 금지. 공식 **3-8-53 완료/3-8-54 보류/3차 37종**, 전체 NOT CLEAN.
+
+## 2026-10-21 — 누락 26종 공개 SQL 원본 전수 자동검색: 정확히 0종
+- [공개 원본 추적·가짜 양성 정정 보고서](MISSING_RPC_26_FULL_PUBLIC_SOURCE_PROVENANCE_SCAN_20261021.md). GitHub 브랜치 **29개/서로 다른 HEAD 22개**에서 SQL 경로 비교; 현행 마이그레이션 16개 및 과거 기능브랜치 전용 업데이트내역 SQL 2개 모두 누락 26종 정의 후보 없음.
+- [자동 원본 검색 Actions Run 39570774153](https://github.com/eco-i/eco-i.github.io/actions/runs/39570774153) 실제 SUCCESS. main·qa-2-8·qa-3-8의 tracked 텍스트 **1,210개**에서 CREATE FUNCTION/CREATE OR REPLACE FUNCTION 정확 최신명 26개 탐색해 **정의 후보 0/26**. [비민감 스캐너](e2e/ci/scan-missing-rpc-definitions.mjs)와 자동 workflow 추가, 7일 artifact에는 SQL 본문 없음.
+- 최초 Run 39570556356의 save_my_memo_v2 한 건은 **검색기 자체의 self-test 가짜 CREATE 예제**였으며 실제 원본이 아님. Run 39570696025로 위치 확인 후 자기 예제를 제외해 재검색 → 0건. **가짜 양성을 원본 복구로 집계하지 않음**.
+- **현 단계 필수 제약**: 최신 26종 서버 함수 현재 미설치, 원본 SQL 미확보, 구버전 22종 중 19종 CAS 등 인자 불일치. 정적 호출 계약 QA GREEN vs 실 운영 서버 명칭 불일치 배포 차단 RED. 신규 함수 임의 SQL 생성·운영 설치·legacy fallback 하지 않음.
+- 다음 안전 진전에는 **운영에 이미 설치된 구버전/공통 서버 함수의 SQL 정의 본문·테이블 스키마/RLS 구조까지 읽기 전용 분석하는 별도 명시적 승인**이 필요. 기존 사용자의 허용은 함수명/인자 카탈로그 메타데이터까지여서 본문/정책식 조회는 아직 승인받지 않았음. PUBLIC 저장소에 함수 보안 본문 반출 금지. 독립 QA PostgreSQL/PostgREST Auth/RLS 실제 서버함수 실증 전에는 3-8-54 시작 불가. 공식 3-8-53 완료·3-8-54 보류·37종·NOT CLEAN; main/직원DB 보호.
