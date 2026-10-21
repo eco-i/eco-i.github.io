@@ -68,3 +68,8 @@
 - [실제 호출 위치·기능별 영향·구버전 호환성 실측 보고](LIVE_RPC_CALLSITE_MISMATCH_AUDIT_20261021.md) 작성. 사용자 승인 범위의 운영 `pg_proc` 카탈로그 조회와 `main` 및 `qa-3-8` HTML 정적 호출을 대조: **26종은 운영 `public` 서버에 같은 이름의 함수가 없고**, 두 HTML 모두 `rpc('...')`로 **총 31곳에서 직접 호출**한다는 근거 확보. 읽기 전용 조사로 실제 화면 오류/기록 손실을 재현하지는 않음.
 - 기존 설치된 `v1`/구이름 함수가 일부 있어도 최신 호출의 `p_expected`, `p_expected_updated_at`, `p_expected_revision` CAS 인자 등이 불일치. **무단 구버전 fallback/원본 아닌 신규 함수 설치 금지**. 원본 정본 확보와 독립 synthetic QA 동시성 검증 필요.
 - 데이터·SQL 원본/PIN·세션·직원기록 조회/운영 RPC 실행은 0. 운영 `main` 변경 0. 신규 제품 결함 공식 **37종 유지**(이번은 계약 실측·실제 UI 동작 미검증), `3-8-53` 마지막 완료 / `3-8-54` 미시작 / 전체 NOT CLEAN.
+
+## 2026-10-21 — 실제 Actions 운영 RPC 계약 자동 배포차단 검수
+- [실제 자동검수 결과 보고](LIVE_RPC_RELEASE_GATE_FIRST_RUN_20261021.md) / [Actions Run 39540136579](https://github.com/eco-i/eco-i.github.io/actions/runs/39540136579): **QA 코드 checkout + 운영 main 읽기전용 checkout + Node 파서 자기시험 + 스냅샷 실측 대응 감사 + 이름 전용 증빙 artifact 저장 모두 성공, 마지막 릴리스 차단만 의도적으로 FAIL**. 워크플로 빨간 표시는 테스트 도구 고장이 아니라 **확인된 26 미설치 RPC/직접 호출 31곳 때문에 배포 금지하는 정상 작동**.
+- 신규 QA 전용 파일: `qa-round3/e2e/ci/live-rpc-contract-snapshot.json`, `qa-round3/e2e/ci/live-rpc-contract-gate.mjs`, `.github/workflows/workmoa-qa-live-rpc-contract.yml`; **원본 SQL·RLS·운영 키·실제 데이터는 저장하지 않음**. CI에서는 운영 Supabase에 접속하지 않으며 하루짜리 사용자가 승인한 catalog 메타데이터 스냅샷을 적용(7일 만료, main SHA 변경 시 fail closed).
+- 자동차단은 원본 누락 26종의 수리나 실제 E2E 검증이 아니므로 **전체 NOT CLEAN**, **3-8-53 공식 마지막 완료·3-8-54 미시작·결함 37종 유지**. 구버전 fallback 강제 삽입·운영 RPC 수정/설치는 명시적 최종 승인 없이 절대 금지.
