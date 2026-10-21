@@ -79,3 +79,10 @@
 - 실제 Chromium 버튼 클릭 이벤트 1개, CDP 메모 저장 click 리스너 1개는 확인했지만 **클릭 직후 memo 저장 RPC가 나가지 않았음**. 동일 화면에서 함수 *직접 호출*로 RPC가 발생한 것은 사용자 버튼 E2E 성공이 아니므로 검수 코드가 직접 호출 진단을 제거하고 **UI_BUTTON_NOT_DISPATCHED FAIL CLOSED**하도록 수정함.
 - **실제 운영 서비스 장애의 근본 원인이나 신규 확정 결함으로 단정하지 않음**: 독립 합성 인증/브리지와 앱 초기화/세션보호 조건을 추가 분리 진단해야 함. 기존 서버 함수 미설치 26종/직접 호출 31곳 실측은 그대로 유효. 메모 404 후 UI 오류·초안 유지에 관한 E2E PASS는 아직 주장할 수 없음.
 - `main`/직원 DB/실제 Supabase/운영 로그인/RLS·RPC 읽기·쓰기 0. **3-8-53 완료 / 3-8-54 미시작 / 신규 결함 37종 / 전체 NOT CLEAN**.
+
+## 2026-10-21 — 실제 메모 저장 실패 UI 원인 규명 + QA 전용 수정, Chromium PASS
+- [최종 실증 및 최소 수정 보고](MEMO_MISSING_RPC_ERROR_DISPLAY_FIX_VERIFIED_20261021.md): 앞서 “버튼 클릭 후 RPC 미발생”이라고 보였던 것은 QA 테스트의 `time.sleep()` 대기가 Playwright `page.route` 이벤트 루프를 막은 하네스 문제. 정상적 `expect_response`/이벤트 루프 대기로 다시 측정하니 실제 UI Save click→`save_my_memo_v2` POST **1회**→합성 404 반환을 확인.
+- 앱에 **별도 실제 결함 확인**: `saveSelectedDateMemo()` catch의 저장실패 문구를 같은 함수 finally에서 `syncOpenDetailPermissionsPreservingDraft()`가 비워 버림. `qa-3-8/index.html` 한 구간만 보수적으로 수정 (commit `c09c31507b21c7f61b91f769b03120997a7b57ce`, **QA blob `ea593d343ba8e16757adc0582a395ccfd8e8fc69`**). 데이터 편집/서버 RPC/세션/운영 코드 변경 0.
+- [크로미움 수정 최초 PASS Run 39562537890](https://github.com/eco-i/eco-i.github.io/actions/runs/39562537890), [추가 권한 전환 회귀 PASS Run 39562765829](https://github.com/eco-i/eco-i.github.io/actions/runs/39562765829): 사용자 가상 로그인, 실제 Save 버튼, 합성 PGRST202/404, 저장오류 가시성, 입력 초안 유지, DB 불변 0건, 다시 쓰기 가능, readonly 잠금/복귀 정상. **운영 PostgREST/Auth/RLS의 실제 E2E 완료가 아님.**
+- 변경 커밋 기준 기존 가상 근태 폼/로그인/SQL 브리지/원본 감사 PASS; [운영 API 이름 불일치 배포 차단](https://github.com/eco-i/eco-i.github.io/actions/runs/39562537918)은 **의도된 RED** 유지(26 서버 함수 미설치, 31 UI 호출 개소).
+- 구 [실패 보고](MISSING_RPC_REAL_MEMO_BUTTON_E2E_BLOCKER_20261021.md)에는 **후속 해결 표시**. 현재 해당 실패는 QA 브라우저 음성경로 범위에서 해소. QA 제품결함 **1건 신규 확인·QA에서 수정**하되 공식 상태파일의 누적 결함 **37종·3-8-53 완료·3-8-54 미시작**은 아직 변경하지 않음. 실제 P0/P1 E2E, 독립 QA 원본 서버 복구, 운영 배포 **NOT CLEAN/BLOCKED**.
