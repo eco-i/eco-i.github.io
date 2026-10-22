@@ -29,3 +29,17 @@
 4. 현재 전체 미설치 RPC 21종에서 이 7종이 실제 운영에 설치·검증되면 비로소 잔여 **14종**으로 감소한다. 인사·복원·초기화 고위험 14종은 이번 범위 밖.
 
 **공식 3차:** 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 3차 새 결함 37종 / 전체 NOT CLEAN.
+
+## 사용자 운영 적용 승인에 따른 실제 서버 복구 완료 — 2026-10-22
+
+**승인 범위:** SongdoFood project `fnzgjidzdazlodmjhmes` 운영 SQL 함수 7종 신규 등록 + 구버전 비동시수정보호 쓰기 7종 브라우저 실행 권한 차단. **운영 `eco-i/eco-i.github.io/main` 변경 없음.** 사용자 명시 승인으로 실행.
+
+- **Supabase 성공 마이그레이션:** `20261022134303_workmoa_restore_holiday_leave_long_v2_cas_20261022`, 서버 `list_migrations` 에서 확인.
+- 안전한 migration: SHA 고정된 private SQL 초안 2개에서 설치금지 marker 제거·스키마/구버전 함수/신버전 미설치 사전검사 뒤 single migration DDL, 생성 후 새 함수 7종 anon/authenticated/service_role `EXECUTE` 명시 허용. 기존 v1 쓰기 함수 7종 `PUBLIC, anon, authenticated` 실행권한 취소. 기존 v1 함수는 삭제하지 않으며 backend `service_role` EXECUTE 유지. `NOTIFY pgrst,'reload schema'`.
+- `pg_proc` 사후 읽기 전용 확인: **새 7/7** postgres 소유·SECURITY DEFINER·올바른 프런트 인자·익명/인증 사용자 실행권한. **기존 7/7** 브라우저 실행권한 false, service_role true. 기존 함수 내부 PostgreSQL definer 호출 유지.
+- **실데이터 불변 검증 (사전/사후 동일)**: 직원 15, 휴근 19 (max `2026-10-05 23:39:40.720181+00`), 휴근 사용 가능 설정 2 (max `2026-09-11 13:47:15.109679+00`), 연차 기준 2 (max `2026-09-12 15:51:54.220803+00`), 장기재직 기준 1 (max `2026-09-24 10:43:14.67104+00`), 제외기간 0, 감사로그 128 (최종 생성 `2026-10-22 11:15:18.486302+00`). 실제 직원 개별 행은 열람·수정하지 않았고 집계/마지막 수정 시각만 대조. 변동 0.
+- 외부 접속·실사용 검증: **가짜 직원 PostgreSQL17/PostgREST14.18 93/93 PASS는 유지**, 그러나 운영 사이트에서 직원 사용자의 RPC 쓰기 성공/재조회 E2E는 **아직 미실시**. 해당 기능을 완전 CLEAN으로 선언 금지.
+- 운영 누락 RPC **21→14종** 직접 `pg_proc` 재확인. 잔여 목록: `admin_apply_personnel_batch_v3`, `admin_cancel_personnel_batch_v2`, `admin_reset_current_personnel_pins_v3`, `admin_reset_data_v2`, `admin_restore_data_v2`, `admin_restore_personnel_snapshot_v3`, `admin_restore_safety_backup_v2`, `admin_set_employee_account_status_v3`, `get_personnel_restore_revision_v1`, `preview_admin_reset_data_v2`, `preview_current_personnel_pin_reset_v1`, `preview_data_restore_v2`, `preview_safety_backup_restore_v2`, `restore_my_data_v2`. 위험한 PIN·인사·복원·초기화 함수는 **이번 승인 범위 밖, 전혀 설치하지 않음**.
+- Supabase Security advisors 사후 점검: 기존 RLS-no-policy 안내 등, 공개 세션기반 SECURITY DEFINER 관련 WARN 존재. 이 앱의 custom session architecture와 관련, 신규 범위 외 대규모 보안구조 변경 없음. 참조: https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable
+- 운영 브라우저의 구버전 탭은 v1 direct 호출에 대해 접근 거절될 수 있으므로 최신화/새로고침 안내. 운영 `main` 브라우저 코드는 이미 v2로 작성됨.
+- 3차 공식 3-8-53 완료, 3-8-54 미시작·BLOCKED, 신규 제품 결함 37종, **NOT CLEAN**, 배포 승인/실사용 전체 E2E **아님**.
