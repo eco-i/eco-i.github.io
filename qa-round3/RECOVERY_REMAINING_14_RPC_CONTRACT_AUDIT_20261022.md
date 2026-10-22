@@ -40,3 +40,11 @@
 - 14종은 조회 함수부터 무분별하게 설치할 수 없고, 최소한 대응하는 쓰기와 동시수정 보호를 완성해야 함. 가장 위험한 개인/관리자 백업/초기화는 삭제행이 생기므로 완전 격리 DB 회귀검증/복원 직전 새 안전백업 검증 필수.
 - 운영 `eco-i/eco-i.github.io/main`는 변경하지 않음. QA 리포트·비공개 초안만 추가. 원칙: 승인 전 운영 DB DDL/권한/직원 기록/사이트 배포 금지.
 - 3차 종합검수 마지막 **3-8-53**, 다음 **3-8-54 미시작·보류**, 3차 새 결함 37, 전체 **NOT CLEAN**.
+
+## 추가 2026-10-22 — 시험 진척, 인사발령 취소 3인자 실제 SQL 결합 검증
+
+- [인사 복구 기준값 read-only QA Run 39794106739](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39794106739) **SUCCESS 47/47**. 가짜 관리자 권한·가짜 인사변경에 반응한 32자리 hex. 단 raw state ABA 한계가 실제로 드러나 감사/복구 high-watermark가 필요한 점까지 검증; **실제 인사복원 보호 완성 아님 / 운영 RPC 설치 0**.
+- 운영 SQL `pg_proc`로 **현재 admin_cancel_personnel_batch(uuid,bigint) v1 원본을 읽기 전용 확인**하고 private `qa/PERSONNEL_CANCEL_OPERATIONAL_V1_COPY_NO_DEPLOY.sql.txt`에 실행 하드스톱 포함 복사. 실제 운영 `personnel_batches`에는 `batch_revision`이 없고 인사관련 revision trigger 없음(트리거는 `employees` Realtime에만 존재). 프런트 QA가 보내는 세 인자 기대값은 운영 DB와 계약 불일치.
+- Private 복구 후보 `DRAFT_PERSONNEL_CANCEL_ACTUAL_V1_WRAPPER_NOT_FOR_LIVE.sql.txt`는 `p_expected_revision`이 필수인 v2를 **오직 synthetic additive `batch_revision` + 버전 증가 trigger** 하에서만 실행. `SELECT ... FOR UPDATE` 후 expected revision과 status/batch_kind/date 확인, 기존 실운영 v1 함수 내부 호출하여 원래 snapshot, audit, admin coverage, realtime signal 유지. 과거 v1 HTTP `anon` 실행 권한을 실험실에서 차단하여 CAS 우회 방지.
+- `qa/personnel_cancel_operational_schema_fixture.sql`, `qa/personnel_cancel_operational_wrapper_http_check.py`, `qa/run_personnel_cancel_operational_wrapper_lab.sh`, `.github/workflows/workmoa-private-personnel-cancel-operational-wrapper-qa.yml` 추가. [격리 시험 Run 39795582713](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39795582713) **실행 결과 확인 전 PASS 주장 금지**. 테스트: 운영 V1 SQL 원본 리플레이, 두 관리자 동시 취소 1승 1패, 2인자 main 요청 HTTP 실패, stale/권한/미래 발령 검증, 감사 insert 강제실패 전체 롤백.
+- **운영 적용 막는 미해결 조건:** `personnel_batches` column/trigger 현재 없음, `list_personnel_assignments` 반환 revision 없음, `main`은 두 인자, QA는 세 인자, 기존 다른 `admin_apply_personnel_batch`·`admin_cancel_personnel_batch`·`admin_set_employee_account_status`·복구/초기화/PIN 경로의 공통 monotonic revision·잠금·ABA 대응 전체 설계 미완료. 이번 synthetic 위임 후보를 그대로 운영에 설치하지 않음. 직원 행 0.
