@@ -6055,19 +6055,19 @@ async function loadHolidayWorkEligibility(previousEligibility=new Map()){
   if(!configured()){
     if(!stillCurrent())return false;
     const localById=new Map(localEmployees().map(e=>[Number(e.id),e]));
-    state.employees.forEach(e=>{const src=localById.get(Number(e.id));e.holiday_work_enabled=src?.holiday_work_enabled!==false;});
+    state.employees.forEach(e=>{const src=localById.get(Number(e.id));e.holiday_work_enabled=src?.holiday_work_enabled!==false;e.holiday_work_eligibility_revision=0;});
     state.holidayWorkEligibilityReady=true;
     return true;
   }
   state.holidayWorkEligibilityReady=null;
   try{
-    const rows=await rpc('list_holiday_work_eligibility',{p_token:token});
+    const rows=await rpc('list_holiday_work_eligibility_v2',{p_token:token});
     if(!stillCurrent())return false;
     const expectedIds=new Set(state.employees.map(e=>Number(e.id)));
     const eligibilityIds=new Set();
-    if(!validRpcObjectRowList(rows)||rows.length!==expectedIds.size||rows.some(r=>{const id=Number(r.employee_id);if(!Number.isSafeInteger(id)||id<=0||!expectedIds.has(id)||typeof r.holiday_work_enabled!=='boolean'||eligibilityIds.has(id))return true;eligibilityIds.add(id);return false;})||eligibilityIds.size!==expectedIds.size)throw new Error('INVALID_HOLIDAY_WORK_ELIGIBILITY_PAYLOAD');
-    const enabledById=new Map(rows.map(r=>[Number(r.employee_id),r.holiday_work_enabled]));
-    state.employees.forEach(e=>{e.holiday_work_enabled=enabledById.get(Number(e.id));});
+    if(!validRpcObjectRowList(rows)||rows.length!==expectedIds.size||rows.some(r=>{const id=Number(r.employee_id);if(!Number.isSafeInteger(id)||id<=0||!expectedIds.has(id)||typeof r.holiday_work_enabled!=='boolean'||!Number.isSafeInteger(r.eligibility_revision)||r.eligibility_revision<0||eligibilityIds.has(id))return true;eligibilityIds.add(id);return false;})||eligibilityIds.size!==expectedIds.size)throw new Error('INVALID_HOLIDAY_WORK_ELIGIBILITY_PAYLOAD');
+    const eligibilityById=new Map(rows.map(r=>[Number(r.employee_id),{enabled:r.holiday_work_enabled,revision:r.eligibility_revision}]));
+    state.employees.forEach(e=>{const v=eligibilityById.get(Number(e.id));e.holiday_work_enabled=v.enabled;e.holiday_work_eligibility_revision=v.revision;});
     state.holidayWorkEligibilityReady=true;
     return true;
   }catch(e){
@@ -9669,18 +9669,40 @@ async function changeHolidayWorkEligibility(input){
   if(!target||!isHolidayWorkEmployee(target,todayKey())||!employeeOperationalOn(target,todayKey())){renderEmployeeManager();return;}
   if(configured()&&state.personnelBackendReady!==true){showToast(state.personnelBackendReady===null?'최신 인사이력을 확인 중입니다. 잠시 후 다시 시도해 주세요.':'최신 인사이력을 확인하지 못해 휴일근무 가능 설정을 변경할 수 없습니다. 새로고침 후 다시 시도해 주세요.','error');renderEmployeeManager();return;}
   if(configured()&&state.holidayWorkEligibilityReady!==true){showToast('휴일근무 가능 설정을 불러온 뒤 다시 시도해 주세요.','error');renderEmployeeManager();return;}
+  // Only an authoritative versioned eligibility read may authorize this CAS write.
+  const expectedRevision=target.holiday_work_eligibility_revision;
+  if(configured()&&(!Number.isSafeInteger(expectedRevision)||expectedRevision<0)){
+    state.holidayWorkEligibilityReady=false;
+    showToast('휴일근무 가능 설정의 최신 버전이 없어 변경할 수 없습니다. 새로고침 후 다시 시도해 주세요.','error');renderEmployeeManager();return;
+  }
   const enabled=!!input.checked;input.checked=!enabled;
   const message=enabled?`${target.display_name}님의 휴일근무 등록을 활성화할까요?\n\n활성화하면 신규 휴일근무를 등록할 수 있습니다.`:`${target.display_name}님의 휴일근무 등록을 비활성화할까요?\n\n신규 휴일근무 등록 대상에서 제외됩니다.\n기존 휴일근무 기록은 삭제되지 않습니다.`;
   if(!confirmMutationWithSessionGuard(message)||!stillCurrent()||!pageStillCurrent())return;
   holidayWorkEligibilityPendingIds.add(employeeId);input.disabled=true;showLoading(true);let mutationApplied=false,resultContractOk=true;
   try{
     if(!configured()){const rows=localEmployees(),row=rows.find(e=>Number(e.id)===employeeId);if(!row)throw new Error('직원 정보를 찾을 수 없습니다.');row.holiday_work_enabled=enabled;saveLocalEmployees(rows);pushLocalAudit('휴근 가능 변경',row.display_name,enabled?'휴일근무 가능':'휴일근무 불가',row.id);}
-    else{const result=await rpc('admin_set_holiday_work_enabled_v2',{p_token:token,p_employee_id:employeeId,p_enabled:enabled});try{strictTrueMutationResultRpc(result,'INVALID_HOLIDAY_ELIGIBILITY_MUTATION_RESULT_PAYLOAD');}catch(_){resultContractOk=false;}}
+    else{const result=await rpc('admin_set_holiday_work_enabled_v2',{p_token:token,p_employee_id:employeeId,p_enabled:enabled,p_expected_revision:expectedRevision});try{strictTrueMutationResultRpc(result,'INVALID_HOLIDAY_ELIGIBILITY_MUTATION_RESULT_PAYLOAD');}catch(_){resultContractOk=false;}}
     mutationApplied=true;if(!stillCurrent())return;const employeesSynced=await loadEmployees();if(!stillCurrent())return;if(activeAdminMode())renderEmployeeManager();
     if(!resultContractOk)showToast(mutationResultUncertainAfterResyncText('휴일근무 가능 설정 변경',employeesSynced!==false,'직원 상태'),'info');
     else if(employeesSynced===false){realtimeNeedsCatchup=true;scheduleRealtimeRefresh(650);showToast('휴일근무 가능 설정은 저장됐지만 최신 직원 상태를 다시 불러오지 못했습니다. 새로고침 후 확인해 주세요.','error');}
     else showToast(enabled?`✓ ${target.display_name}님의 휴일근무 등록을 활성화했습니다.`:`✓ ${target.display_name}님의 휴일근무 등록을 비활성화했습니다.`,'success');
-  }catch(e){if(mutationApplied?stillCurrent():stillCurrent()){if(activeAdminMode())renderEmployeeManager();if(mutationApplied&&resultContractOk){realtimeNeedsCatchup=true;scheduleRealtimeRefresh(650);}showToast(mutationApplied?(resultContractOk?'휴일근무 가능 설정은 저장됐지만 최신 직원 상태를 다시 불러오지 못했습니다. 새로고침 후 확인해 주세요.':mutationResultUncertainAfterResyncText('휴일근무 가능 설정 변경',false,'직원 상태')):userSafeServiceError(e,'휴일근무 가능 설정을 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.'),mutationApplied&&!resultContractOk?'info':'error');}}
+}catch(e){
+    if(!mutationApplied&&/STALE_HOLIDAY_ELIGIBILITY/i.test(errorText(e))){
+      if(stillCurrent()){
+        // A 409 is a definite no-write; never auto-retry an outdated revision.
+        // Bring the current staff-wide version into the UI before another action.
+        const synced=await loadEmployeesBestEffortForAccountSync();
+        if(stillCurrent()){
+          if(activeAdminMode())renderEmployeeManager();
+          showToast(synced?'다른 관리자가 휴일근무 가능 설정을 변경했습니다. 최신 상태를 확인한 뒤 다시 선택해 주세요.':'다른 관리자가 설정을 변경했습니다. 최신 상태를 불러오지 못해 변경을 잠갔습니다. 새로고침해 주세요.','error');
+        }
+      }
+    }else if(stillCurrent()){
+      if(activeAdminMode())renderEmployeeManager();
+      if(mutationApplied&&resultContractOk){realtimeNeedsCatchup=true;scheduleRealtimeRefresh(650);}
+      showToast(mutationApplied?(resultContractOk?'휴일근무 가능 설정은 저장됐지만 최신 직원 상태를 다시 불러오지 못했습니다. 새로고침 후 확인해 주세요.':mutationResultUncertainAfterResyncText('휴일근무 가능 설정 변경',false,'직원 상태')):userSafeServiceError(e,'휴일근무 가능 설정을 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.'),mutationApplied&&!resultContractOk?'info':'error');
+    }
+  }
   finally{if(sessionStillCurrent()){holidayWorkEligibilityPendingIds.delete(employeeId);if(stillCurrent()&&input?.isConnected)input.disabled=!personnelMutationReady()||(configured()&&state.holidayWorkEligibilityReady!==true);showLoading(false);}}
 }
 function openResetCurrentPins(){
