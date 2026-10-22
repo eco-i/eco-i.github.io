@@ -164,6 +164,21 @@ def main():
                 open_date(page,PHOTO_DATE,2026,9)
                 check(page.evaluate("state.fingerprintBackendReady===true"),"fingerprint metadata ready before photo choice")
                 upload=page.locator("#fingerprintClockInUploadBtn")
+                if not (upload.is_visible() and upload.is_enabled()):
+                    diag=page.evaluate("""()=>({
+                      selectedDate:state.selectedDate,view:state.view,
+                      today:todayKey(),personnel:state.personnelBackendReady,
+                      fingerprint:state.fingerprintBackendReady,
+                      accountReadOnly:accountReadOnly(),personnelReady:fingerprintPersonnelReady(),
+                      operational:fingerprintDateOperational(state.selectedDate),
+                      dateNotFuture:fingerprintDateNotFuture(state.selectedDate),
+                      hidden:document.getElementById('fingerprintDetailSection')?.className,
+                      btnDisabled:document.getElementById('fingerprintClockInUploadBtn')?.disabled,
+                      detailError:document.getElementById('fingerprintDetailError')?.textContent,
+                      employee:state.employees.find(e=>Number(e.id)===2)?.placement_code,
+                      lifecycle:pageLifecycleFreshnessPending
+                    })""")
+                    print("SYNTHETIC_FINGERPRINT_BUTTON_DIAG="+str(diag),flush=True)
                 check(upload.is_visible() and upload.is_enabled(),
                       "real fingerprint upload button enabled on past synthetic active date")
                 photo=make_png()
