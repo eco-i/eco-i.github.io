@@ -311,3 +311,11 @@
 - [QA Node 합성 DOM/RPC Run 39731183694](https://github.com/eco-i/eco-i.github.io/actions/runs/39731183694) **3/3 PASS** (PGRST202→초안/dirty 보호, 일반 실패 보존, 실제 성공+authoritative 재조회 시 baseline 일치). [QA 실제 Chromium 버튼+격리 PG Run 39731183588](https://github.com/eco-i/eco-i.github.io/actions/runs/39731183588) **SUCCESS** (합성 PostgREST 404→실화면 오류·입력 보존·DB 신규행 0·운영 연결 0). 이는 운영 PostgREST/Auth 실데이터 검증 아님.
 - [실서버 계약 snapshot Run 39731183593](https://github.com/eco-i/eco-i.github.io/actions/runs/39731183593)는 26개 RPC 미해결/31개 호출 지점에 대해 **의도한 FAIL CLOSED**; 새 UI 테스트 PASS와 구분한다. 세부 보고서 `qa-round3/MEMO_SAVE_CLOSE_WARNING_TRIAGE_20261022.md`.
 - **배포 계속 차단:** 운영 메모 v2 함수 실질 복구는 별도 비공개 서버/보안·CAS 검토 및 **명시적 운영 적용 승인** 필요. QA 화면 안내 패치만으로 운영 저장 성공 X. 공식 누적 제품 결함 **37종 유지(기존 RPC 누락과 중복 미가산)**, 블록 **3-8-53 완료/3-8-54 NOT STARTED·BLOCKED/전체 NOT CLEAN**, RPC 격리개발 후보 **12/26종**·운영 설치 0/26종(이전 검증 범위), 직원 DB·지문·운영 `main` 무변경.
+
+## 2026-10-22 — 개인 메모 3종 실제 트리거·세션 핵심계약 합성 추가검수 38/38 (운영 함수 누락은 아직 BLOCKED)
+- 운영 Supabase의 **read-only 함수 정의/트리거/FK/RLS 메타데이터만** 대조하고, 실제 직원 메모·세션·지문 데이터 행 조회 및 운영 DDL/RPC/권한 쓰기 0.
+- 정본 서버에서 세션 직원 컨텍스트를 설정하는 경로와 이를 검사하는 `personal_memos` 쓰기 트리거가 존재함을 확인. 메모 D-day와 메모 행은 FK `ON DELETE CASCADE` 연결. 예전 개인 메모 쓰기 함수는 여전히 유효한 EXECUTE 권한을 갖고 있으며 CAS를 수행하지 않는 경로임. 신규 v2와 병용하면 CAS 우회 우려가 있어 운영 이행 설계 필수.
+- 비공개 새 검수 [Run 39732563709](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39732563709) Job 119670716035 전체 SUCCESS, `MEMO_LIVE_GUC_TRIGGER_AND_FK_SCOPED_PASS` **38/38 PASS**: 기존 SQL 초안 그대로 실행 차단, 임시 독립 PostgreSQL17/PostgREST14.18 복사본에 세션 컨텍스트·쓰기 트리거·D-day FK의 관찰된 핵심계약을 **합성 모델**로 적용해 생성/수정/동시성/CAS/타인 접근 거부/읽기전용 세션/단건·다건 삭제·D-day 연동/원자 롤백/RLS 및 HTTP 임시권한 회수 확인.
+- 이는 실제 운영 Auth/PIN·인사 효력일 상세·실제 트리거/권한 전문 또는 운영 메모 저장 성공 검증이 아님. 운영 사이트 `ver20261018-2313`에 필요한 `save_my_memo_v2`·`delete_my_memo_v2`·`delete_my_memos_v2` **여전히 누락**, 임의로 구버전 함수에 폴백하지 않음. 사용자에게는 미저장 경고를 없애지 말고 작성글 보존 안내.
+- 비공개 보고서 `ahnbest23-hash/workmoa-backend-private/MEMO_GUARD_INTEGRATION_QA_20261022.md`. 공식 기능별 합성 PASS **12/26종 그대로**, 운영 실제 설치 **0/26종**, 결함 집계 **37종 유지**, **3-8-53 완료 / 3-8-54 NOT STARTED·BLOCKED / 전체 NOT CLEAN**. `main`·운영 직원DB·지문·SQL/GRANT·배포 변경 0.
+- 후속은 기존 v1 쓰기 호출권한·구형 웹 캐시의 안전한 전환 계약 및 QA 브라우저→실 QA PostgREST→합성 DB 메모 저장 후 닫기 성공 경로 검증. 운영 설치/배포는 별도 명시 승인 필요.
