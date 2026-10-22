@@ -32,6 +32,7 @@ function scenario({online=true,rows=null,readFailure=false,write='success',revis
     realtimeNeedsCatchup:false,
     configured:()=>online,localEmployees:()=>[{id:2,holiday_work_enabled:false}],
     activeAdminMode:()=>true,personnelMutationReady:()=>true,
+    todayKey:()=> '2026-10-22',
     isHolidayWorkEmployee:()=>true,employeeOperationalOn:()=>true,
     pageLifecycleWriteFreshnessReady:()=>true,
     sharedSessionContextCurrent:()=>true,sessionContextCurrent:()=>true,
