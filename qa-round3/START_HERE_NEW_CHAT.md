@@ -429,3 +429,10 @@
 - 비공개 첫 안전 설계 후보: `DRAFT_PERSONNEL_RESTORE_REVISION_V1_REVIEW_ONLY_20261022.sql.txt` (`_require_admin`, 단일 읽기 snapshot, 32-hex hash만 응답, 실행시 무조건 에러로 막는 guard), synthetic PG17/PostgREST14.18 gate [Run 39794106739](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39794106739). 성공 여부 미확정/신뢰 불가 시 보고서 갱신; **실운영 설치 절대 안함**.
 - 작업 묶음 5개: 인사/계정/인사복원5, PIN미리보기+초기화2, 개인·관리자 백업복원3, 관리자 초기화2, 안전백업 복원2. preview와 destructive mutation은 동일 권한·CAS·잠금 버전으로 *함께* 격리시험. 과거 v1 백업 미리보기는 `current_revision`이 없고 기존 원본 인사복원은 여러 이력테이블 전체 삭제·재적재. 미검증 포워더/일괄 설치 금지.
 - 진행상태: 기존 복구 RPC 12/26, 남은 14/26. 별도 3차 마지막 완료 3-8-53 / 3-8-54 미시작·BLOCKED / 신규 결함 37 / NOT CLEAN. 사용자 실사용 기존 4장애 해결 이력과 다른 범위.
+
+## 2026-10-22 추가 — 남은 14종의 인사 취소 실제 SQL/CAS 진척
+- [잔여 14종 정리 보고서](RECOVERY_REMAINING_14_RPC_CONTRACT_AUDIT_20261022.md)를 최신화.
+- Private 가짜 PostgreSQL17/PostgREST14.18 **인사 복구 기준값 조회 1종 47/47 PASS** [Run 39794106739](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39794106739). 데이터 내용 ABA 한계 확인. 이건 사용자 실운영 함수 설치가 아닌 **read-only prototype 격리**이며 14종은 운영 모두 누락 그대로.
+- 실운영 `admin_cancel_personnel_batch(uuid,bigint)` v1 원문을 read-only `pg_proc` 조회→비공개 `qa/PERSONNEL_CANCEL_OPERATIONAL_V1_COPY_NO_DEPLOY.sql.txt` 실행 차단 파일에 별도 복사. 비공개 `DRAFT_PERSONNEL_CANCEL_ACTUAL_V1_WRAPPER_NOT_FOR_LIVE.sql.txt`는 v1 위에 3인자 expected revision 검사를 추가하고 기존 Snapshot/감사/신호 보존(가상 `batch_revision` 칼럼/trigger). [Run 39795582713](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39795582713) 추가 시험, **최종 성공 전 PASS 선언 금지**.
+- 운영 `main`은 2인자 취소, QA는 3인자 취소. 실운영 `personnel_batches`엔 revision 필드 없음. live personnel_batches/actions/account_events에 공통 revision/lock/ABA CAS가 정립되지 않아 **그대로 설치 불가**. 실제 권한/직원 데이터/운영 main 무변경.
+- 이번에는 3차 검수 블록 재개한 것이 아님. 공식 3-8-53/3-8-54 BLOCKED, 신규결함37, NOT CLEAN. 사용자는 14 RPC 기능별 실제 복구를 우선 요청 중.
