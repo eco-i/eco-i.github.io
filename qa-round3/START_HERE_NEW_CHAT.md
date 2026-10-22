@@ -377,3 +377,11 @@
 - 브라우저 첫 Run 실패는 테스트가 빈 지문 섹션 자동 접힘을 펼치지 않은 문제, 두번째는 테스트의 Playwright `mimeType` 키 오류. 사용자 제품결함 아님. 세번째 Run 18/18 성공.
 - 휴대폰 native picker 모의 `pagehide/pageshow` roundtrip 추후 격리시험 [Run 39774707035](https://github.com/eco-i/eco-i.github.io/actions/runs/39774707035) 추가 검증 중. 결과 확인 전 PASS 집계 금지.
 - **운영 main/실 직원 DB/운영 SQL 변경 0**, 운영 미설치 RPC **21**, 공식 **3-8-53 완료, 3-8-54 미시작·BLOCKED, 제품결함 37, NOT CLEAN** 유지. Android 실제 picker/초과근무 실사용 장애는 아직 해결 검증 안 됨.
+
+## 2026-10-22 — 장애 복구우선: 지문 native-picker 모의/초과근무 목록 수정 UI 통과, 반복안정성 후속
+- [브라우저 범위별 증거](FINGERPRINT_OVERTIME_REAL_BROWSER_DB_QA_20261022.md).
+- [Run 39774707035](https://github.com/eco-i/eco-i.github.io/actions/runs/39774707035) **20/20 PASS**: 실제 QA HTML·Chromium 파일선택창, BFCache `pagehide/pageshow` 모의, 지문 교체 CAS·단일 upload DB 재조회, 초과근무 날짜상세 10→20 저장. 실제 Android OS picker E2E **아님**.
+- 실제 월간 초과근무 목록 `수정` 버튼 경로를 추가로 시험: 처음 [Run 39781365923](https://github.com/eco-i/eco-i.github.io/actions/runs/39781365923)에서 목록에서 20→30 초안까진 가능했으나 Playwright HTTP 응답 listener 15초 Timeout, 원인 미확정(제품 결함 확정 금지). 상태 안전진단 보강 후 [Run 39781727235](https://github.com/eco-i/eco-i.github.io/actions/runs/39781727235) **27/27 PASS**, 실제 버튼으로 20→30 저장→가상 PostgreSQL DB 커밋·재조회 확인.
+- CI `.github/workflows/workmoa-qa-fingerprint-overtime-browser.yml`은 synthetic DB를 매번 새로 초기화해 동일 27개 UI 버튼→DB 테스트 3회 반복으로 강화. [Run 39781994803](https://github.com/eco-i/eco-i.github.io/actions/runs/39781994803) 결과 미확인 중에는 81/81 통과 주장 금지.
+- 운영 `main`의 `handleFingerprintPhotoInput`, `selectFingerprintPhoto`, `saveOvertimeDay`, `loadOvertimeList` 등 코어 구현이 현재 QA와 같음 직접 대조. 단, QA만 안전 오류진단 표시 있음.
+- **운영 main, 실제 직원 DB, Supabase migration/데이터 변경 전혀 없음.** 합성 로그인/HTTP/SQL 흐름의 성공을 실제 운영 지문·초과근무 복구로 주장 금지. 실제 사용자 장애 원인/해결 확인 전. 미설치 RPC 21, 3차 3-8-54 BLOCKED / 신규 결함 37 / NOT CLEAN 유지.
