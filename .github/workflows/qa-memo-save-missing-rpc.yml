@@ -1,0 +1,23 @@
+name: QA memo save missing-RPC and dirty-state regression
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - 'index.html'
+      - 'qa-round3/tests/memo-save-missing-rpc.test.cjs'
+      - '.github/workflows/qa-memo-save-missing-rpc.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-browser-logic:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: node --test qa-round3/tests/memo-save-missing-rpc.test.cjs
+      - run: |
+          echo 'QA-only synthetic mocked DOM/RPC test. Not live Supabase, not operational app E2E, no production deploy.' >> "$GITHUB_STEP_SUMMARY"
