@@ -73,8 +73,15 @@ jobs:
           psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/synthetic-baseline.sql
           psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/attendance-form-fixture.sql
           psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/fingerprint-overtime-browser-fixture.sql
-      - name: Real Chromium photo file chooser and overtime Save -> synthetic PG
-        run: python3 -u qa-round3/e2e/ci/browser-fingerprint-overtime-success.py
+      - name: Repeat actual Chromium photo chooser and overtime list-edit browser flow three times
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "REAL_UI_SYNTHETIC_DB_ATTEMPT=$attempt"
+            psql -X -v ON_ERROR_STOP=1 -c "TRUNCATE public.qa_browser_fingerprint, public.qa_browser_overtime RESTART IDENTITY"
+            python3 -u qa-round3/e2e/ci/browser-fingerprint-overtime-success.py
+          done
       - name: Honest scope
         if: always()
         run: |
