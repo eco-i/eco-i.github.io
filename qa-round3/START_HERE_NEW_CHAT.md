@@ -302,3 +302,12 @@
 - **통합 검증 경계:** 운영 앱은 여전히 2열 읽기/3인자 토글 계약이고 운영 `v1` 쓰기·기존 트리거/인사발령/Auth/RLS/월확정·P0/P1 브라우저 E2E를 새 공통 잠금 방식으로 검증한 게 아님. 새 실운영 정책·버전 이행 없이 설치·배포 금지. 비공개 상세: `ahnbest23-hash/workmoa-backend-private/HOLIDAY_CROSS_RPC_SHARED_LOCK_GATE_20261022.md`. 원문 SQL·인증정보 공개 저장 0.
 - **누적 기능별 격리 PASS 후보 12/26종 그대로**(새 RPC 함수 0종); 나머지 14종 미실증. 운영 누락 최신 RPC 설치 0/26종(기존 읽기전용 실측), `main`·실직원 DB/지문·운영 SQL/권한·배포 변경 0. 공식 **3-8-53 완료 / 3-8-54 NOT STARTED·BLOCKED / 3차 신규 결함 37종 / 전체 NOT CLEAN**.
 - 다음 우선순위: **QA 앱 읽기 버전+4인자 CAS UI 수정 계약 및 충돌 안내→재조회 흐름을 공개 `qa-3-8`에서만 설계/검증**, 독립 synthetic 브라우저→PostgREST→DB 통합 후 운영 배포 별도 승인.
+
+## 2026-10-22 — 운영 ver20261018-2313 개인 메모 저장 후 닫기 경고 진단 / QA 보강 (운영 서버 RPC 복구·배포 아직 없음)
+- **사용자 실증 보고:** 메모 작성→저장→닫기 시 `저장하지 않은 내용이 있습니다. 닫을까요?` 재발, 과거 초과근무 저장 수정 사례와 유사. 실제 메모 저장 성공 여부 확인되지 않아 경고를 임의로 없애면 안 됨.
+- **근본 원인 확정 (read-only 카탈로그):** `main`/QA `version.json = ver20261018-2313`. 앱은 `save_my_memo_v2(p_token,p_date,p_text,p_expected)` 호출, 운영 `pg_proc`에는 `save_my_memo`·`list_my_memos`만 있고 **`save_my_memo_v2` 없음**. 실제 직원·메모·토큰/지문 테이블 행 조회 0, 운영 DB 쓰기/DDL 0. 현재 운영 사이트에서 해당 저장 함수 호출은 성공할 수 없으며 프런트의 미저장 경고는 데이터 보호 동작.
+- **운영본 추가 오류:** `main`은 메모 저장 `catch` 메시지를 `finally`의 정상권한 UI 동기화가 지우는 경로 있음. QA에는 이전 깊이8 블록에서 메시지 보존 보강이 이미 반영됨. 구버전 `save_my_memo` 자동 fallback은 최신 `p_expected` CAS 우회이므로 금지.
+- **QA 안전 보강:** 공개 검수 브랜치 `qa-3-8/index.html`의 메모 저장 실패 `catch`에 `isMissingRpcEndpointError` 전용 안내(서버 기능 없어 **실제 미저장**·초안 보존) 및 오류 toast 추가, 커밋 [`ffd5bac9`](https://github.com/eco-i/eco-i.github.io/commit/ffd5bac9214bccd7a2e369366548c2124c678ab5). 운영 `main` 불변.
+- [QA Node 합성 DOM/RPC Run 39731183694](https://github.com/eco-i/eco-i.github.io/actions/runs/39731183694) **3/3 PASS** (PGRST202→초안/dirty 보호, 일반 실패 보존, 실제 성공+authoritative 재조회 시 baseline 일치). [QA 실제 Chromium 버튼+격리 PG Run 39731183588](https://github.com/eco-i/eco-i.github.io/actions/runs/39731183588) **SUCCESS** (합성 PostgREST 404→실화면 오류·입력 보존·DB 신규행 0·운영 연결 0). 이는 운영 PostgREST/Auth 실데이터 검증 아님.
+- [실서버 계약 snapshot Run 39731183593](https://github.com/eco-i/eco-i.github.io/actions/runs/39731183593)는 26개 RPC 미해결/31개 호출 지점에 대해 **의도한 FAIL CLOSED**; 새 UI 테스트 PASS와 구분한다. 세부 보고서 `qa-round3/MEMO_SAVE_CLOSE_WARNING_TRIAGE_20261022.md`.
+- **배포 계속 차단:** 운영 메모 v2 함수 실질 복구는 별도 비공개 서버/보안·CAS 검토 및 **명시적 운영 적용 승인** 필요. QA 화면 안내 패치만으로 운영 저장 성공 X. 공식 누적 제품 결함 **37종 유지(기존 RPC 누락과 중복 미가산)**, 블록 **3-8-53 완료/3-8-54 NOT STARTED·BLOCKED/전체 NOT CLEAN**, RPC 격리개발 후보 **12/26종**·운영 설치 0/26종(이전 검증 범위), 직원 DB·지문·운영 `main` 무변경.
