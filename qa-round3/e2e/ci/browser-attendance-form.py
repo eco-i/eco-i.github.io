@@ -35,6 +35,8 @@ READS={
     "list_personnel_assignments":[FAKE_ASSIGN],
     "list_personnel_account_events":[],
     "list_holiday_work_eligibility":[{"employee_id":2,"holiday_work_enabled":True}],
+    # QA-only versioned read contract for the four-arg CAS client; fake worker only.
+    "list_holiday_work_eligibility_v2":[{"employee_id":2,"holiday_work_enabled":True,"eligibility_revision":0}],
     "list_holiday_work":[],
     "list_my_holiday_work":[],
     "list_company_events_v2":[],
