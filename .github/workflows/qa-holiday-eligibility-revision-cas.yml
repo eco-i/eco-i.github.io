@@ -1,0 +1,30 @@
+name: QA holiday eligibility revision CAS client contract (synthetic)
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - 'index.html'
+      - 'qa-round3/tests/holiday-eligibility-revision-cas.test.cjs'
+      - '.github/workflows/qa-holiday-eligibility-revision-cas.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  holiday-eligibility-client:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: QA isolated browser logic regression
+        run: node --test qa-round3/tests/holiday-eligibility-revision-cas.test.cjs
+      - name: Scope
+        if: always()
+        run: |
+          echo 'Source-derived VM mock of actual qa-3-8 UI handlers only. Nine runtime contract tests: versioned read, strict revisions, 4-arg CAS, 409 stale refresh, fail-closed read, no fallback. Not production server E2E.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No live staff data, Supabase credentials, production SQL/GRANT, or main deployment. 3-8-54 remains BLOCKED; NOT CLEAN.' >> "$GITHUB_STEP_SUMMARY"
