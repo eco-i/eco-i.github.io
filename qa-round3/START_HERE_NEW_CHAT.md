@@ -259,3 +259,15 @@
 - PRIVATE 원문 `DRAFT_LONG_SERVICE_V2.sql.txt`에는 `WORKMOA_DRAFT_ONLY` 트랜잭션 실행금지 예외가 남아 있고 SQL 본문·실 직원 정보·토큰은 공개 저장소로 이동하지 않음. 상세 비공개 보고서 `ahnbest23-hash/workmoa-backend-private/LONG_SERVICE_V2_REVIEW_GATE_20261022.md`.
 - **후속 운영 적합성 BLOCKER:** 후보는 기존 제외기간을 DELETE+INSERT로 교체하므로 **기존 제외기간 행 ID가 바뀌고 연결 테이블·감사이력과의 정합성을 손상시킬 위험**이 있음. 실운영 `long_service_settings`/`long_service_exclusions` 원본 구조, 트리거, FK, 보조함수/Auth/RLS·실 앱 저장 버튼 E2E 등 미확인. 운영 설치/최종 승인 불가.
 - 개발 후보 scoped PASS 총 **7/26종**(메모 3 + 연차 1 + 사내일정 2 + 장기재직 1). 나머지 **19종** 동일 수준 미검증. 운영 실제 최신 RPC 설치 **0/26종**(이전 승인된 읽기 전용 카탈로그 기준), `main`/실 직원·근태/지문 DB/운영 Supabase SQL·권한·실제 배포 변경 **0**. 공식 **3-8-53 완료 / 3-8-54 NOT STARTED·BLOCKED / 신규 제품결함 37종 / 전체 NOT CLEAN** 유지.
+
+## 2026-10-22 — 장기재직 제외기간 행 ID 보존 계약 게이트: UNRESOLVED/BLOCKED
+- 실제 `main/index.html` 4202행 기존 `p_expected.exclusions`에는 `id`가 있지만, 4234–4245행 `lsCollectValidExclusions`은 새 `p_exclusions`로 `{start_date,end_date,reason}` **3개 필드만 전송**하며 ID를 제외. 4331행 실제 호출 확인.
+- **반증:** 기존 행 수정인지 기존 행 삭제 + 새 행 추가인지 두 다른 사용자 의도가 완전히 동일한 `p_expected` 및 `p_exclusions`을 만들 수 있어 서버 단독으로는 변한 행의 안정 ID를 확정할 수 없음. 이전 PRIVATE 후보 `DRAFT_LONG_SERVICE_V2.sql.txt`는 전체 DELETE+INSERT로 기존 ID 변경 가능. 따라서 기존 36항목 scoped PASS와 별개로 **운영 적합성 BLOCKED**. 무단 자동매칭/SQL 운영 설치 금지.
+- 비공개 계약 검토 `ahnbest23-hash/workmoa-backend-private/LONG_SERVICE_IDENTITY_AMBIGUITY_GATE_20261022.md`. 후속: 클라이언트 인자에 새 입력의 기존 ID를 명시적으로 전달하도록 정식 계약 개정 승인 및 원본 FK/감사 참조 확인이 우선. 계약 변경 없이 할 경우 모호한 변경은 서버에서 거부해야 함. 실제 DB나 운영 main에는 수정/실행 0.
+
+## 2026-10-22 — 본인 휴일근무 저장/삭제 최신 RPC 2종 비공개 실 HTTP 49항목 PASS
+- 운영 `main/index.html` 8527/8566/8726행의 `save_my_holiday_work_personnel_v2` (현재 토큰/날짜/시작·종료/expected ID·수정시각; 양수 ID 반환), `delete_my_holiday_work_personnel_v2` (현재 토큰/날짜/expected ID·수정시각; boolean true)을 이용해 **PRIVATE 신규 후보** `DRAFT_HOLIDAY_SELF_V2.sql.txt`, 가상 직원·공휴일·일근 픽스처와 실제 PostgREST HTTP 시험 작성. 원본 `WORKMOA_DRAFT_ONLY` 설치금지 트랜잭션 예외 및 함수 EXECUTE REVOKE 유지.
+- [GitHub Actions Run 39711594722](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39711594722), Job `119603953876` **SUCCESS**. 로그 `HOLIDAY_SELF_V2_HARD_STOP_AND_PG_COMPILE_PASS`, `HOLIDAY_SELF_V2_REAL_HTTP_CAS_RLS_AUDIT_SCOPED_PASS`, `PASS_COUNT=49`; PostgreSQL17/PostgREST14.18 **49 항목 PASS**.
+- 실제 가상 DB로 자가 저장·수정·삭제, 주말/평일 지정 공휴일 허용, 근무구분·휴근 등록 사용여부·세션/읽기전용/직원 소유자 범위 확인, 오래된 CAS 및 실제 두 DB 연결 행잠금 뒤 충돌 거부, 감사 실패 시 3종 쓰기 전체 롤백, NOLOGIN/NOBYPASSRLS 함수 소유자/RLS 정책 변경 후 거절, anon 테이블 REST 조회 거절, 임시 EXECUTE 회수 검증.
+- 상세 보고서 **비공개** `ahnbest23-hash/workmoa-backend-private/HOLIDAY_SELF_V2_REVIEW_GATE_20261022.md`. **실운영 공휴일/대체·임시공휴일 원본, 인사발령 효력일 및 일근 구분, 휴근 가능 정책, 운영 DB 구조/트리거/Auth/RLS/앱 UI 전체 및 P0/P1 E2E는 미검증**. 관리자 휴근 RPC 2종/휴근 허용 토글 별도 차단. 실제 운영 SQL·직원DB/근태·지문·운영 `main`/배포 변경 0.
+- 비공개 독립 개발 후보 **9/26종 scoped PASS** (메모3+연차1+사내일정2+장기재직1+본인휴근2). **나머지 17종 같은 수준 미실증**. 이 중 장기재직 ID 계약 미해결이며 운영 설치 승인과 무관. **운영 실제 RPC 설치 0/26종**(기존 읽기전용 실측), 공식 **3-8-53 완료 / 3-8-54 미시작·BLOCKED / 3차 결함 37종 / 전체 NOT CLEAN** 계속.
