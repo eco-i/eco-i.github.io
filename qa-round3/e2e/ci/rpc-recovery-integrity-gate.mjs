@@ -74,10 +74,9 @@ function checkLockedContract(root,prodRoot){
        !wanted.includes('p_token'))fail(item.name+': expected argument inventory invalid');
     if(item.sameBaseInstalled?.some(v=>v.name===item.name))fail(item.name+': latest name mistakenly marked installed');
     for(const [label,foundCallsites] of [['main',main.get(item.name)],['QA',qa.get(item.name)]]){
-      // QA-only reviewed evolution: the backend candidate requires optimistic CAS
-      // on the holiday toggle. Frozen production main and all other 25 contracts
-      // stay exact; do not weaken this gate to allow arbitrary QA differences.
-      const revisedQaCas=label==='QA'&&item.name==='admin_set_holiday_work_enabled_v2';
+      // QA-only reviewed CAS payload expansions (holiday eligibility and batch cancel).
+      // Frozen production main and all other 24 payload contracts stay exact.
+      const revisedQaCas=label==='QA'&&['admin_set_holiday_work_enabled_v2','admin_cancel_personnel_batch_v2'].includes(item.name);
       const required=revisedQaCas?[...wanted,'p_expected_revision'].sort():wanted;
       if(foundCallsites.length!==item.directCallsites.length)
         fail(item.name+': '+label+' callsite count changed ('+foundCallsites.length+')');
@@ -89,12 +88,12 @@ function checkLockedContract(root,prodRoot){
         fail(item.name+': production main source line drift');
     }
     total+=main.get(item.name).length;
-    found.push({rpc:item.name,calls:main.get(item.name).length,qaMatchesFrozenExceptApprovedHolidayCas:item.name!=='admin_set_holiday_work_enabled_v2',casKeys:(item.name==='admin_set_holiday_work_enabled_v2'?[...wanted,'p_expected_revision']:wanted).filter(x=>/expected|revision/.test(x))});
+    found.push({rpc:item.name,calls:main.get(item.name).length,qaMatchesFrozenExceptApprovedRevisionCas:!['admin_set_holiday_work_enabled_v2','admin_cancel_personnel_batch_v2'].includes(item.name),casKeys:(['admin_set_holiday_work_enabled_v2','admin_cancel_personnel_batch_v2'].includes(item.name)?[...wanted,'p_expected_revision']:wanted).filter(x=>/expected|revision/.test(x))});
   }
   if(total!==31)fail('main RPC callsite total drift');
   return {schemaVersion:1,scope:'STATIC_CONTRACT_ONLY_NOT_SERVER_SQL',
    mainCommit:lock.mainHeadSha,absentLiveNameSnapshotCount:26,
-   namesInspected:26,directCallsInspected:total,qaDirectCallPayloadsMatchHistoricalExceptHolidayCAS:true,
+   namesInspected:26,directCallsInspected:total,qaDirectCallPayloadsMatchHistoricalExceptApprovedCAS:true,
    generatedSql:false,actualSupabaseApiContact:false,serverImplementationProvenance:false,
    authenticatedE2e:false,releaseApproved:false,
    blockingLiveRpcNameMismatchUnresolved:true,contracts:found};
@@ -122,13 +121,13 @@ const prodRoot=path.resolve(process.argv[4]||'live-main');
 const output=checkLockedContract(qaRoot,prodRoot);
 const reportPath=path.join(process.env.RUNNER_TEMP||qaRoot,'workmoa-rpc-recovery-contract-integrity.json');
 fs.writeFileSync(reportPath,JSON.stringify(output,null,2)+'\n');
-console.log('STATIC_RECOVERY_CONTRACT_PASS: 26 historical RPC names/31 production callsites, QA holiday CAS four-arg exception exact');
+console.log('STATIC_RECOVERY_CONTRACT_PASS: 26 historical RPC names/31 production callsites, QA holiday and personnel-cancel CAS four-arg exceptions exact');
 console.log('REAL_LIVE_RPC_GATE_REMAINS_BLOCKED: historical 26-name snapshot; 2026-10-22 separate operational memo RPC recovery 3 of 26, remaining 23 unimplemented; NO full E2E');
 if(process.env.GITHUB_STEP_SUMMARY){
   fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
    '## Recovery-contract static integrity ONLY — PASS\n\n'+
    '- Verified main unchanged and QA retains all **26 missing-name contracts / 31 direct callsites**.\n'+
-   '- QA-only holiday toggle advances to four-arg expected revision; other 25 frozen-name payloads unchanged.\n'+
+   '- QA-only holiday toggle and personnel batch cancellation require expected revision; remaining 24 frozen-name payloads unchanged.\n'+
    '- **NOT a SQL implementation, no Supabase connection, no validation of ACL/RLS/CAS behavior.**\n'+
    '- **Deployment still BLOCKED** by separate live server mismatch gate (RED).\n');
 }
