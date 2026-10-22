@@ -24,3 +24,15 @@
 - 서버 측 글로벌 eligibility와 실제 본인/관리자 휴근 저장 RPC의 공통 직원 잠금, 변경 감사 원자성, 운영 인사 효력일/계정 PIN/Auth/RLS 권한 등가 및 실 관리 화면 2관리자 경쟁·실패 재조회 **Chromium→진짜 PostgREST→독립 PG 전체 연결 E2E**는 미확인.
 - 이번 QA 브랜치 보강은 서버 기능 복구 0종, 운영 데이터/DDL/RPC 변경 0, 운영 `main` 배포 0. 메모 3종 복구는 이미 별도로 사용자 승인 및 완료; 26개 누락 중 **남은 23개**는 여전히 다른 기능의 출시 차단.
 - **공식 마지막 3-8-53 완료 / 다음 3-8-54 보류 / 3차 신규 제품 결함 37종 / 전체 NOT CLEAN**. 별도 종료승인 없이는 3-8-54 완료 금지.
+
+## 2026-10-22 후속 실 브라우저–PostgREST–PG17 격리 통합검수 결과
+**최종 [PRIVATE GitHub Actions Run 39750269978](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39750269978), Job 119728797712 전체 SUCCESS, `HOLIDAY_ENABLED_REAL_BROWSER_REAL_POSTGREST_SCOPED_PASS`, 20/20 PASS.** 이 날짜의 앞쪽 “실 PostgREST 토글 버튼 E2E 미검증” 문장은 당시 상태에 대한 역사적 기록이며, 아래 **격리 범위 내 검증 완료**가 최신 상태이다.
+
+- 실제 `qa-3-8` 근무모아 HTML을 로컬 격리 웹사이트로 실행. Chromium 관리자 로그인/2차 잠금은 **합성 가상 관리자**로 검증; 일반 인사/RPC 경로는 국소 가상 응답. **휴일근무 가능 설정 읽기/쓰기 RPC 자체는 모의 응답이 아니라 실제 HTTP PostgREST 14.18 → 독립 PostgreSQL 17의 제한 소유자·RLS/함수 SQL**을 통과.
+- 실제 관리자 화면 체크박스 OFF 저장: HTTP200, `p_expected_revision=0`, DB `false, revision=1`, 감사 1건, 화면 재조회 반영 PASS.
+- 독립 가상 관리자 B가 대상 직원 설정을 ON으로 바꿔 revision 2를 커밋한 뒤, 오래된 화면의 관리자 A 체크박스 클릭은 **HTTP409**(`STALE_HOLIDAY_ELIGIBILITY`), DB/감사 추가 변경 0, 최신 revision 2 재조회·화면 ON·충돌 안내 PASS.
+- 같은 화면에서 최신 상태를 확인한 후 다시 OFF: HTTP200, revision 3·감사 3건. 브라우저가 보낸 expected revision 순서 `0→1→2` 검증. 기존 3인자 무CAS API 차단·운영 `.supabase.co` 접속 0·브라우저 JS 오류 0.
+- **두 초기 실패는 시험환경 측 결함으로 해결**: [39749906504](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39749906504)는 Docker health-cmd 인용 문법 오류로 컨테이너 시작 전 FAIL, [39750075175](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39750075175)는 Playwright `uncheck()`가 앱의 확인 중 토글 임시 원상복구를 실패로 오판한 시험 코드 문제로 브라우저 초기 3항목 PASS 후 중단. 일반 실제 클릭 `click()`으로 수정하여 최종 20/20 PASS; 운영 애플리케이션 코드 자체를 바꾸지 않음.
+- PRIVATE 파일 `qa/holiday_enabled_browser_overlay.sql`, `qa/holiday_enabled_browser_postgrest_e2e.py`, `.github/workflows/workmoa-private-holiday-browser-postgrest-qa.yml` 사용. SQL 초안 원문 `WORKMOA_DRAFT_ONLY` 가드는 실행 즉시 중단 유지, 일회용 검수 복사본만 PG17에 적용; 실제 직원 데이터/운영 서버/운영 저장소 `main` 배포·변경 **0**.
+- **범위 한계**: 실제 운영 Supabase Auth/PIN/관리자 권한·효력일별 인사/기존 구버전 메서드와 서버 공동 잠금/브라우저 2개 실 로그인, 지문·근태 P0/P1 전체 기능은 검증되지 않음. 따라서 이 20/20은 **휴근 가능 설정의 scoped 브라우저–PostgREST–DB 통합 PASS**이지 서버 23종 누락 복구/근무모아 전체 E2E CLEAN이 아니다.
+- 공식 상태 유지: **3-8-53 마지막 완료 / 3-8-54 미시작·BLOCKED / 신규 제품 결함 37종 / 전체 NOT CLEAN**. 운영 승인되지 않은 휴근 RPC 또는 프런트 배포 금지.
