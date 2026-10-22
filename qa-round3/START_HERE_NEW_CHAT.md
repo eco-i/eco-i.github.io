@@ -436,3 +436,9 @@
 - 실운영 `admin_cancel_personnel_batch(uuid,bigint)` v1 원문을 read-only `pg_proc` 조회→비공개 `qa/PERSONNEL_CANCEL_OPERATIONAL_V1_COPY_NO_DEPLOY.sql.txt` 실행 차단 파일에 별도 복사. 비공개 `DRAFT_PERSONNEL_CANCEL_ACTUAL_V1_WRAPPER_NOT_FOR_LIVE.sql.txt`는 v1 위에 3인자 expected revision 검사를 추가하고 기존 Snapshot/감사/신호 보존(가상 `batch_revision` 칼럼/trigger). [Run 39795582713](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39795582713) 추가 시험, **최종 성공 전 PASS 선언 금지**.
 - 운영 `main`은 2인자 취소, QA는 3인자 취소. 실운영 `personnel_batches`엔 revision 필드 없음. live personnel_batches/actions/account_events에 공통 revision/lock/ABA CAS가 정립되지 않아 **그대로 설치 불가**. 실제 권한/직원 데이터/운영 main 무변경.
 - 이번에는 3차 검수 블록 재개한 것이 아님. 공식 3-8-53/3-8-54 BLOCKED, 신규결함37, NOT CLEAN. 사용자는 14 RPC 기능별 실제 복구를 우선 요청 중.
+
+## 2026-10-22 인사 취소 3-인자 CAS vs 실제 V1 SQL — 38/38 격리시험 확인
+- [검증 보고서](RECOVERY_REMAINING_14_RPC_CONTRACT_AUDIT_20261022.md). Private [Run 39795582713](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39795582713) Job `119881986127` 실제 로그에서 `PERSONNEL_REAL_V1_WRAPPED_CAS_PASS 1..38`, `PASS_COUNT=38` 확인. API run-status는 당시 `queued` 지연표시라 전체 workflow success 단정하지 말 것.
+- 실제 live `admin_cancel_personnel_batch(uuid,bigint)` **SQL 함수 정의 원본을 비공개 hard-stop 파일 복사**. 가짜 PostgreSQL17 운영모양 fixture에 **신규 batch_revision 칼럼/업데이트 트리거** 붙여 `admin_cancel_personnel_batch_v2(uuid,bigint,bigint)` 후보로 legacy snapshot/audit/realtime를 그대로 호출. 가짜 두 관리자 경합 1승 1 x 409, 오래된 수정 409, 저장 중 audit 강제 실패 전체 rollback, 기존 V1 직접 브라우저 실행 차단 동작 확인.
+- 실제 운영에는 batch_revision 및 트리거가 없고, 운영 main은 cancel v2를 여전히 두 인자로 호출하며 현재 list_personnel_assignments에 revision 필드가 없으므로 **설치 불가/아직 설치하지 않았음**. 모든 인사수정/계정상태/전체복원 경로가 동일 동시수정/ABA 버전 계약을 가져야 한다.
+- 인사 복구 revision 조회 47/47 + 인사 cancel 경로 38/38 **가짜 DB 제한검증**, 운영 신규 복구 RPC **0**, 누락14 계속, 3차 3-8-53/3-8-54 BLOCKED, NOT CLEAN. 운영 직원 기록/운영 main 변경 없음.
