@@ -422,3 +422,10 @@
 - 다만 운영 현재 버전 `ver20261018-2313`에서 네 기능 모두 재시험을 마친 것은 아니므로 **최신버전 전체 무회귀 인증·근무모아 CLEAN 아님**. 재발 의심은 별도 신규 재현/사용자 오류 시각+메시지 확인 후 진단.
 - 운영 메타데이터 read-only로 지문 3/초과근무 3의 RPC 설치·인자·브라우저 EXECUTE true 및 main 코드에 picker recovery/CAS 경로가 여전히 존재함 재검증. 전혀 새 운영 DB 행 변경/쓰기/배포 없음.
 - 여전히 미설치 RPC **14종**, 주로 인사·PIN·데이터 복원/초기화. **3차 3-8-53 완료/3-8-54 BLOCKED/37 신규 결함/NOT CLEAN**.
+
+## 2026-10-22 — 잔여 RPC 14종 실제 계약조사 및 첫 안전 조회 시범 (운영 변경 없음)
+- [14종 원문 호출계약/운영 위험대조 보고서](RECOVERY_REMAINING_14_RPC_CONTRACT_AUDIT_20261022.md). 운영 `pg_proc`에서 14종 전부 설치 0 재확인. 조회·미리보기 **5**, 직원·인사·PIN·데이터 변이 **9**. 운영 DB 및 직원 행 쓰기 0, 운영 main 변경 0.
+- 핵심 **호환성 차단 발견**: `admin_cancel_personnel_batch_v2` 운영 main RPC는 `p_token,p_batch_id` **2개**, 검수 `qa-3-8` RPC는 `p_token,p_batch_id,p_expected_revision` **3개**. 운영 `list_personnel_assignments`은 `batch_revision` 미반환. v2를 단독 설치하면 한쪽 화면 오류·동시수정 CAS 우회 위험. 운영 main 수정 승인·실제 shared monotonic revision/locked writer 계약 수립 없이 설치 금지.
+- 비공개 첫 안전 설계 후보: `DRAFT_PERSONNEL_RESTORE_REVISION_V1_REVIEW_ONLY_20261022.sql.txt` (`_require_admin`, 단일 읽기 snapshot, 32-hex hash만 응답, 실행시 무조건 에러로 막는 guard), synthetic PG17/PostgREST14.18 gate [Run 39794106739](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39794106739). 성공 여부 미확정/신뢰 불가 시 보고서 갱신; **실운영 설치 절대 안함**.
+- 작업 묶음 5개: 인사/계정/인사복원5, PIN미리보기+초기화2, 개인·관리자 백업복원3, 관리자 초기화2, 안전백업 복원2. preview와 destructive mutation은 동일 권한·CAS·잠금 버전으로 *함께* 격리시험. 과거 v1 백업 미리보기는 `current_revision`이 없고 기존 원본 인사복원은 여러 이력테이블 전체 삭제·재적재. 미검증 포워더/일괄 설치 금지.
+- 진행상태: 기존 복구 RPC 12/26, 남은 14/26. 별도 3차 마지막 완료 3-8-53 / 3-8-54 미시작·BLOCKED / 신규 결함 37 / NOT CLEAN. 사용자 실사용 기존 4장애 해결 이력과 다른 범위.
