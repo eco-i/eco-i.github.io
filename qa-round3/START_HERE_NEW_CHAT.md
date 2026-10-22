@@ -370,3 +370,10 @@
 - 운영 site `main` 실제 Android picker/화면·중간 Realtime·세션·인사 freshness 장애는 **미재현/미해결**. 따라서 지문·초과근무 **실서비스 복구 완료 선언 금지**. 다음 작업은 QA browser picker return/loadFingerprintRecords 및 saveOvertimeDay/entry_v2 UI 실동작 vs synthetic live SQL 연결.
 - `qa-3-8/index.html`에 **지문 기록 조회 실패 시 안전한 원인 범주 표시** (PGRST202, 응답형식, 세션, timeout, 권한, 일반 오류; 생데이터/토큰 미노출) QA 전용 진단 추가; [QA Run 39772397452](https://github.com/eco-i/eco-i.github.io/actions/runs/39772397452) **9/9 PASS**. 이는 장애 자체 수정/운영 배포가 아님.
 - 나머지 운영 누락 RPC 21종, 공식 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 3차 결함 37 / NOT CLEAN. 운영 main·실 직원 기록/DB/DDL/배포 변화 없음. 사용자 불편 해소가 검수 진도보다 우선.
+
+## 2026-10-22 — 기존 장애 우선: 진짜 Chromium 화면 사진 선택·초과근무 수정 → 가상 PostgreSQL 18/18 PASS
+- [공개 QA 브라우저 검수보고서](FINGERPRINT_OVERTIME_REAL_BROWSER_DB_QA_20261022.md); GitHub [성공 Run 39774368252](https://github.com/eco-i/eco-i.github.io/actions/runs/39774368252) **18 assertions PASS**, 실제 QA 로그인/지문 업로드 버튼 → Chromium synthetic PNG 파일 chooser → canvas JPEG 압축 → 가상 DB bytea 저장·재조회·지문 `등록됨`. 초과근무 실제 +10분/저장 버튼으로 10분 신규등록 → 20분 수정 저장 후 가상 DB·UI 재조회 성공.
+- browser fixture: `qa-round3/e2e/ci/fingerprint-overtime-browser-fixture.sql`, driver `browser-fingerprint-overtime-success.py`, CI `workmoa-qa-fingerprint-overtime-browser.yml`. **합성 로그인/HTTP bridge와 PostgreSQL16 SQL** 이므로 private 운영 SQL 서버 시험 40/40·37/37와 별개의 통과임. 실 서버-실 UI E2E 또는 Android OS picker 성공을 뜻하지 않음.
+- 브라우저 첫 Run 실패는 테스트가 빈 지문 섹션 자동 접힘을 펼치지 않은 문제, 두번째는 테스트의 Playwright `mimeType` 키 오류. 사용자 제품결함 아님. 세번째 Run 18/18 성공.
+- 휴대폰 native picker 모의 `pagehide/pageshow` roundtrip 추후 격리시험 [Run 39774707035](https://github.com/eco-i/eco-i.github.io/actions/runs/39774707035) 추가 검증 중. 결과 확인 전 PASS 집계 금지.
+- **운영 main/실 직원 DB/운영 SQL 변경 0**, 운영 미설치 RPC **21**, 공식 **3-8-53 완료, 3-8-54 미시작·BLOCKED, 제품결함 37, NOT CLEAN** 유지. Android 실제 picker/초과근무 실사용 장애는 아직 해결 검증 안 됨.
