@@ -164,6 +164,10 @@ def main():
                 open_date(page,PHOTO_DATE,2026,9)
                 check(page.evaluate("state.fingerprintBackendReady===true"),"fingerprint metadata ready before photo choice")
                 upload=page.locator("#fingerprintClockInUploadBtn")
+                # The app deliberately collapses an empty fingerprint section.
+                # Expand the visible real section header before testing the upload button.
+                if not upload.is_visible():
+                    page.locator("#fingerprintDetailToggleBtn").click()
                 if not (upload.is_visible() and upload.is_enabled()):
                     diag=page.evaluate("""()=>({
                       selectedDate:state.selectedDate,view:state.view,
