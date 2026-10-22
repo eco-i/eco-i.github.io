@@ -29,3 +29,13 @@
 - 테스트 안정성: `workmoa-qa-fingerprint-overtime-browser.yml`을 동일한 full Chromium+가짜 PostgreSQL 시나리오 **연속 3회 실행**, 매회 두 QA synthetic 테이블만 `TRUNCATE ... RESTART IDENTITY`하고 27개 assertion 실행하도록 변경. [Run 39781994803](https://github.com/eco-i/eco-i.github.io/actions/runs/39781994803) 실행 확인. **최종 결과 확인 전 81/81 PASS 주장 금지**.
 - 운영 `main`과 QA `qa-3-8`의 저장 코드 함수 `handleFingerprintPhotoInput`, `selectFingerprintPhoto`, `saveOvertimeDay`, `fetchCurrentOvertimeDay`, `loadOvertimeList`, `fingerprintPickerStillCurrent` 등 일부 핵심 함수 본문이 동일함을 소스 직접 대조 확인. QA에는 운영에 없는 `fingerprintReadFailureText` 안전진단이 추가됨.
 - 주의: **이 모든 브라우저 테스트는 합성 로그인·합성 SQL·Python HTTP 브리지**이고 실제 운영 서버를 브라우저에서 호출하지 않음. 이전 **운영 SQL 원본만 가상 PostgREST에서 성공 40/40/37/37**한 결과와도 독립임. 운영 기능 '복구' 또는 전체 3차 CLEAN 아님. 3-8-54 계속 BLOCKED. 운영 직원 기록/DB/배포 수정 0.
+
+## 추가 확정 — 3회 반복 full QA Chromium → synthetic PostgreSQL, 96/96 PASS
+
+- CI setup hanging risk: 이전 [Run 39781994803](https://github.com/eco-i/eco-i.github.io/actions/runs/39781994803)는 브라우저 설치 단계에서 오래 정체되어 CI 3회 통과 근거로 사용 금지. 향후 설치 `timeout` 제한(apt/pip/Playwright)을 적용.
+- [최종 성공 Run 39783806135](https://github.com/eco-i/eco-i.github.io/actions/runs/39783806135), Job `119841631558`, **conclusion SUCCESS**. 실제 로그의 `REAL_UI_SYNTHETIC_DB_ATTEMPT=1,2,3` 각 회차에서 `PASS real-browser-photo-overtime` **32건**, 총 **96/96**, `FINGERPRINT_OVERTIME_BROWSER_TO_SYNTHETIC_POSTGRES_SCOPED_PASS` 3회, 에러 0. 매 회차 시작 전 가짜 지문·초과근무 테이블만 TRUNCATE, real staff record 0.
+- 지문 실제 QA 화면 등록 → 사진 JPEG 압축 → synthetic PG bytea 저장·재조회 → `pagehide/pageshow(persisted)` 모의 중 사진 교체 1회, UI unlocked 확인.
+- 초과근무 실제 날짜 상세 10→20 수정, 월간 목록의 `수정` 버튼 경로 20→30 수정 및 PG 저장, 각각 전송 1회.
+- **추가 중요한 실패 보호**: 기존 30분 기준으로 보고 있는 탭이 40분으로 수정 초안을 작성한 사이 다른 가짜 탭의 DB가 **50분 최신 기록**으로 변경되면, 저장 직전 서버 재조회 `STALE` 검사로 40분 저장 RPC를 **아예 보내지 않음**. DB에는 최신 50분 보존, 사용자 입력 40분 초안 유지 및 '다른 창에서 변경됨' 안내 표시. 실제 브라우저 동작→PG에서 3회 반복 모두 확인.
+- 본 결과는 현재 QA `index.html`＋ fake auth/login & Python HTTP bridge/자체 테스트 SQL만의 제한검수. **운영 actual Supabase SQL과 같은 단일 E2E가 아니며 Android 기기의 native file chooser 동등성을 입증하지 않음**. 기존 운영 지문/초과근무 장애 복구 완료, 전체 CLEAN, 운영 배포 승인 근거로 사용 불가.
+- 운영 `main` 코드 SHA `6c784210e048426f18a486d5602652626d97574d` 유지. 직원/지문/초과근무 운영 데이터 변경 0. GitHub 검수 `qa-3-8`만 수정. 미설치 RPC 21종, 3-8-54 **BLOCKED**, 3차 신규 제품 결함 **37** 그대로.
