@@ -188,7 +188,7 @@ def main():
                 photo=make_png()
                 with page.expect_file_chooser(timeout=10000) as picker:
                     upload.click()
-                picker.value.set_files({"name":"synthetic-qa.png","mime_type":"image/png","buffer":photo})
+                picker.value.set_files({"name":"synthetic-qa.png","mimeType":"image/png","buffer":photo})
                 page.wait_for_function("""()=>!fingerprintPhotoPending &&
                   !!state.fingerprintRecords.find(r=>r.record_date==='2026-10-21' && r.has_clock_in)""",
                   timeout=30000)
