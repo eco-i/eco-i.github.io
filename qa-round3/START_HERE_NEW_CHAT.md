@@ -408,3 +408,10 @@
 - **실제 직원 데이터 전후 집계/최종 수정시각 전부 동일:** employees 15, holiday_work_entries 19, holiday_work_eligibility 2, annual_leave_settings 2, long_service_settings 1, long_service_exclusions 0, audit_logs 128. SQL DDL/권한만 변경. synthetic PG17/PostgREST14.18 휴근 **52/52**, 연차/장기재직 **41/41**, 총 **93/93 PASS**. **실제 운영 UI 사용자 쓰기·재조회 E2E는 아직 미검증**이므로 설치 성공과 기능 실사용 확인을 구분할 것.
 - 원래 남아 있던 21 RPC에서 7 설치 후 **14종 여전히 운영 미설치**: admin_apply_personnel_batch_v3, admin_cancel_personnel_batch_v2, admin_reset_current_personnel_pins_v3, admin_reset_data_v2, admin_restore_data_v2, admin_restore_personnel_snapshot_v3, admin_restore_safety_backup_v2, admin_set_employee_account_status_v3, get_personnel_restore_revision_v1, preview_admin_reset_data_v2, preview_current_personnel_pin_reset_v1, preview_data_restore_v2, preview_safety_backup_restore_v2, restore_my_data_v2. 위험한 후속 영역이므로 다음 14종 일괄 설치 금지.
 - 기존 지문등록·초과근무 수정 운영 장애는 별도로 사용 확인되지 않았음. 사용자 우선순위 **기존 기능 복구**. 3차 공식 **3-8-53 완료 / 3-8-54 미시작·BLOCKED / 37결함 / NOT CLEAN** 유지. 브라우저 오래 열린 탭은 새로고침 필요.
+
+## 2026-10-22 22:53 KST — 실제 운영 로그로 지문/초과근무 읽기·저장 경로 재확인 (READ ONLY)
+- [익명화 집계점검 보고서](REAL_OPERATING_LOG_FINGERPRINT_OVERTIME_20261022.md). 운영 SongdoFood 최근 24h `edge_logs`에서 `list_my_fingerprint_records` 220×200, `save_my_fingerprint_photo` 2×200+2×204, `get_my_fingerprint_photo` 5×200, `list_overtime_entries` 222×200, `save_my_overtime_entry_v2` 2×200. 그러나 **계획시간 자체를 수정하는 `save_my_overtime_day_v2` 호출은 이 기간 0건**. 완료 체크 `entry_v2`와 계획시간 변경 `day_v2`를 혼동하면 안 됨.
+- 실제 지문 HTTP 성공 기록은 있으나 사용자 본인/Android picker 복귀 성공 인증이 아니다. 실제 초과근무 계획시간 수정 실사용 성공 근거는 여전히 없다. 서버 도달 전 UI 저장 가드에서 막힌 경우 운영 API 로그에 남지 않을 수 있다.
+- 조회는 서버 `edge_logs`의 요청경로·HTTP 상태별 수량만 집계; **토큰/직원/사진/실제 초과근무 DB 행 접근 0, 운영 main/SQL/권한/실데이터 변경 0**. 기존 운영 SQL 가상 replay 37+40, 실제 QA Chromium synthetic 96은 서로 독립 제한검수.
+- 다음 단계는 사용자에게 **실제 사용할 기존 사진의 열람(비파괴) 정상 여부**, 실제 등록 의도 있는 지문사진 1건 등록 또는 실제 수정 의도 있는 초과근무 시간 계획 변경 시 UI 결과를 확인하도록 요청하는 것. 불필요한 테스트 기록 생성/변경을 강요하지 말 것. 사용자의 기능 오류 시각·안내문구를 받아 위 RPC 경로와 비교하면 원인 범위를 좁힐 수 있음.
+- 현 누락 RPC 14종, 3-8-53 마지막 완료 / 3-8-54 BLOCKED / 신규 결함 37 / NOT CLEAN 유지.
