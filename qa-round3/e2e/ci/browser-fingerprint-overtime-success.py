@@ -1,0 +1,227 @@
+#!/usr/bin/env python3
+"""Real full QA page + Chromium file chooser and overtime Save -> local bridge -> disposable PG.
+Only fake employee/date/photo; not actual PostgREST, Android OS picker, or production E2E.
+"""
+import importlib.util
+import io
+import json
+import struct
+import sys
+import threading
+import time
+import zlib
+from pathlib import Path
+from urllib.parse import urlsplit
+from playwright.sync_api import sync_playwright
+
+HERE=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location("qa_attendance_bridge", HERE/"browser-attendance-form.py")
+fixture=importlib.util.module_from_spec(spec)
+sys.modules[spec.name]=fixture
+spec.loader.exec_module(fixture)
+br=fixture.br
+PHOTO_DATE="2026-10-21"
+OT_DATE="2027-05-13"
+PHOTO_HITS=[]
+OVERTIME_HITS=[]
+
+class ActionBridge(fixture.AttendanceBridge):
+    def do_POST(self):
+        path=urlsplit(self.path).path
+        name=path.removeprefix("/rest/v1/rpc/")
+        handled={"list_my_fingerprint_records","save_my_fingerprint_photo",
+                 "list_overtime_entries","save_my_overtime_day_v2"}
+        if name not in handled or path!="/rest/v1/rpc/"+name:
+            return super().do_POST()
+        if (self.headers.get("Origin")!="http://127.0.0.1:54330"
+            or self.headers.get("apikey")!=br.KEY
+            or self.headers.get("Authorization")!="Bearer "+br.KEY):
+            return self.reply(403,{"message":"QA_FAKE_LOCAL_AUTH_REQUIRED"})
+        length=self.headers.get("Content-Length","")
+        if not length.isdecimal() or int(length)>205000:
+            return self.reply(413,{"message":"QA_BODY_SIZE_DENIED"})
+        try: data=json.loads(self.rfile.read(int(length)) or b"{}")
+        except Exception: return self.reply(400,{"message":"QA_BAD_JSON"})
+        if not isinstance(data,dict) or data.get("p_token")!=br.WORKER:
+            return self.reply(403,{"message":"QA_WRONG_FAKE_IDENTITY"})
+        br.HITS.append(name)
+        try:
+            if name=="list_my_fingerprint_records":
+                if set(data)!={"p_token","p_from","p_to"}:
+                    return self.reply(400,{"message":"QA_BAD_FINGERPRINT_READ_KEYS"})
+                body=br.value("""SELECT COALESCE(json_agg(json_build_object(
+                  'record_date',record_date,
+                  'has_clock_in',clock_in_photo IS NOT NULL,
+                  'has_clock_out',clock_out_photo IS NOT NULL,
+                  'confirmed',confirmed,
+                  'clock_in_uploaded_at',clock_in_uploaded_at,
+                  'clock_out_uploaded_at',clock_out_uploaded_at,
+                  'confirmed_at',confirmed_at,'updated_at',updated_at)), '[]'::json)
+                  FROM public.qa_browser_fingerprint
+                  WHERE employee_id=2 AND record_date BETWEEN %s::date AND %s::date""",
+                  (data["p_from"],data["p_to"]))
+                return self.reply(200,body)
+            if name=="list_overtime_entries":
+                if set(data)!={"p_token","p_employee_id","p_from","p_to"} or data["p_employee_id"]!=2:
+                    return self.reply(400,{"message":"QA_BAD_OVERTIME_READ"})
+                rows=br.value("""SELECT COALESCE(json_agg(json_build_object(
+                  'id',id,'employee_id',employee_id,'work_date',work_date,
+                  'slot',slot,'minutes',minutes,'completed',completed,
+                  'updated_at',updated_at) ORDER BY CASE slot WHEN 'early' THEN 0 ELSE 1 END),'[]'::json)
+                  FROM public.qa_browser_overtime WHERE employee_id=2
+                  AND work_date BETWEEN %s::date AND %s::date""",
+                  (data["p_from"],data["p_to"]))
+                return self.reply(200,rows)
+            if name=="save_my_overtime_day_v2":
+                required={"p_token","p_work_date","p_early_minutes","p_early_completed",
+                          "p_late_minutes","p_late_completed","p_expected"}
+                if set(data)!=required or data["p_work_date"]!=OT_DATE:
+                    return self.reply(400,{"message":"QA_BAD_OVERTIME_MUTATION"})
+                result=br.value("""SELECT public.qa_browser_overtime_day(%s::uuid,%s::date,
+                     %s::int,%s::boolean,%s::int,%s::boolean,%s::jsonb)""",
+                    (br.WORKER,OT_DATE,data["p_early_minutes"],data["p_early_completed"],
+                     data["p_late_minutes"],data["p_late_completed"],br.Jsonb(data["p_expected"])))
+                OVERTIME_HITS.append(data["p_early_minutes"])
+                return self.reply(200,result)
+            required={"p_token","p_date","p_kind","p_base64","p_mime",
+                      "p_filename","p_expected_updated_at"}
+            if (set(data)!=required or data["p_date"]!=PHOTO_DATE
+                or data["p_kind"] not in ("clock_in","clock_out")
+                or data["p_mime"]!="image/jpeg"
+                or len(data["p_base64"])>190000):
+                return self.reply(400,{"message":"QA_BAD_PHOTO_MUTATION"})
+            br.value("""SELECT public.qa_browser_fingerprint_save(%s::uuid,%s::date,
+                     %s::text,%s::text,%s::timestamptz)""",
+                    (br.WORKER,PHOTO_DATE,data["p_kind"],
+                     data["p_base64"],data["p_expected_updated_at"]))
+            PHOTO_HITS.append((data["p_kind"],len(data["p_base64"])))
+            return self.reply(200,None)
+        except br.psycopg.Error as e:
+            desc=str(e).splitlines()[0]
+            if desc in ("STALE_OVERTIME_DAY","STALE_FINGERPRINT"):
+                return self.reply(409,{"code":"P0001","message":desc})
+            print("QA_ONLY_BRIDGE_SQL_EXCEPTION_TYPE="+type(e).__name__,flush=True)
+            return self.reply(400,{"message":"QA_SYNTHETIC_DB_REJECTED"})
+
+def check(ok,label):
+    assert ok,label
+    print("PASS real-browser-photo-overtime: "+label,flush=True)
+
+def make_png(w=400,h=280):
+    def chunk(t,data):
+        return struct.pack("!I",len(data))+t+data+struct.pack("!I",zlib.crc32(t+data)&0xffffffff)
+    row=b"\x00"+bytes([140,170,190])*w
+    raw=row*h
+    return (b"\x89PNG\r\n\x1a\n"+chunk(b"IHDR",struct.pack("!2I5B",w,h,8,2,0,0,0))
+            +chunk(b"IDAT",zlib.compress(raw,6))+chunk(b"IEND",b""))
+
+def open_date(page,date,year,month):
+    page.evaluate("""async ({date,year,month})=>{
+      state.year=year;state.month=month;
+      await loadMonthData(true);openDetail(date);
+    }""",{"date":date,"year":year,"month":month})
+    page.locator("#detailBackdrop.open").wait_for(timeout=12000)
+
+def main():
+    br.require_env()
+    br.reset()
+    check(br.value("SELECT count(*) FROM public.qa_browser_overtime")==0 and
+          br.value("SELECT count(*) FROM public.qa_browser_fingerprint")==0,
+          "PG synthetic fingerprint and overtime records initially empty")
+    br.HITS.clear()
+    server=br.ThreadingHTTPServer((br.HOST,br.PORT),ActionBridge)
+    threading.Thread(target=server.serve_forever,daemon=True).start()
+    folder=br.build()
+    site=br.subprocess.Popen(["node",str(br.ROOT/"qa-round3/e2e/serve-local-qa-site.mjs"),folder],
+                              cwd=br.ROOT,stdout=br.subprocess.DEVNULL,stderr=br.subprocess.DEVNULL)
+    try:
+        br.wait_for_web()
+        with sync_playwright() as p:
+            browser=p.chromium.launch(headless=True,args=["--no-sandbox"])
+            try:
+                context=browser.new_context(locale="ko-KR",service_workers="block")
+                page=context.new_page()
+                external=[];js_errors=[]
+                page.on("pageerror",lambda e:js_errors.append(str(e)[:100]))
+                page.on("dialog",lambda d:d.accept())
+                def gate(route):
+                    u=urlsplit(route.request.url)
+                    if u.scheme in ("http","ws") and u.hostname==br.HOST and u.port in (br.PORT,br.WEB):
+                        return route.continue_()
+                    external.append(route.request.url)
+                    return route.abort()
+                page.route("**/*",gate)
+                page.goto("http://127.0.0.1:54330/",wait_until="domcontentloaded")
+                page.locator("#loginName").fill("가상직원")
+                page.locator("#loginPin").fill("1234")
+                page.locator("#loginBtn").click()
+                page.locator("#appView:not(.hidden)").wait_for(timeout=30000)
+                page.locator("#usageGuideBackdrop.open").wait_for(state="visible",timeout=6000)
+                page.locator("#usageGuideConfirmBtn").click()
+                page.locator("#usageGuideBackdrop.open").wait_for(state="hidden",timeout=6000)
+                check(page.evaluate("state.me?.employee_id===2 && !state.me?.is_read_only && state.personnelBackendReady===true"),
+                      "actual login UI and read-only gate authorize only synthetic worker")
+                open_date(page,PHOTO_DATE,2026,9)
+                check(page.evaluate("state.fingerprintBackendReady===true"),"fingerprint metadata ready before photo choice")
+                upload=page.locator("#fingerprintClockInUploadBtn")
+                check(upload.is_visible() and upload.is_enabled(),
+                      "real fingerprint upload button enabled on past synthetic active date")
+                photo=make_png()
+                with page.expect_file_chooser(timeout=10000) as picker:
+                    upload.click()
+                picker.value.set_files({"name":"synthetic-qa.png","mime_type":"image/png","buffer":photo})
+                page.wait_for_function("""()=>!fingerprintPhotoPending &&
+                  !!state.fingerprintRecords.find(r=>r.record_date==='2026-10-21' && r.has_clock_in)""",
+                  timeout=30000)
+                check(len(PHOTO_HITS)==1 and PHOTO_HITS[0][1]>100,
+                      "real file chooser -> browser PNG decode -> canvas JPEG -> HTTP write exactly once")
+                check(br.value("""SELECT octet_length(clock_in_photo) FROM public.qa_browser_fingerprint
+                    WHERE employee_id=2 AND record_date=%s::date""",(PHOTO_DATE,))>100,
+                      "actual fingerprint JPEG bytes persisted in isolated PostgreSQL")
+                check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨",
+                      "real UI readback shows registered image after DB resync")
+                check(page.evaluate("state.fingerprintBackendReady===true"),
+                      "photo metadata resynchronization returns to ready, not indefinite loading")
+                page.get_by_role("button",name="날짜 상세 닫기").click()
+                page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=6000)
+                open_date(page,OT_DATE,2027,4)
+                if not page.locator("#saveOvertimeBtn").is_visible():
+                    page.locator("#overtimeDetailToggleBtn").click()
+                check(page.locator("#saveOvertimeBtn").is_visible() and page.locator("#saveOvertimeBtn").is_enabled(),
+                      "actual overtime Save button enabled for synthetic eligible day")
+                adjustment=page.locator('[data-overtime-slot="early"] button[data-overtime-adjust="10"]')
+                adjustment.click()
+                check(page.locator("#overtimeEarlyTime").text_content().strip()=="10분",
+                      "actual +10 overtime control updates draft")
+                with page.expect_response(lambda x:urlsplit(x.url).path.endswith("/rest/v1/rpc/save_my_overtime_day_v2"),timeout=15000) as resp:
+                    page.locator("#saveOvertimeBtn").click()
+                check(resp.value.status==200,"real overtime Save HTTP success")
+                page.wait_for_function("""()=>!overtimeDaySavePending &&
+                  state.overtimeEntries.some(r=>r.work_date==='2027-05-13' && r.minutes===10)""",
+                  timeout=20000)
+                check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==10,
+                      "Save button committed synthetic overtime in PostgreSQL")
+                check(OVERTIME_HITS==[10],"one overtime write, no duplicated mutation")
+                adjustment.click()
+                check(page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
+                      "existing 10-minute plan edited through actual +10 control")
+                with page.expect_response(lambda x:urlsplit(x.url).path.endswith("/rest/v1/rpc/save_my_overtime_day_v2"),timeout=15000) as resp:
+                    page.locator("#saveOvertimeBtn").click()
+                check(resp.value.status==200,"actual overtime modification HTTP success")
+                page.wait_for_function("""()=>!overtimeDaySavePending &&
+                  state.overtimeEntries.some(r=>r.work_date==='2027-05-13' && r.minutes===20)""",
+                  timeout=20000)
+                check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==20,
+                      "overtime second Save committed modification, not just first insertion")
+                check(OVERTIME_HITS==[10,20],"exactly two intended writes")
+                check(not any(".supabase.co" in x for x in external) and not js_errors,
+                      "remote Supabase traffic blocked and no page JS exceptions")
+                print("FINGERPRINT_OVERTIME_BROWSER_TO_SYNTHETIC_POSTGRES_SCOPED_PASS",flush=True)
+            finally:browser.close()
+    finally:
+        site.terminate()
+        try:site.communicate(timeout=4)
+        except br.subprocess.TimeoutExpired:site.kill()
+        server.shutdown();server.server_close()
+
+if __name__=="__main__":main()
