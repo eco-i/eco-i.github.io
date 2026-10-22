@@ -356,3 +356,10 @@
 - PRIVATE SQL 후보 원문은 `WORKMOA_DRAFT_ONLY_PERSONNEL_CANCEL`로 설치방지, 검증 시 임시 REVIEW COPY만 합성 PostgreSQL에 적용. 기존 앱 QA revision 19/19 소스검수와 별개로 **실제 앱의 취소 UI→서버 DB E2E, Supabase Auth/PIN 및 기존 운영 스키마·레거시 writer/복원 경합은 미검증**. 1차 Run 39755702352는 테스트 `PUBLIC` 역할 ACL 확인 방식 오류로 실패했고 수정한 최종 RUN에서 전체 PASS.
 - 누적 PRIVATE 개별 RPC synthetic scoped 후보 **13/26종**(이전 12+인사취소1). 사용자 승인 운영 메모3 복구 이후 운영 RPC **미설치 23종** 그대로, 이 중 synthetic scoped 후보 10종/미검증 13종. 운영 신규 설치/수정 0.
 - **공식 3-8-53 완료, 3-8-54 미시작·BLOCKED, 신규 37종, 전체 NOT CLEAN** 유지. `main`/실직원 DB·운영 SQL/지문/배포 접근·변경 없음. 비공개 상세 `PERSONNEL_CANCEL_TWO_ADMIN_POSTGREST_CAS_GATE_20261022.md`.
+
+## 2026-10-22 — 긴급 기존기능 복구: 사내일정 v4 **운영 승인 설치 성공**
+- 사용자 사진: 2026-10-30 전문강사 청렴교육 등록이 `사내일정 동시수정 보호 SQL이 아직 적용되지 않았거나 서버 스키마 갱신 중`으로 실패. 운영 사이트가 `save_company_event_v4/delete_company_event_v4`를 호출하지만 운영 서버에 두 RPC가 없던 **운영 계약 불일치 확인**. 검수 중 잘되던 기능을 막은 장애로, **3-8-54보다 운영 기능 복구 우선**.
+- 기존 비공개 합성 SQL은 실제 `company_events.event_date`와 `audit_logs.action_type` 컬럼에 안 맞아서 사용하지 않음. 운영형 신규 SQL 후보를 원문 실행차단 상태로 작성·실제 PG17/PostgREST14에서 [Run 39761409847](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39761409847) **48/48 scoped PASS**. 운영 실제 적용 사용자 별도 승인 확인.
+- **SongdoFood** migration `20261022101444_workmoa_company_events_v4_cas_restore_20261022` 성공. v4 save/delete 총 2종 설치, v3 옛 브라우저 write 권한 철회, v4 실행권한/owner/search_path 검증. 운영 `main` index 수정 0, 실 직원/기존 일정 행 수정 0. 운영 사내일정 **5→5**, 감사 **127→127**, 최신 일정 수정시각 동일. 실제 사용자 관리자 세션 저장은 아직 사용자 확인 전.
+- [공개 복구 검증 보고서](PRODUCTION_COMPANY_EVENTS_V4_RESTORE_20261022.md) / 비공개 운영 증적 `COMPANY_EVENTS_V4_AUTHORIZED_PRODUCTION_RESTORE_20261022.md`.
+- 원래 누락 26종 중 승인 복구 메모3 + 이번 사내일정2 = **설치5, 현재 미설치21**. 과거 누락 26·31 callsite frozen 스냅샷 수정 금지. 지문·초과근무 v2 함수 존재는 확인했지만 UI실행 장애는 **별도 미해결**. 공식 블록 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 결함 37 / 전체 NOT CLEAN 변동 없음.
