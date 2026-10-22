@@ -337,3 +337,10 @@
 - 상세 기록 `qa-round3/HOLIDAY_ELIGIBILITY_CAS_CLIENT_QA_20261022.md`. 신규 파일 `qa-round3/tests/holiday-eligibility-revision-cas.test.cjs`, workflow `.github/workflows/qa-holiday-eligibility-revision-cas.yml`. 가상 Chromium 브리지에 `list_holiday_work_eligibility_v2` 응답 추가; 운영 배포 0.
 - 휴일근무 신규 `list_holiday_work_eligibility_v2`, 4인자 `admin_set_holiday_work_enabled_v2` **운영에 아직 미설치**. 이전 PRIVATE 격리 SQL/교차잠금 43/43·46/46 PASS만으로 실서버 적용 금지. 다음 목표는 실제 QA 앱 관리자 버튼→가상 세션→진짜 PostgREST14+PG17 CAS 성공/409/재조회 통합, 직원별 공통 잠금/인사효력일/실 운영 Auth/RLS 차이 검토. 유료 QA 프로젝트 생성·운영 SQL/GRANT/직원DB 쓰기는 별도 승인 없이는 금지.
 - 공식 **마지막 완료 3-8-53 / 3-8-54 미시작·BLOCKED / 누적 신규 결함 37종 / 전체 NOT CLEAN**. 이번 scoped 작업을 3-8-54 완료로 승격하지 말 것.
+
+## 2026-10-22 — 휴근 CAS 실제 Chromium→PostgREST14→PG17 20/20 PASS
+- 사용자 도움으로 비공개 저장소 `qa/holiday_enabled_browser_postgrest_e2e.py`, `.github/workflows/workmoa-private-holiday-browser-postgrest-qa.yml` 업로드 완료; 앞서 PRIVATE `qa/holiday_enabled_browser_overlay.sql`도 준비되어 있었음.
+- 최종 PRIVATE [Actions Run 39750269978](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39750269978), Job 119728797712 **SUCCESS**. 실제 `qa-3-8` HTML 관리자 체크박스를 Chromium으로 클릭해 **진짜 PostgREST14.18 HTTP→일회용 PG17 RLS/SQL** 검사, `HOLIDAY_ENABLED_REAL_BROWSER_REAL_POSTGREST_SCOPED_PASS`, **20/20 PASS**.
+- 관리자 A 최초 OFF→HTTP200 revision1/감사1, 가상 관리자 B 별도 HTTP ON→revision2/감사2, A의 오래된 ON→**HTTP409** 및 DB/감사 변경0·화면 최신값 재조회·충돌 알림, A 최신 revision2 OFF→HTTP200 revision3/감사3. expected 0/1/2 순서, 구 3인자 차단, 외부 Supabase 접속0, JS오류0.
+- 초기 Run 39749906504는 Docker health-cmd YAML 인용 문제, 39750075175는 Playwright uncheck()의 앱 확인 중 일시적인 체크복귀 오판. **시험 구성 자체만 수정**, 최종 PASS. SQL 원본 WORKMOA_DRAFT_ONLY 실행차단 유지; 실 운영 서버/실 직원·근태·지문/운영 `main` 불변.
+- QA 보고서 `qa-round3/HOLIDAY_ELIGIBILITY_CAS_CLIENT_QA_20261022.md`에 후속 20/20 증빙 추가. **실 운영 Auth/RLS/PIN/인사원본·전 기능 E2E 또는 새 서버 RPC 실배포를 의미하지 않음**. 메모 3종 별도 복구 후 운영 누락 **23종**, 누적 결함 **37종**. **공식 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 전체 NOT CLEAN** 그대로. 다음은 P0/P1 잔여 서버 RPC 계약·운영 보안 적합성 및 독립 전체 QA 기반 확인, 사용자 승인 없는 운영 변경 금지.
