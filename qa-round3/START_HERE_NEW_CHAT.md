@@ -350,3 +350,9 @@
 - QA 전용: `list_personnel_assignments` 반환의 발령별 `batch_revision`을 optional parse/형식·행 일치 검증, snapshot 포함, 온라인 취소 시 안전한 revision 없으면 **취소 차단**, 있으면 `p_expected_revision` 필수 전달. 서버의 stale 오류는 최신 인사 확인 안내. frozen main 26종/31곳 정적 호출 게이트는 QA 한정 휴근 토글+발령 취소 두 CAS 인자 추가만 허용하며 [Run 39752081840](https://github.com/eco-i/eco-i.github.io/actions/runs/39752081840) PASS.
 - 비공개 서버 수용조건: `ahnbest23-hash/workmoa-backend-private/PERSONNEL_CANCEL_REVISION_CONTRACT_GATE_20261022.md`. **실제 서버 revision 제공/취소 SQL CAS·PostgREST 2관리자 충돌 E2E 미실행**; 온라인 QA 취소가 필드 누락으로 차단되는 것은 의도된 안전 상태. 운영 적용 금지.
 - **공식 상태 그대로:** 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 결함 37종 / 운영 누락 23종 / 전체 NOT CLEAN. 운영 main·실직원 데이터·운영 SQL/배포 변경 없음.
+
+## 2026-10-22 — PRIVATE 인사발령 취소 두 관리자 실제 HTTP CAS 83/83 PASS (전체 NOT CLEAN)
+- [공개 비민감 scoped 보고서](PERSONNEL_CANCEL_REAL_POSTGREST_QA_20261022.md) / [PRIVATE 실제 GitHub Actions Run 39755797680](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39755797680), Job `119747359468` **SUCCESS**, `PASS_COUNT=83`. 일회용 PostgreSQL17.11/PostgREST14.18 + 가상 두 관리자/직원으로 `admin_cancel_personnel_batch_v2` **3인자 expected revision CAS** 동시 취소·편집 대 취소 HTTP **200/409**, stale/ABA, 권한 철회, 감사/snapshot 실패 rollback, RLS/EXECUTE 최소권한 실증.
+- PRIVATE SQL 후보 원문은 `WORKMOA_DRAFT_ONLY_PERSONNEL_CANCEL`로 설치방지, 검증 시 임시 REVIEW COPY만 합성 PostgreSQL에 적용. 기존 앱 QA revision 19/19 소스검수와 별개로 **실제 앱의 취소 UI→서버 DB E2E, Supabase Auth/PIN 및 기존 운영 스키마·레거시 writer/복원 경합은 미검증**. 1차 Run 39755702352는 테스트 `PUBLIC` 역할 ACL 확인 방식 오류로 실패했고 수정한 최종 RUN에서 전체 PASS.
+- 누적 PRIVATE 개별 RPC synthetic scoped 후보 **13/26종**(이전 12+인사취소1). 사용자 승인 운영 메모3 복구 이후 운영 RPC **미설치 23종** 그대로, 이 중 synthetic scoped 후보 10종/미검증 13종. 운영 신규 설치/수정 0.
+- **공식 3-8-53 완료, 3-8-54 미시작·BLOCKED, 신규 37종, 전체 NOT CLEAN** 유지. `main`/실직원 DB·운영 SQL/지문/배포 접근·변경 없음. 비공개 상세 `PERSONNEL_CANCEL_TWO_ADMIN_POSTGREST_CAS_GATE_20261022.md`.
