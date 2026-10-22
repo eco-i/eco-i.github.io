@@ -24,7 +24,8 @@
   - 다른 저장 실패→초안 보존, 성공 메시지 금지
   - 명시적 true 저장 + 권한 있는 원본 재조회 성공→메모 화면 텍스트와 baseline 동일, 성공 메시지 표시
 - 기존 live RPC 카탈로그 안전 게이트 [Run 39731183593](https://github.com/eco-i/eco-i.github.io/actions/runs/39731183593)는 `EXPECTED_RELEASE_BLOCK: 26 unresolved live-server RPC name gaps / 31 callsites; no deployment approval`로 **예상된 FAIL CLOSED**. 이를 '자동 테스트 전부 PASS'로 보고하지 않음.
-- 실제 운영 사용자의 재현 스텝에 대한 real Supabase Auth/RLS/실브라우저 E2E는 미실시, 테스트는 합성 함수 내부/DOM 상태 테스트. 운영 버전 자체는 미수정.
+- 추가 격리 Chromium 실화면 UI 검증: [Run 39731183588](https://github.com/eco-i/eco-i.github.io/actions/runs/39731183588), job `119666353196` SUCCESS. 가상 직원/로그인으로 진짜 메모 저장 버튼 클릭 → 격리 HTTP에서 합성 PostgREST 형태의 **PGRST202/404** 응답, 저장 요청 1회 확인, 화면에 정확한 미저장 오류 노출, 초안·화면 유지, 저장 중 플래그 해제, 권한 재평가 뒤도 오류 유지, 실험용 PostgreSQL 메모 테이블 **쓰기 0건** 확인. 외부 운영 Supabase 요청 0. **PGRST202 응답은 합성**이므로 실제 운영 PostgREST/Auth 전체 E2E가 아님.
+- 운영 사용자의 실제 브라우저 세션 Auth/RLS 및 운영 DB 쓰기 검증은 미실시. 기존 코드 수정·실제 운영 배포는 미수행.
 
 ## 다음 작업 및 우선순위
 
