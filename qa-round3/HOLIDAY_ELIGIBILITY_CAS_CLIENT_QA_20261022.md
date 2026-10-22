@@ -17,7 +17,7 @@
 - [QA 새 런타임 9/9 PASS: Run 39744288968](https://github.com/eco-i/eco-i.github.io/actions/runs/39744288968) — 실제 프런트 함수 원문 추출+Node VM 합성 데이터 테스트: 버전읽기·엄격검증·중복/누락·4인자 쓰기·0/음수/잘못된 expected 차단·stale 409 재조회/실패 시 lock·일반 실패·오프라인 처리.
 - [기존 정적 호출 계약 gate PASS: Run 39744367713](https://github.com/eco-i/eco-i.github.io/actions/runs/39744367713) — frozen main 계약 검증 유지 + 허용한 단일 QA CAS 계약 예외만 인정.
 - 초기 실패 Run 39744187905: synthetic Node VM 내 `todayKey` stub 누락. 누락 stub만 보정하여 최종 Run 39744288968 PASS. 별도로 기존 정적 계약 Run 39744030026은 옛 QA=main 3인자 가정으로 FAIL, 이후 정확한 QA 전용 4인자 정책 검증으로 교체 후 PASS.
-- 브라우저 휴근·초근 실패 경로 회귀, 근태 등록, 메모 누락 응답 회귀는 별도 기존 workflow 재실행 중이며 각각의 최종 결과는 해당 Actions에서 판단. Node 9/9를 실제 운영 UI/서버 성공 시험으로 격상하지 말 것.
+- **기존 Chromium 회귀 3개 최종 PASS**: [휴일근무·초과근무 실패 UI Run 39744390017](https://github.com/eco-i/eco-i.github.io/actions/runs/39744390017), [근태 등록 UI+독립 PostgreSQL Run 39744390068](https://github.com/eco-i/eco-i.github.io/actions/runs/39744390068), [개인 메모 404 오류·초안 보존 Run 39744390034](https://github.com/eco-i/eco-i.github.io/actions/runs/39744390034), 모두 SUCCESS. 다만 기존 가상 RPC 응답 테스트이며 새 휴근 토글 UI 실 PostgREST 성공 E2E를 의미하지 않음.
 
 ## 출시 차단 / 후속
 - 휴근 가능 설정 관련 신설 SQL의 **운영 배포 없음**: 기존 운영 `main`은 2열 읽기/3인자 쓰기 계약이며, 운영 DB 최신 `list_holiday_work_eligibility_v2` 및 4-arg `admin_set_holiday_work_enabled_v2`는 아직 실제 설치되지 않음.
