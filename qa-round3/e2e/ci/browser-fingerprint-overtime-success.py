@@ -250,6 +250,38 @@ def main():
                 check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==20,
                       "overtime second Save committed modification, not just first insertion")
                 check(OVERTIME_HITS==[10,20],"exactly two intended writes")
+                # Separate real user path: month overtime summary -> existing row's
+                # visible "수정" button -> date detail -> update saved record.
+                page.get_by_role("button",name="날짜 상세 닫기").click()
+                page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=6000)
+                page.locator("#overtimeSummaryMain").click()
+                page.locator("#overtimeListBackdrop.open").wait_for(timeout=12000)
+                list_edit=page.locator('#overtimeListBody button[data-overtime-list-edit]')
+                list_edit.first.wait_for(state="visible",timeout=12000)
+                check(list_edit.count()==1 and list_edit.first.is_enabled(),
+                      "real month overtime list displays enabled existing-row Edit button")
+                list_edit.first.click()
+                page.locator("#overtimeListBackdrop.open").wait_for(state="hidden",timeout=6000)
+                page.locator("#detailBackdrop.open").wait_for(timeout=6000)
+                check(page.evaluate("state.selectedDate")==OT_DATE and
+                      page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
+                      "overtime list Edit opens original 20-minute date and protects record context")
+                if not page.locator("#saveOvertimeBtn").is_visible():
+                    page.locator("#overtimeDetailToggleBtn").click()
+                page.locator('[data-overtime-slot="early"] button[data-overtime-adjust="10"]').click()
+                check(page.locator("#overtimeEarlyTime").text_content().strip()=="30분",
+                      "actual list Edit detail controls revise existing plan to 30 minutes")
+                with page.expect_response(lambda x:urlsplit(x.url).path.endswith(
+                        "/rest/v1/rpc/save_my_overtime_day_v2"),timeout=15000) as response:
+                    page.locator("#saveOvertimeBtn").click()
+                check(response.value.status==200,"list Edit save receives HTTP success")
+                page.wait_for_function("""()=>!overtimeDaySavePending &&
+                  state.overtimeEntries.some(r=>r.work_date==='2027-05-13' && r.minutes===30)""",
+                  timeout=20000)
+                check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==30,
+                      "list Edit 20-to-30 modification persisted in real isolated PostgreSQL")
+                check(OVERTIME_HITS==[10,20,30],
+                      "three real user actions each produce exactly one intended mutation")
                 check(not any(".supabase.co" in x for x in external) and not js_errors,
                       "remote Supabase traffic blocked and no page JS exceptions")
                 print("FINGERPRINT_OVERTIME_BROWSER_TO_SYNTHETIC_POSTGRES_SCOPED_PASS",flush=True)
