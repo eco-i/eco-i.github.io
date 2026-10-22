@@ -303,6 +303,29 @@ def main():
                       "list Edit 20-to-30 modification persisted in real isolated PostgreSQL")
                 check(OVERTIME_HITS==[10,20,30],
                       "three real user actions each produce exactly one intended mutation")
+                # Simulate a second tab writing newer data AFTER this tab captured
+                # its 30-minute baseline. The stale first tab must NOT overwrite it.
+                page.locator('[data-overtime-slot="early"] button[data-overtime-adjust="10"]').click()
+                check(page.locator("#overtimeEarlyTime").text_content().strip()=="40분",
+                      "stale-tab draft remains editable before conflicting server change")
+                another_tab_minutes=br.value("""UPDATE public.qa_browser_overtime
+                  SET minutes=50,
+                  updated_at=GREATEST(clock_timestamp(),updated_at + INTERVAL '1 microsecond')
+                  WHERE employee_id=2 AND work_date=%s::date AND slot='early'
+                  RETURNING minutes""",(OT_DATE,))
+                check(another_tab_minutes==50,
+                      "second synthetic tab has newer 50-minute PG record")
+                before_stale_mutation_count=len(OVERTIME_HITS)
+                page.locator("#saveOvertimeBtn").click()
+                page.wait_for_function("""()=>!overtimeDaySavePending
+                   && document.getElementById('overtimeDetailError')?.textContent.includes('다른 창')""",
+                   timeout=14000)
+                check(len(OVERTIME_HITS)==before_stale_mutation_count,
+                      "stale overtime draft rejected before outgoing protected save RPC")
+                check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==50,
+                      "other-tab newer overtime value preserved in synthetic PostgreSQL")
+                check(page.locator("#overtimeEarlyTime").text_content().strip()=="40분",
+                      "failed stale save preserves current user's unsaved 40-minute draft")
                 check(not any(".supabase.co" in x for x in external) and not js_errors,
                       "remote Supabase traffic blocked and no page JS exceptions")
                 print("FINGERPRINT_OVERTIME_BROWSER_TO_SYNTHETIC_POSTGRES_SCOPED_PASS",flush=True)
