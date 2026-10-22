@@ -1,0 +1,23 @@
+name: Workmoa QA safe fingerprint read error diagnostics
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - 'index.html'
+      - 'qa-round3/tests/fingerprint-read-diagnostics.test.cjs'
+      - '.github/workflows/workmoa-qa-fingerprint-read-diagnostics.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safe-failure-reasons:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test qa-round3/tests/fingerprint-read-diagnostics.test.cjs
+      - name: Scope
+        run: echo 'QA-only safe fingerprint metadata failure diagnosis; not production E2E; 3-8-54 BLOCKED.' >> "$GITHUB_STEP_SUMMARY"
