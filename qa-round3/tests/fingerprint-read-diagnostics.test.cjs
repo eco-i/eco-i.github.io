@@ -12,7 +12,7 @@ vm.runInNewContext(html.slice(start,end),ctx,{timeout:1500});
 const classify=ctx.fingerprintReadFailureText;
 const cases=[
  [{message:'Could not find the function public.list_my_fingerprint_records in schema cache'},'서버 스키마'],
- [{message:'지문 기록 응답 형식이 올바르지 않습니다.'},'응답 형식'],
+ [{message:'지문 기록 응답 형식이 올바르지 않습니다.'},'형식'],
  [{message:'SESSION_EXPIRED'},'로그인 세션'],
  [{message:'TimeoutError'},'네트워크'],
  [{message:'permission denied for table fingerprint_punch_records'},'권한'],
