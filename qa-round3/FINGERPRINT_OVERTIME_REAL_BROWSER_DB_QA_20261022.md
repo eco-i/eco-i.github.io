@@ -20,3 +20,12 @@
 - 사용자 장애 복구 우선. **3-8-53 완료 / 3-8-54 미시작·BLOCKED / 3차 누적 신규 제품결함 37종 / NOT CLEAN**.
 - 운영 최신 설치되지 않은 직접 호출 RPC **21종** 여전히 존재. 직원 실제 기록/백업·복원 SQL을 임의로 설치하면 안 됨.
 - 다음 실증 기준: Android 실제 픽커 재현 또는 신뢰할 수 있는 모바일 브라우저 생명주기 검증, 전/후 `fingerprintBackendReady`·session·month load/Realtime 조화, 초과근무 사용자 실패 시 정확한 오류/해당 기록 정보 확보. 실제 운영 write test는 사용자 감독/별도 승인 후 허용해야 하며 기존 행을 변경하지 않는 가상 계정이 우선.
+
+## 추가 QA 2026-10-22 21시 전후 — Android-like picker 이벤트 및 **월별 목록 수정 버튼**
+- [Run 39774707035](https://github.com/eco-i/eco-i.github.io/actions/runs/39774707035) **SUCCESS, 브라우저 20/20 PASS**, 기존 18개에 실제 파일 chooser가 열린 상태에서 synthetic `pagehide/pageshow(persisted:true)` 이벤트를 보내 기존 지문 사진 교체의 expected revision(CAS), DB bytea 재저장·메타 재조회·단일 write 성공을 추가. Android 실제 OS picker는 아님.
+- 정상 초과근무 상세 수정 10→20 외에도 실제 사용자가 누르는 월간 목록의 **수정** 버튼(메인 `#overtimeSummaryMain`→가상 목록 `#overtimeListBody [data-overtime-list-edit]`→날짜상세)을 통해 20→30으로 고쳐 저장하는 시나리오를 도입.
+- [Run 39781365923](https://github.com/eco-i/eco-i.github.io/actions/runs/39781365923) FAIL: 목록 수정에서 상세 열기·30분 초안까지 완료, 첫 Playwright `expect_response`는 15초 내 지정 응답 미관측. **원인 미확정, 지속 제품 결함으로 단정 금지**.
+- Playwright 응답 리스너 의존 대신 실제 protected write 건수·DB 값을 검사하도록 진단을 보강한 [Run 39781727235](https://github.com/eco-i/eco-i.github.io/actions/runs/39781727235) **SUCCESS, 브라우저 27/27 PASS**. 기존 20개 + 월간 목록 수정 버튼 표시, 정확한 편집 날짜/기존 20분 확인, 초안 30분, `save_my_overtime_day_v2`로 수정 1회 전송, PostgreSQL 30분 보존·동기화 확인. 이전 timeout의 재현성이 확인되지 않았으므로 제품 결함 38종으로 집계 금지. 단발 성공이 영속 신뢰성을 증명하지 않음.
+- 테스트 안정성: `workmoa-qa-fingerprint-overtime-browser.yml`을 동일한 full Chromium+가짜 PostgreSQL 시나리오 **연속 3회 실행**, 매회 두 QA synthetic 테이블만 `TRUNCATE ... RESTART IDENTITY`하고 27개 assertion 실행하도록 변경. [Run 39781994803](https://github.com/eco-i/eco-i.github.io/actions/runs/39781994803) 실행 확인. **최종 결과 확인 전 81/81 PASS 주장 금지**.
+- 운영 `main`과 QA `qa-3-8`의 저장 코드 함수 `handleFingerprintPhotoInput`, `selectFingerprintPhoto`, `saveOvertimeDay`, `fetchCurrentOvertimeDay`, `loadOvertimeList`, `fingerprintPickerStillCurrent` 등 일부 핵심 함수 본문이 동일함을 소스 직접 대조 확인. QA에는 운영에 없는 `fingerprintReadFailureText` 안전진단이 추가됨.
+- 주의: **이 모든 브라우저 테스트는 합성 로그인·합성 SQL·Python HTTP 브리지**이고 실제 운영 서버를 브라우저에서 호출하지 않음. 이전 **운영 SQL 원본만 가상 PostgREST에서 성공 40/40/37/37**한 결과와도 독립임. 운영 기능 '복구' 또는 전체 3차 CLEAN 아님. 3-8-54 계속 BLOCKED. 운영 직원 기록/DB/배포 수정 0.
