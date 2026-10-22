@@ -1,0 +1,27 @@
+name: Workmoa QA Personnel Cancel Revision CAS (source scoped)
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - 'index.html'
+      - 'qa-round3/tests/personnel-batch-cancel-revision.test.cjs'
+      - '.github/workflows/workmoa-qa-personnel-cancel-revision.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  personnel-cancel-cas-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify QA-only revision CAS source invariants
+        run: node --test qa-round3/tests/personnel-batch-cancel-revision.test.cjs
+      - name: Describe limited scope
+        if: success()
+        run: |
+          echo 'QA-only source contract PASS, not a real PostgreSQL/PostgREST/Auth/E2E execution.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Production main remains untouched; 3-8-54 BLOCKED / NOT CLEAN.' >> "$GITHUB_STEP_SUMMARY"
