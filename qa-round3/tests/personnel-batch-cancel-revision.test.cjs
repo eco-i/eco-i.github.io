@@ -20,9 +20,9 @@ const source=[
 ].join('\n');
 const ctx={
   validRpcObjectRowList(rows){return Array.isArray(rows)&&rows.every(x=>x&&typeof x==='object'&&!Array.isArray(x));},
-  lsParseISO(x){return typeof x==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(x);},
+  lsParseISO(x){return typeof x==='string'&&new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$').test(x);},
   strictRpcTimestamp(x){if(typeof x!=='string'||!x.includes('T'))throw Error('bad timestamp');return x;},
-  strictRpcDate(x){if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(x))throw Error('bad date');return x;},
+  strictRpcDate(x){if(!new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$').test(x))throw Error('bad date');return x;},
   normalizePersonnelAssignment(x){return x;}
 };
 vm.runInNewContext(source,ctx,{timeout:2000});
@@ -85,11 +85,11 @@ test('10. QA cancellation refuses missing revision before confirmation',()=>{
 });
 test('11. exactly one cancel RPC call and requires CAS revision',()=>{
  const fn=between('async function cancelPersonnelBatch(', 'async function openPersonnelSnapshotRestore(');
- const calls=[...fn.matchAll(/rpc\\('admin_cancel_personnel_batch_v2'\\s*,\\s*\\{([^}]*)\\}/g)];
- assert.equal(calls.length,1);
- assert.match(calls[0][1],/p_token:token/);
- assert.match(calls[0][1],/p_batch_id:batchId/);
- assert.match(calls[0][1],/p_expected_revision:expected\\.batch_revision/);
+ const payloadAnchor="rpc('admin_cancel_personnel_batch_v2',";
+ const calls=fn.split(payloadAnchor).length-1;assert.equal(calls,1);
+ const payload=fn.slice(fn.indexOf(payloadAnchor),fn.indexOf(payloadAnchor)+190);
+ assert.ok(payload.includes('p_token:token,p_batch_id:batchId,p_expected_revision:expected.batch_revision'));
+ assert.ok(!payload.includes('p_expected_revision:null'));
 });
 test('12. latest assignment snapshot recheck stays before CAS write',()=>{
  const fn=between('async function cancelPersonnelBatch(', 'async function openPersonnelSnapshotRestore(');
