@@ -62,11 +62,12 @@ jobs:
           test -z "${QA_SUPABASE_URL:-}"
           test -z "${QA_SUPABASE_ANON_KEY:-}"
           if ! command -v psql >/dev/null; then
-            sudo apt-get update -qq
-            sudo apt-get install -y -qq postgresql-client
+            timeout 120s sudo apt-get update -qq
+            timeout 120s sudo apt-get install -y -qq postgresql-client
           fi
-          python3 -m pip install --disable-pip-version-check 'playwright==1.56.0' 'psycopg[binary]==3.2.10'
-          python3 -m playwright install --with-deps chromium
+          timeout 150s python3 -m pip install --disable-pip-version-check --timeout 30 --retries 2 'playwright==1.56.0' 'psycopg[binary]==3.2.10'
+          echo 'QA_BROWSER_INSTALL_BOUND=210s'
+          timeout 210s python3 -m playwright install --with-deps chromium
           python3 -m py_compile qa-round3/e2e/ci/browser-fingerprint-overtime-success.py
       - name: Seed disposable synthetic PostgreSQL only
         run: |
