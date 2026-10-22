@@ -344,3 +344,9 @@
 - 관리자 A 최초 OFF→HTTP200 revision1/감사1, 가상 관리자 B 별도 HTTP ON→revision2/감사2, A의 오래된 ON→**HTTP409** 및 DB/감사 변경0·화면 최신값 재조회·충돌 알림, A 최신 revision2 OFF→HTTP200 revision3/감사3. expected 0/1/2 순서, 구 3인자 차단, 외부 Supabase 접속0, JS오류0.
 - 초기 Run 39749906504는 Docker health-cmd YAML 인용 문제, 39750075175는 Playwright uncheck()의 앱 확인 중 일시적인 체크복귀 오판. **시험 구성 자체만 수정**, 최종 PASS. SQL 원본 WORKMOA_DRAFT_ONLY 실행차단 유지; 실 운영 서버/실 직원·근태·지문/운영 `main` 불변.
 - QA 보고서 `qa-round3/HOLIDAY_ELIGIBILITY_CAS_CLIENT_QA_20261022.md`에 후속 20/20 증빙 추가. **실 운영 Auth/RLS/PIN/인사원본·전 기능 E2E 또는 새 서버 RPC 실배포를 의미하지 않음**. 메모 3종 별도 복구 후 운영 누락 **23종**, 누적 결함 **37종**. **공식 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 전체 NOT CLEAN** 그대로. 다음은 P0/P1 잔여 서버 RPC 계약·운영 보안 적합성 및 독립 전체 QA 기반 확인, 사용자 승인 없는 운영 변경 금지.
+
+## 2026-10-22 — 인사발령 취소 CAS 클라이언트 사전검증 19/19 PASS (3-8-54 공식 보류)
+- [검증 보고서](PERSONNEL_CANCEL_CAS_CLIENT_QA_20261022.md), [QA Actions Run 39752387949](https://github.com/eco-i/eco-i.github.io/actions/runs/39752387949) **19/19 source-level PASS**. 운영 main의 `admin_cancel_personnel_batch_v2(p_token,p_batch_id)`가 최신 재조회 후 최종 취소까지 변경 버전을 전달하지 않는 P0 계약 공백을 QA 브랜치에서 보강.
+- QA 전용: `list_personnel_assignments` 반환의 발령별 `batch_revision`을 optional parse/형식·행 일치 검증, snapshot 포함, 온라인 취소 시 안전한 revision 없으면 **취소 차단**, 있으면 `p_expected_revision` 필수 전달. 서버의 stale 오류는 최신 인사 확인 안내. frozen main 26종/31곳 정적 호출 게이트는 QA 한정 휴근 토글+발령 취소 두 CAS 인자 추가만 허용하며 [Run 39752081840](https://github.com/eco-i/eco-i.github.io/actions/runs/39752081840) PASS.
+- 비공개 서버 수용조건: `ahnbest23-hash/workmoa-backend-private/PERSONNEL_CANCEL_REVISION_CONTRACT_GATE_20261022.md`. **실제 서버 revision 제공/취소 SQL CAS·PostgREST 2관리자 충돌 E2E 미실행**; 온라인 QA 취소가 필드 누락으로 차단되는 것은 의도된 안전 상태. 운영 적용 금지.
+- **공식 상태 그대로:** 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 결함 37종 / 운영 누락 23종 / 전체 NOT CLEAN. 운영 main·실직원 데이터·운영 SQL/배포 변경 없음.
