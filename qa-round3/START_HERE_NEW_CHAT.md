@@ -363,3 +363,10 @@
 - **SongdoFood** migration `20261022101444_workmoa_company_events_v4_cas_restore_20261022` 성공. v4 save/delete 총 2종 설치, v3 옛 브라우저 write 권한 철회, v4 실행권한/owner/search_path 검증. 운영 `main` index 수정 0, 실 직원/기존 일정 행 수정 0. 운영 사내일정 **5→5**, 감사 **127→127**, 최신 일정 수정시각 동일. 실제 사용자 관리자 세션 저장은 아직 사용자 확인 전.
 - [공개 복구 검증 보고서](PRODUCTION_COMPANY_EVENTS_V4_RESTORE_20261022.md) / 비공개 운영 증적 `COMPANY_EVENTS_V4_AUTHORIZED_PRODUCTION_RESTORE_20261022.md`.
 - 원래 누락 26종 중 승인 복구 메모3 + 이번 사내일정2 = **설치5, 현재 미설치21**. 과거 누락 26·31 callsite frozen 스냅샷 수정 금지. 지문·초과근무 v2 함수 존재는 확인했지만 UI실행 장애는 **별도 미해결**. 공식 블록 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 결함 37 / 전체 NOT CLEAN 변동 없음.
+
+## 2026-10-22 — 운영 장애 복구 우선: 초과근무/지문 운영 SQL 원문 격리 재현
+- [검증·장애범위 상세](RECOVERY_FINGERPRINT_OVERTIME_OPERATIONAL_SQL_20261022.md).
+- **초과근무** 현 운영 SQL 5개 실제 정의를 private snapshot으로 read-only 복사 + 하드스톱, 가상 PostgreSQL17/PostgREST14.18 재생 [Run 39771123060](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39771123060) **40/40 PASS**(등록/수정/완료/삭제/동시경합/감사롤백). **지문** 현 운영 SQL 5개 동일 방식 실재생 [Run 39771691566](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39771691566) **37/37 PASS**(사진 저장→메타조회→사진 회수·교체·삭제, 최초 업로드 경합/세션/PIN/STALE). *가짜 토큰·가짜 직원·사진 바이트만 사용, 운영 행 조회/수정 0*.
+- 운영 site `main` 실제 Android picker/화면·중간 Realtime·세션·인사 freshness 장애는 **미재현/미해결**. 따라서 지문·초과근무 **실서비스 복구 완료 선언 금지**. 다음 작업은 QA browser picker return/loadFingerprintRecords 및 saveOvertimeDay/entry_v2 UI 실동작 vs synthetic live SQL 연결.
+- `qa-3-8/index.html`에 **지문 기록 조회 실패 시 안전한 원인 범주 표시** (PGRST202, 응답형식, 세션, timeout, 권한, 일반 오류; 생데이터/토큰 미노출) QA 전용 진단 추가; [QA Run 39772397452](https://github.com/eco-i/eco-i.github.io/actions/runs/39772397452) **9/9 PASS**. 이는 장애 자체 수정/운영 배포가 아님.
+- 나머지 운영 누락 RPC 21종, 공식 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 3차 결함 37 / NOT CLEAN. 운영 main·실 직원 기록/DB/DDL/배포 변화 없음. 사용자 불편 해소가 검수 진도보다 우선.
