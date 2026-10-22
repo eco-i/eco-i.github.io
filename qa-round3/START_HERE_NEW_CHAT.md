@@ -392,3 +392,12 @@
 - **신규 stale 보호 시나리오**: 현재 30분을 본 사용자 A가 40분 초안을 작성한 사이 B가 가짜 DB 50분으로 업데이트. A 저장은 서버 최신 재조회 차이 감지 후 **write RPC 미발행**, 기존 B 50분 보존, 사용자 A 40분 초안 보존 및 경고. 세 회차 모두 PASS.
 - [공개 상세 보고서](FINGERPRINT_OVERTIME_REAL_BROWSER_DB_QA_20261022.md) 갱신. 주의 **운영 실 SQL 원본 브라우저 연결 X, 가짜 세션·가짜 HTTP/PG SQL, 실제 Android OS picker X**. 따라서 기존 사용자 지문/초과근무 운영 장애 원인 미확정/복구 미검증; 실제 운영기능 CLEAN 불가.
 - 사용자 핵심 우선순위: 기존 기능 복구 > 3차 검수 블록. 실운영 누락 21 RPC도 계속 해결 필요. 운영 `main`과 실제 직원 DB 전혀 변경 없음. 공식 3-8-53 완료 / 3-8-54 미시작 BLOCKED / 3차 결함 37 / NOT CLEAN 유지.
+
+## 2026-10-22 — 기존 기능 복구 우선 신규 진전: 휴근5 + 연차·장기재직2, **격리 93/93 PASS / 운영 미설치**
+- [QA 공개 요약](RECOVERY_HOLIDAY_LEAVE_LONG_7_RPC_SCOPED_20261022.md), 비공개 `ahnbest23-hash/workmoa-backend-private/RECOVERY_7_RPC_HOLIDAY_LEAVE_LONG_REVIEW_20261022.md`.
+- 운영 `SongdoFood` 실 실제 스키마/trigger와 v1 함수를 **read-only** 조회. 운영 `main`이 직접 호출하는 `save_my_holiday_work_personnel_v2`, `admin_save_holiday_work_personnel_v2`, `delete_my_holiday_work_personnel_v2`, `admin_delete_holiday_work_personnel_v2`, `admin_set_holiday_work_enabled_v2`, `save_my_annual_leave_setting_v2`, `save_my_long_service_profile_v2` 7종 **현재 미설치 재확인**. 오래된 v1 일곱 쓰기 함수는 anon/authenticated EXECUTE true, v2 CAS 우회 위험이므로 운영 설치시 구버전 권한도 원자적으로 정리 필요.
+- 사용자가 기존 기능 복구를 우선 지시하여 비공개에 **원본 직접 실행 하드스톱** 두 파일 생성: `DRAFT_HOLIDAY_WORK_V2_LIVE_SCHEMA_REVIEW_ONLY_20261022.sql.txt` 5종, `DRAFT_LEAVE_LONG_V2_LIVE_SCHEMA_REVIEW_ONLY_20261022.sql.txt` 2종. 기존 라이브 연차·장기재직 v1 SQL은 `qa/LEAVE_LONG_V1_OPERATIONAL_SQL_NO_DEPLOY.sql.txt` 안전 복사. 운영 함수를 설치하지 않음.
+- [휴근 v2 실제 PG17/PostgREST14.18 가상 직원·두 관리자 Run 39786082575](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39786082575) **52/52 PASS**. CAS·stale 409·신규/수정/삭제·관리자 enable·감사·권한·동시경합 포함.
+- [연차/장기재직 운영 v1 실 SQL 결합 가상 PG17/PostgREST14.18 Run 39786862120](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39786862120) **41/41 PASS**. 2026 기준, 2027 grant/carry, 장기재직 제외기간/rollback, 타 탭 최신값 보호, readonly/expired 거절 포함.
+- 합계 **93/93 scoped PASS**, **실제 운영 E2E는 0, 운영 DB DDL·데이터·운영 main 수정 0**, 복구 RPC는 아직 실제 설치되지 않음. 사용자에게 운영 7종 설치·기존 v1 anonymous 쓰기권한 차단 범위를 별도 명시적으로 승인받고 안전 적용 후 실제 UI 재조회가 되어야만 해당 항목 복구 완료.
+- 남은 미설치 **21종 그대로**(이 7종 실제 운영 적용·검증 성공 시 14종으로 감소). 3차 3-8-53 완료, 3-8-54 BLOCKED, 신규 결함 37, NOT CLEAN. 지문·초과근무 모바일 운영장애도 실제 재발 원인 미확정.
