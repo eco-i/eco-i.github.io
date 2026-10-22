@@ -201,6 +201,23 @@ def main():
                       "real UI readback shows registered image after DB resync")
                 check(page.evaluate("state.fingerprintBackendReady===true"),
                       "photo metadata resynchronization returns to ready, not indefinite loading")
+                # Reproduce only the browser events, not a physical Android OS picker.
+                # The second upload is an existing-photo replacement with actual CAS stamp.
+                original_stamp=page.evaluate("fingerprintRecordForDate('2026-10-21')?.updated_at")
+                with page.expect_file_chooser(timeout=10000) as resumed_picker:
+                    upload.click()
+                page.evaluate("""()=>{
+                  window.dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true}));
+                  window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}));
+                }""")
+                resumed_picker.value.set_files({"name":"synthetic-qa.png","mimeType":"image/png","buffer":photo})
+                page.wait_for_function("""(before)=>!fingerprintPhotoPending &&
+                  fingerprintRecordForDate('2026-10-21')?.updated_at!==before
+                  && state.fingerprintBackendReady===true""",arg=original_stamp,timeout=30000)
+                check(len(PHOTO_HITS)==2 and PHOTO_HITS[1][0]=="clock_in",
+                      "synthetic picker pagehide/pageshow/BFCache return does not lose or double-send photo change")
+                check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨",
+                      "photo replacement persists and UI unlocks after simulated native picker return")
                 page.get_by_role("button",name="날짜 상세 닫기").click()
                 page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=6000)
                 open_date(page,OT_DATE,2027,4)
