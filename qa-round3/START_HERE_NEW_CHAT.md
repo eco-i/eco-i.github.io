@@ -215,3 +215,11 @@
 - Run 링크: https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39695127139 ; GitHub 공개 저장소에 비공개 SQL 내용은 이전처럼 복사하지 않음.
 - 전 단계 Private 메모3 PostgreSQL 컴파일·기능 **PASS** Run 39690694910 / 모의 역할 권한 **PASS** Run 39692505119 유지. 이번 HTTP 통합 **NOT VERIFIED**.
 - 다음 채팅에서 `.github/workflows/workmoa-private-memo3-http-qa.yml` 검토 → PGRST002 (schema-cache 준비/GRANT/role) 진단 → 전체 YAML 안전 수정본 준비→ 사용자 Private 업로드→재실행 확인. `main` 및 운영 Supabase 데이터·SQL/배포 변경 0. **공식 3-8-53 완료 / 3-8-54 BLOCKED / 신규 결함 37종 / 실서버 RPC 26종 미설치 / NOT CLEAN**.
+
+## 2026-10-22 — PRIVATE 메모 3종 실제 PostgREST HTTP 통합시험 PASS (격리 범위)
+- PRIVATE 저장소 `ahnbest23-hash/workmoa-backend-private`의 `.github/workflows/workmoa-private-memo3-http-qa.yml`에서 PostgREST 14.18의 schema cache 준비 전 503 `PGRST002`로 실패했던 Run **39695127139**를 분석. 서버 시작 HTTP 응답만 기다리던 경쟁 상태였으며, 해당 실패 로그상 이후 cache 정상 로딩을 확인함.
+- PRIVATE 워크플로 **한 파일만** 수정: `PGRST_ADMIN_SERVER_PORT=3001`, 최초 기동·임시 권한 GRANT 후 재시작 각각 `/ready` 200을 최대 40회 확인(실패 시 즉시 fail closed), 거부 예상 HTTP 요청 7개는 **4xx만 정상적인 거부로 인정**하여 5xx/PGRST002로 거짓 PASS할 위험 차단. PRIVATE 커밋 `9e1cd9837fa55e7cf8fa2c1786d8c3df0cd32cc1`; SQL 초안 원본과 운영 코드 변경 없음.
+- [실제 GitHub Actions 재시험 Run 39697435571](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39697435571), job `119558140273`: **SUCCESS** (모든 step 성공). 실행 로그 `PRIVATE_ROLE_QA_DRAFT_COMPILE_PASS`, `HTTP_POSTGREST_SCHEMA_READY`, `MEMO3_REAL_POSTGREST_HTTP_ROLE_TEST_PASS` 확인, 재시험 실행 로그에 PGRST002 없음.
+- 성공 범위: **실제 PostgREST HTTP→일회용 PostgreSQL 17.11→개발 중 메모 RPC 후보 3종** 호출, 가상 직원 2명 분리, 위조/만료/읽기전용 토큰 차단, 타인 snapshot 삭제 거부, stale 다건 삭제 원자적 롤백, DB 행 검증, 직접 테이블 GET 거부, 토큰 폐기 및 임시 권한 REVOKE. 이는 독립 합성 세션/인사 helper와 disposable 데이터로 검증한 **제한된 통합시험 PASS**.
+- 미검증: 실제 Supabase API Gateway/Auth, 실제 운영 helper 및 RLS/함수 소유자 구조, 전체 브라우저↔원본 앱↔Supabase E2E, 운영 설치 및 미설치 최신 RPC 나머지 23종. **운영 설치·배포 승인 아님**. PRIVATE SQL 원문·비밀정보·실 직원 자료를 공개 저장소로 복사하지 않음.
+- **공식 3-8-53 완료 / 3-8-54 미시작·BLOCKED / 3차 신규 제품 결함 37종 / 실서버 동일명 RPC 26종 미설치 / 전체 NOT CLEAN / 운영 main·실직원 DB·운영 SQL·배포 변경 0** 유지.
