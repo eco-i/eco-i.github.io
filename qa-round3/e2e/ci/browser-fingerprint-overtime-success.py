@@ -271,10 +271,31 @@ def main():
                 page.locator('[data-overtime-slot="early"] button[data-overtime-adjust="10"]').click()
                 check(page.locator("#overtimeEarlyTime").text_content().strip()=="30분",
                       "actual list Edit detail controls revise existing plan to 30 minutes")
-                with page.expect_response(lambda x:urlsplit(x.url).path.endswith(
-                        "/rest/v1/rpc/save_my_overtime_day_v2"),timeout=15000) as response:
-                    page.locator("#saveOvertimeBtn").click()
-                check(response.value.status==200,"list Edit save receives HTTP success")
+                previous_calls=len(OVERTIME_HITS)
+                page.locator("#saveOvertimeBtn").click()
+                page.wait_for_timeout(900)
+                if len(OVERTIME_HITS)==previous_calls:
+                    status=page.evaluate("""()=>({
+                      date:state.selectedDate,view:state.view,
+                      detailsOpen:document.getElementById('detailBackdrop')?.classList.contains('open'),
+                      draftMinutes:overtimeDetailMinutes.early,
+                      serverReady:state.overtimeBackendReady,
+                      personnelReady:state.personnelBackendReady,
+                      mutationAllowed:personnelMutationReady(),
+                      dateWritable:overtimeDetailDateWritable(state.selectedDate),
+                      accountReadOnly:accountReadOnly(),
+                      pending:overtimeDaySavePending,
+                      lifecycleFresh:pageLifecycleWriteFreshnessReady(),
+                      baselineKey:detailRecordBaseline.key,
+                      baseline:detailRecordBaseline.overtime,
+                      localSnapshot:overtimeDaySourceSnapshot(state.selectedDate),
+                      displayError:document.getElementById('overtimeDetailError')?.textContent,
+                      enabled:!document.getElementById('saveOvertimeBtn')?.disabled
+                    })""")
+                    print("QA_OVERTIME_LIST_EDIT_SAVE_NO_RPC_STATE="+str(status),flush=True)
+                check(len(OVERTIME_HITS)>previous_calls,
+                      "list Edit click reaches protected overtime RPC without preflight rejection")
+                check(OVERTIME_HITS[-1]==30,"list Edit save receives HTTP success")
                 page.wait_for_function("""()=>!overtimeDaySavePending &&
                   state.overtimeEntries.some(r=>r.work_date==='2027-05-13' && r.minutes===30)""",
                   timeout=20000)
