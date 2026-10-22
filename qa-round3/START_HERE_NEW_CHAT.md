@@ -385,3 +385,10 @@
 - CI `.github/workflows/workmoa-qa-fingerprint-overtime-browser.yml`은 synthetic DB를 매번 새로 초기화해 동일 27개 UI 버튼→DB 테스트 3회 반복으로 강화. [Run 39781994803](https://github.com/eco-i/eco-i.github.io/actions/runs/39781994803) 결과 미확인 중에는 81/81 통과 주장 금지.
 - 운영 `main`의 `handleFingerprintPhotoInput`, `selectFingerprintPhoto`, `saveOvertimeDay`, `loadOvertimeList` 등 코어 구현이 현재 QA와 같음 직접 대조. 단, QA만 안전 오류진단 표시 있음.
 - **운영 main, 실제 직원 DB, Supabase migration/데이터 변경 전혀 없음.** 합성 로그인/HTTP/SQL 흐름의 성공을 실제 운영 지문·초과근무 복구로 주장 금지. 실제 사용자 장애 원인/해결 확인 전. 미설치 RPC 21, 3차 3-8-54 BLOCKED / 신규 결함 37 / NOT CLEAN 유지.
+
+## 2026-10-22 — 기존 기능 재검증의 최신 검증 사실: 반복 UI→가상 PG **96/96 PASS**
+- [최종 Run 39783806135](https://github.com/eco-i/eco-i.github.io/actions/runs/39783806135), Job `119841631558`, **SUCCESS**, 브라우저 test `browser-fingerprint-overtime-success.py` 실제 Chromium 3회 반복, **32/32 x 3 = 96/96**, 오류 0. 이전 [Run 39781994803](https://github.com/eco-i/eco-i.github.io/actions/runs/39781994803)는 브라우저 설치 정체/취소로 PASS 미집계. 재검수 workflow의 설치 경계 `timeout` 적용.
+- 지문: 합성 PNG photo picker→JPEG 압축→DB 저장·재조회, `pagehide/pageshow` 모의 중 사진 교체/중복 방지 성공. 초과근무: 실제 상세 10→20 및 목록 수정 버튼 20→30, DB 커밋·읽기 성공.
+- **신규 stale 보호 시나리오**: 현재 30분을 본 사용자 A가 40분 초안을 작성한 사이 B가 가짜 DB 50분으로 업데이트. A 저장은 서버 최신 재조회 차이 감지 후 **write RPC 미발행**, 기존 B 50분 보존, 사용자 A 40분 초안 보존 및 경고. 세 회차 모두 PASS.
+- [공개 상세 보고서](FINGERPRINT_OVERTIME_REAL_BROWSER_DB_QA_20261022.md) 갱신. 주의 **운영 실 SQL 원본 브라우저 연결 X, 가짜 세션·가짜 HTTP/PG SQL, 실제 Android OS picker X**. 따라서 기존 사용자 지문/초과근무 운영 장애 원인 미확정/복구 미검증; 실제 운영기능 CLEAN 불가.
+- 사용자 핵심 우선순위: 기존 기능 복구 > 3차 검수 블록. 실운영 누락 21 RPC도 계속 해결 필요. 운영 `main`과 실제 직원 DB 전혀 변경 없음. 공식 3-8-53 완료 / 3-8-54 미시작 BLOCKED / 3차 결함 37 / NOT CLEAN 유지.
