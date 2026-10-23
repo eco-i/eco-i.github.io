@@ -74,3 +74,13 @@
 - 초기 Run 39905606319/39905742567은 가상 테스트 서버가 앱의 외부 `maintenanceWire` JS를 제공하지 않아 실패한 **QA 환경 구성 이슈**였고, 필요 자산 5개를 추가한 최종 Run만 전체 SUCCESS.
 - 기존 운영 `main`, 실제 Supabase SQL/DDL/GRANT/직원/근태/지문 데이터 변경 **0**. `qa-3-8/index.html` 자체도 변경 **0**. 신규 세대값을 실제 앱에 연결하거나 로그인·RLS/실 모바일/실서버 세션 E2E를 완료하지 않았으므로 **운영 배포 보류**. 상세 PRIVATE `PERSONNEL_REAL_QA_HTML_357_SCOPED_CHROMIUM_20261023.md`.
 - 공식 동일: 운영 RPC **12/26 설치 확인·14종 잔여**, 3차 **3-8-53 완료 / 3-8-54 미시작 보류 / 신규 결함 37 / 전체 NOT CLEAN**.
+
+
+## 2026-10-23 · 원본 전체 앱의 독립 모달 UX 검수 59/59 PASS (별도 실행)
+
+- [비공개 Run 39906108377](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39906108377) · Job `120258332984` **SUCCESS**. 기존 357개(310 SQL·가상 API + 47 원본 UI smoke)와 별도 독립 Chrome 검수 **59/59**; 겹치는 시험이 있어 416을 운영 점수로 단순 합산하지 않음.
+- 새로운 `qa/personnel_real_qa_app_modal_browser_check.cjs`, 독립 `.github/workflows/workmoa-private-pinned-actual-qa-modal-smoke.yml`. 공개 `qa-3-8` 커밋 `5f4ef826f7ffe601318f9789ebbb5dfd08044220` 고정 checkout 후 실제 **1MB 원본 `index.html` SHA 검증**; 외부 종속 JS/CSS 파일은 체크아웃한 원본을 로컬에서 함께 제공.
+- Chrome 1280x900 / 모바일 390x844 뷰포트에서 **실제 앱 세션 보관/관리자 잠금해제 함수**를 사용하되 가상 `local:11` 관리자·직원 2명만 주입, 운영 URL과 key는 브라우저에 전달하기 전에 무효화, `configured()===false`와 외부 접속 0 검증. **운영 로그인/2차 PIN/DB 인증을 수행한 것이 아님.**
+- 사용자 실제 직원관리 목록 → 발령 탭 → 새 발령 편집 모달 → 미저장 발령 메모 입력 → 닫기 취소 시 그대로 유지 / 닫기 승인 시 닫기 → 직원 탭 복귀 → 직원 계정 편집 및 사유 메모 입력 → 실제 모바일 너비 가로스크롤·aria-hidden 검사 모두 통과. 예상 밖 JS pageerror 0.
+- 초기 Run `39905821253`/`39905955685`는 최초 로그인 안내가 120ms 지연 표시되어 QA 클릭을 가로막은 **정상 앱 흐름과 하네스 간 불일치**. 가상 QA 계정의 앱 내 '다시 보지 않기' 설정을 미리 적용한 뒤 최종 성공. 제품 결함 추가 판정 없음.
+- 보고서 PRIVATE `PERSONNEL_REAL_QA_1MB_MODAL_BROWSER_357_PLUS_59_20261023.md`. **실제 `qa-3-8/index.html`, 운영 `main`, Supabase SQL/GRANT·실직원 데이터 변경 0.** 이번 테스트는 새로운 global generation RPC를 실제 1MB 앱 코드에 연결하지 않았으므로 운영 배포 여전히 차단. 공식 **12/26 RPC, 3-8-53 완료 / 3-8-54 보류 / 결함 37 / NOT CLEAN** 그대로.
