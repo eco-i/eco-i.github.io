@@ -45,3 +45,12 @@
 - 다음은 실환경용 **동일 스냅샷 세대 포함 조회 RPC + 모든 인사 쓰기 필수 expected generation 계약**, 기존 v1 RPC 접근 경로의 안전한 동시 전환, 권한·세션·실제 RLS/2차 PIN 및 full-app 브라우저 E2E 격리검증. 서버만 조기 설치하거나 기존 쓰기권한부터 일방적으로 끊으면 보안 우회/기존 앱 장애 위험.
 - 비공개 상세 보고서 `PERSONNEL_ATOMIC_SNAPSHOT_GENERATION_198_SCOPED_QA_20261023.md`.
 - **공식 불변:** 운영 RPC **12/26 완료·14 잔여**, 3차 **3-8-53 완료 / 3-8-54 미시작·보류 / 누적 37결함 / NOT CLEAN**. 실제 직원 데이터 및 운영 Supabase SQL/DDL/GRANT, 운영 `main` 변경 0. 운영 반영은 별도 사용자 승인 전 금지.
+
+
+## 추가 2026-10-23 — legacy RPC fail-closed cutover 266/266 scoped QA SUCCESS
+
+- [비공개 Actions Run 39902373202](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39902373202) / Job `120246605316` 모두 **SUCCESS**. 이전 54+46+60+38=198에 새 old-client denylist & new CAS continuity **68/68** 더해 **266/266 합성 시험 항목 PASS**. 일부 기존 항목은 위험 재현 성공으로, 운영 무결성 인증이 아님.
+- 비공개 새 파일 `qa/personnel_cutover_denylist_fake_only.sql`, `qa/personnel_cutover_denylist_http_check.py`. DB명/가상 역할/실운영 역할 부재 검사로 **가상 PostgreSQL17 전용**; 구버전 v1 RPC 4종, 취소 v2, 보조 함수 5종, 이전 QA endpoint 4종의 외부 EXECUTE 거부. old `main` 2인자 취소 / QA 3인자 취소 / 기존 v1 HTTP 4종은 **fail closed**; 기록·감사·복구지점·generation 무변경. 신규 격리 CAS로 실제 v1 SQL 내부 실행한 계정·등록·취소는 정상 작동하며 dual expected 검사/원자 generation 상승 확인.
+- **운영 RPC GRANT/REVOKE를 실제 바꾼 적 없음.** 실제 운영 캐시·열린 구형 탭·진행 중 트랜잭션/구버전 세션을 안전하게 전환하는 E2E는 미검증. 현재 운영 `main`과 QA 모두 새 전역 expected generation을 전달하지 않으므로, 운영에서 기존 EXECUTE 권한부터 회수하면 **인사관리 기능 장애 위험**. old RPC를 유지하면 **CAS 우회 위험**. 권한 변경과 배포는 업무 중단 시간/사용자 안내/롤백 검토 후 별도 승인 필요.
+- PRIVATE 상세 인수인계 `PERSONNEL_LEGACY_RPC_CUTOVER_266_SCOPED_QA_20261023.md`.
+- 공식 상태 **운영 RPC 12/26 완료·14종 잔여**, **3-8-53 마지막·3-8-54 미시작 보류**, 신규 결함 37, **NOT CLEAN**. 운영 `main` 및 실제 DB 변경 0.
