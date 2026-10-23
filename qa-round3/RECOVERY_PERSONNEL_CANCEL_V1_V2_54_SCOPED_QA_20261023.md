@@ -64,3 +64,13 @@
 - 초기 Run 39903111584는 브라우저 비동기 버튼검증 타이밍, Run 39903232325는 의도된 HTTP403/409 콘솔 메시지 오분류로 실패한 QA 하네스 이슈. 수정 후 최종 Run 전체 성공; 둘 모두 이전 266개 시험은 PASS, 운영 제품 결함으로 집계하지 않음.
 - **중요:** 위 화면은 운영 근무모아 전체 1MB index.html이 아닌 **별도 가상 QA sidecar**. 현재 실운영 main/QA 앱 코드 및 운영 Supabase function/GRANT/data를 변경하거나 full-app Chromium E2E를 실행한 것은 아님. 실앱 로그인·모달·관리자 권한 전환·PWA 캐시는 별도 검증 필요. 서버·화면 계약의 실운영 전환과 legacy RPC 권한 회수는 별도 승인 후만.
 - 비공개 상세: PERSONNEL_BROWSER_CUTOVER_310_SCOPED_QA_20261023.md. 공식 상태 **운영 RPC 12/26 설치·14종 잔여**, **3-8-53 마지막 완료 / 3-8-54 미시작 보류 / 결함 37 / NOT CLEAN**. 운영 main, 실제 Supabase 직원·근태·지문 데이터와 SQL 및 권한 **변경 0**.
+
+
+## 추가 2026-10-23 · 실제 QA 1MB 전체 화면 Chrome 격리 테스트 (357/357 PASS)
+
+- 비공개 [Actions Run 39905939418](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39905939418) job `120257808512` **SUCCESS**. 이전 310개 한정 검사 보존 후, **실제 `qa-3-8/index.html` 원본 및 연관 JS/CSS 자산**을 SHA 고정한 가상 Chrome 데스크톱·모바일 viewport 검수 **47/47 PASS**. 누적 **357/357 한정 assertion PASS**(일부 초기 항목은 취약설계 재현 성공).
+- 비공개 신규 QA 코드 `qa/personnel_real_qa_html_modal_smoke.cjs`, 기존 `qa/run_personnel_cancel_operational_wrapper_lab.sh`에 연결. 원래 프런트 `index.html` SHA `aee7018e0b8c99d266f0c0ae5a4d398bbc3e0e83`; `maintenance-20261018.js`, `future-holidays-2028-2035.js`, `site-update-history.js`, `site-update-history.css`, `maintenance-mobile-20261018.css` 원본을 각각 해시 검증하여 로컬 서버에서 제공.
+- 실제 브라우저 실행 시 운영 Supabase 주소/공개키는 **임시 메모리 사본에서만 로컬 가상값으로 교체**, 외부 통신은 전면 차단. 진짜 앱의 직원관리 모달, 인사발령/직원 탭 전환, 계정상태 변경 자식 모달 및 입력 메모 보존을 데스크톱 1280px·모바일 viewport 390px에서 확인. 테스트 인증/관리자 잠금해제는 가상 계정 상태를 주입한 것(**진짜 로그인·2차 PIN 검사 아님**). 기존 미설치 RPC는 로컬 `PGRST202`를 받고 가상 DB 데이터 불변을 확인함. 진짜 Chrome에서 외부 요청/예상 밖 pageerror는 0.
+- 초기 Run 39905606319/39905742567은 가상 테스트 서버가 앱의 외부 `maintenanceWire` JS를 제공하지 않아 실패한 **QA 환경 구성 이슈**였고, 필요 자산 5개를 추가한 최종 Run만 전체 SUCCESS.
+- 기존 운영 `main`, 실제 Supabase SQL/DDL/GRANT/직원/근태/지문 데이터 변경 **0**. `qa-3-8/index.html` 자체도 변경 **0**. 신규 세대값을 실제 앱에 연결하거나 로그인·RLS/실 모바일/실서버 세션 E2E를 완료하지 않았으므로 **운영 배포 보류**. 상세 PRIVATE `PERSONNEL_REAL_QA_HTML_357_SCOPED_CHROMIUM_20261023.md`.
+- 공식 동일: 운영 RPC **12/26 설치 확인·14종 잔여**, 3차 **3-8-53 완료 / 3-8-54 미시작 보류 / 신규 결함 37 / 전체 NOT CLEAN**.
