@@ -95,3 +95,13 @@
 - **중요 한계**: 모달 일부는 가상 PG에 없는 다른 근무모아 업무 조회 RPC를 후속 호출하기 때문에, 저장 DB 성공과 달리 **저장 이후 전체 UI 새로고침/오류 안내는 아직 CLEAN 아님**. 원자 읽기 데이터도 synthetic baseline/일부 기본 필드 변환에 의존하므로 실 운영 데이터의 전체 18컬럼 계약 증명 아님. 관리자 실제 로그인, 2차 PIN/RLS, 권한변경·모바일 실기기, 캐시 전환 미검증. 다음은 해당 읽기 스키마/후속 조회 및 14종 고위험 서버 복구 경로 검증.
 - 운영 `main`, 공개 `qa-3-8/index.html`, 실제 Supabase SQL/GRANT/직원·근태·지문 기록 **모두 변경 0**. 별도 운영 승인 이전 배포 금지. PRIVATE 보고서 `PERSONNEL_REAL_QA_RAM_GLOBAL_GENERATION_400_SCOPED_QA_20261023.md`.
 - 공식 기록 유지: 운영 누락 RPC 복구 **12/26**, **14종 잔여**, 3차 **3-8-53 마지막 완료 / 3-8-54 보류 / 신규 결함 37 / NOT CLEAN**.
+
+
+## 추가 2026-10-23 · 인사정보 전체 필드 단일 스냅샷 RPC 검증 및 후속 UI 동기화 진행
+
+- 비공개 fake PostgreSQL17/PostgREST14.18 전용 `qa/personnel_complete_read_v2_fake_only.sql` + `qa/personnel_complete_read_v2_http_check.py` 도입. 전역 generation/직원목록/전체 발령 메타·계정이력/복구지점/현재 계정상태를 동일 `STABLE` DB statement snapshot으로 읽음. 운영용 마이그레이션이나 실직원 SQL 변경 아님.
+- 새 server-side RPC 계약 **44/44 assertion PASS** 확인 ([Run 39914543299](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39914543299), [Run 39915734108](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39915734108) 로그). 단, 두 실행의 **최종 workflow는 FAILURE**이므로 누적 성공/전체 CLEAN이라고 발표하지 않음.
+- 원본 1MB QA HTML의 `strictEmployeePersonnelRpcRows`·`strictPersonnelAssignmentRpcRows`·`strictPersonnelAccountEventRpcRows`에서 가상 직원 8명, 발령 14건, 계정이력 6건 **형식 PASS** 확인. 이전 가상 관리자의 2020년 미배치 이력이 관리자 권한을 차단하는 안전 동작을 재현하여 합성 기준발령 적용일을 최신화했고, 실제 원본 화면의 관리자 세션 정상 복구 확인.
+- 실제 원본 직원관리 화면의 계정변경 중 동시수정 HTTP409 및 미저장 초안 보존, 수동 최신 재조회 뒤 HTTP200 등 기존 기능 재확인. 다만 저장 후 `loadEmployees()`의 총괄 성공 판정은 `list_holiday_work_eligibility_v2` 가상 fixture 누락으로 false였음. 직원 인사 데이터 동기화 성공과 부가 휴근 가능여부 조회 실패를 분리해 관리.
+- 가상 전체 스냅샷에서 휴근 자격과 인사 복구지점 요약을 제공하는 *RAM-only* 경로를 추가해 재검증 중. 마지막 GitHub Actions 실행이 **SUCCESS로 확인되기 전까지 이 항목은 미완료**로 남김. 운영화면/실제 Supabase API는 그대로이며, 실제 로그인·PIN/RLS·전체 월 근태/메모/지문 갱신도 아직 별도 테스트 필요.
+- PRIVATE 보고서 `PERSONNEL_FULL_ATOMIC_V2_SCHEMA_AND_POST_SAVE_QA_20261023.md`. 공식 기록 변경 없음: 운영 RPC **12/26**, 잔여 14종, **3-8-53 완료 / 3-8-54 보류 / 3차 신규 결함 37 / NOT CLEAN**.
