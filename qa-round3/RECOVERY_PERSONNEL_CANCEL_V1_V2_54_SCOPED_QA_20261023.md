@@ -35,3 +35,13 @@
 ### 운영 RPC 권한 참고(추가 카탈로그 읽기 전용 검증)
 - `_personnel_capture_state`, `_personnel_make_snapshot`, `_personnel_category_from_state`, `_personnel_group_from_placement`, `_require_admin`의 익명/일반인증 EXECUTE는 **모두 false**, 보조 함수 직접 외부 실행 경로는 허용되지 않음.
 - 기존 `admin_apply_personnel_batch`, `admin_cancel_personnel_batch`, `admin_set_employee_account_status`, `admin_restore_personnel_snapshot`의 익명/인증 EXECUTE는 **true**. 함수 내부 토큰 인증은 존재하지만 새 공통 CAS 없이 계속 호출 가능한 **구버전 이행 차단점**이므로, 서버 신규 RPC만 설치해 보호 완료라고 판정하지 않음. 운영 GRANT 변경은 별도 사용자 승인 이후.
+
+
+## 추가 2026-10-23 — 인사관리 단일 읽기 스냅샷 + generation CAS (198/198 한정 PASS)
+
+- 비공개 GitHub Actions [Run 39893627481](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39893627481) **최종 SUCCESS**: 기존 **54+46+60=160** + 단일 읽기 스냅샷 및 stale UI CAS 신규 **38/38**, 누적 **198/198** *합성 환경 한정 assertion PASS*. 이 수치는 3차 검수 블록 번호 또는 운영 설치 진행률이 아님.
+- 추가 QA: `qa/personnel_consistent_snapshot_read_fake_only.sql`, `qa/personnel_consistent_snapshot_read_http_check.py`. PostgreSQL17 `STABLE` 조회 RPC가 한 statement snapshot에서 발령 배치, 액션, 계정 이력, 독립 generation을 JSON으로 반환하도록 구성. 권한제한, 미커밋 변경 비노출, 실제 운영 계정/등록 v1 SQL 원문을 재사용한 합성 래퍼의 세대 증가, stale/NULL/누락 expected generation 차단 및 실패 후 데이터 불변 확인.
+- 운영 `main`과 QA `index.html` 원본 blob을 read-only 대조: 취소 RPC는 **2인자 vs 3인자**. 기존 등록 `p_expected`는 기존 직원 정보 배열(신규 직원만 있으면 빈 배열 가능). 계정 `p_expected`도 독립 generation 아님. 복원 해시는 단조 generation 아님. 현재 화면은 인사발령과 계정 이벤트를 `Promise.all`로 **서로 다른 두 RPC**에서 조회하므로 같은 DB snapshot이라는 보장 없음. 이번 가상 조회 함수는 어느 운영 화면에도 아직 연결되지 않았음.
+- 다음은 실환경용 **동일 스냅샷 세대 포함 조회 RPC + 모든 인사 쓰기 필수 expected generation 계약**, 기존 v1 RPC 접근 경로의 안전한 동시 전환, 권한·세션·실제 RLS/2차 PIN 및 full-app 브라우저 E2E 격리검증. 서버만 조기 설치하거나 기존 쓰기권한부터 일방적으로 끊으면 보안 우회/기존 앱 장애 위험.
+- 비공개 상세 보고서 `PERSONNEL_ATOMIC_SNAPSHOT_GENERATION_198_SCOPED_QA_20261023.md`.
+- **공식 불변:** 운영 RPC **12/26 완료·14 잔여**, 3차 **3-8-53 완료 / 3-8-54 미시작·보류 / 누적 37결함 / NOT CLEAN**. 실제 직원 데이터 및 운영 Supabase SQL/DDL/GRANT, 운영 `main` 변경 0. 운영 반영은 별도 사용자 승인 전 금지.
