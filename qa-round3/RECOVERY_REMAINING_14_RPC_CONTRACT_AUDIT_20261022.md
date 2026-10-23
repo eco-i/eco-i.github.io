@@ -54,3 +54,13 @@
 - 운영 `pg_proc` 읽기 전용으로 복사한 원본 `admin_cancel_personnel_batch` SQL과 가짜 PG17에만 추가된 `personnel_batches.batch_revision`·`BEFORE UPDATE` 버전증가 트리거, 3인자 `admin_cancel_personnel_batch_v2` 후보로 구성. 원본 SQL 및 v2 후보는 **독립 실행 hard-stop**; CI가 ephemeral DB에서만 guard 제거 후 실행. 실직원 행/운영 main/운영 SQL **변경 0**.
 - 38 check에서 관리자 2명 DB row lock으로 동시 경합 → 1명 취소·1명 `409`, stale revision 거절, 기존 v1의 snapshot/audit/Realtime side effects 보존, 감사 insert 강제 에러시 **취소·버전증가·복구지점 전부 롤백**, 예전 2인자 경로 및 anon v1 우회 거절 확인.
 - **원칙상 여전히 운영 적용 불가**: 실제 운영 batch 테이블에는 column/trigger가 없고, 운영 main은 2인자 호출. `personnel_actions`, `personnel_account_events`, `employees` 메타변경과 대량 personnel restore 사이의 공통 버전·서버 잠금·ABA 방어를 아직 통합 검증하지 않음. CRUD 적용하는 기존 쓰기 함수들의 호출 권한/롤백도 별도 해소 필요. 특히 QA의 `list_personnel_assignments` 18번째 `batch_revision` 필드는 실운영 API에는 없음.
+
+## 2026-10-23 — 인사발령 취소 v2 실제 운영 v1 SQL 재현 및 3인자 CAS 실증
+
+- 비공개 저장소 `qa/PERSONNEL_CANCEL_OPERATIONAL_V1_COPY_NO_DEPLOY.sql.txt`: SongdoFood 운영 `admin_cancel_personnel_batch(uuid,bigint)` 함수 정의를 읽기 전용 복사, 원본 파일에는 직접 실행시 중단시키는 필수 안전 가드. **운영 함수 자체는 바꾸지 않음.**
+- `DRAFT_PERSONNEL_CANCEL_ACTUAL_V1_WRAPPER_NOT_FOR_LIVE.sql.txt`: 3인자 `admin_cancel_personnel_batch_v2(p_token,p_batch_id,p_expected_revision)`는 `_require_admin` 후 버전/미래발령/상태를 `FOR UPDATE`로 확인, 정확히 일치할 때 **실 운영 v1 함수**를 내부 호출해 snapshot/audit/signal 규칙 유지. 구버전 2인자 REST 호출을 가짜 환경에서 차단.
+- `qa/personnel_cancel_operational_schema_fixture.sql`: 실 운영 인사 테이블 컬럼 모양을 반영한 **가짜 직원 전용 PG17**. 실 운영에는 없는 `personnel_batches.batch_revision` 및 단조증가 BEFORE UPDATE 트리거를 **오직 격리 DB에만** 추가.
+- [Actions Run 39886836498](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39886836498) **SUCCESS 62/62**, 실제 운영 v1 SQL+가짜 데이터 PostgREST14.18/PostgreSQL17 HTTP: 관리자/직원/만료/readonly 권한 분리, 지난 버전 409/ABA 수정 후 원상복구 거부, 관리자 2명 같은 버전 동시 취소 1명만 성공, 감사 INSERT 강제 실패 시 발령 취소·복구지점·Realtime 전체 rollback, 무권한 직접 테이블 접근 차단.
+- 첫 [Run 39886722743](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39886722743)는 QA 가짜 DB 상태 초기화가 revision trigger에 의해 자동 덮여 실패; **테스트 fixture 리셋 방법만 수정** 후 재실행 성공. SQL 원본/운영 변화 없음.
+- **남은 배포 차단:** 현재 운영 실제 테이블에는 `batch_revision` 부재; 운영 `list_personnel_assignments`에는 이 필드 미반환; 운영 `main` 취소 RPC 2인자, QA 화면 3인자 불일치; 새 인사발령 등록/정정, 계정상태 이벤트, 복구/초기화 등 **모든 쓰기 경로**가 같은 영속적 version/lock/ABA 규칙을 공유하지 못함. 격리 62/62는 해당 가짜 취소 경로에서만의 성공이고 운영 설치·완전복구/전체 CLEAN 근거 아님.
+- 추가 운영 함수 설치 0, 운영 main 변경 0, 직원 실기록 열람/쓰기 0, 누락 RPC 14종 그대로. 3차 3-8-53 완료/3-8-54 BLOCKED/신규결함 37/NOT CLEAN.
