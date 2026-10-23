@@ -54,3 +54,13 @@
 - **운영 RPC GRANT/REVOKE를 실제 바꾼 적 없음.** 실제 운영 캐시·열린 구형 탭·진행 중 트랜잭션/구버전 세션을 안전하게 전환하는 E2E는 미검증. 현재 운영 `main`과 QA 모두 새 전역 expected generation을 전달하지 않으므로, 운영에서 기존 EXECUTE 권한부터 회수하면 **인사관리 기능 장애 위험**. old RPC를 유지하면 **CAS 우회 위험**. 권한 변경과 배포는 업무 중단 시간/사용자 안내/롤백 검토 후 별도 승인 필요.
 - PRIVATE 상세 인수인계 `PERSONNEL_LEGACY_RPC_CUTOVER_266_SCOPED_QA_20261023.md`.
 - 공식 상태 **운영 RPC 12/26 완료·14종 잔여**, **3-8-53 마지막·3-8-54 미시작 보류**, 신규 결함 37, **NOT CLEAN**. 운영 `main` 및 실제 DB 변경 0.
+
+
+## 2026-10-23 추가 · Chrome 격리 화면→PostgREST→PG17 E2E (310/310 scoped PASS)
+
+- 비공개 [GitHub Actions Run 39903369092](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39903369092) job 120249688374 **SUCCESS**. 기존 **266/266** 검수 보존 + Chrome 브라우저 추가 **44/44**, 누적 **310/310 한정 assertion PASS**. 일부 초기 항목은 설계상의 문제 *재현 성공* 테스트이므로 시스템 전체 CLEAN과 다름.
+- 가상 전용 새 파일: qa/personnel_browser_cutover_fixture.html 및 qa/personnel_browser_cutover_test.cjs. **실제 설치된 Chrome headless**에서 별도 가상 화면 버튼 조작 → localhost PostgREST14.18 → 가상 PostgreSQL17 (운영 v1 SQL 원문을 합성 CAS로 호출) 종단검수. 휴대폰 검증은 **390x844 모바일 viewport 시뮬레이션**일 뿐, 물리 Android/iOS 테스트 아님.
+- 구버전 main 취소 2인자/QA 3인자 요청 → 403/404 및 최신 버전 안내, 변경 0. 최신 가상 화면은 단일 snapshot의 generation을 받고, 계정/등록/취소를 필수 예상 generation과 함께 호출함. 다른 관리자 변경 시 409, 관리자 초안 보존/버튼 차단, **사용자의 명시적 최신 조회 + 재확인** 후 성공. 발령 취소는 batch revision+generation 이중 검사. 모바일 화면 overflow 및 가상 외부 네트워크 차단 확인.
+- 초기 Run 39903111584는 브라우저 비동기 버튼검증 타이밍, Run 39903232325는 의도된 HTTP403/409 콘솔 메시지 오분류로 실패한 QA 하네스 이슈. 수정 후 최종 Run 전체 성공; 둘 모두 이전 266개 시험은 PASS, 운영 제품 결함으로 집계하지 않음.
+- **중요:** 위 화면은 운영 근무모아 전체 1MB index.html이 아닌 **별도 가상 QA sidecar**. 현재 실운영 main/QA 앱 코드 및 운영 Supabase function/GRANT/data를 변경하거나 full-app Chromium E2E를 실행한 것은 아님. 실앱 로그인·모달·관리자 권한 전환·PWA 캐시는 별도 검증 필요. 서버·화면 계약의 실운영 전환과 legacy RPC 권한 회수는 별도 승인 후만.
+- 비공개 상세: PERSONNEL_BROWSER_CUTOVER_310_SCOPED_QA_20261023.md. 공식 상태 **운영 RPC 12/26 설치·14종 잔여**, **3-8-53 마지막 완료 / 3-8-54 미시작 보류 / 결함 37 / NOT CLEAN**. 운영 main, 실제 Supabase 직원·근태·지문 데이터와 SQL 및 권한 **변경 0**.
