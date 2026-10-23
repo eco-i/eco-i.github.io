@@ -84,3 +84,14 @@
 - 사용자 실제 직원관리 목록 → 발령 탭 → 새 발령 편집 모달 → 미저장 발령 메모 입력 → 닫기 취소 시 그대로 유지 / 닫기 승인 시 닫기 → 직원 탭 복귀 → 직원 계정 편집 및 사유 메모 입력 → 실제 모바일 너비 가로스크롤·aria-hidden 검사 모두 통과. 예상 밖 JS pageerror 0.
 - 초기 Run `39905821253`/`39905955685`는 최초 로그인 안내가 120ms 지연 표시되어 QA 클릭을 가로막은 **정상 앱 흐름과 하네스 간 불일치**. 가상 QA 계정의 앱 내 '다시 보지 않기' 설정을 미리 적용한 뒤 최종 성공. 제품 결함 추가 판정 없음.
 - 보고서 PRIVATE `PERSONNEL_REAL_QA_1MB_MODAL_BROWSER_357_PLUS_59_20261023.md`. **실제 `qa-3-8/index.html`, 운영 `main`, Supabase SQL/GRANT·실직원 데이터 변경 0.** 이번 테스트는 새로운 global generation RPC를 실제 1MB 앱 코드에 연결하지 않았으므로 운영 배포 여전히 차단. 공식 **12/26 RPC, 3-8-53 완료 / 3-8-54 보류 / 결함 37 / NOT CLEAN** 그대로.
+
+
+## 2026-10-23 추가 · 원본 전체 1MB QA 화면 + generation 기반 PostgREST 종단검수 (400/400 scoped)
+
+- 최종 비공개 Actions [Run 39912787497](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39912787497), job `120279386045` 모두 **SUCCESS**. 이전 통합검수 **357** + 신규 원본 Workmoa 브라우저↔PostgREST↔임시 PG17 **43/43**, 한정 누적 **400/400 assertion PASS**. 초기 검수 일부는 기존 취약 동작 *재현 성공* 항목이므로 `CLEAN` 선언 근거가 아니다.
+- PRIVATE `qa/personnel_real_qa_generation_bridge_browser_check.cjs` + runner/CI 확장. 공개 QA `index.html` blob **aee7018e0b8c99d266f0c0ae5a4d398bbc3e0e83** 원본 그대로 불러온 후 **GitHub 파일에 쓰지 않고 브라우저에 보낼 임시 메모리 사본만 변경**. 운영 Supabase URL/키 제거 및 외부 접속 0.
+- `configured()`의 운영 도메인 제한을 가상 브라우저에서만 우회하여 **localhost 전용 실제 HTTP** 실행. 기존 분리 인사+계정 RPC를 동일 snapshot generation 조회 한 번으로 교체. 사용자 초안 시작 시 expected epoch를 고정하고 계정상태/발령등록/발령취소가 그 epoch로 서버에 요청. 취소는 batch revision+generation 2중 CAS.
+- 실제 근무모아 직원관리·계정편집에서 다른 관리자의 선행 변경 후 **HTTP409 거절·사용자 오류 안내·미저장 메모 보존**; 관리자가 다시 인사 최신정보를 확인·재입력한 뒤 **HTTP200**. 실제 발령 편집 모달에서 새 가상 발령 등록 HTTP200, 타 관리자의 계정변경 뒤 취소 HTTP409, 최신정보 재조회 후 취소 HTTP200. 실제 v1 인사 SQL 원문은 가상 보호 wrapper 내부에서만 동작. 구버전 계정/등록 RPC는 사용하지 않음.
+- **중요 한계**: 모달 일부는 가상 PG에 없는 다른 근무모아 업무 조회 RPC를 후속 호출하기 때문에, 저장 DB 성공과 달리 **저장 이후 전체 UI 새로고침/오류 안내는 아직 CLEAN 아님**. 원자 읽기 데이터도 synthetic baseline/일부 기본 필드 변환에 의존하므로 실 운영 데이터의 전체 18컬럼 계약 증명 아님. 관리자 실제 로그인, 2차 PIN/RLS, 권한변경·모바일 실기기, 캐시 전환 미검증. 다음은 해당 읽기 스키마/후속 조회 및 14종 고위험 서버 복구 경로 검증.
+- 운영 `main`, 공개 `qa-3-8/index.html`, 실제 Supabase SQL/GRANT/직원·근태·지문 기록 **모두 변경 0**. 별도 운영 승인 이전 배포 금지. PRIVATE 보고서 `PERSONNEL_REAL_QA_RAM_GLOBAL_GENERATION_400_SCOPED_QA_20261023.md`.
+- 공식 기록 유지: 운영 누락 RPC 복구 **12/26**, **14종 잔여**, 3차 **3-8-53 마지막 완료 / 3-8-54 보류 / 신규 결함 37 / NOT CLEAN**.
