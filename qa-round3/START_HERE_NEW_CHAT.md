@@ -442,3 +442,9 @@
 - 실제 live `admin_cancel_personnel_batch(uuid,bigint)` **SQL 함수 정의 원본을 비공개 hard-stop 파일 복사**. 가짜 PostgreSQL17 운영모양 fixture에 **신규 batch_revision 칼럼/업데이트 트리거** 붙여 `admin_cancel_personnel_batch_v2(uuid,bigint,bigint)` 후보로 legacy snapshot/audit/realtime를 그대로 호출. 가짜 두 관리자 경합 1승 1 x 409, 오래된 수정 409, 저장 중 audit 강제 실패 전체 rollback, 기존 V1 직접 브라우저 실행 차단 동작 확인.
 - 실제 운영에는 batch_revision 및 트리거가 없고, 운영 main은 cancel v2를 여전히 두 인자로 호출하며 현재 list_personnel_assignments에 revision 필드가 없으므로 **설치 불가/아직 설치하지 않았음**. 모든 인사수정/계정상태/전체복원 경로가 동일 동시수정/ABA 버전 계약을 가져야 한다.
 - 인사 복구 revision 조회 47/47 + 인사 cancel 경로 38/38 **가짜 DB 제한검증**, 운영 신규 복구 RPC **0**, 누락14 계속, 3차 3-8-53/3-8-54 BLOCKED, NOT CLEAN. 운영 직원 기록/운영 main 변경 없음.
+
+## 2026-10-23 — 실제 운영 인사발령 취소 v1 SQL + 3인자 CAS 비공개 fake DB 62/62 통과
+- [보고서](RECOVERY_REMAINING_14_RPC_CONTRACT_AUDIT_20261022.md), [실제 운영 v1 SQL 복제 가상시험 Run 39886836498](https://github.com/ahnbest23-hash/workmoa-backend-private/actions/runs/39886836498) **62/62 PASS**. 원본 `admin_cancel_personnel_batch` 함수 본문을 실제 운영에서 read-only 조회해 private 가드 SQL 복사, SQL 자체 변경 X. 신규 private review 3인자 CAS wrapper `DRAFT_PERSONNEL_CANCEL_ACTUAL_V1_WRAPPER_NOT_FOR_LIVE.sql.txt`를 fake PG17/PostgREST14.18에만 적용.
+- 실제 인사 v1 snapshot/audit/realtime 유지, 두 관리자 동시 취소 1승/1실패(409), 최신 이력 보호, ABA 지난 버전 차단, 감사 실패 후 취소/snapshot rollback, 임의 직접 테이블 REST 차단 성공.
+- 첫 Run 39886722743 테스트 fixture reset 계산 미스였고 고쳐 PASS, 새 제품 결함으로 집계 금지.
+- **운영 배포 금지 상태**: 운영 public.personnel_batches에 단조 version 컬럼 없음, list_personnel_assignments 결과 batch_revision 없음, 운영 main 취소 RPC 2인자/QA 3인자 불일치, 인사/계정/복원 모든 서버 쓰기경로가 하나의 lock+revision+ABA 규칙에 참여하지 않음. 운영 main/SQL/실 직원 DB 변경 0. 운영 누락 14종 그대로; 공식 3-8-54 BLOCKED, 37 defects, NOT CLEAN.
