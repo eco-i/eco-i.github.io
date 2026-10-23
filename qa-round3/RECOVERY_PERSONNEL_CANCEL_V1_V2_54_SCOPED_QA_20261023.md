@@ -30,3 +30,8 @@
 - 실패 이력: Run 39890181728의 fake identity 중복 선언과 Run 39890283697의 임시 SQL 세미콜론 누락은 QA 작업 오류. 수정 후 Run 39890396771만 전체 SUCCESS. 실제 직원기록·운영 UI·서버 SQL/권한·배포 변경 **0**.
 - PRIVATE 상세: `PERSONNEL_REAL_OPERATING_THREE_WRITER_GENERATION_160_QA_20261023.md`. 다음은 실운영 인증·잠금순서·旧 RPC 접근차단 및 운영 main/QA의 RPC 매개변수 계약 정합성을 완성한 뒤 브라우저→격리 서버 통합검수. **운영 반영은 별도 사용자 승인 후 진행.**
 - 공식 상태 변경 없음: **RPC 운영 12/26(약 46%) / 잔여 14**, 3차 **3-8-53 완료 / 3-8-54 미시작·보류 / 누적 결함 37 / NOT CLEAN**.
+
+
+### 운영 RPC 권한 참고(추가 카탈로그 읽기 전용 검증)
+- `_personnel_capture_state`, `_personnel_make_snapshot`, `_personnel_category_from_state`, `_personnel_group_from_placement`, `_require_admin`의 익명/일반인증 EXECUTE는 **모두 false**, 보조 함수 직접 외부 실행 경로는 허용되지 않음.
+- 기존 `admin_apply_personnel_batch`, `admin_cancel_personnel_batch`, `admin_set_employee_account_status`, `admin_restore_personnel_snapshot`의 익명/인증 EXECUTE는 **true**. 함수 내부 토큰 인증은 존재하지만 새 공통 CAS 없이 계속 호출 가능한 **구버전 이행 차단점**이므로, 서버 신규 RPC만 설치해 보호 완료라고 판정하지 않음. 운영 GRANT 변경은 별도 사용자 승인 이후.
