@@ -481,6 +481,35 @@ def main():
                     adjustment.click()
                     check(page.locator("#overtimeEarlyTime").text_content().strip()=="30분",
                           "synthetic overtime draft prepared for mid-read guard")
+                    # Five fail-closed entry cases: no permission bypass, no live DB.
+                    classifications=[
+                        ("personnel-loading","state.personnelBackendReady=null","인사이력을 다시 불러오는 중"),
+                        ("personnel-failed","state.personnelBackendReady=false","최신 인사이력을 확인하지 못해"),
+                        ("overtime-loading","state.overtimeBackendReady=null","초과근무 기록을 다시 불러오는 중"),
+                        ("overtime-failed","state.overtimeBackendReady=false","최신 초과근무 기록을 확인하지 못해"),
+                        ("foreground-loading","pageLifecycleFreshnessPending=true","앱 복귀 후 데이터 동기화")
+                    ]
+                    for reason, set_state, expected in classifications:
+                        page.evaluate("""()=>{
+                           state.personnelBackendReady=true;
+                           state.overtimeBackendReady=true;
+                           pageLifecycleFreshnessPending=false;
+                        }""")
+                        page.evaluate(set_state)
+                        page.evaluate("async()=>await saveOvertimeDay()")
+                        message=page.locator("#overtimeDetailError").text_content()
+                        check(expected in message and "작성 중 내용은 보존" in message,
+                              "classified overtime preflight reason: "+reason)
+                        check(page.locator("#overtimeEarlyTime").text_content().strip()=="30분" and
+                              len(OVERTIME_HITS)==2 and
+                              br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==20,
+                              "preflight "+reason+" preserves draft and original PG without mutation")
+                    page.evaluate("""()=>{
+                       state.personnelBackendReady=true;
+                       state.overtimeBackendReady=true;
+                       pageLifecycleFreshnessPending=false;
+                       document.getElementById('overtimeDetailError').textContent='';
+                    }""")
                     page.evaluate("""()=>{
                        window.__qaOriginalCurrentOvertimeDay=fetchCurrentOvertimeDay;
                        fetchCurrentOvertimeDay=async (...args)=>{
@@ -492,7 +521,7 @@ def main():
                     prior_write_count=len(OVERTIME_HITS)
                     page.locator("#saveOvertimeBtn").click()
                     page.wait_for_function("""()=>!overtimeDaySavePending
-                       && document.getElementById('overtimeDetailError')?.textContent.includes('저장을 중단')""",
+                       && document.getElementById('overtimeDetailError')?.textContent.includes('인사이력을 다시 불러오는 중')""",
                        timeout=12000)
                     check(len(OVERTIME_HITS)==prior_write_count and
                           br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==20,
