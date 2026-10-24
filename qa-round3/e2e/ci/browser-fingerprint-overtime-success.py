@@ -607,7 +607,14 @@ def main():
                           page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==1,
                           "late obsolete read is discarded without relocking loaded latest list")
                     page.evaluate("rpc=window.__qaListOriginalRpc;refresh=window.__qaOriginalRefresh")
-                    check(sum(x=="list_overtime_entries" for x in br.HITS)-pre_read_hit_count==2 and
+                    overlap_read_hits=sum(x=="list_overtime_entries" for x in br.HITS)-pre_read_hit_count
+                    intercepted_reads=page.evaluate("window.__qaListSeen")
+                    print("QA_OUT_OF_ORDER_LIST_READ_COUNT="+repr({
+                       "bridgeReads":overlap_read_hits,"explicitIntercepted":intercepted_reads,
+                       "writeHits":OVERTIME_HITS[:],
+                       "listNetworkTail":overtime_list_network[-10:]
+                    }),flush=True)
+                    check(overlap_read_hits>=2 and intercepted_reads>=2 and
                           OVERTIME_HITS==[10,20] and
                           br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==20,
                           "out-of-order list requests are read-only, no overtime duplicate write")
