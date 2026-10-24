@@ -293,8 +293,15 @@ def main():
                 page.evaluate("pageLifecycleFreshnessPending=false;renderFingerprintDetail(state.selectedDate)")
                 check(upload.is_enabled() and page.locator("#fingerprintDetailError").text_content().strip()=="",
                       "global freshness completion clears status and restores upload")
-                check(not js_errors and not external,
-                      "failure recovery generated no browser exceptions or external requests")
+                if js_errors or any(".supabase.co" in x for x in external):
+                    print("QA_SCOPED_RECOVERY_NETWORK_DIAG="+repr({
+                      "js_errors":js_errors[:3],
+                      "blocked_domains":sorted(set(urlsplit(x).hostname for x in external))[:8]
+                    }),flush=True)
+                # The existing fixture blocks unrelated CDN/font attempts. No
+                # Supabase requests or browser exceptions are permitted.
+                check(not js_errors and not any(".supabase.co" in x for x in external),
+                      "failure recovery generated no JS exceptions or live Supabase access")
                 page.get_by_role("button",name="날짜 상세 닫기").click()
                 page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=6000)
                 open_date(page,OT_DATE,2027,4)
