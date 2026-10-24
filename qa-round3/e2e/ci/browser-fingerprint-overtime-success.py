@@ -332,6 +332,40 @@ def main():
                       "Save button committed synthetic overtime in PostgreSQL")
                 check(OVERTIME_HITS==[10],"one overtime write, no duplicated mutation")
                 adjustment.click()
+                if "--draft-refresh-probe" in sys.argv:
+                    check(page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
+                          "synthetic 20-minute unsaved draft exists before forced Realtime read")
+                    before_sync=page.evaluate("""()=>({
+                      dirty:detailDirtyFlags().overtime,
+                      draft:overtimeDetailMinutes.early,
+                      baseline:detailRecordBaseline.overtime,
+                      nav:state.selectedDate
+                    })""")
+                    check(before_sync["dirty"] is True and before_sync["draft"]==20,
+                          "true dirty baseline captured before Realtime refresh")
+                    page.evaluate("""async()=>await refresh('realtime')""")
+                    after_sync=page.evaluate("""()=>({
+                      dirty:detailDirtyFlags().overtime,
+                      draft:overtimeDetailMinutes.early,
+                      baseline:detailRecordBaseline.overtime,
+                      nav:state.selectedDate,
+                      backend:state.overtimeBackendReady,
+                      pending:overtimeDaySavePending,
+                      error:document.getElementById('overtimeDetailError')?.textContent,
+                      complete:!state.refreshing&&!refreshPendingOwner
+                    })""")
+                    print("QA_OVERTIME_DRAFT_REALTIME_PROBE="+repr({
+                      "before":before_sync,"after":after_sync,
+                      "write_hits":len(OVERTIME_HITS)
+                    }),flush=True)
+                    check(after_sync["draft"]==20 and after_sync["dirty"] is True
+                          and after_sync["baseline"]==before_sync["baseline"],
+                          "Realtime refresh preserves unsaved overtime time and original CAS baseline")
+                    check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==10
+                          and len(OVERTIME_HITS)==1,
+                          "Realtime refresh only reads synthetic PG; unsaved 20 not written")
+                    print("OVERTIME_DRAFT_AFTER_FINGERPRINT_REALTIME_REFRESH_SCOPED_PASS",flush=True)
+                    return
                 check(page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
                       "existing 10-minute plan edited through actual +10 control")
                 # Diagnose if the second Save stalls before or after its preflight.
