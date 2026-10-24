@@ -551,6 +551,14 @@ def main():
                     check(page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==1,
                           "list opening authoritatively loaded real synthetic PG row")
                     pre_read_hit_count=sum(x=="list_overtime_entries" for x in br.HITS)
+                    page.wait_for_function("()=>!state.refreshing && !refreshPendingOwner",timeout=14000)
+                    # Suppress unrelated scheduled Realtime work inside THIS
+                    # synthetic race experiment, not in the application source.
+                    page.evaluate("""()=>{
+                      window.__qaOriginalRefresh=refresh;
+                      if(realtimeRefreshTimer){clearTimeout(realtimeRefreshTimer);realtimeRefreshTimer=null;}
+                      refresh=async()=>false;
+                    }""")
                     page.evaluate("""()=>{
                       window.__qaListOriginalRpc=rpc;
                       window.__qaListSeen=0;
@@ -573,7 +581,21 @@ def main():
                           page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==0,
                           "pending older read cannot expose editable row from unverified snapshot")
                     second=page.evaluate("async()=>await loadOvertimeList(false)")
-                    check(second is True and page.evaluate("overtimeListBackendReady===true") and
+                    second_state=page.evaluate("""()=>({
+                       backend:overtimeListBackendReady,seq:overtimeListLoadSeq,
+                       requestCount:window.__qaListSeen,refreshing:state.refreshing,
+                       refreshOwner:!!refreshPendingOwner,context:overtimeListContextKey,
+                       target:overtimeListTargetEmployeeId,year:state.year,month:state.month
+                    })""")
+                    if not (second is True and second_state["backend"] is True and
+                            page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==1):
+                        print("QA_OVERTIME_TWO_READ_SECOND_DIAG="+repr({
+                          "returned":second,"state":second_state,
+                          "network":overtime_list_network[-12:],
+                          "bridgeReads":sum(x=="list_overtime_entries" for x in br.HITS)-pre_read_hit_count,
+                          "html":page.locator("#overtimeListBody").text_content()[:160]
+                        }),flush=True)
+                    check(second is True and second_state["backend"] is True and
                           page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==1,
                           "newer request completes and safely re-enables Edit while older request is held")
                     first=page.evaluate("""async()=>{
@@ -584,7 +606,7 @@ def main():
                     check(first is False and page.evaluate("overtimeListBackendReady===true") and
                           page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==1,
                           "late obsolete read is discarded without relocking loaded latest list")
-                    page.evaluate("rpc=window.__qaListOriginalRpc")
+                    page.evaluate("rpc=window.__qaListOriginalRpc;refresh=window.__qaOriginalRefresh")
                     check(sum(x=="list_overtime_entries" for x in br.HITS)-pre_read_hit_count==2 and
                           OVERTIME_HITS==[10,20] and
                           br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==20,
