@@ -161,156 +161,159 @@ def main():
                 page.locator("#usageGuideBackdrop.open").wait_for(state="hidden",timeout=6000)
                 check(page.evaluate("state.me?.employee_id===2 && !state.me?.is_read_only && state.personnelBackendReady===true"),
                       "actual login UI and read-only gate authorize only synthetic worker")
-                open_date(page,PHOTO_DATE,2026,9)
-                check(page.evaluate("state.fingerprintBackendReady===true"),"fingerprint metadata ready before photo choice")
-                upload=page.locator("#fingerprintClockInUploadBtn")
-                # The app deliberately collapses an empty fingerprint section.
-                # Expand the visible real section header before testing the upload button.
-                if not upload.is_visible():
-                    page.locator("#fingerprintDetailToggleBtn").click()
-                if not (upload.is_visible() and upload.is_enabled()):
-                    diag=page.evaluate("""()=>({
-                      selectedDate:state.selectedDate,view:state.view,
-                      today:todayKey(),personnel:state.personnelBackendReady,
-                      fingerprint:state.fingerprintBackendReady,
-                      accountReadOnly:accountReadOnly(),personnelReady:fingerprintPersonnelReady(),
-                      operational:fingerprintDateOperational(state.selectedDate),
-                      dateNotFuture:fingerprintDateNotFuture(state.selectedDate),
-                      hidden:document.getElementById('fingerprintDetailSection')?.className,
-                      btnDisabled:document.getElementById('fingerprintClockInUploadBtn')?.disabled,
-                      detailError:document.getElementById('fingerprintDetailError')?.textContent,
-                      employee:state.employees.find(e=>Number(e.id)===2)?.placement_code,
-                      lifecycle:pageLifecycleFreshnessPending
-                    })""")
-                    print("SYNTHETIC_FINGERPRINT_BUTTON_DIAG="+str(diag),flush=True)
-                check(upload.is_visible() and upload.is_enabled(),
-                      "real fingerprint upload button enabled on past synthetic active date")
-                photo=make_png()
-                with page.expect_file_chooser(timeout=10000) as picker:
-                    upload.click()
-                picker.value.set_files({"name":"synthetic-qa.png","mimeType":"image/png","buffer":photo})
-                page.wait_for_function("""()=>!fingerprintPhotoPending &&
-                  !!state.fingerprintRecords.find(r=>r.record_date==='2026-10-21' && r.has_clock_in)""",
-                  timeout=30000)
-                check(len(PHOTO_HITS)==1 and PHOTO_HITS[0][1]>100,
-                      "real file chooser -> browser PNG decode -> canvas JPEG -> HTTP write exactly once")
-                check(br.value("""SELECT octet_length(clock_in_photo) FROM public.qa_browser_fingerprint
-                    WHERE employee_id=2 AND record_date=%s::date""",(PHOTO_DATE,))>100,
-                      "actual fingerprint JPEG bytes persisted in isolated PostgreSQL")
-                check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨",
-                      "real UI readback shows registered image after DB resync")
-                check(page.evaluate("state.fingerprintBackendReady===true"),
-                      "photo metadata resynchronization returns to ready, not indefinite loading")
-                # Reproduce only the browser events, not a physical Android OS picker.
-                # The second upload is an existing-photo replacement with actual CAS stamp.
-                original_stamp=page.evaluate("fingerprintRecordForDate('2026-10-21')?.updated_at")
-                with page.expect_file_chooser(timeout=10000) as resumed_picker:
-                    upload.click()
-                page.evaluate("""()=>{
-                  window.dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true}));
-                  window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}));
-                }""")
-                resumed_picker.value.set_files({"name":"synthetic-qa.png","mimeType":"image/png","buffer":photo})
-                page.wait_for_function("""(before)=>!fingerprintPhotoPending &&
-                  fingerprintRecordForDate('2026-10-21')?.updated_at!==before
-                  && state.fingerprintBackendReady===true""",arg=original_stamp,timeout=30000)
-                check(len(PHOTO_HITS)==2 and PHOTO_HITS[1][0]=="clock_in",
-                      "synthetic picker pagehide/pageshow/BFCache return does not lose or double-send photo change")
-                check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨",
-                      "photo replacement persists and UI unlocks after simulated native picker return")
-                # The on-change handler keeps the picker active until its async finally.
-                # Do not inject a new failure while that picker still owns detail rendering.
-                page.wait_for_function("""()=>!fingerprintPickerFlowActive &&
-                  !fingerprintPhotoPending && !state.refreshing && !refreshPendingOwner""",timeout=12000)
-                # QA-only HTTP 503 injection: real full-page Javascript must distinguish
-                # a fingerprint metadata read failure from an infinite spinner.
-                # This route never reaches either synthetic PostgreSQL or any production URL.
-                def injected_read_failure(route):
-                    route.fulfill(status=503,content_type="application/json",
-                                  body='{"code":"QA_READ_503","message":"QA_SYNTHETIC_FAILURE_DO_NOT_SHOW"}')
-                successful_photo_writes=len(PHOTO_HITS)
-                page.route("**/rest/v1/rpc/list_my_fingerprint_records",injected_read_failure)
-                try:
-                    failed=page.evaluate("""async()=>{
-                      const bounds=monthBounds(state.year,state.month);
-                      return await loadFingerprintRecords(bounds.from,bounds.to);
+                if "--overtime-only" in sys.argv:
+                    open_date(page,OT_DATE,2027,4)
+                else:
+                    open_date(page,PHOTO_DATE,2026,9)
+                    check(page.evaluate("state.fingerprintBackendReady===true"),"fingerprint metadata ready before photo choice")
+                    upload=page.locator("#fingerprintClockInUploadBtn")
+                    # The app deliberately collapses an empty fingerprint section.
+                    # Expand the visible real section header before testing the upload button.
+                    if not upload.is_visible():
+                        page.locator("#fingerprintDetailToggleBtn").click()
+                    if not (upload.is_visible() and upload.is_enabled()):
+                        diag=page.evaluate("""()=>({
+                          selectedDate:state.selectedDate,view:state.view,
+                          today:todayKey(),personnel:state.personnelBackendReady,
+                          fingerprint:state.fingerprintBackendReady,
+                          accountReadOnly:accountReadOnly(),personnelReady:fingerprintPersonnelReady(),
+                          operational:fingerprintDateOperational(state.selectedDate),
+                          dateNotFuture:fingerprintDateNotFuture(state.selectedDate),
+                          hidden:document.getElementById('fingerprintDetailSection')?.className,
+                          btnDisabled:document.getElementById('fingerprintClockInUploadBtn')?.disabled,
+                          detailError:document.getElementById('fingerprintDetailError')?.textContent,
+                          employee:state.employees.find(e=>Number(e.id)===2)?.placement_code,
+                          lifecycle:pageLifecycleFreshnessPending
+                        })""")
+                        print("SYNTHETIC_FINGERPRINT_BUTTON_DIAG="+str(diag),flush=True)
+                    check(upload.is_visible() and upload.is_enabled(),
+                          "real fingerprint upload button enabled on past synthetic active date")
+                    photo=make_png()
+                    with page.expect_file_chooser(timeout=10000) as picker:
+                        upload.click()
+                    picker.value.set_files({"name":"synthetic-qa.png","mimeType":"image/png","buffer":photo})
+                    page.wait_for_function("""()=>!fingerprintPhotoPending &&
+                      !!state.fingerprintRecords.find(r=>r.record_date==='2026-10-21' && r.has_clock_in)""",
+                      timeout=30000)
+                    check(len(PHOTO_HITS)==1 and PHOTO_HITS[0][1]>100,
+                          "real file chooser -> browser PNG decode -> canvas JPEG -> HTTP write exactly once")
+                    check(br.value("""SELECT octet_length(clock_in_photo) FROM public.qa_browser_fingerprint
+                        WHERE employee_id=2 AND record_date=%s::date""",(PHOTO_DATE,))>100,
+                          "actual fingerprint JPEG bytes persisted in isolated PostgreSQL")
+                    check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨",
+                          "real UI readback shows registered image after DB resync")
+                    check(page.evaluate("state.fingerprintBackendReady===true"),
+                          "photo metadata resynchronization returns to ready, not indefinite loading")
+                    # Reproduce only the browser events, not a physical Android OS picker.
+                    # The second upload is an existing-photo replacement with actual CAS stamp.
+                    original_stamp=page.evaluate("fingerprintRecordForDate('2026-10-21')?.updated_at")
+                    with page.expect_file_chooser(timeout=10000) as resumed_picker:
+                        upload.click()
+                    page.evaluate("""()=>{
+                      window.dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true}));
+                      window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}));
                     }""")
-                    check(failed is False and page.evaluate("state.fingerprintBackendReady===false"),
-                          "synthetic 503 fingerprint metadata read unlocks loading into explicit failure state")
-                    current_message=page.locator("#fingerprintDetailError").text_content()
-                    if "시간 초과 또는 네트워크 오류" not in current_message:
-                        print("QA_SYNTHETIC_FINGERPRINT_ERROR_UI="+repr({
-                          "message":current_message,
-                          "picker_active":page.evaluate("fingerprintPickerFlowActive"),
-                          "photo_pending":page.evaluate("fingerprintPhotoPending"),
-                          "backend_ready":page.evaluate("state.fingerprintBackendReady")
+                    resumed_picker.value.set_files({"name":"synthetic-qa.png","mimeType":"image/png","buffer":photo})
+                    page.wait_for_function("""(before)=>!fingerprintPhotoPending &&
+                      fingerprintRecordForDate('2026-10-21')?.updated_at!==before
+                      && state.fingerprintBackendReady===true""",arg=original_stamp,timeout=30000)
+                    check(len(PHOTO_HITS)==2 and PHOTO_HITS[1][0]=="clock_in",
+                          "synthetic picker pagehide/pageshow/BFCache return does not lose or double-send photo change")
+                    check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨",
+                          "photo replacement persists and UI unlocks after simulated native picker return")
+                    # The on-change handler keeps the picker active until its async finally.
+                    # Do not inject a new failure while that picker still owns detail rendering.
+                    page.wait_for_function("""()=>!fingerprintPickerFlowActive &&
+                      !fingerprintPhotoPending && !state.refreshing && !refreshPendingOwner""",timeout=12000)
+                    # QA-only HTTP 503 injection: real full-page Javascript must distinguish
+                    # a fingerprint metadata read failure from an infinite spinner.
+                    # This route never reaches either synthetic PostgreSQL or any production URL.
+                    def injected_read_failure(route):
+                        route.fulfill(status=503,content_type="application/json",
+                                      body='{"code":"QA_READ_503","message":"QA_SYNTHETIC_FAILURE_DO_NOT_SHOW"}')
+                    successful_photo_writes=len(PHOTO_HITS)
+                    page.route("**/rest/v1/rpc/list_my_fingerprint_records",injected_read_failure)
+                    try:
+                        failed=page.evaluate("""async()=>{
+                          const bounds=monthBounds(state.year,state.month);
+                          return await loadFingerprintRecords(bounds.from,bounds.to);
+                        }""")
+                        check(failed is False and page.evaluate("state.fingerprintBackendReady===false"),
+                              "synthetic 503 fingerprint metadata read unlocks loading into explicit failure state")
+                        current_message=page.locator("#fingerprintDetailError").text_content()
+                        if "시간 초과 또는 네트워크 오류" not in current_message:
+                            print("QA_SYNTHETIC_FINGERPRINT_ERROR_UI="+repr({
+                              "message":current_message,
+                              "picker_active":page.evaluate("fingerprintPickerFlowActive"),
+                              "photo_pending":page.evaluate("fingerprintPhotoPending"),
+                              "backend_ready":page.evaluate("state.fingerprintBackendReady")
+                            }),flush=True)
+                        check(("조회에 실패했습니다" in current_message or "시간 초과 또는 네트워크 오류" in current_message)
+                              and "QA_SYNTHETIC" not in current_message and "불러오는 중" not in current_message,
+                              "real fingerprint detail shows safe failed-read status, not a spinner or raw HTTP body")
+                        check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨"
+                              and not upload.is_enabled() and len(PHOTO_HITS)==successful_photo_writes,
+                              "failed metadata refresh preserves previous photo and blocks unsafe write")
+                    finally:
+                        page.unroute("**/rest/v1/rpc/list_my_fingerprint_records",injected_read_failure)
+                    check(page.evaluate("""async()=>{
+                      const b=monthBounds(state.year,state.month);
+                      return await loadFingerprintRecords(b.from,b.to);
+                    }""") is True and page.evaluate("state.fingerprintBackendReady===true"),
+                          "successful subsequent real HTTP/PG fingerprint metadata read restores ready state")
+                    check(upload.is_enabled() and page.locator("#fingerprintDetailError").text_content().strip()=="",
+                          "successful metadata read clears error and safely re-enables upload")
+
+                    # Simulate interrupted bootstrap: a preceding month attendance RPC
+                    # fails BEFORE the fingerprint read starts. It must show a failure
+                    # state rather than keep the user waiting on a nonexistent request.
+                    page.route("**/rest/v1/rpc/list_attendance_with_annual_leave",injected_read_failure)
+                    try:
+                        page.evaluate("state.fingerprintBackendReady=null")
+                        check(page.evaluate("async()=>await loadMonthData(true)") is False,
+                              "synthetic upstream HTTP 503 prevents starting downstream fingerprint fetch")
+                        check(page.evaluate("state.fingerprintBackendReady===false")
+                              and "지문 기록 조회를 시작하지 못했습니다" in page.locator("#fingerprintDetailError").text_content(),
+                              "orphaned loading converts to truthful prerequisite failure")
+                        check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨"
+                              and not upload.is_enabled() and len(PHOTO_HITS)==successful_photo_writes,
+                              "failed prerequisite never loses persisted fingerprint or sends unintended write")
+                    finally:
+                        page.unroute("**/rest/v1/rpc/list_attendance_with_annual_leave",injected_read_failure)
+                    check(page.evaluate("async()=>await loadMonthData(true)") is True
+                          and page.evaluate("state.fingerprintBackendReady===true"),
+                          "full normal HTTP/PG read restores screen after preceding dependency failure")
+                    check(upload.is_enabled() and len(PHOTO_HITS)==successful_photo_writes,
+                          "prerequisite recovery re-enables upload without duplicate photo mutation")
+
+                    # The fingerprint itself can be current while another screen is
+                    # still refreshing. Display its distinct reason and KEEP the
+                    # global write lock instead of pretending the photo is still loading.
+                    page.evaluate("pageLifecycleFreshnessPending=true;renderFingerprintDetail(state.selectedDate)")
+                    check("다른 최신 데이터 동기화" in page.locator("#fingerprintDetailError").text_content()
+                          and not upload.is_enabled(),
+                          "unrelated unfinished sync has distinct status and still blocks writes")
+                    page.evaluate("pageLifecycleFreshnessPending=false;renderFingerprintDetail(state.selectedDate)")
+                    check(upload.is_enabled() and page.locator("#fingerprintDetailError").text_content().strip()=="",
+                          "global freshness completion clears status and restores upload")
+                    if js_errors or any(".supabase.co" in x for x in external):
+                        print("QA_SCOPED_RECOVERY_NETWORK_DIAG="+repr({
+                          "js_errors":js_errors[:3],
+                          "blocked_domains":sorted(set(urlsplit(x).hostname for x in external))[:8]
                         }),flush=True)
-                    check(("조회에 실패했습니다" in current_message or "시간 초과 또는 네트워크 오류" in current_message)
-                          and "QA_SYNTHETIC" not in current_message and "불러오는 중" not in current_message,
-                          "real fingerprint detail shows safe failed-read status, not a spinner or raw HTTP body")
-                    check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨"
-                          and not upload.is_enabled() and len(PHOTO_HITS)==successful_photo_writes,
-                          "failed metadata refresh preserves previous photo and blocks unsafe write")
-                finally:
-                    page.unroute("**/rest/v1/rpc/list_my_fingerprint_records",injected_read_failure)
-                check(page.evaluate("""async()=>{
-                  const b=monthBounds(state.year,state.month);
-                  return await loadFingerprintRecords(b.from,b.to);
-                }""") is True and page.evaluate("state.fingerprintBackendReady===true"),
-                      "successful subsequent real HTTP/PG fingerprint metadata read restores ready state")
-                check(upload.is_enabled() and page.locator("#fingerprintDetailError").text_content().strip()=="",
-                      "successful metadata read clears error and safely re-enables upload")
-
-                # Simulate interrupted bootstrap: a preceding month attendance RPC
-                # fails BEFORE the fingerprint read starts. It must show a failure
-                # state rather than keep the user waiting on a nonexistent request.
-                page.route("**/rest/v1/rpc/list_attendance_with_annual_leave",injected_read_failure)
-                try:
-                    page.evaluate("state.fingerprintBackendReady=null")
-                    check(page.evaluate("async()=>await loadMonthData(true)") is False,
-                          "synthetic upstream HTTP 503 prevents starting downstream fingerprint fetch")
-                    check(page.evaluate("state.fingerprintBackendReady===false")
-                          and "지문 기록 조회를 시작하지 못했습니다" in page.locator("#fingerprintDetailError").text_content(),
-                          "orphaned loading converts to truthful prerequisite failure")
-                    check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨"
-                          and not upload.is_enabled() and len(PHOTO_HITS)==successful_photo_writes,
-                          "failed prerequisite never loses persisted fingerprint or sends unintended write")
-                finally:
-                    page.unroute("**/rest/v1/rpc/list_attendance_with_annual_leave",injected_read_failure)
-                check(page.evaluate("async()=>await loadMonthData(true)") is True
-                      and page.evaluate("state.fingerprintBackendReady===true"),
-                      "full normal HTTP/PG read restores screen after preceding dependency failure")
-                check(upload.is_enabled() and len(PHOTO_HITS)==successful_photo_writes,
-                      "prerequisite recovery re-enables upload without duplicate photo mutation")
-
-                # The fingerprint itself can be current while another screen is
-                # still refreshing. Display its distinct reason and KEEP the
-                # global write lock instead of pretending the photo is still loading.
-                page.evaluate("pageLifecycleFreshnessPending=true;renderFingerprintDetail(state.selectedDate)")
-                check("다른 최신 데이터 동기화" in page.locator("#fingerprintDetailError").text_content()
-                      and not upload.is_enabled(),
-                      "unrelated unfinished sync has distinct status and still blocks writes")
-                page.evaluate("pageLifecycleFreshnessPending=false;renderFingerprintDetail(state.selectedDate)")
-                check(upload.is_enabled() and page.locator("#fingerprintDetailError").text_content().strip()=="",
-                      "global freshness completion clears status and restores upload")
-                if js_errors or any(".supabase.co" in x for x in external):
-                    print("QA_SCOPED_RECOVERY_NETWORK_DIAG="+repr({
-                      "js_errors":js_errors[:3],
-                      "blocked_domains":sorted(set(urlsplit(x).hostname for x in external))[:8]
-                    }),flush=True)
-                # The existing fixture blocks unrelated CDN/font attempts. No
-                # Supabase requests or browser exceptions are permitted.
-                check(not js_errors and not any(".supabase.co" in x for x in external),
-                      "failure recovery generated no JS exceptions or live Supabase access")
-                if "--fingerprint-only" in sys.argv:
-                    check(len(PHOTO_HITS)==2 and not js_errors and
-                          not any(".supabase.co" in u for u in external),
-                          "fingerprint-only fixture sent exactly two intended photo saves, no live service calls")
-                    print("FINGERPRINT_READ_RECOVERY_ISOLATED_CHROMIUM_POSTGRES_PASS",flush=True)
-                    return
-                page.get_by_role("button",name="날짜 상세 닫기").click()
-                page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=6000)
-                open_date(page,OT_DATE,2027,4)
+                    # The existing fixture blocks unrelated CDN/font attempts. No
+                    # Supabase requests or browser exceptions are permitted.
+                    check(not js_errors and not any(".supabase.co" in x for x in external),
+                          "failure recovery generated no JS exceptions or live Supabase access")
+                    if "--fingerprint-only" in sys.argv:
+                        check(len(PHOTO_HITS)==2 and not js_errors and
+                              not any(".supabase.co" in u for u in external),
+                              "fingerprint-only fixture sent exactly two intended photo saves, no live service calls")
+                        print("FINGERPRINT_READ_RECOVERY_ISOLATED_CHROMIUM_POSTGRES_PASS",flush=True)
+                        return
+                    page.get_by_role("button",name="날짜 상세 닫기").click()
+                    page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=6000)
+                    open_date(page,OT_DATE,2027,4)
                 if not page.locator("#saveOvertimeBtn").is_visible():
                     page.locator("#overtimeDetailToggleBtn").click()
                 check(page.locator("#saveOvertimeBtn").is_visible() and page.locator("#saveOvertimeBtn").is_enabled(),
@@ -376,6 +379,19 @@ def main():
                 page.locator("#overtimeListBackdrop.open").wait_for(timeout=12000)
                 list_edit=page.locator('#overtimeListBody button[data-overtime-list-edit]')
                 list_edit.first.wait_for(state="visible",timeout=12000)
+                if list_edit.count()!=1 or not list_edit.first.is_enabled():
+                    list_diag=page.evaluate("""()=>({
+                      date:state.selectedDate,view:state.view,year:state.year,month:state.month,
+                      personnelReady:personnelMutationReady(),accountReadOnly:accountReadOnly(),
+                      listBackendReady:overtimeListBackendReady,monthBackendReady:state.overtimeBackendReady,
+                      freshness:pageLifecycleWriteFreshnessReady(),refreshing:state.refreshing,
+                      pending:overtimeDaySavePending,buttons:[...document.querySelectorAll(
+                        '#overtimeListBody button[data-overtime-list-edit]')].map(el=>({
+                          disabled:el.disabled,visible:getComputedStyle(el).display!='none'
+                        })),
+                      listSummary:document.getElementById('overtimeListBody')?.textContent?.slice(0,180)
+                    })""")
+                    print("QA_ONLY_OVERTIME_LIST_EDIT_DIAG="+repr(list_diag),flush=True)
                 check(list_edit.count()==1 and list_edit.first.is_enabled(),
                       "real month overtime list displays enabled existing-row Edit button")
                 list_edit.first.click()
