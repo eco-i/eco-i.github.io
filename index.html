@@ -2596,6 +2596,7 @@ let overtimeListTargetEmployeeId=null;
 let overtimeDataLoadSeq=0;
 let overtimeListLoadSeq=0;
 let fingerprintLoadSeq=0;
+let fingerprintReadFailureMessage='';
 let fingerprintPhotoPending=false;
 let fingerprintConfirmPending=false;
 let fingerprintViewPending=false;
@@ -2720,6 +2721,8 @@ function invalidatePageLifecycleReadLoads(){
 }
 
 function invalidateSessionBoundLoads(){
+  // 이전 계정의 지문 조회 실패 사유가 다음 계정의 화면에 남지 않도록 초기화한다.
+  fingerprintReadFailureMessage='';
   // 세션/보안 컨텍스트가 바뀌면 이전 직원의 지연 인사영향 검사가 새 로그인 컨텍스트에서 실행되지 않게 예약 타이머도 함께 폐기한다.
   if(personnelEditor?.impactTimer){clearTimeout(personnelEditor.impactTimer);personnelEditor.impactTimer=null;}
   sessionContextEpoch++;
@@ -6342,7 +6345,7 @@ function fingerprintReadFailureText(error){
   return '지문 기록 서버 조회에 실패했습니다. 입력 내용을 보존하고 새로고침 후 확인해 주세요.';
 }
 async function loadFingerprintRecords(from,to,{silentLoadingUi=false}={}){
-  if(!state.me){state.fingerprintRecords=[];state.fingerprintBackendReady=null;return false;}
+  if(!state.me){state.fingerprintRecords=[];state.fingerprintBackendReady=null;fingerprintReadFailureMessage='';return false;}
   const seq=++fingerprintLoadSeq,actor=Number(state.me.employee_id),token=state.sessionToken,contextEpoch=sessionContextEpoch,requestFrom=String(from||''),requestTo=String(to||''),before=state.fingerprintRecords.slice();
   const stillCurrent=()=>seq===fingerprintLoadSeq&&sharedSessionContextCurrent(actor,token,{epoch:contextEpoch})&&(()=>{const b=monthBounds(state.year,state.month);return (!requestFrom||b.from===requestFrom)&&(!requestTo||b.to===requestTo);})();
   if(!configured()){if(!stillCurrent())return false;state.fingerprintRecords=localFingerprintMetaRows(from,to);state.fingerprintBackendReady=true;return true;}
@@ -6351,13 +6354,30 @@ async function loadFingerprintRecords(from,to,{silentLoadingUi=false}={}){
     renderFingerprintDetail(state.selectedDate,{preserveStatusMessage:keepCurrentMessage});
   };
   state.fingerprintBackendReady=null;
+  fingerprintReadFailureMessage='';
   // 열린 날짜 상세창이 있는 상태에서 재조회가 시작되면 내부 쓰기 가드만 먼저 잠기고
   // 화면 버튼은 이전 활성 상태로 남지 않게 지문 영역도 즉시 로딩 상태로 맞춥니다.
   // 자동 Realtime처럼 조용한 재조회는 1분 주기 live-region 안내가 반복되지 않게 기존 메시지는 유지합니다.
   // 지문 자체 저장/삭제/확인/보기 중에는 해당 작업의 진행 문구를 덮지 않도록 상위 pending 렌더를 유지합니다.
   syncOpenDetail(!!silentLoadingUi);
-  try{const rows=await rpc('list_my_fingerprint_records',{p_token:token,p_from:from||null,p_to:to||null},{timeoutMs:READONLY_RPC_TIMEOUT_MS});if(!stillCurrent())return false;state.fingerprintRecords=strictFingerprintRpcRows(rows,{from:requestFrom||null,to:requestTo||null});state.fingerprintBackendReady=true;reconcileFingerprintViewerAfterSync();syncOpenDetail(false);return true;}
-  catch(e){if(!stillCurrent())return false;state.fingerprintRecords=before;state.fingerprintBackendReady=false;syncOpenDetail(false);if(state.view==='mine'&&state.selectedDate&&$('detailBackdrop')?.classList.contains('open'))$('fingerprintDetailError').textContent=fingerprintReadFailureText(e);return false;}
+  try{
+    const rows=await rpc('list_my_fingerprint_records',{p_token:token,p_from:from||null,p_to:to||null},{timeoutMs:READONLY_RPC_TIMEOUT_MS});
+    if(!stillCurrent())return false;
+    state.fingerprintRecords=strictFingerprintRpcRows(rows,{from:requestFrom||null,to:requestTo||null});
+    state.fingerprintBackendReady=true;
+    fingerprintReadFailureMessage='';
+    reconcileFingerprintViewerAfterSync();
+    syncOpenDetail(false);
+    return true;
+  }catch(e){
+    if(!stillCurrent())return false;
+    state.fingerprintRecords=before;
+    state.fingerprintBackendReady=false;
+    // 월 조회 종료/Realtime 재렌더가 발생해도 안전한 원인 분류 안내를 유지한다.
+    fingerprintReadFailureMessage=fingerprintReadFailureText(e);
+    syncOpenDetail(false);
+    return false;
+  }
 }
 function fingerprintBase64FromDataUrl(dataUrl){const i=String(dataUrl||'').indexOf(',');return i>=0?String(dataUrl).slice(i+1):'';}
 async function compressFingerprintImage(file){
@@ -6381,10 +6401,21 @@ async function compressFingerprintImage(file){
   return {base64:fingerprintBase64FromDataUrl(dataUrl),dataUrl,mime:'image/jpeg',name:safeName,bytes:blob.size};
 }
 function renderFingerprintDetail(key,{preserveStatusMessage=false}={}){
-  const row=fingerprintRecordForDate(key),ro=accountReadOnly(),personnelReady=fingerprintPersonnelReady(),personnelLoading=configured()&&state.personnelBackendReady===null,dateNotFuture=fingerprintDateNotFuture(key),dateOperational=fingerprintDateOperational(key),backendReady=!configured()||(pageLifecycleWriteFreshnessReady()&&state.fingerprintBackendReady===true),backendLoading=configured()&&(pageLifecycleFreshnessPending||state.fingerprintBackendReady===null),backendBad=configured()&&!pageLifecycleFreshnessPending&&state.fingerprintBackendReady===false,busy=fingerprintPickerFlowActive||fingerprintPhotoPending||fingerprintConfirmPending||fingerprintViewPending||state.refreshing||!!refreshPendingOwner,writable=!ro&&backendReady&&!busy,uploadWritable=writable&&personnelReady&&dateNotFuture&&dateOperational;
+  const row=fingerprintRecordForDate(key),ro=accountReadOnly(),personnelReady=fingerprintPersonnelReady(),personnelLoading=configured()&&state.personnelBackendReady===null,dateNotFuture=fingerprintDateNotFuture(key),dateOperational=fingerprintDateOperational(key),backendReady=!configured()||(pageLifecycleWriteFreshnessReady()&&state.fingerprintBackendReady===true),backendLoading=configured()&&state.fingerprintBackendReady===null,backendBad=configured()&&state.fingerprintBackendReady===false,otherSyncPending=configured()&&pageLifecycleFreshnessPending&&state.fingerprintBackendReady===true,busy=fingerprintPickerFlowActive||fingerprintPhotoPending||fingerprintConfirmPending||fingerprintViewPending||state.refreshing||!!refreshPendingOwner,writable=!ro&&backendReady&&!busy,uploadWritable=writable&&personnelReady&&dateNotFuture&&dateOperational;
   [['clock_in','fingerprintClockIn'],['clock_out','fingerprintClockOut']].forEach(([kind,prefix])=>{const has=fingerprintKindHas(row,kind),stateEl=$(`${prefix}State`),meta=$(`${prefix}Meta`),up=$(`${prefix}UploadBtn`),view=$(`${prefix}ViewBtn`),del=$(`${prefix}DeleteBtn`);if(stateEl){stateEl.textContent=has?'등록됨':'미등록';stateEl.classList.toggle('saved',has)}if(meta)meta.textContent=has?(formatFingerprintTime(fingerprintKindUploadedAt(row,kind))||'등록됨'):'사진을 등록해 주세요.';if(up){up.textContent=has?'사진 교체':'사진 등록';up.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 ${has?'교체':'등록'}`);up.disabled=!uploadWritable}if(view){view.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 보기`);view.disabled=!has||busy||!backendReady}if(del){del.setAttribute('aria-label',`${fingerprintKindLabel(kind)} 사진 삭제`);del.disabled=!has||!writable}});
   const both=!!(row?.has_clock_in&&row?.has_clock_out),confirm=$('fingerprintConfirmed'),confirmRow=$('fingerprintConfirmRow'),confirmWritable=writable&&both&&(!!row?.confirmed||(personnelReady&&dateNotFuture&&dateOperational));if(confirm){confirm.checked=!!(row?.confirmed&&both);confirm.disabled=!confirmWritable;}if(confirmRow)confirmRow.classList.toggle('disabled',!confirmWritable);
-  if(!preserveStatusMessage)$('fingerprintDetailError').textContent=ro?'조회 전용 계정에서는 지문 사진을 변경할 수 없습니다.':(backendLoading?'지문 기록을 불러오는 중입니다.':(backendBad?(row?'지문 기록 서버 연결을 확인해 주세요. 마지막으로 불러온 표시를 유지하고 있습니다.':'지문 기록 서버 연결을 확인해 주세요.'):(configured()&&!personnelReady?(personnelLoading?'인사이력 정보를 불러오는 중입니다. 새 사진 등록·교체와 확인 완료 설정은 잠시 후 이용해 주세요.':'인사이력 정보를 정상적으로 불러오지 못해 새 사진 등록·교체와 확인 완료 설정을 잠갔습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.') :(!dateNotFuture?'미래 날짜에는 새 지문 사진 등록·교체 또는 확인 완료를 설정할 수 없습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.':(!dateOperational?'재직·근무 배치 기간 밖 날짜에는 새 사진 등록·교체 또는 확인 완료를 새로 설정할 수 없습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.':(!both&&row?.confirmed?'사진이 부족하여 확인 완료가 자동 해제되었습니다.':''))))));
+  if(!preserveStatusMessage){
+    let message='';
+    if(ro)message='조회 전용 계정에서는 지문 사진을 변경할 수 없습니다.';
+    else if(backendBad)message=fingerprintReadFailureMessage||(row?'지문 기록 서버 연결을 확인해 주세요. 마지막으로 불러온 표시를 유지하고 있습니다.':'지문 기록 서버 연결을 확인해 주세요.');
+    else if(backendLoading)message='지문 기록을 불러오는 중입니다.';
+    else if(otherSyncPending)message='지문 기록은 불러왔지만 다른 최신 데이터 동기화가 끝나지 않아 사진 변경을 제한하고 있습니다. 새로고침해 주세요.';
+    else if(configured()&&!personnelReady)message=personnelLoading?'인사이력 정보를 불러오는 중입니다. 새 사진 등록·교체와 확인 완료 설정은 잠시 후 이용해 주세요.':'인사이력 정보를 정상적으로 불러오지 못해 새 사진 등록·교체와 확인 완료 설정을 잠갔습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.';
+    else if(!dateNotFuture)message='미래 날짜에는 새 지문 사진 등록·교체 또는 확인 완료를 설정할 수 없습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.';
+    else if(!dateOperational)message='재직·근무 배치 기간 밖 날짜에는 새 사진 등록·교체 또는 확인 완료를 새로 설정할 수 없습니다. 기존 사진 보기·삭제와 확인 해제는 가능합니다.';
+    else if(!both&&row?.confirmed)message='사진이 부족하여 확인 완료가 자동 해제되었습니다.';
+    $('fingerprintDetailError').textContent=message;
+  }
 }
 async function resyncFingerprintAfterMutation(key,label,actor,token,contextEpoch){if(!sharedSessionContextCurrent(actor,token,{epoch:contextEpoch}))return false;const {from,to}=monthBounds(state.year,state.month),ok=await runPostMutationResync(()=>loadFingerprintRecords(from,to),label);if(!sharedSessionContextCurrent(actor,token,{epoch:contextEpoch}))return false;renderCalendar();if(state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open'))renderFingerprintDetail(key);return ok;}
 function fingerprintWriteContextCatchupNeeded(){
@@ -6963,6 +6994,9 @@ async function toggleFingerprintConfirmed(checked){
 
 async function loadMonthData(silent=false,markSync=false){
   const seq=++monthDataLoadSeq;
+  // 선행 근태 RPC 실패로 지문 조회까지 도달하지 못했는지 구별한다.
+  const fingerprintLoadSeqAtMonthStart=fingerprintLoadSeq;
+  let fingerprintStepStarted=false;
   if(!state.me)return false;
   const actor=Number(state.me.employee_id),token=state.sessionToken,contextEpoch=sessionContextEpoch,requestYear=state.year,requestMonth=state.month,requestContext=`${state.year}-${state.month}`;
   let attendanceLoaded=false;
@@ -6983,6 +7017,7 @@ async function loadMonthData(silent=false,markSync=false){
     syncCleanAttendanceFormFromLatestAttendance();
     const holidaySynced=await loadHolidayWorks(); if(!stillCurrent())return false;
     const overtimeSynced=await loadOvertimeData(from,to); if(!stillCurrent())return false;
+    fingerprintStepStarted=true;
     const fingerprintSynced=await loadFingerprintRecords(from,to,{silentLoadingUi:!!silent}); if(!stillCurrent())return false;
     const memoSynced=await loadMonthMemos(from,to); if(!stillCurrent())return false;
     const ddaySynced=await loadMemoDdays(); if(!stillCurrent())return false;
@@ -6994,6 +7029,12 @@ async function loadMonthData(silent=false,markSync=false){
     return healthy;
   }catch(e){
     if(!stillCurrent())return false;
+    // 정상 지문 조회가 시작되지 않은 채 선행 RPC가 실패한 경우에만 영구 로딩 상태를 실패로 전환한다.
+    // 동시 실행된 다른 지문 조회 또는 이전의 정상 스냅샷은 절대 덮어쓰지 않는다.
+    if(!fingerprintStepStarted&&fingerprintLoadSeq===fingerprintLoadSeqAtMonthStart&&state.fingerprintBackendReady===null){
+      fingerprintReadFailureMessage='선행 근태 데이터 조회에 실패하여 지문 기록 조회를 시작하지 못했습니다. 새로고침해 주세요.';
+      state.fingerprintBackendReady=false;
+    }
     // 월 핵심 근태 조회 자체가 실패한 경우 같은 달의 마지막 정상값은 보존하지만,
     // 이전 달 스냅샷은 기간형 기록이 새 달까지 걸칠 수 있어 부분 데이터로 오인될 수 있다.
     // 요청 월에서 정상 확보한 스냅샷이 아니면 비워서 '일부만 맞는 새 달'을 만들지 않는다.
