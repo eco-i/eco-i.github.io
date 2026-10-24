@@ -4688,6 +4688,9 @@ async function loadOvertimeData(from,to){
   }
   state.overtimeBackendReady=null;
   state.overtimeConfirmBackendReady=null;
+  // 월 조회가 시작되면 아직 활성인 날짜 상세 저장 버튼을 즉시 잠근다.
+  // 입력값과 저장 시 기준 스냅샷은 덮어쓰지 않는다.
+  syncOpenDetailPermissionsPreservingDraft();
   // 열린 초과근무 목록은 편성확정 상태 재조회가 시작되는 순간 바로 '확인 중'으로 잠근다.
   // 이전 확정/미확정 표시와 버튼이 네트워크 대기 동안 계속 활성처럼 남지 않게 한다.
   if($('overtimeListBackdrop')?.classList.contains('open'))renderOvertimeList();
@@ -4713,6 +4716,8 @@ async function loadOvertimeData(from,to){
     state.overtimeConfirmations=(Array.isArray(state.overtimeConfirmations)?state.overtimeConfirmations:[]).filter(r=>{const k=String(r?.month_start||'').slice(0,10);return !!k&&k>=requestFrom&&k<=requestTo;});
     state.overtimeConfirmBackendReady=false;
   }
+  // 목록 요청 성공/실패가 확정된 후에도 서버 최신성 조건에 따라 즉시 잠금/복구한다.
+  syncOpenDetailPermissionsPreservingDraft();
   return state.overtimeBackendReady===true&&state.overtimeConfirmBackendReady===true;
 }
 function overtimeDetailDateWritable(key=state.selectedDate){const emp=myEmployeeRecord();return personnelMutationReady()&&!!key&&state.view==='mine'&&!!emp&&employeeOperationalOn(emp,key);}
@@ -6116,6 +6121,9 @@ async function loadEmployees(){
   else{
     // 직원 목록 자체가 실패하면 이전의 '정상' 플래그를 그대로 남겨 이후 월 이동이 성공 동기화로 오인하지 않게 한다.
     state.personnelBackendReady=null;state.holidayWorkEligibilityReady=null;
+    // 최신 인사정보가 확인될 때까지 열린 초과근무 편집창도 즉시 잠근다.
+    // 값/expected CAS 기준은 재렌더하지 않고 그대로 보존한다.
+    syncOpenDetailPermissionsPreservingDraft();
     try{
       data=await rpcPreferPersonnelChain(['list_employees_personnel_v2','list_employees_personnel_v1'],{p_token:token},{timeoutMs:READONLY_RPC_TIMEOUT_MS});
       data=strictEmployeePersonnelRpcRows(data,actor);
@@ -6176,6 +6184,9 @@ async function loadEmployees(){
   const attendanceTargetDate=attendanceFormOpen?($('startDate')?.value||todayKey()):todayKey();
   const attendanceTargetEmployeeId=attendanceFormOpen?attendanceFormTargetEmployeeId():state.me?.employee_id;
   populateTargetEmployees(attendanceTargetDate,attendanceTargetEmployeeId);
+  // 서버 인사 재조회 완료 직후 버튼의 이전 '조회 중' 상태도 해제한다.
+  // 성공 여부/권한 상태에 따라 저장 가능 여부만 재평가한다.
+  syncOpenDetailPermissionsPreservingDraft();
   return personnelOk!==false&&eligibilityOk!==false;
 }
 async function loadEmployeesBestEffortForAccountSync(){

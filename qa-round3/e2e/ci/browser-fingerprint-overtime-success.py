@@ -411,6 +411,78 @@ def main():
                     print("OVERTIME_INFLIGHT_REALTIME_DRAFT_PRESERVATION_SCOPED_PASS",flush=True)
                     return
                 adjustment.click()
+                if "--readiness-ui-probe" in sys.argv:
+                    check(page.locator("#overtimeEarlyTime").text_content().strip()=="20분"
+                          and page.evaluate("detailDirtyFlags().overtime===true"),
+                          "dirty 20-minute overtime draft ready for in-flight read UI guard")
+                    # Real local PG read completes, but hold the response before
+                    # JS can mark overtime metadata fresh. Controls must lock now.
+                    page.evaluate("""()=>{
+                      window.__qaPriorRpc=rpc;
+                      window.__qaOtHeld=false;
+                      rpc=async (...args)=>{
+                        if(args[0]!=='list_overtime_entries')return window.__qaPriorRpc(...args);
+                        const rows=await window.__qaPriorRpc(...args);
+                        window.__qaOtHeld=true;
+                        await new Promise(resolve=>window.__qaReleaseOtRead=resolve);
+                        return rows;
+                      };
+                      const b=monthBounds(state.year,state.month);
+                      window.__qaOtReadTask=loadOvertimeData(b.from,b.to);
+                    }""")
+                    page.wait_for_function("()=>window.__qaOtHeld===true",timeout=12000)
+                    check(page.evaluate("state.overtimeBackendReady===null") and
+                          (not page.locator("#saveOvertimeBtn").is_visible() or
+                           page.locator("#saveOvertimeBtn").is_disabled()) and
+                          page.locator("#overtimeEarlyTime").text_content().strip()=="20분" and
+                          page.evaluate("detailDirtyFlags().overtime===true"),
+                          "in-flight overtime metadata read promptly locks save without losing draft")
+                    page.evaluate("""()=>{
+                      const release=window.__qaReleaseOtRead;
+                      rpc=window.__qaPriorRpc;
+                      if(release)release();
+                    }""")
+                    check(page.evaluate("async()=>await window.__qaOtReadTask") is True and
+                          page.evaluate("state.overtimeBackendReady===true") and
+                          page.locator("#saveOvertimeBtn").is_enabled() and
+                          page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
+                          "completed authoritative overtime read unlocks dirty detail without rerender")
+                    # A personnel refresh also changes readiness before any HTTP
+                    # response arrives. Use the app's real loadEmployees path.
+                    page.evaluate("""()=>{
+                      window.__qaPriorPersonnelChain=rpcPreferPersonnelChain;
+                      window.__qaPersonnelHeld=false;
+                      rpcPreferPersonnelChain=async (...args)=>{
+                        const rows=await window.__qaPriorPersonnelChain(...args);
+                        window.__qaPersonnelHeld=true;
+                        await new Promise(resolve=>window.__qaReleasePersonnelRead=resolve);
+                        return rows;
+                      };
+                      window.__qaPersonnelTask=loadEmployees();
+                    }""")
+                    page.wait_for_function("()=>window.__qaPersonnelHeld===true",timeout=12000)
+                    check(page.evaluate("state.personnelBackendReady===null") and
+                          (not page.locator("#saveOvertimeBtn").is_visible() or
+                           page.locator("#saveOvertimeBtn").is_disabled()) and
+                          page.locator("#overtimeEarlyTime").text_content().strip()=="20분" and
+                          page.evaluate("detailDirtyFlags().overtime===true"),
+                          "in-flight personnel read promptly locks save while preserving dirty overtime")
+                    page.evaluate("""()=>{
+                      const release=window.__qaReleasePersonnelRead;
+                      rpcPreferPersonnelChain=window.__qaPriorPersonnelChain;
+                      if(release)release();
+                    }""")
+                    check(page.evaluate("async()=>await window.__qaPersonnelTask") is True and
+                          page.evaluate("state.personnelBackendReady===true") and
+                          page.locator("#saveOvertimeBtn").is_enabled() and
+                          page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
+                          "authoritative personnel read completion unlocks save with original draft intact")
+                    check(page.evaluate("detailDirtyFlags().overtime===true") and
+                          len(OVERTIME_HITS)==1 and
+                          br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==10,
+                          "UI-only loading locks issue zero writes and keep original 10-minute PG baseline")
+                    print("OVERTIME_READINESS_UI_LOCK_SYNTHETIC_PG_PASS",flush=True)
+                    return
                 if "--draft-refresh-probe" in sys.argv:
                     check(page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
                           "synthetic 20-minute unsaved draft exists before forced Realtime read")
