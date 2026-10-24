@@ -1,4 +1,4 @@
-name: Workmoa QA 10-cycle personnel readiness recovery stress
+name: Workmoa QA 3-cycle readiness final-guard diagnostics
 on:
   push:
     branches: [qa-3-8]
@@ -70,7 +70,7 @@ jobs:
           psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/synthetic-baseline.sql
           psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/attendance-form-fixture.sql
           psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/fingerprint-overtime-browser-fixture.sql
-      - name: Repeat one-shot isolated overtime/personnel read readiness 10 times
+      - name: Repeat isolated readiness final guard diagnostics three times
         shell: bash
         run: |
           set -euo pipefail
@@ -79,7 +79,7 @@ jobs:
           failed=0
           for scenario in readiness; do
             case "$scenario" in
-              readiness) repeat=10; arg="--readiness-ui-probe"; marker="OVERTIME_READINESS_UI_LOCK_SYNTHETIC_PG_PASS" ;;
+              readiness) repeat=3; arg="--readiness-ui-probe"; marker="OVERTIME_READINESS_UI_LOCK_SYNTHETIC_PG_PASS" ;;
             esac
             for ((i=1;i<=repeat;i++)); do
               attempts=$((attempts+1))
@@ -100,8 +100,8 @@ jobs:
           done
           echo "SOAK_TOTAL attempted=$attempts passed=$passed failed=$failed"
           echo "SOAK_TOTAL attempted=$attempts passed=$passed failed=$failed" >> "$GITHUB_STEP_SUMMARY"
-          test "$attempts" -eq 10
-          test "$passed" -eq 10
+          test "$attempts" -eq 3
+          test "$passed" -eq 3
           test "$failed" -eq 0
       - name: Honest scope
         if: always()

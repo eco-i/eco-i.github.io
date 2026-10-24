@@ -517,9 +517,16 @@ def main():
                           and restored["disabled"] is False and restored["hidden"] is False
                           and restored["draft"]==20 and restored["dirty"] is True,
                           "authoritative personnel read completion unlocks save with original draft intact")
-                    check(page.evaluate("detailDirtyFlags().overtime===true") and
-                          len(OVERTIME_HITS)==1 and
-                          br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==10,
+                    final_pg_minutes=br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))
+                    final_dirty=page.evaluate("detailDirtyFlags().overtime===true")
+                    print("QA_READINESS_FINAL_GUARD_DIAG="+repr({
+                      "dirty":final_dirty,"overtimeWrites":OVERTIME_HITS[:],
+                      "pgMinutes":final_pg_minutes,
+                      "personnelResult":restored["completed"],
+                      "backend":restored["backend"],
+                      "draft":restored["draft"]
+                    }),flush=True)
+                    check(final_dirty and len(OVERTIME_HITS)==1 and final_pg_minutes==10,
                           "UI-only loading locks issue zero writes and keep original 10-minute PG baseline")
                     print("OVERTIME_READINESS_UI_LOCK_SYNTHETIC_PG_PASS",flush=True)
                     return
