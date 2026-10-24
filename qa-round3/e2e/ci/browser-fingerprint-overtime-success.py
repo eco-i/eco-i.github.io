@@ -449,16 +449,32 @@ def main():
                           "completed authoritative overtime read unlocks dirty detail without rerender")
                     # A personnel refresh also changes readiness before any HTTP
                     # response arrives. Use the app's real loadEmployees path.
+                    # One-shot read interception prevents later background requests
+                    # from overwriting the release promise (false deadlock).
+                    page.wait_for_function("()=>!state.refreshing && !refreshPendingOwner",timeout=10000)
                     page.evaluate("""()=>{
+                      if(realtimeRefreshTimer){clearTimeout(realtimeRefreshTimer);realtimeRefreshTimer=null;}
+                      window.__qaPriorRefresh=refresh;
+                      refresh=async()=>false;
                       window.__qaPriorPersonnelChain=rpcPreferPersonnelChain;
                       window.__qaPersonnelHeld=false;
+                      window.__qaPersonnelIntercepted=false;
+                      window.__qaPersonnelDone=false;
+                      window.__qaPersonnelResult=null;
                       rpcPreferPersonnelChain=async (...args)=>{
+                        if(window.__qaPersonnelIntercepted)return window.__qaPriorPersonnelChain(...args);
+                        window.__qaPersonnelIntercepted=true;
                         const rows=await window.__qaPriorPersonnelChain(...args);
                         window.__qaPersonnelHeld=true;
                         await new Promise(resolve=>window.__qaReleasePersonnelRead=resolve);
                         return rows;
                       };
-                      window.__qaPersonnelTask=loadEmployees();
+                      window.__qaPersonnelTask=loadEmployees().then(result=>{
+                        window.__qaPersonnelResult=result;window.__qaPersonnelDone=true;return result;
+                      },error=>{
+                        window.__qaPersonnelError=String(error?.name||'error');
+                        window.__qaPersonnelDone=true;return false;
+                      });
                     }""")
                     page.wait_for_function("()=>window.__qaPersonnelHeld===true",timeout=12000)
                     check(page.evaluate("state.personnelBackendReady===null") and
@@ -472,10 +488,34 @@ def main():
                       rpcPreferPersonnelChain=window.__qaPriorPersonnelChain;
                       if(release)release();
                     }""")
-                    check(page.evaluate("async()=>await window.__qaPersonnelTask") is True and
-                          page.evaluate("state.personnelBackendReady===true") and
-                          page.locator("#saveOvertimeBtn").is_enabled() and
-                          page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
+                    try:
+                        page.wait_for_function("()=>window.__qaPersonnelDone===true",timeout=10000)
+                    except Exception:
+                        print("QA_PERSONNEL_HOLD_UNFINISHED="+repr(page.evaluate("""()=>({
+                          pending:window.__qaPersonnelDone,refreshing:state.refreshing,
+                          refreshOwner:!!refreshPendingOwner,personnelLoadSeq,
+                          backend:state.personnelBackendReady,
+                          restoreReady:pageLifecycleWriteFreshnessReady()
+                        })""")),flush=True)
+                        raise
+                    restored=page.evaluate("""()=>({
+                       completed:window.__qaPersonnelResult,
+                       error:window.__qaPersonnelError||'',
+                       backend:state.personnelBackendReady,
+                       overtimeBackend:state.overtimeBackendReady,
+                       personnelReady:personnelMutationReady(),
+                       fresh:pageLifecycleWriteFreshnessReady(),
+                       disabled:document.getElementById('saveOvertimeBtn').disabled,
+                       hidden:document.getElementById('saveOvertimeBtn').classList.contains('hidden'),
+                       draft:overtimeDetailMinutes.early,dirty:detailDirtyFlags().overtime,
+                       seq:personnelLoadSeq
+                    })""")
+                    page.evaluate("refresh=window.__qaPriorRefresh")
+                    if restored["backend"] is not True or restored["disabled"] or restored["hidden"] or restored["draft"]!=20:
+                        print("QA_PERSONNEL_RESTORATION_DIAG="+repr(restored),flush=True)
+                    check(restored["backend"] is True and restored["personnelReady"] is True
+                          and restored["disabled"] is False and restored["hidden"] is False
+                          and restored["draft"]==20 and restored["dirty"] is True,
                           "authoritative personnel read completion unlocks save with original draft intact")
                     check(page.evaluate("detailDirtyFlags().overtime===true") and
                           len(OVERTIME_HITS)==1 and
