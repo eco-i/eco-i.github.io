@@ -331,9 +331,37 @@ def main():
                 adjustment.click()
                 check(page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
                       "existing 10-minute plan edited through actual +10 control")
-                with page.expect_response(lambda x:urlsplit(x.url).path.endswith("/rest/v1/rpc/save_my_overtime_day_v2"),timeout=15000) as resp:
-                    page.locator("#saveOvertimeBtn").click()
-                check(resp.value.status==200,"actual overtime modification HTTP success")
+                # Diagnose if the second Save stalls before or after its preflight.
+                preflight_before=sum(x=="list_overtime_entries" for x in br.HITS)
+                writes_before=len(OVERTIME_HITS)
+                try:
+                    with page.expect_response(lambda x:urlsplit(x.url).path.endswith("/rest/v1/rpc/save_my_overtime_day_v2"),timeout=5000) as resp:
+                        page.locator("#saveOvertimeBtn").click()
+                    check(resp.value.status==200,"actual overtime modification HTTP success")
+                except Exception as e:
+                    page.wait_for_timeout(180)
+                    diagnosis=page.evaluate("""()=>({
+                       date:state.selectedDate,view:state.view,uiMinutes:overtimeDetailMinutes.early,
+                       backendReady:state.overtimeBackendReady,personnelReady:personnelMutationReady(),
+                       pending:overtimeDaySavePending,readOnly:accountReadOnly(),
+                       writeFresh:pageLifecycleWriteFreshnessReady(),
+                       refreshing:state.refreshing,refreshOwner:!!refreshPendingOwner,
+                       buttonDisabled:document.getElementById('saveOvertimeBtn')?.disabled,
+                       buttonHidden:document.getElementById('saveOvertimeBtn')?.classList.contains('hidden'),
+                       detailError:document.getElementById('overtimeDetailError')?.textContent,
+                       detailStatus:document.getElementById('overtimeDetailStatus')?.textContent,
+                       baseline:detailRecordBaseline.overtime,
+                       current:overtimeDaySourceSnapshot(state.selectedDate)
+                    })""")
+                    print("QA_ONLY_SECOND_OVERTIME_WRITE_DIAG="+repr({
+                       "exception":type(e).__name__,
+                       "preflight_delta":sum(x=="list_overtime_entries" for x in br.HITS)-preflight_before,
+                       "write_delta":len(OVERTIME_HITS)-writes_before,
+                       "recent_methods":br.HITS[-12:],
+                       "ui":diagnosis,
+                       "js_errors":js_errors[-3:],
+                    }),flush=True)
+                    raise
                 page.wait_for_function("""()=>!overtimeDaySavePending &&
                   state.overtimeEntries.some(r=>r.work_date==='2027-05-13' && r.minutes===20)""",
                   timeout=20000)
