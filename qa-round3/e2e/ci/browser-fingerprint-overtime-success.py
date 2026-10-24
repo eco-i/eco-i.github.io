@@ -302,6 +302,12 @@ def main():
                 # Supabase requests or browser exceptions are permitted.
                 check(not js_errors and not any(".supabase.co" in x for x in external),
                       "failure recovery generated no JS exceptions or live Supabase access")
+                if "--fingerprint-only" in sys.argv:
+                    check(len(PHOTO_HITS)==2 and not js_errors and
+                          not any(".supabase.co" in u for u in external),
+                          "fingerprint-only fixture sent exactly two intended photo saves, no live service calls")
+                    print("FINGERPRINT_READ_RECOVERY_ISOLATED_CHROMIUM_POSTGRES_PASS",flush=True)
+                    return
                 page.get_by_role("button",name="날짜 상세 닫기").click()
                 page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=6000)
                 open_date(page,OT_DATE,2027,4)
