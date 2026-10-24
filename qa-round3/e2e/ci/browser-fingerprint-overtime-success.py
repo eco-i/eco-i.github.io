@@ -218,6 +218,71 @@ def main():
                       "synthetic picker pagehide/pageshow/BFCache return does not lose or double-send photo change")
                 check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨",
                       "photo replacement persists and UI unlocks after simulated native picker return")
+                # QA-only HTTP 503 injection: real full-page Javascript must distinguish
+                # a fingerprint metadata read failure from an infinite spinner.
+                # This route never reaches either synthetic PostgreSQL or any production URL.
+                def injected_read_failure(route):
+                    route.fulfill(status=503,content_type="application/json",
+                                  body='{"code":"QA_READ_503","message":"QA_SYNTHETIC_FAILURE_DO_NOT_SHOW"}')
+                successful_photo_writes=len(PHOTO_HITS)
+                page.route("**/rest/v1/rpc/list_my_fingerprint_records",injected_read_failure)
+                try:
+                    failed=page.evaluate("""async()=>{
+                      const bounds=monthBounds(state.year,state.month);
+                      return await loadFingerprintRecords(bounds.from,bounds.to);
+                    }""")
+                    check(failed is False and page.evaluate("state.fingerprintBackendReady===false"),
+                          "synthetic 503 fingerprint metadata read unlocks loading into explicit failure state")
+                    current_message=page.locator("#fingerprintDetailError").text_content()
+                    check("시간 초과 또는 네트워크 오류" in current_message and "QA_SYNTHETIC" not in current_message,
+                          "real fingerprint detail shows safe categorized read failure, not secret HTTP body")
+                    check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨"
+                          and not upload.is_enabled() and len(PHOTO_HITS)==successful_photo_writes,
+                          "failed metadata refresh preserves previous photo and blocks unsafe write")
+                finally:
+                    page.unroute("**/rest/v1/rpc/list_my_fingerprint_records",injected_read_failure)
+                check(page.evaluate("""async()=>{
+                  const b=monthBounds(state.year,state.month);
+                  return await loadFingerprintRecords(b.from,b.to);
+                }""") is True and page.evaluate("state.fingerprintBackendReady===true"),
+                      "successful subsequent real HTTP/PG fingerprint metadata read restores ready state")
+                check(upload.is_enabled() and page.locator("#fingerprintDetailError").text_content().strip()=="",
+                      "successful metadata read clears error and safely re-enables upload")
+
+                # Simulate interrupted bootstrap: a preceding month attendance RPC
+                # fails BEFORE the fingerprint read starts. It must show a failure
+                # state rather than keep the user waiting on a nonexistent request.
+                page.route("**/rest/v1/rpc/list_attendance_with_annual_leave",injected_read_failure)
+                try:
+                    page.evaluate("state.fingerprintBackendReady=null")
+                    check(page.evaluate("async()=>await loadMonthData(true)") is False,
+                          "synthetic upstream HTTP 503 prevents starting downstream fingerprint fetch")
+                    check(page.evaluate("state.fingerprintBackendReady===false")
+                          and "지문 기록 조회를 시작하지 못했습니다" in page.locator("#fingerprintDetailError").text_content(),
+                          "orphaned loading converts to truthful prerequisite failure")
+                    check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨"
+                          and not upload.is_enabled() and len(PHOTO_HITS)==successful_photo_writes,
+                          "failed prerequisite never loses persisted fingerprint or sends unintended write")
+                finally:
+                    page.unroute("**/rest/v1/rpc/list_attendance_with_annual_leave",injected_read_failure)
+                check(page.evaluate("async()=>await loadMonthData(true)") is True
+                      and page.evaluate("state.fingerprintBackendReady===true"),
+                      "full normal HTTP/PG read restores screen after preceding dependency failure")
+                check(upload.is_enabled() and len(PHOTO_HITS)==successful_photo_writes,
+                      "prerequisite recovery re-enables upload without duplicate photo mutation")
+
+                # The fingerprint itself can be current while another screen is
+                # still refreshing. Display its distinct reason and KEEP the
+                # global write lock instead of pretending the photo is still loading.
+                page.evaluate("pageLifecycleFreshnessPending=true;renderFingerprintDetail(state.selectedDate)")
+                check("다른 최신 데이터 동기화" in page.locator("#fingerprintDetailError").text_content()
+                      and not upload.is_enabled(),
+                      "unrelated unfinished sync has distinct status and still blocks writes")
+                page.evaluate("pageLifecycleFreshnessPending=false;renderFingerprintDetail(state.selectedDate)")
+                check(upload.is_enabled() and page.locator("#fingerprintDetailError").text_content().strip()=="",
+                      "global freshness completion clears status and restores upload")
+                check(not js_errors and not external,
+                      "failure recovery generated no browser exceptions or external requests")
                 page.get_by_role("button",name="날짜 상세 닫기").click()
                 page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=6000)
                 open_date(page,OT_DATE,2027,4)
