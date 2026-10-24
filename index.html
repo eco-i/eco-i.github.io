@@ -6016,7 +6016,10 @@ function applyAccountModeUI({preserveOpenDetail=false}={}){
   if($('employeeManageBackdrop')?.classList.contains('open')&&adminActive) renderEmployeeManager();
   if($('companyEventManageBackdrop')?.classList.contains('open')) syncCompanyEventManagerPermissionsPreservingDraft();
   if($('formBackdrop')?.classList.contains('open')) syncAttendanceFormPermissionsPreservingDraft();
-  if(!preserveOpenDetail&&$('detailBackdrop')?.classList.contains('open')&&state.selectedDate){renderDetail(state.selectedDate);captureDetailDraftBaseline('all');}else if(preserveOpenDetail){syncOpenDetailPermissionsPreservingDraft();}
+  // During an authoritative refresh, never recapture a visible unsaved draft as the new baseline.
+  // Even if a caller computed preserveOpenDetail before another async read completed, protect the current draft.
+  const keepOpenDetailDraft=preserveOpenDetail||(!!refreshPendingOwner&&detailHasUnsavedChanges());
+  if(!keepOpenDetailDraft&&$('detailBackdrop')?.classList.contains('open')&&state.selectedDate){renderDetail(state.selectedDate);captureDetailDraftBaseline('all');}else if(keepOpenDetailDraft){syncOpenDetailPermissionsPreservingDraft();}
   if($('attendanceListBackdrop')?.classList.contains('open')) renderAttendanceList();
   if($('allAttendanceListBackdrop')?.classList.contains('open')) renderAllAttendanceList();
   if($('memoListBackdrop')?.classList.contains('open')) renderMemoList();

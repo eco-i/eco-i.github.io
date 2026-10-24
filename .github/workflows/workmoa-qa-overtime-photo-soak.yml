@@ -4,6 +4,7 @@ on:
     branches: [qa-3-8]
     paths:
       - '.github/workflows/workmoa-qa-overtime-photo-soak.yml'
+      - 'index.html'
   workflow_dispatch:
 permissions:
   contents: read
