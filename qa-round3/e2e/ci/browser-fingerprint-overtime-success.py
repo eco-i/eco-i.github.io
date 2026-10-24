@@ -364,7 +364,21 @@ def main():
                        "ui":diagnosis,
                        "js_errors":js_errors[-3:],
                     }),flush=True)
-                    raise
+                    # User-initiated retry is allowed only after verifying
+                    # that the first aborted click did not commit any PG write.
+                    no_write=(len(OVERTIME_HITS)==writes_before and
+                              br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==10)
+                    cancelled=no_write and "저장을 중단" in (diagnosis.get("detailError") or "")
+                    if not cancelled:
+                        raise
+                    page.wait_for_function("""()=>personnelMutationReady() &&
+                       pageLifecycleWriteFreshnessReady() && state.overtimeBackendReady===true &&
+                       !state.refreshing && !refreshPendingOwner && !overtimeDaySavePending""",
+                       timeout=12000)
+                    check(no_write,"cancelled preflight never writes before explicit user retry")
+                    with page.expect_response(lambda x:urlsplit(x.url).path.endswith("/rest/v1/rpc/save_my_overtime_day_v2"),timeout=15000) as retry_resp:
+                        page.locator("#saveOvertimeBtn").click()
+                    check(retry_resp.value.status==200,"explicit user retry after fresh preflight commits once")
                 page.wait_for_function("""()=>!overtimeDaySavePending &&
                   state.overtimeEntries.some(r=>r.work_date==='2027-05-13' && r.minutes===20)""",
                   timeout=20000)
@@ -411,6 +425,15 @@ def main():
                 page.locator("#overtimeListBackdrop.open").wait_for(timeout=12000)
                 list_edit=page.locator('#overtimeListBody button[data-overtime-list-edit]')
                 list_edit.first.wait_for(state="visible",timeout=12000)
+                # Natural Realtime read can briefly disable Edit; do not click
+                # until the UI genuinely permits editing. No forced enable.
+                try:
+                    page.wait_for_function("""()=>[...document.querySelectorAll(
+                      '#overtimeListBody button[data-overtime-list-edit]')].length===1 &&
+                      !document.querySelector('#overtimeListBody button[data-overtime-list-edit]').disabled""",
+                      timeout=5000)
+                except Exception:
+                    pass
                 if list_edit.count()!=1 or not list_edit.first.is_enabled():
                     list_diag=page.evaluate("""()=>({
                       date:state.selectedDate,view:state.view,year:state.year,month:state.month,
@@ -512,7 +535,21 @@ def main():
                       "ui":check_state,
                       "jsErrors":js_errors[-3:]
                     }),flush=True)
-                    raise
+                    safe_cancel=(len(OVERTIME_HITS)==before_stale_mutation_count and
+                                 br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==50 and
+                                 "저장을 중단" in (check_state.get("message") or ""))
+                    if not safe_cancel:
+                        raise
+                    page.wait_for_function("""()=>personnelMutationReady() &&
+                       pageLifecycleWriteFreshnessReady() && state.overtimeBackendReady===true &&
+                       !state.refreshing && !refreshPendingOwner && !overtimeDaySavePending""",
+                       timeout=12000)
+                    page.locator("#saveOvertimeBtn").click()
+                    page.wait_for_function("""()=>!overtimeDaySavePending &&
+                       document.getElementById('overtimeDetailError')?.textContent.includes('다른 창')""",
+                       timeout=12000)
+                    check(len(OVERTIME_HITS)==before_stale_mutation_count,
+                          "cancelled stale preflight followed by explicit user retry rejects conflict")
                 check(len(OVERTIME_HITS)==before_stale_mutation_count,
                       "stale overtime draft rejected before outgoing protected save RPC")
                 check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==50,

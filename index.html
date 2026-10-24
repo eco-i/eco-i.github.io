@@ -4727,6 +4727,7 @@ async function saveOvertimeDay(){
   if(configured()&&state.overtimeBackendReady!==true){$('overtimeDetailError').textContent=state.overtimeBackendReady===null?'초과근무 정보를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.':'초과근무 서버 연결을 확인한 뒤 다시 시도해 주세요.';return;}
   const actor=Number(state.me.employee_id),token=state.sessionToken,contextEpoch=sessionContextEpoch,pageLifecycleEpoch=fingerprintPageLifecycleEpoch,pageStillCurrent=()=>pageLifecycleEpoch===fingerprintPageLifecycleEpoch&&pageLifecycleWriteFreshnessReady()&&!document.hidden,stillCurrent=()=>sharedSessionContextCurrent(actor,token,{epoch:contextEpoch}),actionCurrent=()=>deferredSharedSessionContextCurrent(actor,token,{epoch:contextEpoch})&&!accountReadOnly(),e=overtimeDetailMinutes.early,l=overtimeDetailMinutes.late,ed=$('overtimeEarlyDone').checked,ld=$('overtimeLateDone').checked;
   const expected=detailRecordBaseline.key===key?detailRecordBaseline.overtime:overtimeDaySourceSnapshot(key);$('overtimeDetailError').textContent='';
+  let overtimeReadinessAborted=false;
   overtimeDaySavePending=true;if($('saveOvertimeBtn'))$('saveOvertimeBtn').disabled=true;syncOpenDetailPermissionsPreservingDraft();showLoading(true);
   try{
     const latestRows=await fetchCurrentOvertimeDay(actor,key,token);
@@ -4734,6 +4735,7 @@ async function saveOvertimeDay(){
     // 저장 버튼을 누른 뒤 최신 행을 읽는 도중 Realtime/모바일 복귀가 인사·근무상태를
     // 갱신할 수 있다. 시작 시점 ready만 신뢰해 쓰지 않고, 직전 상태를 다시 확인한다.
     if(!pageStillCurrent()||!personnelMutationReady()||(configured()&&state.overtimeBackendReady!==true)){
+      overtimeReadinessAborted=true;
       if(state.selectedDate===key&&state.view==='mine'&&$('detailBackdrop')?.classList.contains('open')&&!document.hidden){
         $('overtimeDetailError').textContent='초과근무 저장 직전 최신 인사·근무상태 확인이 필요해 저장을 중단했습니다. 작성 중 내용은 보존했습니다. 동기화 후 다시 시도해 주세요.';
       }
@@ -4748,7 +4750,7 @@ async function saveOvertimeDay(){
     if(!actionCurrent())return;if(finishDeferredSharedSave(()=>{detailDraftBaseline.overtime=detailOvertimeSnapshot();updateDetailDirtyIndicators();}))return;if(!stillCurrent())return;const {from,to}=monthBounds(state.year,state.month);const overtimeSynced=await runPostMutationResync(()=>loadOvertimeData(from,to),'초과근무 계획 저장');if(!stillCurrent())return;renderCalendar();
     if(state.selectedDate===key&&$('detailBackdrop')?.classList.contains('open')){if(overtimeSynced){renderOvertimeDetail(key);captureDetailDraftBaseline('overtime');}else{detailDraftBaseline.overtime=detailOvertimeSnapshot();updateDetailDirtyIndicators();}}showPostMutationResult('✓ 초과근무 계획을 저장했습니다.','초과근무 계획 저장은 완료됐지만 최신 화면을 다시 불러오지 못했습니다. 새로고침 후 확인해 주세요.',overtimeSynced);
   }catch(err){if(actionCurrent()){const raw=String(err?.message||'');$('overtimeDetailError').textContent=raw.includes('STALE_OVERTIME_DAY')?'다른 창에서 이 날짜의 초과근무가 변경되었습니다. 최신 내용을 다시 불러온 뒤 수정해 주세요.':(isMissingRpcEndpointError(err)?'초과근무 저장 기능을 서버에서 찾을 수 없습니다. 관리자에게 알려 주세요.':userSafeServiceError(err,'최신 초과근무 확인 또는 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.'));}}
-  finally{if(sessionContextCurrent(actor,token,{epoch:contextEpoch})){const saveError=$('overtimeDetailError')?.textContent||'';overtimeDaySavePending=false;if(actionCurrent()){syncOpenDetailPermissionsPreservingDraft();if(saveError&&!$('overtimeDetailError')?.textContent)$('overtimeDetailError').textContent=saveError;if($('saveOvertimeBtn'))$('saveOvertimeBtn').disabled=accountReadOnly()||!personnelMutationReady()||state.overtimeBackendReady!==true;}showLoading(false);}}
+  finally{if(sessionContextCurrent(actor,token,{epoch:contextEpoch})){const saveError=$('overtimeDetailError')?.textContent||'';overtimeDaySavePending=false;if(actionCurrent()){syncOpenDetailPermissionsPreservingDraft();if(saveError&&(overtimeReadinessAborted||!$('overtimeDetailError')?.textContent))$('overtimeDetailError').textContent=saveError;if($('saveOvertimeBtn'))$('saveOvertimeBtn').disabled=accountReadOnly()||!personnelMutationReady()||state.overtimeBackendReady!==true;}showLoading(false);}}
 }
 function overtimeEmployeeOperationalInMonth(emp,year,month){for(let d=1,dmax=daysInMonth(year,month);d<=dmax;d++){if(employeeOperationalOn(emp,dateKey(year,month,d)))return true;}return false;}
 function overtimeEmployeeMonthCategoryLabel(emp,year=state.year,month=state.month){const cats=new Set();for(let d=1,dmax=daysInMonth(year,month);d<=dmax;d++){const key=dateKey(year,month,d);if(employeeOperationalOn(emp,key))cats.add(employeeCategoryOn(emp,key)||emp.category);}if(cats.size===1)return [...cats][0];if(cats.size>1)return '근무형태 변경';return emp?.category||'';}
