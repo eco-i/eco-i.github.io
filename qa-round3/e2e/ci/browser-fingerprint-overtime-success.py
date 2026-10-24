@@ -325,9 +325,30 @@ def main():
                 adjustment.click()
                 check(page.locator("#overtimeEarlyTime").text_content().strip()=="10분",
                       "actual +10 overtime control updates draft")
-                with page.expect_response(lambda x:urlsplit(x.url).path.endswith("/rest/v1/rpc/save_my_overtime_day_v2"),timeout=15000) as resp:
-                    page.locator("#saveOvertimeBtn").click()
-                check(resp.value.status==200,"real overtime Save HTTP success")
+                # If a concurrently running authoritative read cancels the first
+                # click, retry only as a *second explicit user action*, after PG and
+                # mutation logs prove no first write occurred. Never blindly retry.
+                first_write_attempt=len(OVERTIME_HITS)
+                try:
+                    with page.expect_response(lambda x:urlsplit(x.url).path.endswith("/rest/v1/rpc/save_my_overtime_day_v2"),timeout=6000) as resp:
+                        page.locator("#saveOvertimeBtn").click()
+                    check(resp.value.status==200,"real overtime Save HTTP success")
+                except Exception as e:
+                    page.wait_for_function("()=>!overtimeDaySavePending",timeout=12000)
+                    feedback=page.locator("#overtimeDetailError").text_content()
+                    no_write=(len(OVERTIME_HITS)==first_write_attempt and
+                              br.value("SELECT count(*) FROM public.qa_browser_overtime WHERE work_date=%s::date",(OT_DATE,))==0)
+                    if not (no_write and "저장을 중단" in feedback and
+                            page.locator("#overtimeEarlyTime").text_content().strip()=="10분"):
+                        raise
+                    check(no_write,"cancelled first click preserved 10-minute draft and sent zero write")
+                    page.wait_for_function("""()=>personnelMutationReady() &&
+                      state.overtimeBackendReady===true && pageLifecycleWriteFreshnessReady() &&
+                      !state.refreshing && !refreshPendingOwner && !overtimeDaySavePending &&
+                      !document.getElementById('saveOvertimeBtn').disabled""",timeout=15000)
+                    with page.expect_response(lambda x:urlsplit(x.url).path.endswith("/rest/v1/rpc/save_my_overtime_day_v2"),timeout=15000) as retry:
+                        page.locator("#saveOvertimeBtn").click()
+                    check(retry.value.status==200,"explicit user retry after current status succeeded once")
                 page.wait_for_function("""()=>!overtimeDaySavePending &&
                   state.overtimeEntries.some(r=>r.work_date==='2027-05-13' && r.minutes===10)""",
                   timeout=20000)
