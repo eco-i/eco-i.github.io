@@ -33,7 +33,7 @@ test('actual metadata catch displays categorized error only on current opened da
  assert.match(fn,/if\(!stillCurrent\(\)\)return false;/);
  assert.match(fn,/state\.fingerprintBackendReady=false/);
  assert.match(fn,/fingerprintReadFailureText\(e\)/);
- assert.match(fn,/state\.view==='mine'/);
+ assert.match(fn,/state\.view!=='mine'/);
  assert.ok(!fn.includes('textContent=String(e'));
 });
 test('diagnostics never weaken actual photo write CAS',()=>{
@@ -49,7 +49,7 @@ test('fatal month prerequisite failure clears orphaned fingerprint loading witho
  const label={textContent:''};
  let renderCount=0;
  const scenario={
-  monthDataLoadSeq:0,fingerprintLoadSeq:8,fingerprintReadFailureMessage:'',attendanceMonthContextKey:'',
+  sessionContextEpoch:0,monthDataLoadSeq:0,fingerprintLoadSeq:8,fingerprintReadFailureMessage:'',attendanceMonthContextKey:'',
   state:{me:{employee_id:2},sessionToken:'synthetic',year:2026,month:10,selectedDate:'2026-10-21',
    fingerprintBackendReady:null,view:'mine',refreshing:false,attendance:[]},
   sharedSessionContextCurrent:()=>true,
@@ -75,7 +75,7 @@ test('do not clobber a concurrent or previously successful fingerprint read on p
  for(const priorReady of [null,true]){
   const status={textContent:''};
   const scenario={
-   monthDataLoadSeq:0,fingerprintLoadSeq:8,fingerprintReadFailureMessage:'',attendanceMonthContextKey:'',
+   sessionContextEpoch:0,monthDataLoadSeq:0,fingerprintLoadSeq:8,fingerprintReadFailureMessage:'',attendanceMonthContextKey:'',
    state:{me:{employee_id:2},sessionToken:'synthetic',year:2026,month:10,
     fingerprintBackendReady:priorReady,view:'mine',refreshing:false,attendance:[],selectedDate:null},
    sharedSessionContextCurrent:()=>true,monthBounds:()=>({from:'2026-10-01',to:'2026-10-31'}),
