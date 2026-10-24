@@ -218,6 +218,10 @@ def main():
                       "synthetic picker pagehide/pageshow/BFCache return does not lose or double-send photo change")
                 check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨",
                       "photo replacement persists and UI unlocks after simulated native picker return")
+                # The on-change handler keeps the picker active until its async finally.
+                # Do not inject a new failure while that picker still owns detail rendering.
+                page.wait_for_function("""()=>!fingerprintPickerFlowActive &&
+                  !fingerprintPhotoPending && !state.refreshing && !refreshPendingOwner""",timeout=12000)
                 # QA-only HTTP 503 injection: real full-page Javascript must distinguish
                 # a fingerprint metadata read failure from an infinite spinner.
                 # This route never reaches either synthetic PostgreSQL or any production URL.
@@ -234,6 +238,13 @@ def main():
                     check(failed is False and page.evaluate("state.fingerprintBackendReady===false"),
                           "synthetic 503 fingerprint metadata read unlocks loading into explicit failure state")
                     current_message=page.locator("#fingerprintDetailError").text_content()
+                    if "시간 초과 또는 네트워크 오류" not in current_message:
+                        print("QA_SYNTHETIC_FINGERPRINT_ERROR_UI="+repr({
+                          "message":current_message,
+                          "picker_active":page.evaluate("fingerprintPickerFlowActive"),
+                          "photo_pending":page.evaluate("fingerprintPhotoPending"),
+                          "backend_ready":page.evaluate("state.fingerprintBackendReady")
+                        }),flush=True)
                     check("시간 초과 또는 네트워크 오류" in current_message and "QA_SYNTHETIC" not in current_message,
                           "real fingerprint detail shows safe categorized read failure, not secret HTTP body")
                     check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨"
