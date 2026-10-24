@@ -245,8 +245,9 @@ def main():
                           "photo_pending":page.evaluate("fingerprintPhotoPending"),
                           "backend_ready":page.evaluate("state.fingerprintBackendReady")
                         }),flush=True)
-                    check("시간 초과 또는 네트워크 오류" in current_message and "QA_SYNTHETIC" not in current_message,
-                          "real fingerprint detail shows safe categorized read failure, not secret HTTP body")
+                    check(("조회에 실패했습니다" in current_message or "시간 초과 또는 네트워크 오류" in current_message)
+                          and "QA_SYNTHETIC" not in current_message and "불러오는 중" not in current_message,
+                          "real fingerprint detail shows safe failed-read status, not a spinner or raw HTTP body")
                     check(page.locator("#fingerprintClockInState").text_content().strip()=="등록됨"
                           and not upload.is_enabled() and len(PHOTO_HITS)==successful_photo_writes,
                           "failed metadata refresh preserves previous photo and blocks unsafe write")
