@@ -434,10 +434,37 @@ def main():
                 check(another_tab_minutes==50,
                       "second synthetic tab has newer 50-minute PG record")
                 before_stale_mutation_count=len(OVERTIME_HITS)
+                stale_preflight_before=sum(x=="list_overtime_entries" for x in br.HITS)
                 page.locator("#saveOvertimeBtn").click()
-                page.wait_for_function("""()=>!overtimeDaySavePending
-                   && document.getElementById('overtimeDetailError')?.textContent.includes('다른 창')""",
-                   timeout=14000)
+                try:
+                    page.wait_for_function("""()=>!overtimeDaySavePending
+                       && document.getElementById('overtimeDetailError')?.textContent.includes('다른 창')""",
+                       timeout=6000)
+                except Exception as e:
+                    check_state=page.evaluate("""()=>({
+                      pending:overtimeDaySavePending,
+                      message:document.getElementById('overtimeDetailError')?.textContent,
+                      date:state.selectedDate,view:state.view,
+                      draft:overtimeDetailMinutes.early,
+                      baseline:detailRecordBaseline.overtime,
+                      liveCache:overtimeDaySourceSnapshot(state.selectedDate),
+                      backendReady:state.overtimeBackendReady,
+                      personnelReady:personnelMutationReady(),
+                      writeFresh:pageLifecycleWriteFreshnessReady(),
+                      buttonDisabled:document.getElementById('saveOvertimeBtn')?.disabled,
+                      buttonHidden:document.getElementById('saveOvertimeBtn')?.classList.contains('hidden'),
+                      refreshing:state.refreshing,refreshOwner:!!refreshPendingOwner
+                    })""")
+                    print("QA_ONLY_STALE_OVERTIME_DIAG="+repr({
+                      "errorType":type(e).__name__,
+                      "preflight_delta":sum(x=="list_overtime_entries" for x in br.HITS)-stale_preflight_before,
+                      "write_delta":len(OVERTIME_HITS)-before_stale_mutation_count,
+                      "pg_minutes":br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,)),
+                      "recentMethods":br.HITS[-12:],
+                      "ui":check_state,
+                      "jsErrors":js_errors[-3:]
+                    }),flush=True)
+                    raise
                 check(len(OVERTIME_HITS)==before_stale_mutation_count,
                       "stale overtime draft rejected before outgoing protected save RPC")
                 check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==50,
