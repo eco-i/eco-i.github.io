@@ -538,6 +538,59 @@ def main():
                     }""")
                     check(page.locator("#saveOvertimeBtn").is_enabled() and len(OVERTIME_HITS)==2,
                           "authoritative readiness restored without automatic retry or duplicate save")
+                if "--list-overlap-probe" in sys.argv:
+                    # Overlap two authoritative reads in the browser. The first
+                    # response is held AFTER real disposable-PG fetch, then released
+                    # only after a newer response has rendered. No write or live DB.
+                    page.get_by_role("button",name="날짜 상세 닫기").click()
+                    page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=6000)
+                    page.locator("#overtimeSummaryMain").click()
+                    page.wait_for_function("""()=>overtimeListBackendReady===true &&
+                        !!document.querySelector('#overtimeListBody button[data-overtime-list-edit]')""",
+                        timeout=20000)
+                    check(page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==1,
+                          "list opening authoritatively loaded real synthetic PG row")
+                    pre_read_hit_count=sum(x=="list_overtime_entries" for x in br.HITS)
+                    page.evaluate("""()=>{
+                      window.__qaListOriginalRpc=rpc;
+                      window.__qaListSeen=0;
+                      window.__qaListFirstHeld=false;
+                      window.__qaListReleaseFirst=null;
+                      rpc=async (...args)=>{
+                        if(args[0]!=='list_overtime_entries')return window.__qaListOriginalRpc(...args);
+                        const n=++window.__qaListSeen;
+                        const rows=await window.__qaListOriginalRpc(...args);
+                        if(n===1){
+                          window.__qaListFirstHeld=true;
+                          await new Promise(resolve=>{window.__qaListReleaseFirst=resolve;});
+                        }
+                        return rows;
+                      };
+                      window.__qaOlderList=loadOvertimeList(false);
+                    }""")
+                    page.wait_for_function("()=>window.__qaListFirstHeld===true",timeout=15000)
+                    check(page.evaluate("overtimeListBackendReady===null") and
+                          page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==0,
+                          "pending older read cannot expose editable row from unverified snapshot")
+                    second=page.evaluate("async()=>await loadOvertimeList(false)")
+                    check(second is True and page.evaluate("overtimeListBackendReady===true") and
+                          page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==1,
+                          "newer request completes and safely re-enables Edit while older request is held")
+                    first=page.evaluate("""async()=>{
+                      const finish=window.__qaListReleaseFirst;
+                      if(finish)finish();
+                      return await window.__qaOlderList;
+                    }""")
+                    check(first is False and page.evaluate("overtimeListBackendReady===true") and
+                          page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==1,
+                          "late obsolete read is discarded without relocking loaded latest list")
+                    page.evaluate("rpc=window.__qaListOriginalRpc")
+                    check(sum(x=="list_overtime_entries" for x in br.HITS)-pre_read_hit_count==2 and
+                          OVERTIME_HITS==[10,20] and
+                          br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==20,
+                          "out-of-order list requests are read-only, no overtime duplicate write")
+                    print("OVERTIME_LIST_OUT_OF_ORDER_READS_SYNTHETIC_PG_PASS",flush=True)
+                    return
                 # Separate real user path: month overtime summary -> existing row's
                 # visible "수정" button -> date detail -> update saved record.
                 page.get_by_role("button",name="날짜 상세 닫기").click()
@@ -549,10 +602,12 @@ def main():
                 # Natural Realtime read can briefly disable Edit; do not click
                 # until the UI genuinely permits editing. No forced enable.
                 try:
-                    page.wait_for_function("""()=>[...document.querySelectorAll(
-                      '#overtimeListBody button[data-overtime-list-edit]')].length===1 &&
+                    page.wait_for_function("""()=>overtimeListBackendReady===true &&
+                      !state.refreshing && !refreshPendingOwner &&
+                      [...document.querySelectorAll('#overtimeListBody button[data-overtime-list-edit]')]
+                      .length===1 &&
                       !document.querySelector('#overtimeListBody button[data-overtime-list-edit]').disabled""",
-                      timeout=5000)
+                      timeout=14000)
                 except Exception:
                     pass
                 if list_edit.count()!=1 or not list_edit.first.is_enabled():
