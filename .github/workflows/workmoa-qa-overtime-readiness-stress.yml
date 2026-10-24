@@ -1,4 +1,4 @@
-name: Workmoa QA 3-cycle dirty baseline mutation trace
+name: Workmoa QA corrected 3-cycle dirty baseline stack trace
 on:
   push:
     branches: [qa-3-8]

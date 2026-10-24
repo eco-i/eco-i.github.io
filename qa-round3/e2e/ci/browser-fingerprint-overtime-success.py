@@ -428,7 +428,7 @@ def main():
                           set(next){
                             window.__qaBaselineEvents.push({
                               key:k,from:JSON.stringify(v),to:JSON.stringify(next),
-                              stack:String(new Error().stack).split('\n').slice(1,5)
+                              stack:String(new Error().stack).slice(0,330)
                             });
                             v=next;
                           }
