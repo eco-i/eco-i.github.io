@@ -141,8 +141,11 @@ def main():
             try:
                 context=browser.new_context(locale="ko-KR",service_workers="block")
                 page=context.new_page()
-                external=[];js_errors=[]
+                external=[];js_errors=[];overtime_list_network=[]
                 page.on("pageerror",lambda e:js_errors.append(str(e)[:100]))
+                page.on("request",lambda r:overtime_list_network.append("request") if urlsplit(r.url).path.endswith("/rest/v1/rpc/list_overtime_entries") else None)
+                page.on("response",lambda r:overtime_list_network.append("response:"+str(r.status)) if urlsplit(r.url).path.endswith("/rest/v1/rpc/list_overtime_entries") else None)
+                page.on("requestfailed",lambda r:overtime_list_network.append("failed") if urlsplit(r.url).path.endswith("/rest/v1/rpc/list_overtime_entries") else None)
                 page.on("dialog",lambda d:d.accept())
                 def gate(route):
                     u=urlsplit(route.request.url)
@@ -558,13 +561,31 @@ def main():
                       personnelReady:personnelMutationReady(),accountReadOnly:accountReadOnly(),
                       listBackendReady:overtimeListBackendReady,monthBackendReady:state.overtimeBackendReady,
                       freshness:pageLifecycleWriteFreshnessReady(),refreshing:state.refreshing,
-                      pending:overtimeDaySavePending,buttons:[...document.querySelectorAll(
+                      pending:overtimeDaySavePending,loadSeq:overtimeListLoadSeq,
+                      listContext:overtimeListContextKey,target:overtimeListTargetEmployeeId,
+                      listCount:overtimeListRows.length,monthSeq:monthDataLoadSeq,
+                      refreshOwner:!!refreshPendingOwner,needCatchup:realtimeNeedsCatchup,
+                      buttons:[...document.querySelectorAll(
                         '#overtimeListBody button[data-overtime-list-edit]')].map(el=>({
                           disabled:el.disabled,visible:getComputedStyle(el).display!='none'
                         })),
                       listSummary:document.getElementById('overtimeListBody')?.textContent?.slice(0,180)
                     })""")
-                    print("QA_ONLY_OVERTIME_LIST_EDIT_DIAG="+repr(list_diag),flush=True)
+                    print("QA_ONLY_OVERTIME_LIST_EDIT_DIAG="+repr({
+                       "ui":list_diag,
+                       "network_tail":overtime_list_network[-18:],
+                       "total_list_requests":overtime_list_network.count("request"),
+                       "total_list_responses":sum(x.startswith("response:") for x in overtime_list_network),
+                       "bridge_list_hits":sum(x=="list_overtime_entries" for x in br.HITS),
+                       "jsErrors":js_errors[-2:]
+                    }),flush=True)
+                    page.wait_for_timeout(1200)
+                    print("QA_ONLY_OVERTIME_LIST_LATE_STATE="+repr({
+                        "backend":page.evaluate("overtimeListBackendReady"),
+                        "seq":page.evaluate("overtimeListLoadSeq"),
+                        "editing_buttons":list_edit.count(),
+                        "network_tail":overtime_list_network[-12:]
+                    }),flush=True)
                 check(list_edit.count()==1 and list_edit.first.is_enabled(),
                       "real month overtime list displays enabled existing-row Edit button")
                 list_edit.first.click()
