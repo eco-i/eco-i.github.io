@@ -331,6 +331,61 @@ def main():
                 check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==10,
                       "Save button committed synthetic overtime in PostgreSQL")
                 check(OVERTIME_HITS==[10],"one overtime write, no duplicated mutation")
+                if "--draft-inflight-probe" in sys.argv:
+                    # Deterministic in-flight refresh gate, local test only. Pause
+                    # AFTER the month has reloaded but BEFORE account UI rerenders.
+                    page.evaluate("""()=>{
+                      window.__qaPriorLoadMonthData=loadMonthData;
+                      window.__qaReadHeld=false;
+                      window.__qaInFlightRefreshDone=false;
+                      loadMonthData=async (...args)=>{
+                        const result=await window.__qaPriorLoadMonthData(...args);
+                        window.__qaReadHeld=true;
+                        await new Promise(resolve=>{window.__qaReleaseRefresh=resolve;});
+                        return result;
+                      };
+                      window.__qaInFlightRefresh=refresh('realtime').then(
+                        result=>{window.__qaInFlightRefreshDone=true;return result;},
+                        err=>{window.__qaInFlightRefreshDone=true;throw err;}
+                      );
+                    }""")
+                    page.wait_for_function("()=>window.__qaReadHeld===true",timeout=14000)
+                    check(page.locator("#overtimeEarlyTime").text_content().strip()=="10분",
+                          "pending realtime read has not replaced current 10-minute detail")
+                    adjustment.click()
+                    during=page.evaluate("""()=>({
+                       draft:overtimeDetailMinutes.early,
+                       baseline:detailRecordBaseline.overtime,
+                       dirty:detailDirtyFlags().overtime,
+                       date:state.selectedDate
+                    })""")
+                    check(during["draft"]==20 and during["dirty"] is True,
+                          "user edits a genuine 20-minute draft while refresh awaits final render")
+                    page.evaluate("""()=>{
+                      const release=window.__qaReleaseRefresh;
+                      window.__qaReleaseRefresh=null;
+                      loadMonthData=window.__qaPriorLoadMonthData;
+                      if(release)release();
+                    }""")
+                    page.wait_for_function("()=>window.__qaInFlightRefreshDone && !refreshPendingOwner",timeout=14000)
+                    after=page.evaluate("""()=>({
+                      draft:overtimeDetailMinutes.early,
+                      baseline:detailRecordBaseline.overtime,
+                      dirty:detailDirtyFlags().overtime,
+                      date:state.selectedDate,
+                      backend:state.overtimeBackendReady
+                    })""")
+                    print("QA_INFLIGHT_REALTIME_DIRTY_OVERTIME="+repr({
+                      "during":during,"after":after,"writes":len(OVERTIME_HITS)
+                    }),flush=True)
+                    check(after["draft"]==20 and after["dirty"] is True
+                          and after["baseline"]==during["baseline"],
+                          "in-flight full refresh must not replace newly typed draft or CAS baseline")
+                    check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==10
+                          and len(OVERTIME_HITS)==1,
+                          "in-flight race caused no hidden overtime write")
+                    print("OVERTIME_INFLIGHT_REALTIME_DRAFT_PRESERVATION_SCOPED_PASS",flush=True)
+                    return
                 adjustment.click()
                 if "--draft-refresh-probe" in sys.argv:
                     check(page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
