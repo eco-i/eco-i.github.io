@@ -415,6 +415,26 @@ def main():
                     check(page.locator("#overtimeEarlyTime").text_content().strip()=="20분"
                           and page.evaluate("detailDirtyFlags().overtime===true"),
                           "dirty 20-minute overtime draft ready for in-flight read UI guard")
+                    # Scoped synthetic setter tracing only; never included in app.
+                    page.evaluate("""()=>{
+                      const base=detailDraftBaseline;
+                      window.__qaBaselineEvents=[];
+                      window.__qaBaselineObject=base;
+                      for(const k of ['key','overtime']){
+                        let v=base[k];
+                        Object.defineProperty(base,k,{
+                          configurable:true,enumerable:true,
+                          get(){return v},
+                          set(next){
+                            window.__qaBaselineEvents.push({
+                              key:k,from:JSON.stringify(v),to:JSON.stringify(next),
+                              stack:String(new Error().stack).split('\n').slice(1,5)
+                            });
+                            v=next;
+                          }
+                        });
+                      }
+                    }""")
                     # Real local PG read completes, but hold the response before
                     # JS can mark overtime metadata fresh. Controls must lock now.
                     page.evaluate("""()=>{
@@ -519,12 +539,20 @@ def main():
                           "authoritative personnel read completion unlocks save with original draft intact")
                     final_pg_minutes=br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))
                     final_dirty=page.evaluate("detailDirtyFlags().overtime===true")
+                    baseline_diag=page.evaluate("""()=>({
+                      baselineKey:detailDraftBaseline.key,selectedDate:state.selectedDate,
+                      baselineOvertime:detailDraftBaseline.overtime,
+                      actualDraft:detailOvertimeSnapshot(),
+                      sameObject:detailDraftBaseline===window.__qaBaselineObject,
+                      setterTrace:window.__qaBaselineEvents.slice(-15),
+                      detailOpen:document.getElementById('detailBackdrop')?.classList.contains('open')
+                    })""")
                     print("QA_READINESS_FINAL_GUARD_DIAG="+repr({
                       "dirty":final_dirty,"overtimeWrites":OVERTIME_HITS[:],
                       "pgMinutes":final_pg_minutes,
                       "personnelResult":restored["completed"],
                       "backend":restored["backend"],
-                      "draft":restored["draft"]
+                      "draft":restored["draft"],"baseline":baseline_diag
                     }),flush=True)
                     check(final_dirty and len(OVERTIME_HITS)==1 and final_pg_minutes==10,
                           "UI-only loading locks issue zero writes and keep original 10-minute PG baseline")
