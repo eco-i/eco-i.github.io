@@ -371,6 +371,38 @@ def main():
                 check(br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==20,
                       "overtime second Save committed modification, not just first insertion")
                 check(OVERTIME_HITS==[10,20],"exactly two intended writes")
+                if "--overtime-only" in sys.argv:
+                    # Deterministic mid-preflight invalidation: a synthetic
+                    # personnel refresh changes readiness AFTER the authoritative
+                    # date read, before the guarded mutation. No production data.
+                    adjustment.click()
+                    check(page.locator("#overtimeEarlyTime").text_content().strip()=="30분",
+                          "synthetic overtime draft prepared for mid-read guard")
+                    page.evaluate("""()=>{
+                       window.__qaOriginalCurrentOvertimeDay=fetchCurrentOvertimeDay;
+                       fetchCurrentOvertimeDay=async (...args)=>{
+                         const rows=await window.__qaOriginalCurrentOvertimeDay(...args);
+                         state.personnelBackendReady=null;
+                         return rows;
+                       };
+                    }""")
+                    prior_write_count=len(OVERTIME_HITS)
+                    page.locator("#saveOvertimeBtn").click()
+                    page.wait_for_function("""()=>!overtimeDaySavePending
+                       && document.getElementById('overtimeDetailError')?.textContent.includes('저장을 중단')""",
+                       timeout=12000)
+                    check(len(OVERTIME_HITS)==prior_write_count and
+                          br.value("SELECT minutes FROM public.qa_browser_overtime WHERE work_date=%s::date AND slot='early'",(OT_DATE,))==20,
+                          "personnel readiness changed during preflight: aborts before write and protects PG 20")
+                    check(page.locator("#overtimeEarlyTime").text_content().strip()=="30분",
+                          "aborted save preserves unsaved 30-minute input")
+                    page.evaluate("""()=>{
+                        fetchCurrentOvertimeDay=window.__qaOriginalCurrentOvertimeDay;
+                        state.personnelBackendReady=true;
+                        syncOpenDetailPermissionsPreservingDraft();
+                    }""")
+                    check(page.locator("#saveOvertimeBtn").is_enabled() and len(OVERTIME_HITS)==2,
+                          "authoritative readiness restored without automatic retry or duplicate save")
                 # Separate real user path: month overtime summary -> existing row's
                 # visible "수정" button -> date detail -> update saved record.
                 page.get_by_role("button",name="날짜 상세 닫기").click()

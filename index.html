@@ -4729,7 +4729,17 @@ async function saveOvertimeDay(){
   const expected=detailRecordBaseline.key===key?detailRecordBaseline.overtime:overtimeDaySourceSnapshot(key);$('overtimeDetailError').textContent='';
   overtimeDaySavePending=true;if($('saveOvertimeBtn'))$('saveOvertimeBtn').disabled=true;syncOpenDetailPermissionsPreservingDraft();showLoading(true);
   try{
-    const latestRows=await fetchCurrentOvertimeDay(actor,key,token);if(!actionCurrent()||!pageStillCurrent())return;
+    const latestRows=await fetchCurrentOvertimeDay(actor,key,token);
+    if(!actionCurrent())return;
+    // 저장 버튼을 누른 뒤 최신 행을 읽는 도중 Realtime/모바일 복귀가 인사·근무상태를
+    // 갱신할 수 있다. 시작 시점 ready만 신뢰해 쓰지 않고, 직전 상태를 다시 확인한다.
+    if(!pageStillCurrent()||!personnelMutationReady()||(configured()&&state.overtimeBackendReady!==true)){
+      if(state.selectedDate===key&&state.view==='mine'&&$('detailBackdrop')?.classList.contains('open')&&!document.hidden){
+        $('overtimeDetailError').textContent='초과근무 저장 직전 최신 인사·근무상태 확인이 필요해 저장을 중단했습니다. 작성 중 내용은 보존했습니다. 동기화 후 다시 시도해 주세요.';
+      }
+      realtimeNeedsCatchup=true;
+      return;
+    }
     if(JSON.stringify(overtimeDaySourceSnapshot(key,latestRows))!==JSON.stringify(expected||[])){$('overtimeDetailError').textContent='이 날짜의 초과근무가 다른 창에서 변경되었습니다. 최신 내용을 다시 불러온 뒤 수정해 주세요.';return;}
     if(!configured()){
       let rows=normalizeOvertimeRows(localOvertimeRows()).filter(r=>!(Number(r.employee_id)===actor&&r.work_date===key));let next=rows.reduce((m,r)=>Math.max(m,r.id),0)+1;
