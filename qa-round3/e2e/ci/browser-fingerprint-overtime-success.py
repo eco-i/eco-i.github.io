@@ -451,6 +451,7 @@ def main():
                       };
                       const b=monthBounds(state.year,state.month);
                       window.__qaOtReadTask=loadOvertimeData(b.from,b.to);
+                      window.__qaOtReadGeneration=overtimeDataLoadSeq;
                     }""")
                     page.wait_for_function("()=>window.__qaOtHeld===true",timeout=12000)
                     check(page.evaluate("state.overtimeBackendReady===null") and
@@ -478,19 +479,26 @@ def main():
                       overtimeDataLoadSeq,
                       error:document.getElementById('overtimeDetailError')?.textContent
                     })""")
-                    # An unrelated authoritative personnel refresh can still be pending
-                    # after THIS overtime read finishes. Keeping Save locked is correct:
-                    # never bypass that guard just to satisfy this probe.
-                    if overtime_restored["completed"] is True and overtime_restored["personnel"] is None:
-                        check(overtime_restored["disabled"] is True
-                              and overtime_restored["hidden"] is True
-                              and overtime_restored["draft"]==20 and overtime_restored["dirty"] is True,
-                              "overlapping personnel refresh retains safe Save lock and 20-minute dirty draft")
+                    # A background refresh may supersede this read or still be finishing
+                    # its broader authoritative lifecycle. A stale read returning false
+                    # is acceptable ONLY if a newer generation superseded it; final UI
+                    # must unlock after that newer refresh is fully settled.
+                    read_completed=overtime_restored["completed"] is True
+                    read_superseded=(overtime_restored["completed"] is False and
+                        overtime_restored["overtimeDataLoadSeq"]>
+                        page.evaluate("window.__qaOtReadGeneration"))
+                    if (overtime_restored["personnel"] is None or
+                        overtime_restored["refreshPending"] or overtime_restored["refreshing"]):
+                        if overtime_restored["personnel"] is None:
+                            check(overtime_restored["disabled"] is True
+                                  and overtime_restored["hidden"] is True
+                                  and overtime_restored["draft"]==20 and overtime_restored["dirty"] is True,
+                                  "overlapping personnel refresh retains safe Save lock and 20-minute dirty draft")
                         page.wait_for_function("""()=>!refreshPendingOwner && !state.refreshing &&
                           state.personnelBackendReady===true && state.overtimeBackendReady===true""",
                           timeout=14000)
                         overtime_restored=page.evaluate("""()=>({
-                          completed:true,backend:state.overtimeBackendReady,
+                          backend:state.overtimeBackendReady,
                           personnel:state.personnelBackendReady,writable:personnelMutationReady(),
                           refreshPending:!!refreshPendingOwner,refreshing:state.refreshing,
                           disabled:document.getElementById('saveOvertimeBtn').disabled,
@@ -499,8 +507,11 @@ def main():
                           overtimeDataLoadSeq,
                           error:document.getElementById('overtimeDetailError')?.textContent
                         })""")
-                    overtime_restored_ok=(overtime_restored["completed"] is True and
+                    overtime_restored_ok=((read_completed or read_superseded) and
                         overtime_restored["backend"] is True and
+                        overtime_restored["personnel"] is True and
+                        overtime_restored["writable"] is True and
+                        not overtime_restored["refreshPending"] and not overtime_restored["refreshing"] and
                         not overtime_restored["disabled"] and not overtime_restored["hidden"] and
                         overtime_restored["draft"]==20 and overtime_restored["dirty"] is True)
                     if not overtime_restored_ok:
