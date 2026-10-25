@@ -83,13 +83,17 @@ test('10. QA cancellation refuses missing revision before confirmation',()=>{
  const ask=fn.indexOf('confirmMutationWithSessionGuard(');
  assert.ok(guard>=0&&ask>guard,'Expected revision guard must precede confirmation');
 });
-test('11. exactly one cancel RPC call and requires CAS revision',()=>{
+test('11. cancel uses exactly one shared revision CAS and full expected batch snapshot',()=>{
  const fn=between('async function cancelPersonnelBatch(', 'async function openPersonnelSnapshotRestore(');
  const payloadAnchor="rpc('admin_cancel_personnel_batch_v2',";
  const calls=fn.split(payloadAnchor).length-1;assert.equal(calls,1);
- const payload=fn.slice(fn.indexOf(payloadAnchor),fn.indexOf(payloadAnchor)+190);
- assert.ok(payload.includes('p_token:token,p_batch_id:batchId,p_expected_revision:expected.batch_revision'));
- assert.ok(!payload.includes('p_expected_revision:null'));
+ const match=fn.match(/rpc\\('admin_cancel_personnel_batch_v2',\\{([^}]*)\\}\\)/);
+ assert.ok(match,'Expected one literal RPC object payload');
+ const fields=[...match[1].matchAll(/\\b(p_[a-z0-9_]+)\\s*:/g)].map(x=>x[1]).sort();
+ assert.deepEqual(fields,['p_batch_id','p_expected_batch','p_expected_revision','p_token']);
+ assert.match(match[1],/p_expected_batch:expected/);
+ assert.match(match[1],/p_expected_revision:vRev/);
+ assert.ok(!match[1].includes('expected.batch_revision'),'Do not mistake per-batch version for shared restore revision');
 });
 test('12. latest assignment snapshot recheck stays before CAS write',()=>{
  const fn=between('async function cancelPersonnelBatch(', 'async function openPersonnelSnapshotRestore(');
@@ -102,4 +106,36 @@ test('13. stale server conflict has explicit safe UI handling',()=>{
  assert.match(fn,/STALE_PERSONNEL_BATCH/);
  assert.match(fn,/최신 인사발령/);
 });
+test('14. capture shared revision before confirmation and recheck session before write',()=>{
+ const fn=between('async function cancelPersonnelBatch(', 'async function openPersonnelSnapshotRestore(');
+ const guard=fn.indexOf('if(configured()&&(!Number.isSafeInteger(expected.batch_revision)||expected.batch_revision<0))');
+ const captured=fn.indexOf('heldCancelRev=configured()?await candidateCapturePersonnelRev(token):null');
+ const confirmed=fn.indexOf('confirmMutationWithSessionGuard(');
+ const serverSnapshot=fn.indexOf('personnelBatchSourceStillSame(latest,expected)');
+ const sharedRead=fn.indexOf('candidateReadHeldPersonnelRev(heldCancelRev)');
+ const write=fn.indexOf("rpc('admin_cancel_personnel_batch_v2',");
+ assert.ok(guard>=0&&captured>guard&&confirmed>captured,'Fail closed before confirmation');
+ assert.ok(serverSnapshot>confirmed&&sharedRead>serverSnapshot&&write>sharedRead,'Recheck batch, revision and context before write');
+ assert.match(fn,/if\\(!expected\\|\\|!Array\\.isArray\\(expected\\.actions\\)\\)throw new Error\\('PERSONNEL_BATCH_EXPECTED_MISSING'\\)/);
+});
+test('15. stale shared revision and old stale-batch errors both remain fail closed',()=>{
+ const fn=between('async function cancelPersonnelBatch(', 'async function openPersonnelSnapshotRestore(');
+ assert.match(fn,/STALE_PERSONNEL_BATCH/);
+ assert.match(fn,/STALE_PERSONNEL_RESTORE_REVISION/);
+ assert.match(fn,/PERSONNEL_BATCH_REVISION_MISSING/);
+ assert.match(fn,/PERSONNEL_BATCH_EXPECTED_MISSING/);
+});
+test('16. account and batch save carry shared restore revision in addition to their own CAS',()=>{
+ const account=between('async function saveEmployeeAccountStatus(', 'function ');
+ const batchSave=between('async function savePersonnelBatch(', 'async function cancelPersonnelBatch(');
+ for(const [name,src,rev] of [
+  ['account',account,'heldCandidateRev'],
+  ['batch',batchSave,'heldBatchRev']
+ ]){
+  assert.match(src,new RegExp('candidateReadHeldPersonnelRev\\\\('+rev+'\\\\)'),'shared revision is awaited by '+name);
+  assert.match(src,/p_expected_revision:vRev/);
+  assert.match(src,/p_expected:/);
+ }
+});
+
 console.log('PERSONNEL_BATCH_CANCEL_REVISION_CAS_QA_SOURCE_SCOPED_PASS');
