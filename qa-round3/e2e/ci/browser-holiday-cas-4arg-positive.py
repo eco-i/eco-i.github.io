@@ -141,7 +141,7 @@ def run():
                       "real administrative checkbox is enabled in both browser contexts")
                 check(not a_input.is_checked() and not b_input.is_checked(),
                       "both actual checkboxes show initial disabled flag")
-                a_input.check(timeout=12000)
+                a_input.click(timeout=12000)
                 check(wait_cond(a,"state.employees.find(e=>e.id===2).holiday_work_eligibility_revision===1"),
                       "manager A uses visible checkbox and reads back new revision one")
                 check(state()=={"enabled":True,"revision":1,"audit":1},
@@ -154,7 +154,7 @@ def run():
                 # The second page must not refresh until B submits its stale revision.
                 check(b.evaluate("state.employees.find(e=>e.id===2).holiday_work_eligibility_revision")==0,
                       "manager B still owns old revision zero in independent browser")
-                b_input.check(timeout=12000)
+                b_input.click(timeout=12000)
                 check(wait_cond(b,"state.employees.find(e=>e.id===2).holiday_work_eligibility_revision===1"),
                       "B gets stale CAS conflict and refreshes authoritative revision")
                 check(state()=={"enabled":True,"revision":1,"audit":1},
@@ -167,7 +167,7 @@ def run():
                       "failed B write recovered authoritative read without disabling all staff")
                 check(b.locator('#currentEmployeeList input[data-holiday-work-enabled="2"]').is_checked(),
                       "B checkbox was rerendered to A latest enabled state")
-                b.locator('#currentEmployeeList input[data-holiday-work-enabled="2"]').uncheck(timeout=12000)
+                b.locator('#currentEmployeeList input[data-holiday-work-enabled="2"]').click(timeout=12000)
                 check(wait_cond(b,"state.employees.find(e=>e.id===2).holiday_work_eligibility_revision===2"),
                       "B fresh checkbox save refreshes new revision two")
                 check(state()=={"enabled":False,"revision":2,"audit":2},
