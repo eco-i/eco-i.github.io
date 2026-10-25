@@ -72,6 +72,7 @@ BASELINE_FIELDS = (
     "sql_create_function_unique_count", "sql_create_table_unique_count",
     "direct_name_match_count", "unbacked_rpc_count",
     "direct_name_matches", "table_ddl_names", "rpc_gap_names",
+    "sql_related_relations_uncreated_here",
 )
 
 def baseline_drift(actual: dict, baseline: dict) -> list[str]:
@@ -94,7 +95,7 @@ def self_test() -> None:
     assert "existing" in got["sql_related_relations_uncreated_here"]
     assert baseline_drift(got, got) == []
     assert baseline_drift(got, {**got, "unbacked_rpc_count": 999}) == ["unbacked_rpc_count"]
-    print("BACKEND_AUDIT_SELFTEST_PASS 8 source/parser and fail-closed checks", flush=True)
+    print("BACKEND_AUDIT_SELFTEST_PASS 9 source/parser and fail-closed checks", flush=True)
 
 def main() -> int:
     parser = argparse.ArgumentParser()
