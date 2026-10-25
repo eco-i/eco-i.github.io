@@ -105,7 +105,9 @@ def run():
                 qa.open_dirty(b, "disabled", "UNSAVED-EXPIRED")
                 AUTHORITY["expire_on_write"].add(qa.B)
                 qa.click_save(b)
-                b.wait_for_function("!state.sessionToken && !state.me", timeout=15000)
+                b.locator("#loginView").wait_for(state="visible", timeout=15000)
+                check(b.evaluate("!state.sessionToken && !state.me"),
+                      "confirmed expiry clears old user identity and session token")
                 check(b.locator("#appView").is_hidden(),
                       "confirmed session expiry hides previously authenticated app")
                 check(b.locator("#loginView").is_visible(),
