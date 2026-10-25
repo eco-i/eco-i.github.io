@@ -3,6 +3,8 @@
 Scoped P0 session isolation only. NOT two-admin Auth/PostgREST or live RLS E2E.
 """
 import importlib.util
+import io
+import json
 import sys
 import threading
 from pathlib import Path
@@ -16,6 +18,50 @@ sys.modules[spec.name] = fixture
 spec.loader.exec_module(fixture)
 br = fixture.br
 ENDPOINT = "http://127.0.0.1:54330/"
+OTHER_TOKEN = "33333333-3333-4333-8333-333333333333"
+LOGIN_COUNT = 0
+LOGIN_LOCK = threading.Lock()
+
+class SeparateLoginTokensBridge(fixture.AttendanceBridge):
+    """Synthetic fake server issues a new token for each of two independent logins.
+    Reusing the same fake token in both tabs would incorrectly trigger real token
+    revocation rules; distinct tokens match the intended independent-session case.
+    """
+    def do_POST(self):
+        global LOGIN_COUNT
+        path = urlsplit(self.path).path
+        name = path.removeprefix("/rest/v1/rpc/")
+        length = self.headers.get("Content-Length", "")
+        if (not length.isdecimal() or int(length)>4096 or
+            self.headers.get("Origin")!=ENDPOINT.rstrip("/") or
+            self.headers.get("apikey")!=br.KEY or
+            self.headers.get("Authorization")!="Bearer "+br.KEY):
+            return self.reply(403, {"message":"QA_FAKE_AUTH_DENIED"})
+        raw = self.rfile.read(int(length))
+        try: data = json.loads(raw or b"{}")
+        except Exception: return self.reply(400,{"message":"QA_BAD_JSON"})
+        if name=="login_employee_personnel_v1" and path=="/rest/v1/rpc/"+name:
+            if data!={"p_name":"가상직원","p_pin":"1234","p_admin_pin":None}:
+                return self.reply(200,[{"display_name":"__INVALID_LOGIN__","is_admin":False}])
+            with LOGIN_LOCK:
+                LOGIN_COUNT += 1
+                token=br.WORKER if LOGIN_COUNT%2 else OTHER_TOKEN
+            fixture.CALLS.append(name)
+            return self.reply(200,[{
+                "token":token,"employee_id":2,"display_name":"가상직원",
+                "category":"일근(사무)","group_code":"DAY","is_admin":False,
+                "expires_at":"2035-01-01T00:00:00Z"}])
+        if isinstance(data,dict) and data.get("p_token")==OTHER_TOKEN:
+            fixture.CALLS.append(name)
+            if name=="initial_pin_status_v1" and set(data)=={"p_token"}:
+                return self.reply(200,False)
+            if name in fixture.READS and set(data)=={"p_token"}:
+                return self.reply(200,fixture.READS[name])
+            if name=="list_attendance_with_annual_leave" and set(data)=={"p_token","p_from","p_to"}:
+                return self.reply(200,[])
+            return self.reply(404,{"message":"QA_B_SESSION_RPC_NOT_IMPLEMENTED"})
+        self.rfile=io.BytesIO(raw)
+        return super().do_POST()
 
 def check(value, message):
     if not value:
@@ -55,7 +101,7 @@ def test_tabs():
     br.require_env()
     br.reset()
     fixture.CALLS.clear()
-    server=br.ThreadingHTTPServer((br.HOST,br.PORT),fixture.AttendanceBridge)
+    server=br.ThreadingHTTPServer((br.HOST,br.PORT),SeparateLoginTokensBridge)
     threading.Thread(target=server.serve_forever,daemon=True).start()
     folder=br.build()
     site=br.subprocess.Popen(["node",str(br.ROOT/"qa-round3/e2e/serve-local-qa-site.mjs"),folder],
@@ -85,15 +131,15 @@ def test_tabs():
                 check(snapshot(b)["employee"] is None,
                     "new tab B does not inherit tab-only A credentials")
                 second=login(b,persistent=False)
-                check(second["employee"]==2 and second["tab"]==br.WORKER
-                    and not second["shared"],"tab B can establish independent PC tab-only session")
+                check(second["employee"]==2 and second["tab"]==OTHER_TOKEN
+                    and not second["shared"],"tab B gets distinct token for independent PC tab-only login")
                 check(snapshot(a)["employee"]==2 and snapshot(a)["appVisible"],
                     "tab A still protected under its own session after B login")
                 a.evaluate("logout(false)")
                 a.wait_for_function("!state.me && !state.sessionToken && document.getElementById('appView').classList.contains('hidden')",timeout=10000)
                 check(snapshot(b)["employee"]==2 and snapshot(b)["appVisible"]
-                    and snapshot(b)["tab"]==br.WORKER,
-                    "tab A logout does not delete a separately logged-in tab B")
+                    and snapshot(b)["tab"]==OTHER_TOKEN,
+                    "logout of token A does not delete separately issued token B")
                 b.evaluate("logout(false)")
                 b.wait_for_function("!state.me && !state.sessionToken && document.getElementById('appView').classList.contains('hidden')",timeout=10000)
                 check(not snapshot(b)["tab"] and not snapshot(b)["shared"],
@@ -107,7 +153,7 @@ def test_tabs():
                     "fresh tab-only session remains isolated from shared persistent storage")
                 b.reload(wait_until="domcontentloaded")
                 persistent=login(b,persistent=True)
-                check(persistent["shared"]==br.WORKER and persistent["appVisible"],
+                check(persistent["shared"]==OTHER_TOKEN and persistent["appVisible"],
                     "real persistent-login checkbox stores shared session in Chromium")
                 check(snapshot(a)["employee"]==2,
                     "persistent login in B does not overwrite the protected identity in tab A")
