@@ -1,0 +1,52 @@
+# 근무모아 3차·깊이8 — 독립 원본동등 QA 서버 진입 준비 격차표
+
+**확인:** 2026-10-25 KST / GitHub 공개 QA·비공개 서버 저장소 기존 자료 **읽기 전용 조사**. 운영 Supabase 접속/쿼리/SQL 실행/테이블 행 읽기/클라우드 생성 없음.
+
+> **판정: 독립 원본동등 E2E 환경 미확보 / 공식 3-8-54 미시작 / NOT CLEAN.**
+> 합성 PostgreSQL/브라우저 합격과 운영 서버 RPC 복구율은 별도 지표로 취급한다.
+
+## 1. 근거가 있는 자산과 실제 결손
+
+| 영역 | 확보 자료(기존 기록의 범위) | 공식 실서버 동등 E2E까지 빠진 것 | 판정 |
+|---|---|---|---|
+| 운영 DB 구조 메타데이터 | 비공개 `ops/production-schema-baseline-20261024/`에 **테이블 28개**(`public` 27+`workmoa_guard` 1), 컬럼 190개, 함수 **214개**의 이름·형식·함수 본문 MD5 등 비민감 카탈로그 기록 | 함수 원문 전체·CREATE TABLE/FUNCTION·트리거·RLS·권한·제약 등의 재구성 가능한 정본 DDL은 아님 | **BLOCKED** |
+| 설치 이력 | 비공개 `ops/production-migration-evidence-20261024/`에 과거 **18건 SQL 원문 보존** 및 오프라인 무결성 확인, DB 행/개인정보 아님 | 정적 `CREATE TABLE` 증거 **4/28개**, **24/28개는 해당 18건에서 초기 생성 SQL 미확인**. 이력 재실행/배포 금지 | **BLOCKED** |
+| 공개 QA 서버 migrations | `eco-i/eco-i.github.io:qa-3-8/db/migrations/*.sql` **16개 증분 SQL**. 이전 정적 기준에서 앱 71개 RPC 이름 중 3개 일치 | 완전 초기 `employees`, `app_sessions`, 직원관리, 출퇴근·사진 등 기본 DDL/시그니처의 원본 구성 불명. 71/3 숫자는 **이 저장소의 그 시점 기준**, 운영 RPC 설치현황 뜻 아님 | **BLOCKED** |
+| 서버 인증·세션 | 운영 `p_token` 사용, `app_sessions`·`_require_admin` 등 커스텀 서버 세션. 실운영 CAS 5종 및 PIN 초기화 2종은 10/24 비공개 배포 검증 문서 존재 | 독립 QA에서 같은 세션 발급·만료·강제 초기 PIN·2차 관리자 PIN 검증을 위한 함수 및 Auth/PostgREST 초기 구성 부재. Supabase Auth만 있다고 동일해지는 구조 아님 | **BLOCKED** |
+| 관리자 동시 수정 | 인사 5종 `workmoa_guard.personnel_epoch` 공유 CAS, 구 V1 4종 접근 차단의 기존 운영 배포 증거. 가상 SQL+브라우저 scoped PASS 다수 | 원본 생성 DDL·실제 signature/owner/grants/RLS와 모든 구버전 우회 쓰기 경로를 독립 설치 후 테스트하지 못함 | **PARTIAL** |
+| 강제 1차 PIN | 이 10/25 QA Chromium [Run 40159610770](https://github.com/eco-i/eco-i.github.io/actions/runs/40159610770) **28/28 scoped PASS**: 진행중 저장의 `INITIAL_PIN_CHANGE_REQUIRED`, old-session 오류 fence, 원본 UI 버튼 | 성공한 실서버 `change_own_pin_v2` 처리·세션 재인증 및 원본 PostgREST/RLS 종단 검증 없음. 관리자 **2차** PIN 갱신/경합과 별개 | **PARTIAL** |
+| 관리자 권한 변화 | 앞선 Chromium 권한회수 **21/21**, 지연 SAVE와 신세션 핸드오프 **24/24** scoped PASS | UI 가상 권한 게이트 외 원본 DB transaction과 서버측 재인증/동시 수정의 authoritative 증거 없음 | **PARTIAL** |
+| 브라우저 QA 접속 | `prepare-qa-site.mjs`와 로컬 QA CSP/외부 차단, Chromium + 폐기형 PG 테스트 자동화 | 완전 분리된 **Workmoa 전용** QA Supabase 프로젝트/실제 QA PostgREST+RLS 준비 미완. 운영 URL/키 치환 없는 `qa-3-8/index.html` 직접 실행 위험 | **BLOCKED** |
+| 복구·초기화 최종 3 RPC | SQL 검토본/이력 보존 자료 존재 | `admin_restore_data_v2`, `admin_reset_data_v2`, `admin_restore_safety_backup_v2` 실운영 설치는 지원 조사로 차단; 테스트 runner/CI 등을 통한 우회 금지. 검토본의 실패 유도 구문 제거 및 임의 실행 금지 | **HOLD** |
+
+숫자 **24/28**은 *보존된 18개 기존 마이그레이션에서 초기 CREATE TABLE 증거를 찾지 못한 대상 수*이지, 현재 운영 DB에 테이블이 없다는 의미가 아니다. 운영 28개 테이블이 실제 존재한다는 메타데이터 증거와 분리해 읽어야 한다.
+
+## 2. 다음 기술 검증의 필수 선행 순서
+
+1. **비민감 원본동등 DDL 출처 승인:** 기존 카탈로그 메타데이터/18건 마이그레이션/공개 증분 SQL과 원본 서버 함수 정본의 누락 부분 확인. 원본 직원 row, PIN, 세션 토큰, 지문 사진, 백업 payload 복제 금지. 원본 서버 스키마 추출은 사용자가 동의한 정상 읽기 전용 경로에서만 별도로 계획.
+2. **재현 가능한 오프라인 DB 우선:** PostgreSQL·함수 보안 속성·RLS·owner·GRANT/REVOKE·트리거·공유 revision 테스트. 정식 실행 가능한 새 QA 초기 스키마가 아직 없으므로 과거 운영 SQL 18개를 비검증 방식으로 그대로 replay해서 실운영 동등하다고 하지 않는다.
+3. **독립 QA 웹/API:** 새 비운영 QA 프로젝트 비용·권한을 확인하고 사용자 승인을 받은 뒤에만 생성. 브라우저는 QA URL/검증된 publishable key만 허용, 운영 호스트 요청 **0건**·네트워크 차단 점검.
+4. **P0 종단 시험:** 별도 관리자 A/B 및 일반·조회전용·비활성 가상 직원, 입출퇴근/인사/휴일근무/휴무/메모/사진 합성 데이터. PIN 강제·권한박탈·토큰 만료·동시 CAS·기존 writer fallback·오류/성공 지연 응답 각각 실행; SQL 전후 snapshot, HTTP 상태, 브라우저 화면을 함께 수집.
+5. **공식 블록 게이트:** 위 시험이 원본동등 조건을 충족해 검수 기준을 재확인한 시점부터만 **3-8-54 착수**. 현재 28/28 및 기존 21/21·24/24 scoped PASS는 완료 블록을 늘리거나 전체 CLEAN을 뜻하지 않는다.
+
+## 3. 기존 읽기 전용 근거 위치
+
+- 공개 `qa-round3/e2e/QA_BACKEND_GAPS.md` (2026-10-20 당시 71 RPC vs 증분 SQL 3 함수 이름의 정적 비교).
+- 공개 `qa-round3/e2e/E2E_RUNBOOK.md`, `qa-round3/QA_3-8-54_ENTRY_READINESS_20261025.md`.
+- 비공개 서버 저장소 `ops/production-schema-baseline-20261024/README.md` (28개 테이블, 190개 컬럼, 214개 함수, 18개 이력 중 4/28 정적 CREATE TABLE 증거).
+- 비공개 `ops/production-migration-evidence-20261024/README.md` (18개 원문 보존, 재실행 금지).
+- 비공개 `qa/PERSONNEL_FIVE_OPERATING_DEPLOYED_20261024_VERIFIED.md`와 `qa/PIN_TWO_OPERATING_DEPLOYED_20261024_VERIFIED.md` (당시 운영 설치/권한 전환의 과거 감사기록; **이번 대화에서 운영 카탈로그 재측정하지 않음**).
+
+## 4. 이번 현재 공식 보고
+
+| 작업 | 상태 |
+|---|---|
+| 운영 RPC 복구 | **23/26 = 88.5%** (기존 검증 문서 기준, 이번 새 서버 실측 0) |
+| 이번 PIN 강제 게이트 scoped QA | **28/28 PASS** ([Run 40159610770](https://github.com/eco-i/eco-i.github.io/actions/runs/40159610770)) |
+| 독립 원본동등 QA 스키마·API·Auth/RLS | **미확보/미실행** |
+| 정식 3차 깊이8 | 마지막 **3-8-53**, 다음 **3-8-54 미시작** |
+| 3차 신규 제품 결함 | **37종 유지** |
+| 전체 결론 | **NOT CLEAN** |
+| 운영 `main`·실직원 DB·권한·배포 변경 | **0건** |
+
+고객센터 답변 도착 전 마지막 3종 RPC 복구 우회 금지. 기존 PASS를 실제 서버 E2E로 올려 부르지 않는다.
