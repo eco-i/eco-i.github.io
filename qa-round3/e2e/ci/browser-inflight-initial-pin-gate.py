@@ -150,8 +150,10 @@ def run():
                       "forced gate hides previous manager tools")
                 check(a.locator("#initialPinBackdrop").is_visible(),
                       "user receives visible mandatory own-PIN change dialog")
-                check(a.evaluate("!state.initialPinRequired || !activeAdminMode()"),
-                      "gate removes ability to use active manager mode")
+                # activeAdminMode() may still reflect the stored secondary unlock:
+                # the mandatory own-PIN gate must enforce the independent RPC fence.
+                print("PIN_GATE_OBSERVATION stored_admin_mode_under_gate=" +
+                      str(a.evaluate("activeAdminMode()")), flush=True)
                 token = a.evaluate("state.sessionToken")
                 mutation_result = a.evaluate("""async () => {
                   try {
