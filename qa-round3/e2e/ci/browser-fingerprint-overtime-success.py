@@ -476,6 +476,27 @@ def main():
                       overtimeDataLoadSeq,
                       error:document.getElementById('overtimeDetailError')?.textContent
                     })""")
+                    # An unrelated authoritative personnel refresh can still be pending
+                    # after THIS overtime read finishes. Keeping Save locked is correct:
+                    # never bypass that guard just to satisfy this probe.
+                    if overtime_restored["completed"] is True and overtime_restored["personnel"] is None:
+                        check(overtime_restored["disabled"] is True
+                              and overtime_restored["hidden"] is True
+                              and overtime_restored["draft"]==20 and overtime_restored["dirty"] is True,
+                              "overlapping personnel refresh retains safe Save lock and 20-minute dirty draft")
+                        page.wait_for_function("""()=>!refreshPendingOwner && !state.refreshing &&
+                          state.personnelBackendReady===true && state.overtimeBackendReady===true""",
+                          timeout=14000)
+                        overtime_restored=page.evaluate("""()=>({
+                          completed:true,backend:state.overtimeBackendReady,
+                          personnel:state.personnelBackendReady,writable:personnelMutationReady(),
+                          refreshPending:!!refreshPendingOwner,refreshing:state.refreshing,
+                          disabled:document.getElementById('saveOvertimeBtn').disabled,
+                          hidden:document.getElementById('saveOvertimeBtn').classList.contains('hidden'),
+                          draft:overtimeDetailMinutes.early,dirty:detailDirtyFlags().overtime,
+                          overtimeDataLoadSeq,
+                          error:document.getElementById('overtimeDetailError')?.textContent
+                        })""")
                     overtime_restored_ok=(overtime_restored["completed"] is True and
                         overtime_restored["backend"] is True and
                         not overtime_restored["disabled"] and not overtime_restored["hidden"] and
