@@ -244,7 +244,7 @@ def run():
                       "both Chromium contexts block all hosted Supabase network calls")
                 check(not ae and not be,
                       "no JavaScript uncaught browser errors in both managers")
-                print("TWO_ADMIN_CAS_SCOPED_PASS 18 scoped assertions; artificial PG + fake login, NOT production E2E",flush=True)
+                print("TWO_ADMIN_CAS_SCOPED_PASS 21 scoped assertions; artificial PG + fake login, NOT production E2E",flush=True)
             finally:
                 browser.close()
     finally:
