@@ -72,3 +72,24 @@
 
 ### 이번 작업의 판정
 **54 진입 사전감사 완료 / 54 공식 미시작 / 서버 복구 23/26 보고상 유지 / 운영 데이터·기존 RPC 권한·main 변경 0 / 전체 NOT CLEAN.**
+
+
+## 2026-10-25 추가 확인 — 위 3절 계약 차이 분석은 과거 스냅샷
+
+**새로운, 더 최신의 QA 브랜치 Git blob 직접 확인 결과가 우선한다.** 위 3절은 확인 당시에는 맞았으나, 이후 `qa-3-8`에 인사관리 CAS 호출이 동기화되었기 때문에 지금 남은 진입 장애로 취급해서는 안 된다.
+
+- 확인한 운영 `main` `index.html` blob: `897045149eca1ac78e666421635cad0803d02ae3`.
+- 확인한 QA `qa-3-8` `index.html` blob: `4aaf055302e5ff967f912353bdba8f24f201cf0f`.
+- 직접 호출하는 아래 **7종의 RPC 이름·인자 키 배열·직접 호출 횟수 7/7 일치**:
+  1. `get_personnel_restore_revision_v1` (`p_token`).
+  2. `admin_set_employee_account_status_v3` (`p_expected`, `p_expected_revision` 포함).
+  3. `admin_apply_personnel_batch_v3` (`p_expected`, `p_expected_revision` 포함).
+  4. `admin_cancel_personnel_batch_v2` (`p_expected_batch`, `p_expected_revision` 포함).
+  5. `admin_restore_personnel_snapshot_v3` (`p_expected_revision` 포함).
+  6. `preview_current_personnel_pin_reset_v1` (`p_token`).
+  7. `admin_reset_current_personnel_pins_v3` (`p_token`, `p_admin_pin`, `p_expected_revision`).
+- **판정: 프런트엔드 7 RPC 호출 키 불일치 우려는 현재 해결 / 이 항목을 3-8-54 추가 대기 원인으로 사용하지 않는다.** 이름·키 일치가 함수 내부 코드, 응답 shape, 버전별 DB ACL/보안, 실제 동작 전체 일치 증빙은 아니다.
+
+**계속 남은 54 진입 핵심 막힘:** (1) 인사/세션/Auth·PostgREST·RLS·근태/사진 등을 원본동등으로 실행할 독립된 QA 기반 스키마와 시험 환경 없음. 공개 증분 SQL 16개는 프런트 직접 RPC 71종 중 3종 이름만 자체 정의; 나머지 68종의 정의는 공개 증분 소스에 없음. (2) 마지막 데이터 관리 RPC 3종 운영 복구는 고객센터 문의·추가 안전 검사 차단으로 보류(현재 23/26). 이 3종을 작업 우회/재시도로 설치하지 않는다.
+
+**반복 준비 작업 중단 원칙:** 더 많은 합성 PASS 또는 동종 현황 보고서를 작성해도 54의 원본동등 서버 진입 조건이 충족되지 않는다. 새로운 준비 검수는 실제로 막힘 하나를 제거하는 경우에만 허용. 지원 회신/정상 승인 경로, 또는 별도 안전한 QA 스키마 취득 경로가 확보되기 전 공식 `3-8-54`는 미시작, 누적 37종/NOT CLEAN을 유지한다.
