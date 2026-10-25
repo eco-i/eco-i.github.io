@@ -440,8 +440,10 @@ def main():
                     page.evaluate("""()=>{
                       window.__qaPriorRpc=rpc;
                       window.__qaOtHeld=false;
+                      window.__qaOtIntercepted=false;
                       rpc=async (...args)=>{
-                        if(args[0]!=='list_overtime_entries')return window.__qaPriorRpc(...args);
+                        if(args[0]!=='list_overtime_entries'||window.__qaOtIntercepted)return window.__qaPriorRpc(...args);
+                        window.__qaOtIntercepted=true;
                         const rows=await window.__qaPriorRpc(...args);
                         window.__qaOtHeld=true;
                         await new Promise(resolve=>window.__qaReleaseOtRead=resolve);
@@ -751,13 +753,17 @@ def main():
                     page.get_by_role("button",name="날짜 상세 닫기").click()
                     page.locator("#detailBackdrop.open").wait_for(state="hidden",timeout=6000)
                     page.locator("#overtimeSummaryMain").click()
-                    page.wait_for_function("""()=>overtimeListBackendReady===true &&
-                        !!document.querySelector('#overtimeListBody button[data-overtime-list-edit]')""",
+                    # One atomic settled-state predicate: a background authoritative refresh
+                    # may safely hide Edit between two separate Python/Chromium observations.
+                    page.wait_for_function("""()=>!state.refreshing && !refreshPendingOwner &&
+                        overtimeListBackendReady===true &&
+                        document.querySelectorAll('#overtimeListBody button[data-overtime-list-edit]').length===1""",
                         timeout=20000)
-                    check(page.locator('#overtimeListBody button[data-overtime-list-edit]').count()==1,
+                    check(page.evaluate("""()=>!state.refreshing && !refreshPendingOwner &&
+                          overtimeListBackendReady===true &&
+                          document.querySelectorAll('#overtimeListBody button[data-overtime-list-edit]').length===1"""),
                           "list opening authoritatively loaded real synthetic PG row")
                     pre_read_hit_count=sum(x=="list_overtime_entries" for x in br.HITS)
-                    page.wait_for_function("()=>!state.refreshing && !refreshPendingOwner",timeout=14000)
                     # Suppress unrelated scheduled Realtime work inside THIS
                     # synthetic race experiment, not in the application source.
                     page.evaluate("""()=>{
