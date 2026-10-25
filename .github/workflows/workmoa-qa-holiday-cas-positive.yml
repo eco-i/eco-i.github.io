@@ -1,0 +1,99 @@
+name: Workmoa QA positive 4-arg holiday CAS two-admin browser (synthetic)
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-holiday-cas-positive.yml'
+      - 'qa-round3/e2e/ci/browser-holiday-cas-4arg-positive.py'
+      - 'qa-round3/e2e/ci/browser-two-admin-account-cas.py'
+      - 'qa-round3/e2e/ci/two-admin-account-cas-fixture.sql'
+      - 'qa-round3/e2e/ci/holiday-toggle-4arg-cas-fixture.sql'
+      - 'qa-round3/e2e/ci/browser-attendance-form.py'
+      - 'qa-round3/e2e/ci/synthetic-baseline.sql'
+      - 'qa-round3/e2e/ci/attendance-form-fixture.sql'
+      - 'qa-round3/e2e/prepare-local-qa-site.mjs'
+      - 'qa-round3/e2e/serve-local-qa-site.mjs'
+      - 'index.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: workmoa-qa-holiday-positive-3-8
+  cancel-in-progress: true
+jobs:
+  holiday-cas-positive-chromium:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: qa_runner
+          POSTGRES_PASSWORD: synthetic_ci_only_not_a_real_secret
+          POSTGRES_DB: qa_round3
+        ports: ['127.0.0.1:5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U qa_runner -d qa_round3"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGDATABASE: qa_round3
+      PGUSER: qa_runner
+      PGPASSWORD: synthetic_ci_only_not_a_real_secret
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reject real credentials and release branches
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = eco-i/eco-i.github.io
+          test "$GITHUB_REF" = refs/heads/qa-3-8
+          test "$(git branch --show-current)" = qa-3-8
+          test -z "${DATABASE_URL:-}"
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          test -z "${QA_SUPABASE_URL:-}"
+          test -z "${QA_SUPABASE_ANON_KEY:-}"
+          if ! command -v psql >/dev/null; then
+            timeout 120s sudo apt-get update -qq
+            timeout 120s sudo apt-get install -y -qq postgresql-client
+          fi
+          timeout 150s python3 -m pip install --disable-pip-version-check --timeout 30 --retries 2 'playwright==1.56.0' 'psycopg[binary]==3.2.10'
+          timeout 210s python3 -m playwright install --with-deps chromium
+          python3 -m py_compile qa-round3/e2e/ci/browser-holiday-cas-4arg-positive.py
+      - name: Seed throwaway PostgreSQL baseline and artificial account CAS
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/synthetic-baseline.sql
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/attendance-form-fixture.sql
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/two-admin-account-cas-fixture.sql
+          psql -X -v ON_ERROR_STOP=1 -f qa-round3/e2e/ci/holiday-toggle-4arg-cas-fixture.sql
+      - name: Chromium two-admin positive four-arg holiday read/write CAS and stale conflict
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -u qa-round3/e2e/ci/browser-holiday-cas-4arg-positive.py
+      - name: Declare restricted evidence scope
+        if: always()
+        run: |
+          {
+            echo '## Real Chromium two-admin holiday CAS over synthetic REST and disposable PostgreSQL'
+            echo '- Tests actual QA admin holiday checkbox in real Chromium, synthetic REST gateway, and disposable PostgreSQL16 versioned CAS.'
+            echo '- This is NOT original backend PostgREST, Auth, RLS, source SQL, server PIN or production E2E; only a synthetic four-arg contract.'
+            echo '- No Supabase URL or credentials, no reset/restore functions, no production data.'
+            echo '- Official 3-8-54 NOT STARTED and overall third-round NOT CLEAN.'
+          } >> "$GITHUB_STEP_SUMMARY"
