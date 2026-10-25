@@ -1,0 +1,56 @@
+name: Workmoa QA offline backend reconstructibility audit
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-backend-rebuild-audit.yml'
+      - 'qa-round3/e2e/ci/audit-backend-rebuild-readiness.py'
+      - 'qa-round3/e2e/ci/backend-rebuild-readiness-baseline.json'
+      - 'db/migrations/**'
+      - 'index.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: workmoa-qa-backend-rebuild-audit
+  cancel-in-progress: true
+jobs:
+  offline-source-audit:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fail closed on release branch or cloud credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "eco-i/eco-i.github.io"
+          test "$GITHUB_REF" = "refs/heads/qa-3-8"
+          test "$(git branch --show-current)" = "qa-3-8"
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_SERVICE_ROLE_KEY:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${DATABASE_URL:-}"
+          test -z "${PGHOST:-}"
+          python3 -m py_compile qa-round3/e2e/ci/audit-backend-rebuild-readiness.py
+      - name: Python parser self-test (no SQL execution)
+        run: python3 -u qa-round3/e2e/ci/audit-backend-rebuild-readiness.py --self-test
+      - name: Check 71-RPC coverage baseline against actual public sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -u qa-round3/e2e/ci/audit-backend-rebuild-readiness.py --check-baseline > /tmp/workmoa-source-audit-output.txt
+          tail -n 2 /tmp/workmoa-source-audit-output.txt
+          {
+            echo "## Static public-source reconstruction readiness"
+            echo "- Tested 16 incremental SQL files and index.html RPC literals only; no SQL execution or DB connection."
+            echo "- Match 3/71 direct RPC names; 68/71 not defined by public incremental SQL; exactly 3 table CREATE statements (unique)."
+            echo "- Does not determine operating RPC installation, completeness of historical private SQL, function body behavior or RLS."
+            echo "- Official 3-8-54 NOT STARTED, overall NOT CLEAN."
+          } >> "$GITHUB_STEP_SUMMARY"
