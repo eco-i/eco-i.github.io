@@ -79,6 +79,15 @@ def arm(mode):
     INTERCEPT["entered"].clear()
     INTERCEPT["release"].clear()
 
+def wait_gate_in_browser(page, timeout=10):
+    """Pump Playwright's sync event loop while the HTTP-server thread waits."""
+    stop = time.monotonic() + timeout
+    while time.monotonic() < stop:
+        if INTERCEPT["entered"].is_set():
+            return True
+        page.wait_for_timeout(80)
+    return INTERCEPT["entered"].is_set()
+
 def wait_pending_off(page, timeout=12):
     stop = time.monotonic() + timeout
     while time.monotonic() < stop:
@@ -109,7 +118,7 @@ def run():
                 qa.open_dirty(a, "readonly", "A-ROLE-REVOKED-WHILE-SAVE")
                 arm("revoked")
                 qa.click_save(a)
-                check(INTERCEPT["entered"].wait(10), "A actual UI save RPC arrives while server reply is held")
+                check(wait_gate_in_browser(a), "A actual UI save RPC arrives while server reply is held")
                 check(a.evaluate("employeeAccountSavePending"),
                       "A browser keeps save pending during in-flight request")
                 check(qa.dbstate() == {"revision": 0, "status": "active", "events": 0},
@@ -143,7 +152,7 @@ def run():
                 qa.open_dirty(b, "disabled", "B-EXPIRE-AFTER-NEW-LOGIN")
                 arm("expired")
                 qa.click_save(b)
-                check(INTERCEPT["entered"].wait(10), "B save reaches server before session handoff")
+                check(wait_gate_in_browser(b), "B save reaches server before session handoff")
                 check(b.evaluate("employeeAccountSavePending"),
                       "B save remains in flight while old session logs out")
                 b.evaluate("logout(false)")
