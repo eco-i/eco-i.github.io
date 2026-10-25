@@ -1,0 +1,105 @@
+name: Workmoa QA isolated empty PostgreSQL schema shells
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - '.github/workflows/workmoa-qa-empty-table-shells.yml'
+      - 'qa-round3/e2e/ci/build-qa-table-shells.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: workmoa-qa-empty-table-shells
+  cancel-in-progress: true
+jobs:
+  synthetic-shells:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: qa_runner
+          POSTGRES_PASSWORD: synthetic_ci_only_not_a_real_secret
+          POSTGRES_DB: qa_round3
+        ports: ['127.0.0.1:5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U qa_runner -d qa_round3"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGDATABASE: qa_round3
+      PGUSER: qa_runner
+      PGPASSWORD: synthetic_ci_only_not_a_real_secret
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Assert QA-only container and no operational secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = eco-i/eco-i.github.io
+          test "$GITHUB_REF" = refs/heads/qa-3-8
+          test "$PGHOST" = 127.0.0.1
+          test "$PGDATABASE" = qa_round3
+          test "$PGUSER" = qa_runner
+          test -z "${DATABASE_URL:-}"
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          python3 -m py_compile qa-round3/e2e/ci/build-qa-table-shells.py
+          python3 qa-round3/e2e/ci/build-qa-table-shells.py --self-test
+          if ! command -v psql >/dev/null; then
+            timeout 120s sudo apt-get update -qq
+            timeout 120s sudo apt-get install -y -qq postgresql-client
+          fi
+      - name: Compile artificial column metadata and create isolated empty schema
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 qa-round3/e2e/ci/build-qa-table-shells.py --fixture > /tmp/qa_empty_shells.sql
+          grep -q 'CREATE SCHEMA IF NOT EXISTS "workmoa_synthetic_qa"' /tmp/qa_empty_shells.sql
+          if grep -Eq 'CREATE TABLE "(public|workmoa_guard)"\.|GRANT .* (anon|authenticated|PUBLIC)' /tmp/qa_empty_shells.sql; then exit 2; fi
+          psql -X -v ON_ERROR_STOP=1 -f /tmp/qa_empty_shells.sql >/tmp/shell_creation_result.txt
+          test "$(psql -X -At -v ON_ERROR_STOP=1 -c "
+            SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname='workmoa_synthetic_qa' AND c.relkind='r';
+          ")" = "2"
+          test "$(psql -X -At -v ON_ERROR_STOP=1 -c "
+            SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname='workmoa_synthetic_qa'
+              AND c.relkind='r' AND c.relrowsecurity AND c.relforcerowsecurity;
+          ")" = "2"
+          test "$(psql -X -At -v ON_ERROR_STOP=1 -c "
+            SELECT count(*) FROM information_schema.columns
+             WHERE table_schema='workmoa_synthetic_qa';
+          ")" = "4"
+          test "$(psql -X -At -v ON_ERROR_STOP=1 -c "
+            SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname='public' AND c.relname IN ('qa_actor','qa_marker');
+          ")" = "0"
+          test "$(psql -X -At -v ON_ERROR_STOP=1 -c "
+            SELECT count(*) FROM information_schema.table_privileges
+            WHERE table_schema='workmoa_synthetic_qa'
+              AND grantee IN ('PUBLIC','anon','authenticated');
+          ")" = "0"
+          echo 'EMPTY_SHELLS_PG_PASS 2 synthetic tables, 4 columns, forced RLS, zero public tables/grants'
+      - name: Scope limitations
+        if: always()
+        run: |
+          {
+            echo '## Isolated empty QA table shells — NOT original schema'
+            echo '- Synthetic sample: 2 fabricated tables/4 columns compiled into restricted workmoa_synthetic_qa schema.'
+            echo '- PostgreSQL16 verified enforced RLS and zero grants/public table mutations.'
+            echo '- Table metadata can be supplied locally without committing private production catalog information.'
+            echo '- Missing original defaults, FK, checks, triggers, RLS policies, functions, Auth and PostgREST.'
+            echo '- Official 3-8-54 NOT STARTED, overall NOT CLEAN.'
+          } >> "$GITHUB_STEP_SUMMARY"
