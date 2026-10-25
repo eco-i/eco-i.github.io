@@ -473,7 +473,7 @@ def main():
                       hidden:document.getElementById('saveOvertimeBtn').classList.contains('hidden'),
                       draft:overtimeDetailMinutes.early,
                       dirty:detailDirtyFlags().overtime,
-                      overtimeLoadSeq,
+                      overtimeDataLoadSeq,
                       error:document.getElementById('overtimeDetailError')?.textContent
                     })""")
                     overtime_restored_ok=(overtime_restored["completed"] is True and
