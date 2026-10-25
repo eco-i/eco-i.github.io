@@ -68,3 +68,24 @@
 **추가 안전 검사 관련:** 이전 GitHub용 합성 교차 잠금 SQL 파일 생성은 자동 안전 검사에서 차단됨. 이를 CI/CLI/SQL Editor/새 도구를 통한 동일 요청 우회 대상으로 삼지 않는다. 고객센터 답변 전 복구 금지인 데이터관리 RPC 3종도 계속 보류.
 
 공식 상태 변화 없음: 운영 RPC **23/26(88.5%, 과거 검증 기준)**, 공식 **3-8-53 완료 / 3-8-54 미시작**, 제품 신규 결함 **37종**, 전체 **NOT CLEAN**. 운영 `main`·실 직원 기록·권한·배포 변경 **0건**.
+
+
+## 6. 현재 타입 생성·마이그레이션 내역에 대한 최종 직접 확인 (2026-10-25)
+
+**실제 운영 Supabase 연결의 읽기 전용 `generate_typescript_types`, `list_migrations` 사용.** 운영 SQL/DDL/직원 데이터 행 조회/함수 실행, 키·PIN 조회 및 운영 기능 변경 **0건**.
+
+| 감사 항목 | 직접 확인 결과 |
+|---|---|
+| 최신 생성 TypeScript 내 `public.Functions` 이름 | **200개 고유 이름** (기존 10/24 카탈로그의 208 public 함수 *서명 행*과 단위가 다름: 오버로드 중복을 동일 이름으로 합침). 이 숫자 차이를 장애로 취급하지 않음 |
+| 남은 위험 작업 RPC 3종 | `admin_restore_data_v2`, `admin_reset_data_v2`, `admin_restore_safety_backup_v2` **생성된 함수 타입 목록에서 미확인**. 기존 23/26 = **88.5%** 기록과 모순 없음; 이 결과는 직접 호출 기능시험이 아님 |
+| 기존 인사·PIN 핵심 RPC | `get_personnel_restore_revision_v1`, `admin_apply_personnel_batch_v3`, `admin_cancel_personnel_batch_v2`, `admin_reset_current_personnel_pins_v3` 함수 이름 존재 확인 |
+| QA 미배포 휴일근무 계약 | `list_holiday_work_eligibility_v2` 미존재, `admin_set_holiday_work_enabled_v2` 현재 **3인자** 타입 확인. QA에서는 별도 revision 포함 **3열 조회 + 4인자 쓰기**를 요구하므로 연계 차단 계속. 기존 `main`은 운영 구 계약 사용 |
+| Supabase 실제 마이그레이션 | **18건** |
+| 비공개 보관 `ops/production-migration-evidence-20261024/manifest.json` | **18건**, 현재 Supabase의 목록과 **18/18 버전·이름·순서 일치**, 누락된 보관 migration 0 |
+| 공개/비공개 GitHub 역사 탐색 | 공개 main 89개 커밋 첫 시점, 비공개 main 초기 2026-10-21 이후 커밋 이력과 초기·중간·현재 git tree, 현재 파일 목록을 확인. 전체 원본 베이스 스키마 `CREATE TABLE` 덤프를 재사용 가능한 보관 파일로 확인하지 못함. 이력의 모든 과거 객체 100% 전수 보증은 아님 |
+
+**장애의 범위 확정:** 최신 SQL 마이그레이션 아카이브를 반복 확인해도 초기 테이블·함수·trigger·RLS·인덱스 원문은 복원할 수 없다. `list_tables(verbose=true)`의 구조 메타데이터 28테이블/190컬럼/72개 기본값/55개 FK 관계는 확보 가능한 사실이지만 **완전한 보안·실행가능 SQL DDL이 아니다**.
+
+**다음 작업은 하나:** 승인이 확보된 읽기 전용 **schema-only 원본 추출**(실제 직원 데이터/세션 행 제외, 반환된 함수·정책 원문에 개인정보·기밀 리터럴이 없는지 사전검토)을 비공개 경로로 확보한 뒤, **기존 무료 GitHub Actions 폐기형 PG 및 필요시 로컬 PostgREST**에서만 재구성·검증한다. 현재 연결된 앱에서 제공되는 API는 완전한 `pg_dump --schema-only` 파일 다운로드를 지원하지 않으므로 이를 이미 확보한 것으로 주장하지 않는다. 비공개 원문·운영 함수 본문을 공개 `qa-3-8` 또는 공개 Actions 아티팩트에 복제하지 않는다.
+
+**운영 복구 3 RPC 및 최근 안전 검사 차단 SQL은 다른 경로로 우회 실행하지 않는다.** 추가 합성 시나리오를 반복해서 공식 54를 진행 중이라고 보고하지 말 것. `3-8-53` 완료, `3-8-54` 시작 안 함, 신규 제품 결함 37, NOT CLEAN 유지.
