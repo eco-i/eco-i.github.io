@@ -85,5 +85,22 @@
     "save_my_memo_v2",
     "set_my_fingerprint_confirmed",
     "set_my_memo_dday"
+  ],
+  "sql_related_relations_uncreated_here": [
+    "annual_leave_settings",
+    "attendance_entries",
+    "audit_logs",
+    "company_events",
+    "employees",
+    "holiday_work_eligibility",
+    "holiday_work_entries",
+    "holiday_work_month_confirmations",
+    "long_service_exclusions",
+    "long_service_settings",
+    "memo_dday_selections",
+    "overtime_entries",
+    "personal_memos",
+    "personnel_account_events",
+    "personnel_batches"
   ]
 }
