@@ -5,6 +5,10 @@ on:
     paths:
       - '.github/workflows/workmoa-qa-overtime-photo-soak.yml'
       - 'index.html'
+      - 'qa-round3/e2e/ci/browser-fingerprint-overtime-success.py'
+      - 'qa-round3/e2e/ci/fingerprint-overtime-browser-fixture.sql'
+      - 'qa-round3/e2e/ci/browser-attendance-form.py'
+      - 'qa-round3/e2e/ci/browser-postgres-bridge.py'
   workflow_dispatch:
 permissions:
   contents: read
