@@ -151,6 +151,7 @@ def run():
                 check(b.evaluate("!state.sessionToken && !state.me"),
                       "B local logout removes old token before delayed server response")
                 # This is a fresh login, with a different identity/token.
+                qa.ROSTER[0]["is_admin"] = True  # A role regranted before fresh independent login
                 qa.login(b, "가상관리자A")
                 check(b.evaluate("state.me.employee_id===1 && state.sessionToken") == qa.A,
                       "new A login owns same Chromium page before B reply arrives")
