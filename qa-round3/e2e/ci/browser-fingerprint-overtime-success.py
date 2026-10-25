@@ -462,10 +462,27 @@ def main():
                       rpc=window.__qaPriorRpc;
                       if(release)release();
                     }""")
-                    check(page.evaluate("async()=>await window.__qaOtReadTask") is True and
-                          page.evaluate("state.overtimeBackendReady===true") and
-                          page.locator("#saveOvertimeBtn").is_enabled() and
-                          page.locator("#overtimeEarlyTime").text_content().strip()=="20분",
+                    overtime_restored=page.evaluate("""async()=>({
+                      completed:await window.__qaOtReadTask,
+                      backend:state.overtimeBackendReady,
+                      personnel:state.personnelBackendReady,
+                      writable:personnelMutationReady(),
+                      refreshPending:!!refreshPendingOwner,
+                      refreshing:state.refreshing,
+                      disabled:document.getElementById('saveOvertimeBtn').disabled,
+                      hidden:document.getElementById('saveOvertimeBtn').classList.contains('hidden'),
+                      draft:overtimeDetailMinutes.early,
+                      dirty:detailDirtyFlags().overtime,
+                      overtimeLoadSeq,
+                      error:document.getElementById('overtimeDetailError')?.textContent
+                    })""")
+                    overtime_restored_ok=(overtime_restored["completed"] is True and
+                        overtime_restored["backend"] is True and
+                        not overtime_restored["disabled"] and not overtime_restored["hidden"] and
+                        overtime_restored["draft"]==20 and overtime_restored["dirty"] is True)
+                    if not overtime_restored_ok:
+                        print("QA_OVERTIME_READ_COMPLETION_DIAG="+repr(overtime_restored),flush=True)
+                    check(overtime_restored_ok,
                           "completed authoritative overtime read unlocks dirty detail without rerender")
                     # A personnel refresh also changes readiness before any HTTP
                     # response arrives. Use the app's real loadEmployees path.
@@ -886,7 +903,21 @@ def main():
                 # Simulate a second tab writing newer data AFTER this tab captured
                 # its 30-minute baseline. The stale first tab must NOT overwrite it.
                 page.locator('[data-overtime-slot="early"] button[data-overtime-adjust="10"]').click()
-                check(page.locator("#overtimeEarlyTime").text_content().strip()=="40분",
+                stale_ui=page.evaluate("""()=>({
+                  draft:overtimeDetailMinutes.early,
+                  text:document.getElementById('overtimeEarlyTime')?.textContent?.trim(),
+                  dirty:detailDirtyFlags().overtime,
+                  baseline:detailDraftBaseline.overtime,
+                  disabled:document.getElementById('saveOvertimeBtn')?.disabled,
+                  hidden:document.getElementById('saveOvertimeBtn')?.classList.contains('hidden'),
+                  refreshing:state.refreshing,refreshOwner:!!refreshPendingOwner,
+                  backend:state.overtimeBackendReady,
+                  personnel:state.personnelBackendReady,
+                  source:overtimeDaySourceSnapshot(state.selectedDate)
+                })""")
+                if stale_ui["text"]!="40분":
+                    print("QA_STALE_TAB_DRAFT_DIAG="+repr(stale_ui),flush=True)
+                check(stale_ui["text"]=="40분",
                       "stale-tab draft remains editable before conflicting server change")
                 another_tab_minutes=br.value("""UPDATE public.qa_browser_overtime
                   SET minutes=50,
