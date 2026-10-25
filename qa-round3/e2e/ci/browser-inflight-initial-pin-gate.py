@@ -174,7 +174,7 @@ def run():
                 a.locator("#selfPinNew").fill("2468")
                 a.locator("#selfPinConfirm").fill("2468")
                 a.locator("#saveSelfPinBtn").click()
-                check(await_page_condition(a, "() => document.querySelector('#selfPinError').textContent.includes('현재 비밀번호')"),
+                check(await_page_condition(a, "document.querySelector('#selfPinError').textContent.includes('현재 비밀번호')"),
                       "rejected synthetic own-PIN change visibly reports incorrect current PIN")
                 check(HOLD["pin_attempts"] == 1,
                       "only allowlisted own-PIN change may reach fake server while forced gate active")
@@ -201,7 +201,7 @@ def run():
                 check(b.evaluate("state.sessionToken") == qa.A,
                       "fresh A login owns the browser before old B response")
                 HOLD["release"].set()
-                check(await_page_condition(b, "() => !employeeAccountSavePending"),
+                check(await_page_condition(b, "!employeeAccountSavePending"),
                       "old B save handler settles after delayed PIN error")
                 b.wait_for_timeout(300)
                 check(b.evaluate("state.sessionToken") == qa.A and
