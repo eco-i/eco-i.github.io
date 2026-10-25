@@ -21,7 +21,8 @@ spec.loader.exec_module(qa)
 br = qa.br
 CHECKS = []
 HOLD = {"entered": threading.Event(), "release": threading.Event(),
-        "mode": "", "arrivals": [], "returns": [], "pin_attempts": 0}
+        "mode": "", "arrivals": [], "returns": [], "pin_attempts": 0,
+        "force_a_pin": False}
 GATE_LOCK = threading.Lock()
 
 def check(ok, label):
@@ -33,6 +34,15 @@ def check(ok, label):
 class PinGateSyntheticApi(qa.TwoAdminFakeApi):
     def do_POST(self):
         name = urlsplit(self.path).path
+        if name == "/rest/v1/rpc/initial_pin_status_v1" and HOLD["force_a_pin"]:
+            size = self.headers.get("Content-Length", "")
+            if not size.isdecimal() or int(size) > 8192:
+                return self.reply(413, {"message": "QA_BAD_LENGTH"})
+            try:
+                data = json.loads(self.rfile.read(int(size)))
+            except Exception:
+                return self.reply(400, {"message": "QA_BAD_JSON"})
+            return self.reply(200, data.get("p_token") == qa.A)
         if name == "/rest/v1/rpc/change_own_pin_v2":
             if (self.headers.get("Origin") != "http://127.0.0.1:54330" or
                 self.headers.get("apikey") != br.KEY or
@@ -86,6 +96,8 @@ class PinGateSyntheticApi(qa.TwoAdminFakeApi):
             HOLD["returns"].append((mode, data["p_token"]))
         # Simulate the ORIGINAL server denying old login-PIN credentials before
         # any SQL writer is called. No original backend is exercised here.
+        if mode == "same-session":
+            HOLD["force_a_pin"] = True
         return self.reply(403, {"code": "P0001", "message": "INITIAL_PIN_CHANGE_REQUIRED"})
 
 def arm(mode):
@@ -185,6 +197,9 @@ def run():
                 check(qa.dbstate() == {"revision": 0, "status": "active", "events": 0},
                       "PIN-gated edit cannot mutate synthetic employee data")
 
+                # Reset synthetic backend's prior scenario: A has resolved its
+                # login PIN before the independent B->A stale-response scenario.
+                HOLD["force_a_pin"] = False
                 # A new browser starts B's save, logs out, logs in again as A,
                 # then receives B's stale PIN-required error. It must belong to B.
                 cb = browser.new_context(locale="ko-KR", service_workers="block")
