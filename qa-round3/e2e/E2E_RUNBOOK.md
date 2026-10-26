@@ -50,3 +50,11 @@
 ## 3-8-50 QA 사이트의 브라우저 네트워크 안전장치
 - 임시 QA HTML 최상단 CSP(meta): `connect-src 'self' https://<QA_REF>.supabase.co wss://<QA_REF>.supabase.co`, jsdelivr CDN는 script-src에만, 필요한 data/blob 이미지·인라인 스타일/JS 허용. object/frame/worker 차단. 제목 `[격리 QA] 근무모아`.
 - 오프라인 synthetic Node 보안생성 테스트 **15/15 PASS**. 실 브라우저 실행 후 DevTools/네트워크에서 운영 Supabase 요청 **0** 및 정상 E2E UI 작동을 반드시 확인해야 한다. 정책 텍스트 검사만으로 CSP 실제 차단 효과 확인을 대신하지 못한다.
+
+## 2026-10-26 — Independent LOCAL Supabase CI entry (not 3-8-54)
+
+- Frontend QA preview generator (`prepare-qa-site.mjs`) now accepts `QA_TARGET_KIND=LOCAL` only at `http://127.0.0.1:54321`, after explicit isolated-local/project-key confirmations. Other hosts, production config, service keys, and uncontrolled CSP remain blocked. Existing hosted QA mode is preserved.
+- On QA branch only, `.github/workflows/workmoa-qa-real-local-stack.yml` prepares a **brand-new unlinked GitHub Actions ephemeral directory** (no production login, link, dump, keys or staff rows), runs official `supabase start`, and executes `verify-real-local-supabase.mjs` against the real local Auth/PostgREST/PG RLS services.
+- The migration `synthetic-local-stack-probe.sql` creates exactly one artificial `workmoa_ci_probe` table with RLS and one **synthetic** row. Anonymous SELECT must return zero visible rows; anonymous INSERT with table and sequence grants must be explicitly rejected by RLS error code 42501. No Workmoa table or RPC from production is recreated or invoked.
+- All CI processing is disposable and may consume normal GitHub Actions minutes. The GitHub connection used to write the workflow **does not provide verified push-triggered run logs**. Thus the code is committed and statically reviewed, but **actual local stack startup and three HTTP outcomes remain UNVERIFIED until an action run completes successfully**.
+- This is a genuine backend transport/RLS smoke **only if its Actions run is observed PASS**. Even then, it is **not** Workmoa function-originality, HR ACL, two-browser session, P0/P1, or official 3-8-54 E2E. A function definition/return-type mismatch or 3 held restore/reset RPCs must not be bypassed. User's local four CSV files remain offline and are not copied to GitHub/Actions.
