@@ -41,6 +41,7 @@ WITH required_rpc(name) AS (VALUES
  ('list_employee_pin_status'),
  ('list_holiday_work'),
  ('list_holiday_work_eligibility'),
+ ('list_holiday_work_eligibility_v2'),
  ('list_holiday_work_month_confirmations'),
  ('list_my_annual_leave_attendance'),
  ('list_my_fingerprint_records'),
@@ -73,7 +74,13 @@ WITH required_rpc(name) AS (VALUES
  ('set_my_fingerprint_confirmed'),
  ('set_my_memo_dday')
 )
-SELECT name AS expected_rpc, EXISTS(SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname=name) AS installed_in_qa FROM required_rpc ORDER BY name;
+SELECT name AS expected_rpc,
+ CASE WHEN name IN ('admin_reset_data_v2','admin_restore_data_v2','admin_restore_safety_backup_v2')
+        THEN 'SUPPORT_HOLD_NO_EXECUTION'
+      WHEN EXISTS(SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname=name)
+        THEN 'NAME_PRESENT_SIGNATURE_UNVERIFIED'
+      ELSE 'MISSING' END AS name_gate
+FROM required_rpc ORDER BY name;
 
 WITH required_table(name) AS (VALUES
  ('employees'),
@@ -101,3 +108,47 @@ WITH required_table(name) AS (VALUES
  ('data_safety_backups')
 )
 SELECT name AS expected_table, to_regclass(format('public.%I',name)) IS NOT NULL AS installed_in_qa FROM required_table ORDER BY name;
+
+-- 2026-10-26: READ-ONLY QA-only exact input signature gate.
+-- Name-only RPC existence checks cannot verify PostgREST named-argument routing.
+-- Never run against the operational project or use this SQL to test the
+-- three held restore/reset RPCs. A matching signature is NOT Auth/RLS/E2E PASS.
+-- QA-only holiday-work v2 requirements intentionally stay REVIEW until the
+-- frontend's 4th arg type/key and returned three columns are verified.
+WITH required(name, args_expected, result_expected, mode) AS (
+ VALUES
+ ('get_personnel_restore_revision_v1','p_token uuid','text','EXACT'),
+ ('admin_set_employee_account_status_v3','p_token uuid, p_employee_id smallint, p_account_status text, p_effective_date date, p_note text, p_expected jsonb, p_expected_revision text','boolean','EXACT'),
+ ('admin_apply_personnel_batch_v3','p_token uuid, p_effective_date date, p_note text, p_items jsonb, p_replace_batch_id bigint, p_mode text, p_expected jsonb, p_expected_revision text','jsonb','EXACT'),
+ ('admin_cancel_personnel_batch_v2','p_token uuid, p_batch_id bigint, p_expected_batch jsonb, p_expected_revision text','boolean','EXACT'),
+ ('admin_restore_personnel_snapshot_v3','p_token uuid, p_snapshot_id bigint, p_admin_pin text, p_expected_revision text','boolean','EXACT'),
+ ('preview_current_personnel_pin_reset_v1','p_token uuid','jsonb','EXACT'),
+ ('admin_reset_current_personnel_pins_v3','p_token uuid, p_admin_pin text, p_expected_revision text','integer','EXACT'),
+ ('admin_set_holiday_work_enabled_v2',NULL,'boolean','QA_FOUR_INPUTS'),
+ ('list_holiday_work_eligibility_v2','p_token uuid',NULL,'QA_THREE_COLUMNS')
+), observed AS (
+ SELECT p.proname AS name, pg_get_function_identity_arguments(p.oid) AS args,
+        pg_get_function_result(p.oid) AS return_type, p.pronargs AS argc
+ FROM pg_catalog.pg_proc p
+ JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+ WHERE n.nspname='public' AND p.prokind='f'
+)
+SELECT r.name AS expected_rpc,
+ CASE WHEN o.name IS NULL THEN 'BLOCKED_MISSING'
+      WHEN r.mode='EXACT'
+           AND o.args=r.args_expected AND o.return_type=r.result_expected
+        THEN 'SIGNATURE_MATCH_NOT_E2E'
+      WHEN r.mode='QA_FOUR_INPUTS'
+           AND o.argc=4
+           AND o.args LIKE 'p_token uuid, p_employee_id smallint, p_enabled boolean, %'
+           AND o.return_type='boolean'
+        THEN 'SHAPE_MATCH_4TH_ARGUMENT_REVIEW_REQUIRED'
+      WHEN r.mode='QA_THREE_COLUMNS'
+           AND o.args=r.args_expected
+           AND o.return_type LIKE 'TABLE(%'
+           AND length(o.return_type)-length(replace(o.return_type,',',''))=2
+        THEN 'SHAPE_MATCH_RETURN_COLUMNS_REVIEW_REQUIRED'
+      ELSE 'BLOCKED_SIGNATURE_OR_RETURN_MISMATCH'
+ END AS contract_gate
+FROM required r LEFT JOIN observed o ON o.name=r.name
+ORDER BY r.mode,r.name;
