@@ -128,13 +128,16 @@ WITH required(name, args_expected, result_expected, mode) AS (
  ('list_holiday_work_eligibility_v2','p_token uuid',NULL,'QA_THREE_COLUMNS')
 ), observed AS (
  SELECT p.proname AS name, pg_get_function_identity_arguments(p.oid) AS args,
-        pg_get_function_result(p.oid) AS return_type, p.pronargs AS argc
+        pg_get_function_result(p.oid) AS return_type, p.pronargs AS argc,
+        count(*) OVER (PARTITION BY p.proname) AS overload_count,
+        row_number() OVER (PARTITION BY p.proname ORDER BY p.oid) AS candidate_number
  FROM pg_catalog.pg_proc p
  JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
  WHERE n.nspname='public' AND p.prokind='f'
 )
 SELECT r.name AS expected_rpc,
  CASE WHEN o.name IS NULL THEN 'BLOCKED_MISSING'
+      WHEN o.overload_count<>1 THEN 'BLOCKED_OVERLOAD_REVIEW_REQUIRED'
       WHEN r.mode='EXACT'
            AND o.args=r.args_expected AND o.return_type=r.result_expected
         THEN 'SIGNATURE_MATCH_NOT_E2E'
@@ -150,5 +153,5 @@ SELECT r.name AS expected_rpc,
         THEN 'SHAPE_MATCH_RETURN_COLUMNS_REVIEW_REQUIRED'
       ELSE 'BLOCKED_SIGNATURE_OR_RETURN_MISMATCH'
  END AS contract_gate
-FROM required r LEFT JOIN observed o ON o.name=r.name
+FROM required r LEFT JOIN observed o ON o.name=r.name AND o.candidate_number=1
 ORDER BY r.mode,r.name;
