@@ -1,0 +1,76 @@
+name: Workmoa QA genuine isolated local Supabase smoke
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - 'qa-round3/e2e/synthetic-local-stack-probe.sql'
+      - 'qa-round3/e2e/verify-real-local-supabase.mjs'
+      - '.github/workflows/workmoa-qa-real-local-stack.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-real-local-stack-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-local-stack-smoke:
+    if: github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      WORKMOA_EPHEMERAL_QA: YES
+      SUPABASE_ACCESS_TOKEN: ''
+      SUPABASE_DB_PASSWORD: ''
+      SUPABASE_PROJECT_REF: ''
+    steps:
+      - name: Fetch QA branch only, without persisted GitHub credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up official Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Create disposable unlinked workspace with synthetic-only migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          echo "QA_TMP=$tmp" >> "$GITHUB_ENV"
+          cd "$tmp"
+          printf '%s\n' 'FAKE_LOCAL_DB_NO_REMOTE_LINK' > .workmoa-local-ci-only
+          supabase init --yes
+          mkdir -p supabase/migrations
+          cp "$GITHUB_WORKSPACE/qa-round3/e2e/synthetic-local-stack-probe.sql" \
+             supabase/migrations/20261026000000_synthetic_local_probe.sql
+          test ! -f supabase/.temp/project-ref
+
+      - name: Actually start isolated PostgreSQL Auth PostgREST Realtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$QA_TMP"
+          supabase start -x studio,imgproxy,logflare,vector,edge-runtime,postgres-meta,storage-api,supavisor
+
+      - name: Verify real local Auth REST and RLS with anon key
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$QA_TMP"
+          node "$GITHUB_WORKSPACE/qa-round3/e2e/verify-real-local-supabase.mjs"
+
+      - name: Tear down disposable local-only containers
+        if: always()
+        shell: bash
+        run: |
+          if [[ -n "${QA_TMP:-}" && "$QA_TMP" == /tmp/tmp.* && -f "$QA_TMP/.workmoa-local-ci-only" ]]; then
+            cd "$QA_TMP"
+            supabase stop --no-backup || true
+            cd "$GITHUB_WORKSPACE"
+            rm -rf -- "$QA_TMP"
+          fi
