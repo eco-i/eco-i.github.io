@@ -65,6 +65,12 @@ jobs:
           set -euo pipefail
           cd "$QA_TMP"
           node "$GITHUB_WORKSPACE/qa-round3/e2e/verify-real-local-supabase.mjs"
+          {
+            echo '### Real local Supabase infrastructure smoke: PASS'
+            echo 'Verified actual ephemeral local Auth settings, PostgREST anonymous SELECT isolation, and explicit 42501 RLS INSERT denial.'
+            echo 'This is NOT Workmoa original schema, 214 RPC, or full-app E2E.'
+            echo 'No production DB project or employee data accessed.'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Tear down disposable local-only containers
         if: always()
