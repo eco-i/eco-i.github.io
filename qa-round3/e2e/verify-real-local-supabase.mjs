@@ -52,5 +52,9 @@ const write = await call(endpoint,{
 if (write.ok) fail('anon unexpectedly inserted into RLS-protected table');
 if (write.status !== 401 && write.status !== 403)
   fail('anon write was not denied as an authorization error; status '+write.status);
+let denial;
+try { denial=await write.json(); } catch { fail('RLS denial response was not JSON'); }
+if (denial?.code !== '42501' || !/row.level security/i.test(String(denial?.message||'')))
+  fail('anon insert was denied for a reason other than RLS');
 console.log('REAL_LOCAL_RLS_WRITE_DENIAL: PASS');
 console.log('RESULT: REAL_LOCAL_STACK_SMOKE_PASS (NOT Workmoa full-app E2E)');
