@@ -36,6 +36,12 @@ async function call(url,opts={}) {
 }
 const auth = await call(api+'/auth/v1/settings',{headers});
 if (!auth.ok) fail('actual local Auth HTTP status '+auth.status);
+let settings;
+try { settings=await auth.json(); } catch { fail('local Auth response was not JSON'); }
+if (!settings || typeof settings !== 'object' ||
+    !settings.external || typeof settings.external !== 'object' ||
+    typeof settings.disable_signup !== 'boolean')
+  fail('local Auth /settings response was not an authentic settings payload');
 console.log('REAL_LOCAL_AUTH_HTTP: PASS');
 const select = await call(endpoint+'?select=message',{headers});
 if (!select.ok) fail('actual local PostgREST query status '+select.status);
