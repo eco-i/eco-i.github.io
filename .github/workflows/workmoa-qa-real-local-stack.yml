@@ -55,7 +55,9 @@ jobs:
         run: |
           set -euo pipefail
           cd "$QA_TMP"
-          supabase start -x studio,imgproxy,logflare,vector,edge-runtime,postgres-meta,storage-api,supavisor
+          # GitHub runner exposes no local Supabase ports on non-loopback hosts.
+          docker network create -o 'com.docker.network.bridge.host_binding_ipv4=127.0.0.1' workmoa_ephemeral_qa_network
+          supabase start --network-id workmoa_ephemeral_qa_network -x studio,imgproxy,logflare,vector,edge-runtime,postgres-meta,storage-api,supavisor
 
       - name: Verify real local Auth REST and RLS with anon key
         shell: bash
@@ -74,3 +76,4 @@ jobs:
             cd "$GITHUB_WORKSPACE"
             rm -rf -- "$QA_TMP"
           fi
+          docker network rm workmoa_ephemeral_qa_network >/dev/null 2>&1 || true
