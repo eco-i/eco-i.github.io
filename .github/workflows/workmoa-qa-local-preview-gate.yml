@@ -1,0 +1,37 @@
+name: Workmoa QA isolated local preview safety
+on:
+  push:
+    branches: [qa-3-8]
+    paths:
+      - 'qa-round3/e2e/prepare-qa-site.mjs'
+      - 'qa-round3/e2e/prepare-qa-site.test.mjs'
+      - '.github/workflows/workmoa-qa-local-preview-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workmoa-local-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-preview-safety:
+    if: github.ref == 'refs/heads/qa-3-8'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout QA branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Configure Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Offline QA preview generator regression
+        run: node --test qa-round3/e2e/prepare-qa-site.test.mjs
+      - name: Confirm no production DB operations
+        run: |
+          echo 'Only ephemeral synthetic files and local Node fixtures were tested.'
+          echo 'No Supabase project credentials, production SQL, or employee rows are used.'
