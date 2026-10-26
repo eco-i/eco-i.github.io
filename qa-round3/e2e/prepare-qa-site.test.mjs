@@ -73,3 +73,39 @@ test('preexisting CSP rejected for manual review', () => {
  try{writeFileSync(path,original.replace('<head>','<head><meta http-equiv="Content-Security-Policy" content="default-src *">'));assert.equal(exec().status,2);}
  finally{writeFileSync(path,original);}
 });
+
+// Local Supabase is a disposable loopback-only stack, never the hosted Workmoa DB.
+const localEnv = {
+ QA_TARGET_KIND:'LOCAL',
+ QA_SUPABASE_REF:'',
+ QA_SUPABASE_URL:'http://127.0.0.1:54321',
+ QA_LOCAL_SUPABASE_CONFIRMED:'YES',
+ QA_LOCAL_ANON_KEY_VERIFIED:'YES',
+ QA_PUBLISHABLE_KEY_VERIFIED:'NO'
+};
+rejects('refuse local endpoint without explicit local confirmation', {...localEnv,QA_LOCAL_SUPABASE_CONFIRMED:'NO'});
+rejects('refuse local endpoint without verified local key', {...localEnv,QA_LOCAL_ANON_KEY_VERIFIED:'NO'});
+rejects('refuse localhost hostname alias', {...localEnv,QA_SUPABASE_URL:'http://localhost:54321'});
+rejects('refuse local API on another port', {...localEnv,QA_SUPABASE_URL:'http://127.0.0.1:54322'});
+rejects('refuse LAN API for local mode', {...localEnv,QA_SUPABASE_URL:'http://192.168.0.10:54321'});
+rejects('refuse hosted URL when local mode selected', {...localEnv,QA_SUPABASE_URL:defaultEnv.QA_SUPABASE_URL});
+rejects('refuse remote JWT ref in local mode', {...localEnv,QA_SUPABASE_ANON_KEY:jwt('anon',prodRef)});
+rejects('refuse privileged local JWT', {...localEnv,QA_SUPABASE_ANON_KEY:jwt('service_role',undefined)});
+rejects('refuse local mode with remote project ref', {...localEnv,QA_SUPABASE_REF:qaRef});
+rejects('refuse unknown QA target mode', {QA_TARGET_KIND:'UNKNOWN'});
+for (const [name,key] of [
+ ['loopback publishable QA preview',qaKey],
+ ['loopback local anon JWT preview',jwt('anon',undefined)]
+]) test(name, () => {
+ const result = exec({...localEnv,QA_SUPABASE_ANON_KEY:key});
+ assert.equal(result.status,0,result.stderr);
+ assert.ok(!result.stdout.includes(key),'key must never appear in stdout');
+ const dest=result.stdout.match(/Temporary QA (?:site|static directory): (.+)/)?.[1];
+ assert.ok(dest,'generated destination');
+ const page=readFileSync(join(dest,'index.html'),'utf8');
+ assert.ok(page.includes("const SUPABASE_URL = \"http://127.0.0.1:54321\";"));
+ assert.ok(page.includes("connect-src 'self' http://127.0.0.1:54321 ws://127.0.0.1:54321"));
+ assert.ok(!page.includes(prodRef)&&!page.includes(prodKey));
+ assert.ok(!page.includes('wss://'+qaRef+'.supabase.co'));
+ rmSync(dest,{recursive:true,force:true});
+});
