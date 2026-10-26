@@ -58,3 +58,18 @@
 - The migration `synthetic-local-stack-probe.sql` creates exactly one artificial `workmoa_ci_probe` table with RLS and one **synthetic** row. Anonymous SELECT must return zero visible rows; anonymous INSERT with table and sequence grants must be explicitly rejected by RLS error code 42501. No Workmoa table or RPC from production is recreated or invoked.
 - All CI processing is disposable and may consume normal GitHub Actions minutes. The GitHub connection used to write the workflow **does not provide verified push-triggered run logs**. Thus the code is committed and statically reviewed, but **actual local stack startup and three HTTP outcomes remain UNVERIFIED until an action run completes successfully**.
 - This is a genuine backend transport/RLS smoke **only if its Actions run is observed PASS**. Even then, it is **not** Workmoa function-originality, HR ACL, two-browser session, P0/P1, or official 3-8-54 E2E. A function definition/return-type mismatch or 3 held restore/reset RPCs must not be bypassed. User's local four CSV files remain offline and are not copied to GitHub/Actions.
+
+## 2026-10-26 — VERIFIED CI result: genuine isolated local Supabase (infrastructure only)
+
+**Newly verified first-hand via GitHub Actions job steps AND decoded logs**, not inferred from committed code:
+
+- [Real local stack Run 40329381353](https://github.com/eco-i/eco-i.github.io/actions/runs/40329381353), commit `19d33c4ee88f07881dcfba6b2aed1f9d2b851243`, **completed/success**. Job `isolated-local-stack-smoke`, ID `121595099643`.
+- Job steps confirmed **success**: CLI setup; disposable unlinked workspace with *synthetic-only* local migration; actual PostgreSQL/Auth/PostgREST/Realtime stack startup; real local HTTP and RLS checks; ephemeral cleanup.
+- Decoded job logs explicitly confirm `REAL_LOCAL_AUTH_HTTP: PASS`, `REAL_LOCAL_POSTGREST_AND_RLS_SELECT: PASS`, `REAL_LOCAL_RLS_WRITE_DENIAL: PASS`, `RESULT: REAL_LOCAL_STACK_SMOKE_PASS (NOT Workmoa full-app E2E)`.
+- [QA preview isolation Run 40326336371](https://github.com/eco-i/eco-i.github.io/actions/runs/40326336371), job `121583874528`: **27 tests / 27 pass / 0 fail**, based on actual `node --test` summary log.
+- Earlier runs cancelled under push concurrency are superseded by verified green runs, not interpreted as regressions. Prior local-stack [Run 40328150744](https://github.com/eco-i/eco-i.github.io/actions/runs/40328150744) was also recorded as completed/success.
+- Both QA workflows use synthetic fixtures. Production `main`, employee data, account sessions, original SQL dump, held admin reset/restore RPCs, and all hosted Supabase projects were **not accessed or modified by these CI jobs**.
+
+**Gate update:** isolated local Supabase **transport/Auth/PostgREST/RLS infrastructure smoke VERIFIED PASS**. This removes only the question of whether an independent real local Supabase service can be started and exercised in Actions. **Original Workmoa schema/RPC/security-equivalence remains BLOCKED**: no 28-table/214-function installation; no synthetic Workmoa users or custom `p_token` session authenticated E2E; no real full-app two-tab browser verification. Do not treat this success as start or completion of `3-8-54`.
+
+Official status remains: 3-8-53 last completed; 3-8-54 not started; 37 third-round new defects; NOT CLEAN. RPC remediation 23/26 (88.5%), three blocked functions under support hold. Production DB/`main` modification 0.
