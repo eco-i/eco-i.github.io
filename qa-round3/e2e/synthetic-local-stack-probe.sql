@@ -8,6 +8,8 @@ CREATE TABLE public.workmoa_ci_probe (
 ALTER TABLE public.workmoa_ci_probe ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.workmoa_ci_probe FROM public, anon, authenticated;
 GRANT SELECT, INSERT ON public.workmoa_ci_probe TO anon;
+GRANT USAGE, SELECT ON SEQUENCE public.workmoa_ci_probe_probe_id_seq TO anon;
+-- Sequence access is deliberate: RLS must be the reason for denial, not permissions.
 -- The anon grant alone must NOT bypass RLS (no policy exists).
 -- The seeded row is synthetic, solely to verify RLS invisibility.
 INSERT INTO public.workmoa_ci_probe(message) VALUES ('LOCAL_SYNTHETIC_CI_SEEDED');
