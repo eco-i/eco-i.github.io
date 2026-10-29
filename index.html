@@ -176,6 +176,7 @@
   .calendar-week.company-lanes-1{--company-event-lane-height:var(--company-event-row-h)}
   .calendar-week.company-lanes-2{--company-event-lane-height:calc(var(--company-event-row-h) + var(--company-event-row-h) + 1px)}
   .calendar-week.company-lanes-3{--company-event-lane-height:calc(var(--company-event-row-h) + var(--company-event-row-h) + var(--company-event-row-h) + 2px)}
+  .calendar-week.company-lanes-4{--company-event-lane-height:calc(var(--company-event-row-h) * 4 + 3px)}
   .calendar-week.has-company-events .day-cell{padding-bottom:calc(7px + var(--company-event-lane-height))}
   .calendar-week.has-company-events .att-dot,.calendar-week.has-company-events .calendar-term-mini{bottom:calc(7px + var(--company-event-lane-height))}
   .company-event-week-layer{position:absolute;left:0;right:0;bottom:4px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));column-gap:0;row-gap:1px;z-index:6;pointer-events:none;min-width:0;overflow:visible}
@@ -1789,8 +1790,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20261029-1408';
+const APP_VERSION = 'ver20261029-1500';
 const UPDATE_HISTORY = [
+  {version:'ver20261029-1500',date:'2026.10.29',items:['기간이 겹치는 사내일정을 달력에 각각 별도 막대로 표시','일정 막대 줄 맞춤 및 숨김 일정 개수 표시 개선']},
   {version:'ver20261029-1408',date:'2026.10.29',items:['같은 날짜에 여러 직원의 휴일근무를 순서대로 저장할 때 발생하던 오류 수정','휴일근무 저장 실패 원인 안내가 사라지지 않도록 개선']},
   {version:'ver20261024-1529',date:'2026.10.24',items:['인사관리 서버 RPC 5종 복구 및 동시수정 안전검증 보강','인사발령 등록·수정·취소·계정 상태 변경 및 인사 백업 복원 간 변경 충돌 보호','기존 탭에서 인사자료 변경 시 최신 데이터 재확인 안내']},
   {version:'ver20261018-2313',date:'2026.10.18',items:['관리자용 기존 공휴일 근무일 변경·공휴일 복원 기능 추가','공휴일 변경을 전 직원 근무표·연차·휴일근무·대정비 계산에 반영','원본 공휴일과 주말·창립기념일·2026년 10월 특별 편성 보호']},
@@ -8113,42 +8115,49 @@ function sameCompanyEventRow(a,b){
   if(aid>0&&bid>0)return aid===bid;
   return a.start_date===b.start_date&&a.end_date===b.end_date&&a.memo_text===b.memo_text;
 }
-function primaryCompanyEventRangeForDate(key,normalizedRows){
-  return companyEventsForDate(key,normalizedRows).find(r=>r.start_date!==r.end_date)||null;
-}
 function companyEventWeekOverlayMarkup(weekDays,normalizedRows){
-  const infos=weekDays.map(day=>{
-    if(!day)return null;
-    const ranges=day.events.filter(r=>r.start_date!==r.end_date),singles=day.events.filter(r=>r.start_date===r.end_date);
-    const range=ranges[0]||null,single=singles[0]||null;
-    const hiddenCount=Math.max(0,day.events.length-(range?1:0)-(single?1:0));
-    return {...day,range,single,hiddenCount};
-  });
-  const lanes=Math.max(0,...infos.map(info=>info?((info.range?1:0)+(info.single?1:0)+(info.hiddenCount>0?1:0)):0));
-  if(!lanes)return {lanes:0,html:''};
-  const hasRange=infos.some(x=>x?.range),items=[];
-  if(hasRange){
-    for(let col=0;col<7;){
-      const info=infos[col];
-      if(!info?.range){col++;continue;}
-      const range=info.range,startCol=col;let endCol=col;
-      while(endCol+1<7&&infos[endCol+1]?.range&&sameCompanyEventRow(infos[endCol+1].range,range))endCol++;
-      const startKey=infos[startCol].key,endKey=infos[endCol].key;
-      const prevRange=primaryCompanyEventRangeForDate(addDaysKey(startKey,-1),normalizedRows);
-      const nextRange=primaryCompanyEventRangeForDate(addDaysKey(endKey,1),normalizedRows);
-      const roundedStart=!sameCompanyEventRow(prevRange,range),roundedEnd=!sameCompanyEventRow(nextRange,range);
-      const cls=['company-event-week-item','company-event-week-range',roundedStart?'segment-start':'',roundedEnd?'segment-end':''].filter(Boolean).join(' ');
-      items.push(`<span class="${cls}" style="grid-column:${startCol+1}/${endCol+2};grid-row:1">${escapeHtml(companyEventPreview(range.memo_text,120))}</span>`);
-      col=endCol+1;
+  const validDays=weekDays.filter(Boolean);
+  if(!validDays.length)return {lanes:0,html:''};
+  const startKey=validDays[0].key,endKey=validDays[validDays.length-1].key;
+  const visible=normalizedRows.filter(r=>r.start_date<=endKey&&r.end_date>=startKey)
+    .sort((a,b)=>a.start_date.localeCompare(b.start_date)||a.end_date.localeCompare(b.end_date)||(Number(a.id)||0)-(Number(b.id)||0));
+  const used=Array.from({length:7},()=>new Set()),hidden=Array(7).fill(0),items=[];
+  const MAX_VISIBLE_LANES=3;
+  let lanes=0;
+  const reserve=(columns)=>{
+    for(let lane=1;lane<=MAX_VISIBLE_LANES;lane++){
+      if(columns.some(col=>used[col].has(lane)))continue;
+      columns.forEach(col=>used[col].add(lane));
+      lanes=Math.max(lanes,lane);
+      return lane;
     }
+    columns.forEach(col=>hidden[col]++);
+    return 0;
+  };
+  for(const range of visible.filter(r=>r.start_date!==r.end_date)){
+    const columns=weekDays.map((day,col)=>day&&range.start_date<=day.key&&range.end_date>=day.key?col:-1).filter(col=>col>=0);
+    if(!columns.length)continue;
+    const lane=reserve(columns);
+    if(!lane)continue;
+    const startCol=columns[0],endCol=columns[columns.length-1];
+    const roundedStart=range.start_date>=weekDays[startCol].key;
+    const roundedEnd=range.end_date<=weekDays[endCol].key;
+    const cls=['company-event-week-item','company-event-week-range',roundedStart?'segment-start':'',roundedEnd?'segment-end':''].filter(Boolean).join(' ');
+    items.push(`<span class="${cls}" style="grid-column:${startCol+1}/${endCol+2};grid-row:${lane}">${escapeHtml(companyEventPreview(range.memo_text,120))}</span>`);
   }
-  infos.forEach((info,col)=>{
-    if(!info)return;
-    let row=info.range?2:1;
-    if(info.single){items.push(`<span class="company-event-week-item company-event-week-single" style="grid-column:${col+1}/${col+2};grid-row:${row}">${escapeHtml(companyEventPreview(info.single.memo_text,120))}</span>`);row++;}
-    if(info.hiddenCount>0)items.push(`<span class="company-event-week-item company-event-week-more" style="grid-column:${col+1}/${col+2};grid-row:${row}">+${info.hiddenCount}</span>`);
+  for(const single of visible.filter(r=>r.start_date===r.end_date)){
+    const col=weekDays.findIndex(day=>day&&day.key===single.start_date);
+    if(col<0)continue;
+    const lane=reserve([col]);
+    if(!lane)continue;
+    items.push(`<span class="company-event-week-item company-event-week-single" style="grid-column:${col+1}/${col+2};grid-row:${lane}">${escapeHtml(companyEventPreview(single.memo_text,120))}</span>`);
+  }
+  hidden.forEach((count,col)=>{
+    if(!count||!weekDays[col])return;
+    lanes=Math.max(lanes,MAX_VISIBLE_LANES+1);
+    items.push(`<span class="company-event-week-item company-event-week-more" style="grid-column:${col+1}/${col+2};grid-row:${MAX_VISIBLE_LANES+1}">+${count}</span>`);
   });
-  return {lanes,html:`<div class="company-event-week-layer" aria-hidden="true" style="grid-template-rows:repeat(${lanes},var(--company-event-row-h))">${items.join('')}</div>`};
+  return {lanes,html:lanes?`<div class="company-event-week-layer" aria-hidden="true" style="grid-template-rows:repeat(${lanes},var(--company-event-row-h))">${items.join('')}</div>`:''};
 }
 function renderCompanyEventDayDetail(key){
   const section=$('detailCompanyEventsSection'),list=$('detailCompanyEventsList'),count=$('detailCompanyEventsCount');
