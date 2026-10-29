@@ -1789,8 +1789,9 @@
 const SUPABASE_URL = 'https://fnzgjidzdazlodmjhmes.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_asmMoFJpUgX7rLcSkjx1PA_3n2Hk-gG';
 
-const APP_VERSION = 'ver20261024-1529';
+const APP_VERSION = 'ver20261029-1408';
 const UPDATE_HISTORY = [
+  {version:'ver20261029-1408',date:'2026.10.29',items:['같은 날짜에 여러 직원의 휴일근무를 순서대로 저장할 때 발생하던 오류 수정','휴일근무 저장 실패 원인 안내가 사라지지 않도록 개선']},
   {version:'ver20261024-1529',date:'2026.10.24',items:['인사관리 서버 RPC 5종 복구 및 동시수정 안전검증 보강','인사발령 등록·수정·취소·계정 상태 변경 및 인사 백업 복원 간 변경 충돌 보호','기존 탭에서 인사자료 변경 시 최신 데이터 재확인 안내']},
   {version:'ver20261018-2313',date:'2026.10.18',items:['관리자용 기존 공휴일 근무일 변경·공휴일 복원 기능 추가','공휴일 변경을 전 직원 근무표·연차·휴일근무·대정비 계산에 반영','원본 공휴일과 주말·창립기념일·2026년 10월 특별 편성 보호']},
   {version:'ver20261018-2256',date:'2026.10.18',items:['대정비 관리자 화면의 모바일 한글 줄바꿈·입력칸·버튼 겹침 개선','모바일 최신 설정 다시 불러오기·전체 근무표 저장 버튼을 한 줄씩 배치','근태·연차·휴근·사내일정·인사 관련 서버 저장 날짜를 2035년까지 일치']},
@@ -4466,7 +4467,7 @@ function holidayWorkSourceSnapshot(row){return row?{id:Number(row.id)||0,employe
 async function fetchCurrentHolidayWorkRow(targetId,key,token,{adminScope=false}={}){
   if(!configured())return normalizeHolidayWorkRows(localHolidayWorks()).find(r=>Number(r.employee_id)===Number(targetId)&&r.work_date===key)||null;
   const raw=adminScope?await rpc('list_holiday_work',{p_token:token,p_from:key,p_to:key}):await rpc('list_my_holiday_work',{p_token:token,p_from:key,p_to:key});
-  return strictHolidayWorkRpcRows(raw,{forceEmployeeId:adminScope?null:targetId,employeeId:targetId,from:key,to:key}).find(r=>Number(r.employee_id)===Number(targetId)&&r.work_date===key)||null;
+  return strictHolidayWorkRpcRows(raw,{forceEmployeeId:adminScope?null:targetId,employeeId:adminScope?null:targetId,from:key,to:key}).find(r=>Number(r.employee_id)===Number(targetId)&&r.work_date===key)||null;
 }
 function localOvertimeRows(){ try{const r=JSON.parse(localStorage.getItem(LOCAL_OVERTIME_KEY)||'[]');return Array.isArray(r)?r:[]}catch(e){return []} }
 function saveLocalOvertimeRows(rows){localStorage.setItem(LOCAL_OVERTIME_KEY,JSON.stringify(rows||[]));}
@@ -8547,7 +8548,9 @@ async function saveSelectedHolidayWork(){
     if(sessionContextCurrent(actor,token,{epoch:contextEpoch})){
       holidayWorkSavePendingKeys.delete(opKey);
       if(operationCurrent()){
+        const failureText=$('holidayWorkError')?.textContent||'';
         syncOpenDetailPermissionsPreservingDraft();
+        if(failureText&&$('holidayWorkError')&&!$('holidayWorkError').textContent)$('holidayWorkError').textContent=failureText;
         if($('saveHolidayWorkBtn'))$('saveHolidayWorkBtn').disabled=accountReadOnly()||!personnelMutationReady()||state.holidayWorkBackendReady!==true;
         if($('deleteHolidayWorkBtn'))$('deleteHolidayWorkBtn').disabled=accountReadOnly()||!personnelMutationReady()||!holidayWorkFor(targetId,key)||state.holidayWorkBackendReady!==true||(editingOther&&!activeAdminMode());
       }
