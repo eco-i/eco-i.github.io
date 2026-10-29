@@ -4466,7 +4466,7 @@ function holidayWorkSourceSnapshot(row){return row?{id:Number(row.id)||0,employe
 async function fetchCurrentHolidayWorkRow(targetId,key,token,{adminScope=false}={}){
   if(!configured())return normalizeHolidayWorkRows(localHolidayWorks()).find(r=>Number(r.employee_id)===Number(targetId)&&r.work_date===key)||null;
   const raw=adminScope?await rpc('list_holiday_work',{p_token:token,p_from:key,p_to:key}):await rpc('list_my_holiday_work',{p_token:token,p_from:key,p_to:key});
-  return strictHolidayWorkRpcRows(raw,{forceEmployeeId:adminScope?null:targetId,employeeId:targetId,from:key,to:key}).find(r=>Number(r.employee_id)===Number(targetId)&&r.work_date===key)||null;
+  return strictHolidayWorkRpcRows(raw,{forceEmployeeId:adminScope?null:targetId,employeeId:adminScope?null:targetId,from:key,to:key}).find(r=>Number(r.employee_id)===Number(targetId)&&r.work_date===key)||null;
 }
 function localOvertimeRows(){ try{const r=JSON.parse(localStorage.getItem(LOCAL_OVERTIME_KEY)||'[]');return Array.isArray(r)?r:[]}catch(e){return []} }
 function saveLocalOvertimeRows(rows){localStorage.setItem(LOCAL_OVERTIME_KEY,JSON.stringify(rows||[]));}
@@ -8547,7 +8547,9 @@ async function saveSelectedHolidayWork(){
     if(sessionContextCurrent(actor,token,{epoch:contextEpoch})){
       holidayWorkSavePendingKeys.delete(opKey);
       if(operationCurrent()){
+        const failureText=$('holidayWorkError')?.textContent||'';
         syncOpenDetailPermissionsPreservingDraft();
+        if(failureText&&$('holidayWorkError')&&!$('holidayWorkError').textContent)$('holidayWorkError').textContent=failureText;
         if($('saveHolidayWorkBtn'))$('saveHolidayWorkBtn').disabled=accountReadOnly()||!personnelMutationReady()||state.holidayWorkBackendReady!==true;
         if($('deleteHolidayWorkBtn'))$('deleteHolidayWorkBtn').disabled=accountReadOnly()||!personnelMutationReady()||!holidayWorkFor(targetId,key)||state.holidayWorkBackendReady!==true||(editingOther&&!activeAdminMode());
       }
