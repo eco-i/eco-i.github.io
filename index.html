@@ -4565,7 +4565,7 @@ function overtimeAllowanceWarning(capacity,overtimeMinutes,combinedMinutes){
   if(capacity.includesHolidayWork&&capacity.minutes!==900&&overtimeMinutes>900)
     messages.push(`별도 시간외근무가 월 15시간을 ${overtimeMinutesText(overtimeMinutes-900)} 초과했습니다.`);
   if(capacity.minutes!=null&&combinedMinutes>capacity.minutes)
-    messages.push(`휴근 포함 월 합계가 한도를 ${overtimeMinutesText(combinedMinutes-capacity.minutes)} 초과했습니다.`);
+    messages.push(`${capacity.includesHolidayWork?'휴근 포함 월 합계':'월 시간외근무 합계'}가 한도를 ${overtimeMinutesText(combinedMinutes-capacity.minutes)} 초과했습니다.`);
   return messages.join(' ');
 }
 function renderOvertimeSummary(){const box=$('overtimeSummary');if(!box)return;const show=state.view==='mine'&&!!state.me;box.classList.toggle('hidden',!show);if(!show)return;const x=overtimeSummaryFor(),backendLoading=configured()&&state.overtimeBackendReady===null,backendBad=configured()&&state.overtimeBackendReady===false;$('overtimeCapacityValue').textContent=backendLoading?'…':(x.capacity.minutes==null?'미정':overtimeMinutesText(x.capacity.minutes));$('overtimePlanValue').textContent=backendLoading?'…':(backendBad?'-':overtimeMinutesText(x.plan));$('overtimeDoneValue').textContent=backendLoading?'…':(backendBad?'-':overtimeMinutesText(x.done));const note=$('overtimeSummaryNote');note.textContent=backendLoading?'불러오는 중…':(backendBad?'연결 확인 ›':'목록 ›');const overtimeWarning=overtimeAllowanceWarning(x.capacity,x.total,x.combinedTotal);note.classList.toggle('warn',backendBad||!!overtimeWarning);renderDdaySummary();box.title=backendLoading?'초과근무 정보를 불러오는 중입니다.':(backendBad?'초과근무 서버 설정을 확인해 주세요.':(overtimeWarning|| (x.capacity.minutes==null&&x.capacity.note?`가능시간: ${x.capacity.note} · 월 초과근무 목록 열기`:'월 초과근무 목록 열기'))); }
