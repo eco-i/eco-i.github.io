@@ -63,3 +63,14 @@
 - 가짜 직원으로 실제 브라우저 로그인→10분 조출 등록→**완료 체크 선택**→저장→실제 disposable PostgreSQL의 `completed=true` 및 UI 완료 10분/계획 0분 확인→**삭제 버튼**→저장→PostgreSQL 원본 행 0개 및 UI 완료 0분 확인. 두 의도된 mutation만 발생하고 중복 0, 페이지 예외 0, 실운영 Supabase 호출 0.
 - 이번 PASS는 **상세화면 완료 체크와 삭제 기능**에 한정된다. **월 목록의 완료 체크박스 토글**, 원본 운영 RPC/RLS/직원계정/다중 단말 등은 이번 합성 fixture의 직접 검증 범위가 아니다.
 - 운영 `main`·원본 `qa-3-8` 그대로 보호, 공식 3-8-53/54 미시작 및 로컬 18-13 미시작은 유지. 전체 CLEAN·운영 배포 승인은 아님.
+
+
+## 2026-11-07 월별 초과근무 목록 완료 체크·해제 및 다른 창 변경 충돌 검증
+
+- [GitHub Actions Run 42322002992](https://github.com/eco-i/eco-i.github.io/actions/runs/42322002992): **completed/success**. 기존 초과근무 저장·수정/CAS 및 상세화면 완료·삭제 회귀검사 **재통과**, 추가 **월별 목록 체크박스 실브라우저/격리 PostgreSQL 17/17 PASS**.
+- 최종 증빙 문구: `OVERTIME_MONTH_LIST_COMPLETION_REAL_CHROMIUM_SYNTHETIC_PG_SCOPED_PASS`. Synthetic RPC는 이번 테스트에 한정해 구현한 `save_my_overtime_entry_v2` **가짜 대체 핸들러**로, 운영 SQL 함수가 아님.
+- 흐름: 가짜 직원 로그인 → 10분짜리 미완료 행이 표시된 월별 목록 → 체크하여 실제 synthetic entry RPC HTTP 200과 격리 PG `completed=true` 확인 → 계획 0/완료 10 UI 확인 → 체크 해제 후 `completed=false` 및 계획 10/완료 0 확인.
+- 오래된 행 보호: QA-only 동시 작성자로 PG 10→50분 변경 → 이전 목록의 체크박스 클릭 → 저장 RPC **전** stale 데이터 감지 및 요청 중단 → 최신 50분/미완료 상태 보존·목록 재동기화. 의도하지 않은 추가 쓰기 0, JavaScript 예외 0, 외부 Supabase 요청 0.
+- 전체 통합변경 `index.html` 원문 SHA `102d79f8d8efbdf342babae9fdd185648f6cab93` 유지. `main` SHA `96aaa7052f7074d6324607f0bac28f7869f348c1`, 기존 `qa-3-8` SHA `4aaf055302e5ff967f912353bdba8f24f201cf0f` 그대로 확인.
+- **현재 회사 PC에서 추가로 생성할 필요가 있는 독립 테스트는 없음.** 향후 본격 기능 동등성 확인은 독립 로컬 QA의 원본 Supabase 함수/테이블/권한 재현 완료 뒤 수행: 원본 함수와 2026-11-09 규정 해석, 휴근 조정시 합산 화면 동기화, 월 전환/관리자 보기, DB 권한·세션·중복 저장·실제 RPC 결과 계약 등을 기존 공식 3차 3-8-54 게이트에서 검증. 실 직원정보 복제·운영 SQL 실행 금지.
+- **공식 3차 3-8-53 완료 / 3-8-54 미시작 / 37결함·NOT CLEAN / 독립 18-13 미시작 / 운영 배포 미실시** 유지.
