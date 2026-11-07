@@ -1,0 +1,94 @@
+name: Workmoa QA overtime Save edit CAS isolated Chromium Postgres
+on:
+  push:
+    branches:
+      - qa-round3-overtime-integration-20261107
+    paths:
+      - 'index.html'
+      - 'qa-round3/e2e/ci/browser-overtime-save-integration.py'
+      - '.github/workflows/workmoa-qa-overtime-save-integration.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: workmoa-qa-overtime-save-integration
+  cancel-in-progress: true
+jobs:
+  isolated-overtime-save-edit:
+    if: github.repository == 'eco-i/eco-i.github.io' && github.ref == 'refs/heads/qa-round3-overtime-integration-20261107'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: qa_runner
+          POSTGRES_PASSWORD: synthetic_ci_only_not_a_real_secret
+          POSTGRES_DB: qa_round3
+        ports:
+          - '127.0.0.1:5432:5432'
+        options: >-
+          --health-cmd "pg_isready -U qa_runner -d qa_round3"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: '127.0.0.1'
+      PGPORT: '5432'
+      PGDATABASE: qa_round3
+      PGUSER: qa_runner
+      PGPASSWORD: synthetic_ci_only_not_a_real_secret
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Guard synthetic-only environment and install minimal runner deps
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = 'eco-i/eco-i.github.io'
+          test "$GITHUB_REF" = 'refs/heads/qa-round3-overtime-integration-20261107'
+          test "$(git branch --show-current)" = 'qa-round3-overtime-integration-20261107'
+          test -z "${DATABASE_URL:-}"
+          test -z "${SUPABASE_URL:-}"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          test -z "${QA_SUPABASE_URL:-}"
+          test -z "${QA_SUPABASE_ANON_KEY:-}"
+          test -z "${DOCKER_HOST:-}"
+          test -z "${DOCKER_CONTEXT:-}"
+          CHROME_BIN="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium || true)"
+          test -n "$CHROME_BIN" && test -x "$CHROME_BIN"
+          echo "QA_CHROMIUM_EXECUTABLE=$CHROME_BIN" >> "$GITHUB_ENV"
+          timeout 150s python3 -m pip install --disable-pip-version-check --timeout 30 --retries 2 'playwright==1.56.0' 'psycopg[binary]==3.2.10'
+          python3 -m py_compile qa-round3/e2e/ci/browser-overtime-save-integration.py
+          python3 -m py_compile qa-round3/e2e/ci/browser-fingerprint-overtime-success.py
+      - name: Seed ephemeral synthetic PostgreSQL using service container psql
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t QA_PG_CONTAINERS < <(docker ps --format '{{.ID}}|{{.Image}}' | awk -F '|' '$2=="postgres:16-alpine"{print $1}')
+          test "${#QA_PG_CONTAINERS[@]}" -eq 1
+          for f in qa-round3/e2e/ci/synthetic-baseline.sql qa-round3/e2e/ci/attendance-form-fixture.sql qa-round3/e2e/ci/fingerprint-overtime-browser-fixture.sql; do
+            docker exec -i "${QA_PG_CONTAINERS[0]}" psql -X -v ON_ERROR_STOP=1 -U qa_runner -d qa_round3 < "$f"
+          done
+      - name: Original QA Save edit CAS scenario against integrated 2026 overtime HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -u qa-round3/e2e/ci/browser-overtime-save-integration.py
+      - name: Publish truthful test boundary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo 'Runs existing QA overtime-only real Chromium Save/edit/stale CAS using one disposable fake worker and isolated PostgreSQL.'
+            echo 'RPC HTTP bridge, login and SQL are QA synthetic; not an original Supabase backend/production permission test.'
+            echo 'No main or qa-3-8 modification; no production employee data; release still requires full regression and separate approval.'
+          } >> "$GITHUB_STEP_SUMMARY"
