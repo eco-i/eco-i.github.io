@@ -41,6 +41,8 @@ def guard():
         "DOCKER_HOST", "DOCKER_CONTEXT",
     ):
         assert not os.getenv(k), "FAIL_CLOSED_REMOTE_CONFIG_" + k
+    chrome = os.getenv("QA_CHROMIUM_EXECUTABLE", "")
+    assert chrome and os.path.isabs(chrome) and os.path.isfile(chrome), "FAIL_CLOSED_LOCAL_CHROME_EXECUTABLE"
 
 
 def check(condition, label):
@@ -65,7 +67,7 @@ def main():
     try:
         br.wait_for_web()
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
+            browser = p.chromium.launch(headless=True, executable_path=os.environ["QA_CHROMIUM_EXECUTABLE"], args=["--no-sandbox"])
             try:
                 context = browser.new_context(locale="ko-KR", service_workers="block")
                 page = context.new_page()
