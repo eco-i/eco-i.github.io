@@ -33,3 +33,14 @@
 - 운영 DB SQL/RPC 변경과 실 직원/근태/지문 사진 복사·열람 **0건**.
 
 2026-11-07 — 회사 PC 작업 가능 범위에서 GitHub 소스만 사용, 다음 독립 QA 단계는 보존.
+
+
+## 2026-11-07 실제 Chromium 브라우저 검증 — 별도 추가 범위
+
+- 최초 실행 [GitHub Actions Run 42317478833](https://github.com/eco-i/eco-i.github.io/actions/runs/42317478833): **infrastructure FAIL**. GitHub runner에서 `playwright install --with-deps chromium` 중 시스템 글꼴 APT 다운로드 지연으로 `timeout` 종료 코드 124. 그 단계는 **브라우저 검사 전 실패**, 제품 오류로 분류하지 않음.
+- 검수 전용 CI 스크립트만 보완: runner에 기존 설치된 Chrome 사용, 외부 APT 추가 설치 생략, disposable GitHub PostgreSQL 서비스 컨테이너의 `psql`로 가짜 DB 준비. 운영 Supabase/직원정보 연결 금지 및 GitHub 특정 QA 브랜치 한정 검사는 유지.
+- 재실행 [GitHub Actions Run 42318118164](https://github.com/eco-i/eco-i.github.io/actions/runs/42318118164): **completed/success**. Job `128235715216`, 원본 전체 QA HTML Chromium 로그인(가상 직원만) 및 JS DOM 표시 실증 **16/16 PASS**, 10개 합성 화면 시나리오.
+- 증빙: `OVERTIME_2026_REVISED_ALLOWANCE_REAL_CHROMIUM_SCOPED_PASS` 최종 로그 직접 확인. 휴근 0~4회 15/23/31/39/47h, 휴근 4h+시간외 18h 독립 15h 경고, 휴근 8h+시간외 16h 이중 경고, 휴근 5회 한도 미정, 휴근 비대상, 휴근 백엔드 준비 전 미정, 기존 10분 입력 버튼, 페이지 예외 0, 외부 Supabase 요청 차단 확인.
+- 정직한 범위: **실제 Chromium에서 원본 앱의 DOM/계산 렌더링**은 PASS했지만 휴근/초과근무 데이터는 브라우저 테스트에 주입한 합성 상태. 사용자 조작으로 저장·수정·삭제→원본 Workmoa RPC→운영 동등 DB를 검증한 것은 아님. PostgreSQL은 완전히 별도인 가상 fixture 기초 환경에서만 시동·시드했고 제품 함수의 운영 동등성을 증명하지 않음.
+- 이 통합브랜치 검증은 공식 3차 `3-8-54` 착수/완료나 전체 CLEAN 또는 운영 배포 승인이 아니다. 다음 독립 로컬 QA `18-13`도 별도 유지.
+- **운영 `main`과 기존 `qa-3-8` 브랜치에는 commit·병합·배포 0**, 운영 Supabase SQL/RPC/직원 데이터 접근·변경 0.
