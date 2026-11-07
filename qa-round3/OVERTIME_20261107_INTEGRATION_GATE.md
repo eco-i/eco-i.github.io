@@ -54,3 +54,12 @@
 - 새 규정 수정사항 자체는 월 합산 계산/표시 및 경고에 한정하며, 저장 RPC/기초 테이블/원본 보안 경로는 변경하지 않음.
 - 범위 제한: 로그인·HTTP RPC·SQL은 전부 **합성 QA fixture**이며 운영 Supabase Auth/RLS/실제 RPC 원문/직원 데이터 검수 아님. 아직 완료 체크/삭제/실 직원 다중 기기 검수의 PASS를 이 결과로 간주하지 않음.
 - **운영 배포 금지 유지**. 공식 3-8-53 완료 / 3-8-54 미시작, 로컬 18-13 미시작, 원본 main·qa-3-8 불변.
+
+
+## 2026-11-07 초과근무 완료 체크/삭제 실브라우저 + 가짜 DB PASS
+
+- [GitHub Actions Run 42321433184](https://github.com/eco-i/eco-i.github.io/actions/runs/42321433184), Job `128246666902`: **completed/success**. 기존 저장/수정/CAS 원본 QA 검증 + 추가 완료 체크/삭제 독립 UI 검증을 같은 격리 CI에서 실행, 두 테스트 모두 success.
+- 완료 체크/삭제 단계 실제 로그 **`PASS OVERTIME_COMPLETE_DELETE:` 14/14**, 최종 `OVERTIME_INTEGRATION_COMPLETE_DELETE_SYNTHETIC_PG_SCOPED_PASS`.
+- 가짜 직원으로 실제 브라우저 로그인→10분 조출 등록→**완료 체크 선택**→저장→실제 disposable PostgreSQL의 `completed=true` 및 UI 완료 10분/계획 0분 확인→**삭제 버튼**→저장→PostgreSQL 원본 행 0개 및 UI 완료 0분 확인. 두 의도된 mutation만 발생하고 중복 0, 페이지 예외 0, 실운영 Supabase 호출 0.
+- 이번 PASS는 **상세화면 완료 체크와 삭제 기능**에 한정된다. **월 목록의 완료 체크박스 토글**, 원본 운영 RPC/RLS/직원계정/다중 단말 등은 이번 합성 fixture의 직접 검증 범위가 아니다.
+- 운영 `main`·원본 `qa-3-8` 그대로 보호, 공식 3-8-53/54 미시작 및 로컬 18-13 미시작은 유지. 전체 CLEAN·운영 배포 승인은 아님.
