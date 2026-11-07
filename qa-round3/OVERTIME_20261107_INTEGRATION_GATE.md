@@ -44,3 +44,13 @@
 - 정직한 범위: **실제 Chromium에서 원본 앱의 DOM/계산 렌더링**은 PASS했지만 휴근/초과근무 데이터는 브라우저 테스트에 주입한 합성 상태. 사용자 조작으로 저장·수정·삭제→원본 Workmoa RPC→운영 동등 DB를 검증한 것은 아님. PostgreSQL은 완전히 별도인 가상 fixture 기초 환경에서만 시동·시드했고 제품 함수의 운영 동등성을 증명하지 않음.
 - 이 통합브랜치 검증은 공식 3차 `3-8-54` 착수/완료나 전체 CLEAN 또는 운영 배포 승인이 아니다. 다음 독립 로컬 QA `18-13`도 별도 유지.
 - **운영 `main`과 기존 `qa-3-8` 브랜치에는 commit·병합·배포 0**, 운영 Supabase SQL/RPC/직원 데이터 접근·변경 0.
+
+
+## 2026-11-07 실제 저장·수정·CAS 독립 PostgreSQL 검증 (합성 계정)
+
+- [GitHub Actions Run 42321251168](https://github.com/eco-i/eco-i.github.io/actions/runs/42321251168): **completed/success** / job `128246070698`, 원본 `qa-3-8`의 기존 browser fixture를 변경 없이 통합 QA 브랜치의 전체 앱에 재사용.
+- 실 로그를 직접 확인한 `PASS real-browser-photo-overtime` **38/38**, 최종 `OVERTIME_INTEGRATION_REAL_CHROMIUM_SYNTHETIC_PG_SAVE_EDIT_CAS_PASS`.
+- 가짜 직원의 10→20→30분 **브라우저 입력/저장 → 루프백 HTTP bridge → 격리 PostgreSQL 실 커밋/조회**; 중복 쓰기 0, 전환 중 인사/초과근무 정보 준비 미완료 때 저장 중단 및 초안 보존, 타 창 데이터 50분 변경 시 오래된 40분 초안 저장 거절 및 최신 서버 행 보존.
+- 새 규정 수정사항 자체는 월 합산 계산/표시 및 경고에 한정하며, 저장 RPC/기초 테이블/원본 보안 경로는 변경하지 않음.
+- 범위 제한: 로그인·HTTP RPC·SQL은 전부 **합성 QA fixture**이며 운영 Supabase Auth/RLS/실제 RPC 원문/직원 데이터 검수 아님. 아직 완료 체크/삭제/실 직원 다중 기기 검수의 PASS를 이 결과로 간주하지 않음.
+- **운영 배포 금지 유지**. 공식 3-8-53 완료 / 3-8-54 미시작, 로컬 18-13 미시작, 원본 main·qa-3-8 불변.
