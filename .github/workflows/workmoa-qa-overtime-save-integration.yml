@@ -6,6 +6,7 @@ on:
     paths:
       - 'index.html'
       - 'qa-round3/e2e/ci/browser-overtime-save-integration.py'
+      - 'qa-round3/e2e/ci/browser-overtime-complete-delete-integration.py'
       - '.github/workflows/workmoa-qa-overtime-save-integration.yml'
   workflow_dispatch:
 permissions:
@@ -68,6 +69,7 @@ jobs:
           echo "QA_CHROMIUM_EXECUTABLE=$CHROME_BIN" >> "$GITHUB_ENV"
           timeout 150s python3 -m pip install --disable-pip-version-check --timeout 30 --retries 2 'playwright==1.56.0' 'psycopg[binary]==3.2.10'
           python3 -m py_compile qa-round3/e2e/ci/browser-overtime-save-integration.py
+          python3 -m py_compile qa-round3/e2e/ci/browser-overtime-complete-delete-integration.py
           python3 -m py_compile qa-round3/e2e/ci/browser-fingerprint-overtime-success.py
       - name: Seed ephemeral synthetic PostgreSQL using service container psql
         shell: bash
@@ -83,6 +85,11 @@ jobs:
         run: |
           set -euo pipefail
           python3 -u qa-round3/e2e/ci/browser-overtime-save-integration.py
+      - name: Actual detail completion checkbox and delete to zero, real Chromium and ephemeral PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -u qa-round3/e2e/ci/browser-overtime-complete-delete-integration.py
       - name: Publish truthful test boundary
         if: always()
         shell: bash
